@@ -1,0 +1,8 @@
+// fichier principal
+@use './bootstrap'; // ← avant tout le reste
+
+
+@use './base';
+@use './layout';
+@use './components';
+@use './pages';

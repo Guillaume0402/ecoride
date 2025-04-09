@@ -1,0 +1,12 @@
+// buttons, cards, etc.
+@use "../abstracts" as *;
+
+.btn-ecoride {
+    background: $btn-gradient;
+    color: white;
+    border: none;
+    &:hover {
+        background: darken($color-primary, 10%);
+        color: $color-white;
+    }
+}
