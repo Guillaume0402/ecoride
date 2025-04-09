@@ -1,0 +1,10 @@
+# Ne pas versionner les dépendances Node.js
+node_modules/
+
+# Éviter les fichiers générés
+public/css/*.css
+public/css/*.map
+
+# Éviter les fichiers système
+.DS_Store
+*.log
