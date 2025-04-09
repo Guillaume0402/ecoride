@@ -1,0 +1,5 @@
+# Ajoute à la racine :
+*.js text eol=lf
+*.scss text eol=lf
+*.css text eol=lf
+*.html text eol=lf
