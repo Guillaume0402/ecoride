@@ -2,8 +2,8 @@
 node_modules/
 
 # Sass compiled CSS & maps
-public/css/*.css
-public/css/*.map
+/public/assets/css/*.css
+/public/assets/css/*.map
 
 # Logs
 *.log
