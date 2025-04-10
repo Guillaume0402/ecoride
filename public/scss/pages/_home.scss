@@ -1,7 +1,19 @@
 // specific pages
 
-@use '../abstracts' as *;
+@use "../abstracts" as *;
 
-body {
-    background: $bg-gradient;
+.title_home {
+    h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
+    p {
+        font-size: 1.25rem;
+        font-weight: 500;
+        line-height: 1.6;
+
+        margin-bottom: 2rem;
+    }
 }

@@ -1,10 +1,31 @@
-# Ne pas versionner les dépendances Node.js
+# Node modules
 node_modules/
 
-# Éviter les fichiers générés
+# Sass compiled CSS & maps
 public/css/*.css
 public/css/*.map
 
-# Éviter les fichiers système
-.DS_Store
+# Logs
 *.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Env / config sensible (si utilisé plus tard)
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# PHP
+vendor/
+*.lock
+
+# Backup files
+*.bak
+*.swp
+*.tmp
