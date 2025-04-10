@@ -8,10 +8,53 @@ body {
     font-family: $font-secondary;
     line-height: 1.6;
     color: $color-white;
-    background: $bg-gradient; 
+
+    position: relative;
+    overflow-x: hidden;
+
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+}
+
+// Appliquer le fond dégradé + highlight via un ::before
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    z-index: -1; // important → derrière le contenu
+
+    background: linear-gradient(
+        135deg,
+        #137a03 0%,
+        #128208 31%,
+        #3abb34 58%,
+        #129717 70%
+    );
+}
+
+// Appliquer l'effet lumineux blanc transparent
+body::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    z-index: -1; // juste au-dessus du bg mais toujours derrière le contenu
+
+    background: linear-gradient(
+        135deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.15) 50%,
+        transparent 70%
+    );
+    pointer-events: none;
 }
 
 .page-container {

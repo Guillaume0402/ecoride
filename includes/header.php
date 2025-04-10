@@ -14,6 +14,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm fixed-height-80">
         <div class="container-fluid">
             <a class="navbar-brand" href="#"><img class="logo ms-5" src="assets/images/logo.svg" alt=""></a>
+            <a class="navbar-brand" href="#">Ecoride</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
                 aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
