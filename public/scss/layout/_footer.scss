@@ -8,7 +8,7 @@ footer {
 }
 
 .fixed-height-80 {
-    height: 80px;
+    min-height: 80px;
     // Pour s'assurer que le contenu est centré verticalement
     display: flex;
     align-items: center;
