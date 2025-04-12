@@ -1,4 +1,7 @@
-<main class="container-fluid eco-main py-5 text-white">
+<?php include __DIR__ . '/../../includes/header.php'; ?>
+
+
+<div class="container-fluid eco-main py-5 text-white">
     <div class="container-fluid">
 
         <!-- H1 PRINCIPAL + SOUS-TITRE + BOUTONS -->
@@ -69,4 +72,7 @@
         </div>
 
     </div>
-</main>
+</div>
+
+
+<?php include __DIR__ . '/../../includes/footer.php'; ?>

@@ -1,3 +1,5 @@
+<?php include __DIR__ . '/../../includes/header.php'; ?>
+
 <div class="text-center mt-5">
     <h1>Liste des covoiturages</h1>
 </div>
@@ -51,3 +53,5 @@
         </div>
     </div>
 </section>
+
+<?php include __DIR__ . '/../../includes/footer.php'; ?>

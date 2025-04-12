@@ -1,3 +1,5 @@
+<?php include __DIR__ . '/../../includes/header.php'; ?>
+
 <section class="login">
     <h1>Connexion</h1>
     <form>
@@ -8,3 +10,6 @@
         <button type="submit">Se connecter</button>
     </form>
 </section>
+
+
+<?php include __DIR__ . '/../../includes/footer.php'; ?>

@@ -1,0 +1,10 @@
+{
+    "name": "ton-nom/eco-ride",
+    "description": "Projet PHP vanilla pour EcoRide",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "require": {}
+}
