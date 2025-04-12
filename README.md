@@ -1,3 +1,4 @@
+
 # 🌱 EcoRide – Plateforme de covoiturage écologique
 
 **EcoRide** est une application web fullstack développée en PHP Vanilla, HTML5, CSS3, Bootstrap et SASS.  
@@ -7,80 +8,12 @@ Elle a été conçue pour promouvoir le covoiturage responsable à travers une i
 
 ## 🔧 Stack technique utilisée
 
-| Front-end        | Back-end         | Bases de données     | Outils & Services        |
-|------------------|------------------|-----------------------|--------------------------|
-| HTML5 / CSS3     | PHP (Vanilla)    | MySQL (relationnelle) | Git + GitHub             |
-| Bootstrap 5      | PDO / SQL        | MongoDB (NoSQL)       | Trello (Kanban)          |
-| SASS             | Sessions, sécurité |                     | Figma (maquettes)        |
-| JavaScript       | Routing PHP simple |                     | Fly.io / Vercel (prod)   |
-
----
-
-## 🚀 Déploiement du projet
-
-- 🔗 **Site en ligne** : [https://ecoride.fly.dev](https://...)
-- 📁 **Dépôt GitHub public** : [https://github.com/ton-user/ecoride](https://...)
-- 📌 **Kanban Notion / Trello** : [https://notion.so/ecoride-kanban](https://...)
-- 🖼️ **Maquettes Figma** : [https://www.figma.com/file/FO8Ms3N8CaLOpCgiJTD5VS/EcoRide-Maquettes](https://...)
-
----
-
-## 📦 Installation en local
-
-### 1. Cloner le projet
-
-```bash
-git clone https://github.com/ton-user/ecoride.git
-cd ecoride
-```
-
-### 2. Démarrer Apache + MySQL (WAMP/XAMPP)
-
-### 3. Créer la base de données
-
-- Nom : `ecoride`
-- Importer : `database/ecoride.sql`
-
-### 4. Configurer la connexion à la BDD
-
-```php
-// fichier config/db.php
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'ecoride');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-```
-
-### 5. Compiler le SCSS
-
-```bash
-npm install
-npm run sass:watch
-```
-
-### 6. Lancer le projet
-
-[http://localhost/EcoRide/public/index.php](http://localhost/EcoRide/public/index.php)
-
----
-
-## 📁 Arborescence du projet
-
-```
-EcoRide/
-├── public/             # HTML, CSS, JS
-│   ├── css/
-│   ├── js/
-│   ├── images/
-│   └── index.php
-├── scss/               # SASS (abstracts, layout, pages…)
-├── includes/           # Composants PHP réutilisables
-├── config/             # Connexion BDD
-├── database/           # Fichiers SQL / Mongo
-├── README.md
-├── .gitignore
-└── package.json
-```
+| Front-end        | Back-end             | Bases de données       | Outils & Services         |
+|------------------|----------------------|-------------------------|---------------------------|
+| HTML5 / CSS3     | PHP (Vanilla)        | MySQL (relationnelle)   | Git + GitHub              |
+| Bootstrap 5      | PDO / SQL            | MongoDB (NoSQL)         | Trello / Notion (Kanban)  |
+| SASS             | Sessions, sécurité   |                         | Figma (maquettes)         |
+| JavaScript       | Routing PHP custom   |                         | Fly.io / Vercel (prod)    |
 
 ---
 
@@ -96,35 +29,137 @@ EcoRide/
 
 ---
 
+## 📦 Installation en local avec VirtualHost (WAMP recommandé)
+
+### 1. Cloner le projet
+
+```bash
+git clone https://github.com/ton-user/ecoride.git
+cd ecoride
+```
+
+### 2. Créer un VirtualHost Apache
+
+Modifier `httpd-vhosts.conf` :
+
+```apache
+<VirtualHost *:80>
+    ServerName ecoride.local
+    DocumentRoot "C:/wamp64/www/ecoride/public"
+    <Directory "C:/wamp64/www/ecoride/public">
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+```
+
+### 3. Modifier le fichier `hosts` (en admin)
+
+```text
+127.0.0.1    ecoride.local
+```
+
+### 4. Redémarrer Apache
+
+---
+
+### 5. Créer la base de données
+
+- Nom : `ecoride`
+- Importer le fichier : `database/ecoride.sql`
+
+### 6. Configurer la BDD dans `config/db.php`
+
+```php
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'ecoride');
+define('DB_USER', 'root');
+define('DB_PASS', '');
+```
+
+---
+
+## 🎨 Compilation SCSS
+
+### 1. Installer les dépendances
+
+```bash
+npm install
+```
+
+### 2. Scripts disponibles
+
+| Commande              | Description                              |
+|-----------------------|------------------------------------------|
+| `npm run sass:watch`  | Compilation automatique en développement |
+| `npm run sass:build`  | Compilation minifiée pour production     |
+| `npm run dev`         | Démarre tous les watchers (ex. Sass)     |
+
+> Le fichier compilé est généré dans :  
+> `public/assets/css/style.css`
+
+---
+
+## 📁 Arborescence du projet
+
+```
+EcoRide/
+├── public/                # Dossier public (DocumentRoot)
+│   ├── assets/            # Images, icônes, CSS final
+│   ├── scss/              # SASS structuré (abstracts, layout, pages…)
+│   ├── .htaccess          # Rewrite URL
+│   └── index.php          # Point d’entrée
+├── src/
+│   ├── controller/        # Contrôleurs PHP
+│   ├── view/              # Vues HTML
+│   ├── Router.php         # Routeur maison
+│   └── helpers.php        # Fonctions utilitaires : url(), asset(), view()
+├── includes/              # header.php / footer.php partagés
+├── config/                # Connexion à la base de données
+├── database/              # Scripts SQL (MySQL, MongoDB)
+├── README.md
+└── package.json
+```
+
+---
+
 ## 🖼️ Maquettes et charte graphique
 
-- 🎨 Couleur principale : #00A86B (vert)
+- 🎨 Couleur principale : `#00A86B` (vert)
 - 🖥️ 3 maquettes desktop
 - 📱 3 maquettes mobile
 - 🔗 [Voir sur Figma](https://www.figma.com/file/FO8Ms3N8CaLOpCgiJTD5VS/EcoRide-Maquettes)
 
 ---
 
-## 👨‍💻 Gestion de projet (Git + Kanban)
+## 👨‍💻 Git & Organisation du projet
 
-- Branches Git :
-  - `main` : production
-  - `develop` : développement global
-  - `feature/*` : fonctionnalités isolées
+- **Branches Git** :
+  - `main` : version stable en production
+  - `develop` : développement principal
+  - `feature/*` : une fonctionnalité par branche
 
-- Kanban :
-  - À faire / En cours / En test / Terminé / Mergé
+- **Kanban projet** :
+  - To Do → En cours → En test → Terminé → Mergé
+
+---
+
+## 📌 Liens utiles
+
+- 🔗 Démo en ligne : [https://ecoride.fly.dev](https://...)
+- 📁 GitHub : [https://github.com/ton-user/ecoride](https://...)
+- 🗂️ Kanban Notion : [https://notion.so/ecoride-kanban](https://...)
 
 ---
 
 ## 🧾 Licence
 
-Projet réalisé pour l’**ECF TP DWWM – Studi**.  
+Projet réalisé dans le cadre de l’**ECF TP DWWM – Studi**.  
 Usage pédagogique uniquement. Tous droits réservés © 2025.
 
 ---
 
 ## 🤝 Remerciements
 
-Merci à Studi, à la communauté open source (PHP, Bootstrap, Sass, etc.)  
-et à mes formateurs pour leur accompagnement.
+Merci à Studi, à la communauté open source (PHP, Bootstrap, SASS, etc.),  
+et à mes formateurs pour leur accompagnement tout au long du projet.

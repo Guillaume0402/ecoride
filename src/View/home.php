@@ -16,9 +16,9 @@
 
         <!-- Collage d’images desktop uniquement -->
         <div class="image-collage d-none d-lg-flex position-relative justify-content-center mb-5">
-            <img src="<?= url('assets/images/img1.png') ?>" class="img1 position-absolute rounded shadow" alt="img1">
-            <img src="<?= url('assets/images/img2.png') ?>" class="img2 position-absolute rounded shadow" alt="img2">
-            <img src="<?= url('assets/images/img3.png') ?>" class="img3 position-absolute rounded shadow" alt="img3">
+            <img src="<?= asset('images/img1.png') ?>" class="img1 position-absolute rounded shadow" alt="img1">
+            <img src="<?= asset('images/img2.png') ?>" class="img2 position-absolute rounded shadow" alt="img2">
+            <img src="<?= asset('images/img3.png') ?>" class="img3 position-absolute rounded shadow" alt="img3">
         </div>
 
         <!-- Grille responsive texte + formulaire -->

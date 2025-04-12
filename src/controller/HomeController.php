@@ -1,10 +1,10 @@
 <?php
 namespace App\controller;
 
-class HomeController {
-    public function index() {
-        // Simplement inclure la vue "home.php"
-        // qui se trouve dans: EcoRide/src/view/home.php
-        require_once __DIR__ . '/../view/home.php';
+class HomeController
+{
+    public function index(): void
+    {
+        view('home'); // Appelle view/home.php automatiquement
     }
 }

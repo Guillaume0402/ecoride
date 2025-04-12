@@ -1,10 +1,11 @@
 <?php
 namespace App\controller;
 
-class CovoituragesController {
-    public function index() {
-        // Simplement inclure la vue "home.php"
-        // qui se trouve dans: EcoRide/src/view/home.php
-        require_once __DIR__ . '/../view/covoiturages.php';
+class CovoituragesController
+{
+    public function index(): void
+    {
+        $trajets = []; // Ex : récupérés depuis une BDD plus tard
+        view('covoiturages', compact('trajets'));
     }
 }
