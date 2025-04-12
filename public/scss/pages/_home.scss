@@ -2,26 +2,7 @@
 @use "../abstracts" as *;
 
 // TITRES
-h1 {
-    font-size: clamp(1.25rem, 5vw, 3.5rem) !important;
-    font-weight: 700;
-    line-height: 1.2;
-    margin-bottom: 1rem;
-}
 
-h2 {
-    font-size: clamp(1.25rem, 3.125vw, 3.5rem);
-    font-weight: 600;
-    line-height: 1.2;
-    margin-bottom: 1rem;
-}
-
-p {
-    font-size: clamp(0.8rem, 2vw, 1.25rem);
-    font-weight: 500;
-    line-height: 1.6;
-    margin-bottom: 2rem;
-}
 
 // BACKGROUND
 .eco-main {
@@ -68,33 +49,9 @@ p {
     z-index: 3;
 }
 
-// FORMULAIRE
-.form-box {
-    background-color: transparent;
-    border-radius: 0.5rem;
-    padding: 2rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    max-width: 450px;
-    width: 100%;
-    margin: 0 auto;
-}
 
-// BOUTONS
-.btn-inscription {
-    background: $btn-gradient;
-    border: 1px solid $color-secondary !important;
-    color: white;
-    border: none;
-    transition: all 0.3s ease;
-}
 
-.btn-custom-outline {
-    background: $color-primary;
-    border: 1px solid $color-secondary !important;
-    color: white;
-    border: none;
-    transition: all 0.3s ease;
-}
+
 
 // IMAGES POUR MOBILE UNIQUEMENT
 .image-mobile {

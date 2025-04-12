@@ -1,20 +1,24 @@
 @use "../abstracts" as *;
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    font-family: $font-primary;
+h1 {
+    font-size: clamp(1.25rem, 5vw, 3.5rem) !important;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+h2 {
+    font-size: clamp(1.25rem, 3.125vw, 3.5rem);
     font-weight: 600;
     line-height: 1.2;
+    margin-bottom: 1rem;
 }
 
 p {
-    font-family: $font-secondary;
-    font-weight: 400;
+    font-size: clamp(0.8rem, 2vw, 1.25rem);
+    font-weight: 500;
     line-height: 1.6;
+    margin-bottom: 2rem;
 }
 
 a {

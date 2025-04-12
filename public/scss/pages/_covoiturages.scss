@@ -1,0 +1,45 @@
+.filter-wrapper {
+    position: relative;
+    overflow: hidden;
+    padding: 3rem 0;
+
+    .filter-bg {
+        position: absolute;
+        inset: 0;
+        background: 
+        linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.05)),
+        $bg-gradient;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .filter-bar {
+        position: relative;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        min-height: 80px;
+        transition: backdrop-filter 0.3s ease-in-out;
+
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.05);
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.15);
+            }
+        }
+
+        .dropdown-menu {
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+    }
+}
