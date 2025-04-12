@@ -1,7 +1,15 @@
+@use "abstracts" as *;
+
+$enable-gradients: true;
+
+
 // 🟢 1. Tes variables personnalisées
 $primary: #215732;
 $secondary: #00FF50;
 $white: #F8F9F3;
+$btn-warning: $btn-gradient;
+
+
 
 // 🟡 2. Import de Bootstrap
 @import "../../node_modules/bootstrap/scss/bootstrap";

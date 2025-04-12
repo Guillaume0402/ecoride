@@ -2,7 +2,8 @@
 @use './bootstrap'; // ← avant tout le reste
 
 
+
 @use './base';
-@use './layout';
+@use './layout';       // <- va chercher layout.scss
 @use './components';
 @use './pages';

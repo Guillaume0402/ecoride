@@ -1,7 +1,93 @@
 // specific pages
+@use "../abstracts" as *;
 
-@use '../abstracts' as *;
+// TITRES
 
-body {
-    background: $bg-gradient;
+
+// BACKGROUND
+.eco-main {
+    background: linear-gradient(to right, #0c8b1d, #3fd743);
 }
+
+// IMAGE COLLAGE (desktop only)
+.image-collage {
+    position: relative;
+    height: 280px;
+
+    img {
+        position: absolute;
+        border-radius: 8px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease;
+    }
+}
+
+.img1 {
+    top: 140px;
+    left: 50%;
+    transform: translateX(-160%);
+    width: 284px;
+    height: 284px;
+    z-index: 3;
+}
+
+.img2 {
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 447px;
+    height: 353px;
+    z-index: 2;
+}
+
+.img3 {
+    top: 60px;
+    left: 50%;
+    transform: translateX(60%);
+    width: 284px;
+    height: 188px;
+    z-index: 3;
+}
+
+
+
+
+
+// IMAGES POUR MOBILE UNIQUEMENT
+.image-mobile {
+    img {
+        width: 90%;
+        max-width: 400px;
+        height: auto;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        margin: auto;
+    }
+}
+
+// SPACING desktop
+.row.align-items-center {
+    margin-top: 200px;
+}
+
+// RESPONSIVE MOBILE
+@media (max-width: 991.98px) {
+    // Cacher le collage d’images desktop
+    .image-collage {
+        display: none !important;
+        visibility: hidden;
+        height: 0;
+        overflow: hidden;
+    }
+
+    .form-box {
+        margin-top: 1rem;
+    }
+
+    .row.align-items-center {
+        margin-top: 10px;
+    }
+
+}
+
+

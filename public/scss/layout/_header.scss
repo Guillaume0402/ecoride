@@ -1,1 +1,29 @@
 // grid, header, footer
+@use "../abstracts" as *;
+
+.logo {
+    width: 60px;
+    height: 60px;
+}
+
+.logo-title{
+    font-size: 1.5rem;
+    font-weight: 700;    
+}
+
+
+.navbar-nav {
+    margin-left: auto;
+}
+
+nav.sticky-top {
+    z-index: 1030;
+}
+
+.fixed-height-80 {
+    height: 80px;
+
+    // Pour s'assurer que le contenu est centré verticalement
+    display: flex;
+    align-items: center;
+}

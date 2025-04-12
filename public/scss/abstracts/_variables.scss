@@ -5,15 +5,20 @@ $color-secondary: #00ff50;
 $color-white: #f8f9f3;
 
 $bg-gradient: linear-gradient(
-    to right,
-    #137a03 0%,
-    #128208 31%,
-    #3abb34 58%,
-    #129717 70%
+  135deg,
+  #137a03 0%,
+  #128208 31%,
+  #3abb34 58%,
+  #129717 70%
 );
+
+
 
 $btn-gradient: linear-gradient(to right, #ff4a02 100%, #ffa202 100%);
 
 .bg-body-color-primary {
     background-color: $color-primary !important;
 }
+
+$font-primary: "Poppins", sans-serif;
+$font-secondary: "Inter", serif;

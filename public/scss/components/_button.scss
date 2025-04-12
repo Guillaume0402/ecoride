@@ -10,3 +10,19 @@
         color: $color-white;
     }
 }
+
+.btn-inscription {
+    background: $btn-gradient;
+    border: 1px solid $color-secondary !important;
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-custom-outline {
+    background: $color-primary;
+    border: 1px solid $color-secondary !important;
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+}

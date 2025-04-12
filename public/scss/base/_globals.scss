@@ -1,0 +1,26 @@
+@use "../abstracts" as *;
+
+html,
+body {
+    height: 100%;
+    scroll-behavior: smooth;
+    font-size: 16px;
+    font-family: $font-secondary;
+    line-height: 1.6;
+    color: $color-white;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+body {
+    background: $bg-gradient;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.page-container {
+    main {
+        flex: 1 0 auto;
+    }
+}
