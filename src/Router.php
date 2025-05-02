@@ -79,8 +79,8 @@ class Router
     protected function abort404(string $message = ''): void
     {
         http_response_code(404);
-        echo "<h1>404 - Page non trouvée</h1>";
-        if ($message) echo "<p>$message</p>";
+        view('404', ['message' => $message]);
+        
     }
 
     protected function abort500(string $message = ''): void

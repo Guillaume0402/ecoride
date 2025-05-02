@@ -1,0 +1,35 @@
+@use "../abstracts" as *;
+@use "../components/button" as *;
+
+.page-404 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 100%;
+    padding: 3rem 1rem;
+
+    color: $color-white;
+    font-family: $font-primary;
+    img{
+        max-height: 250px;
+        object-fit: contain;
+    }
+    h1 {
+        font-size: 6rem;
+        font-weight: bold;
+        text-shadow: $shadow-text;
+        margin-bottom: 1rem;
+    }
+
+    p {
+        font-size: 1.2rem;
+        max-width: 600px;
+        margin-bottom: 2rem;
+    }
+
+    a.btn {
+        @extend .btn-inscription;
+    }
+}
