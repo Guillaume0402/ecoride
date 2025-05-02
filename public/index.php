@@ -16,5 +16,7 @@ $router->get('/covoiturages', 'CovoituragesController@index');
 $router->get('/login', 'LoginController@index');
 $router->get('/contact', 'ContactController@index');
 $router->get('/signin', 'SigninController@index');
+$router->get('/test500', 'FakeController@boom');
+
 
 $router->dispatch($_SERVER['REQUEST_URI']);

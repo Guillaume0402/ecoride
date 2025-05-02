@@ -79,14 +79,14 @@ class Router
     protected function abort404(string $message = ''): void
     {
         http_response_code(404);
-        view('404', ['message' => $message]);
+        view('error-404', ['message' => $message]);
         
     }
 
     protected function abort500(string $message = ''): void
     {
         http_response_code(500);
-        echo "<h1>500 - Erreur serveur</h1>";
-        if ($message) echo "<p>$message</p>";
+        view('error-500', ['message' => $message]);
+        exit;
     }
 }
