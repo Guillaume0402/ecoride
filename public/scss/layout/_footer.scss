@@ -1,15 +1,26 @@
 @use "../abstracts" as *;
 
-
-footer {    
+footer {
     color: white; // ✅ Force une couleur visible
     padding: 1rem;
     text-align: center;
+    width: 100%;
 }
 
-.fixed-height-80 {
-    min-height: 80px;
-    // Pour s'assurer que le contenu est centré verticalement
+.fixed-height-footer {
+    min-height: 80px; // ✅ minimum 80px sur toutes tailles
     display: flex;
     align-items: center;
 }
+
+// @media (max-width: 576px) {
+//     footer a {
+//         margin-bottom: 0.25rem !important; // Réduit l’espace vertical entre les liens
+//     }
+
+//     footer {
+//         gap: 0.5rem !important; // Réduit l’espace entre les éléments du flex (si `gap` est utilisé)
+//         padding-top: 1rem;
+//         padding-bottom: 1rem;
+//     }
+// }

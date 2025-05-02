@@ -1,7 +1,7 @@
 <?php include __DIR__ . '/../../includes/header.php'; ?>
 
 
-<div class="container-fluid eco-main py-5 text-white">
+<div class="container-fluid py-5 text-white">
     <div class="container-fluid">
 
         <!-- H1 PRINCIPAL + SOUS-TITRE + BOUTONS -->
@@ -9,8 +9,8 @@
             <h1 class="fw-bold">Éco-conduite, éco-attitude, EcoRide !</h1>
             <p class="lead">Rejoignez le mouvement du covoiturage responsable</p>
             <div class="mt-3 d-none d-lg-inline-block">
-                <a href="#" class="btn btn-inscription me-2">Inscrivez-vous</a>
-                <a href="#" class="btn btn-custom-outline">Rechercher un trajet</a>
+                <a href="<?= url('signin') ?>" class="btn btn-inscription me-2">Inscrivez-vous</a>
+                <a href="<?= url('covoiturages') ?>" class="btn btn-custom-outline">Rechercher un trajet</a>
             </div>
         </section>
 
@@ -22,7 +22,7 @@
         </div>
 
         <!-- Grille responsive texte + formulaire -->
-        <div class="row align-items-center flex-column-reverse flex-lg-row">
+        <div class="section-form row align-items-center flex-column-reverse flex-lg-row">
 
             <!-- COL GAUCHE : TEXTE + IMAGES MOBILES + BOUTONS -->
             <div class="col-lg-6 col-12 text-center px-4 mb-4">
@@ -34,18 +34,18 @@
 
                 <!-- Image désert (mobile uniquement) -->
                 <div class="image-mobile d-lg-none my-4">
-                    <img src="../public/assets/images/img1.png" class="img-fluid rounded shadow" alt="Route désert">
+                    <img src="<?= asset('images/img1.png') ?>" class="img-fluid rounded shadow" alt="Route désert">
                 </div>
 
                 <!-- Boutons (mobile uniquement) -->
-                <div class="d-lg-none mb-4">
-                    <a href="#" class="btn btn-inscription me-2">Inscrivez-vous</a>
-                    <a href="#" class="btn btn-custom-outline">Rechercher un trajet</a>
+                <div class="d-lg-none mb-4 d-flex flex-column align-items-center gap-3">
+                    <a href="<?= url('signin') ?>" class="btn btn-inscription me-2">Inscrivez-vous</a>
+                    <a href="<?= url('covoiturages') ?>" class="btn btn-custom-outline">Rechercher un trajet</a>
                 </div>
 
                 <!-- Image forêt (mobile uniquement) -->
-                <div class="image-mobile d-lg-none my-4">
-                    <img src="../public/assets/images/img2.png" class="img-fluid rounded shadow" alt="Route verdoyante">
+                <div class="image-mobile d-lg-none my-4 ">
+                    <img src="<?= asset('images/img2.png') ?>" class="img-fluid rounded shadow" alt="Route verdoyante">
                 </div>
             </div>
 

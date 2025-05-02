@@ -13,25 +13,27 @@
 <body class="page-container d-flex flex-column min-vh-100">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm fixed-height-80">
         <div class="container-fluid">
-            <a class="navbar-brand" href="<?= url('/') ?>"><img class="logo ms-5" src="<?= asset('images/logo.svg') ?>" alt=""></a>
-            <a class="navbar-brand logo-title" href="<?= url('/') ?>">Ecoride</a>
+            <a class="navbar-brand d-flex align-items-center mx-auto" href="<?= url('/') ?>">
+                <img class="logo" src="<?= asset('images/logo.svg') ?>" alt="Logo EcoRide">
+                <span class="logo-title ms-2">Ecoride</span>
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
                 aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNavDropdown">
-                <ul class="navbar-nav">
-                    <li class="nav-item me-5">
-                        <a class="nav-link " aria-current="page" href="<?= url('/') ?>">Accueil</a>
+            <div class="collapse navbar-collapse justify-content-end mobile-menu me-5" id="navbarNavDropdown">
+                <ul class="navbar-nav gap-3">
+                    <li class="nav-item ">
+                        <a class="navlink nav-link " aria-current="page" href="<?= url('/') ?>">Accueil</a>
                     </li>
-                    <li class="nav-item me-5">
-                        <a class="nav-link " href="<?= url('covoiturages') ?>">Covoiturages</a>
+                    <li class="nav-item ">
+                        <a class="navlink nav-link " href="<?= url('covoiturages') ?>">Covoiturages</a>
                     </li>
-                    <li class="nav-item me-5">
-                        <a class="nav-link " href="<?= url('contact') ?>">Contact</a>
+                    <li class="nav-item ">
+                        <a class="navlink nav-link " href="<?= url('contact') ?>">Contact</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link " href="<?= url('login') ?>" role="button">
+                        <a class="navlink nav-link " href="<?= url('login') ?>" role="button">
                             Connexion
                         </a>
 
@@ -40,4 +42,4 @@
             </div>
         </div>
     </nav>
-    <main>
+    <main class="flex-fill">

@@ -1,18 +1,15 @@
 // specific pages
 @use "../abstracts" as *;
 
-// TITRES
 
 
-// BACKGROUND
-.eco-main {
-    background: linear-gradient(to right, #0c8b1d, #3fd743);
-}
+
 
 // IMAGE COLLAGE (desktop only)
 .image-collage {
     position: relative;
     height: 280px;
+    
 
     img {
         position: absolute;
@@ -65,10 +62,10 @@
     }
 }
 
-// SPACING desktop
-.row.align-items-center {
-    margin-top: 200px;
+.section-form{
+    margin-top: 180px;
 }
+
 
 // RESPONSIVE MOBILE
 @media (max-width: 991.98px) {

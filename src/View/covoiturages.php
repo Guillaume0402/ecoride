@@ -25,31 +25,217 @@
         </div>
     </div>
 </section>
-<section class="filter-wrapper">
-    <div class="filter-bg"></div>
-    <div class="filter-bar container my-4">
-        <div class="row g-3 align-items-center">
-            <!-- Filters -->
-            <div class="col-md-6">
-                <div class="input-group filter-input">
-                    <button class="btn btn-outline-light d-flex align-items-center" type="button">
-                        <i class="bi bi-funnel-fill me-2"></i> Filters
-                    </button>
+<!-- Filtre & tri -->
+<section class="filter-section mb-5">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between flex-wrap filter-bar px-3 py-2 rounded-2">
+            <button class="btn btn-filter mb-2 mb-md-0">
+                <i class="bi bi-funnel-fill me-2"></i> Filters
+            </button>
+            <div class="dropdown">
+                <button class="btn btn-sort dropdown-toggle" data-bs-toggle="dropdown">
+                    Sort by
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#">Price</a></li>
+                    <li><a class="dropdown-item" href="#">Date</a></li>
+                    <li><a class="dropdown-item" href="#">Eco-energy</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="rides-section pb-5">
+    <div class="container">
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+
+            <!-- Card -->
+            <div class="col">
+                <div class="carpool-card d-flex flex-column justify-content-between">
+                    <!-- Header : date • prix • badge  /  horloge -->
+                    <div class="card-header d-flex justify-content-between mb-3">
+                        <div class="card-info">
+                            <span class="date">15 juin</span>
+                            <span class="sep">•</span>
+                            <span class="price">20 €</span>
+                            <span class="sep">•</span>
+                            <span class="badge-eco">éco-énergie</span>
+                        </div>
+                        <div class="card-time">
+                            <i class="bi bi-clock-fill"></i>
+                            <span>12h45</span>
+                        </div>
+                    </div>
+                    <!-- Body : avatar / détails / bouton -->
+                    <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
+                        <img src="https://placehold.co/60x60" alt="Avatar" class="avatar rounded-circle">
+                        <div class="details flex-grow-1 px-3 m-auto">
+                            <h5>Mel gang</h5>
+                            <ul>
+                                <li>Animaux accepté</li>
+                                <li>Sans tabac</li>
+                                <li>Sans nourriture</li>
+                                <li>Sans les mains</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Footer : étoiles -->
+                    <div class="card-footer">
+                        <div class="stars">
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-participate">Participer</button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
-            <!-- Sort -->
-            <div class="col-md-6 text-md-end">
-                <div class="dropdown">
-                    <button class="btn btn-outline-light dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        Sort by
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortDropdown">
-                        <li><a class="dropdown-item" href="#">Price</a></li>
-                        <li><a class="dropdown-item" href="#">Date</a></li>
-                        <li><a class="dropdown-item" href="#">Eco-energy</a></li>
-                    </ul>
+            <!-- Card -->
+            <div class="col">
+                <div class="carpool-card d-flex flex-column justify-content-between">
+                    <!-- Header : date • prix • badge  /  horloge -->
+                    <div class="card-header d-flex justify-content-between mb-3">
+                        <div class="card-info">
+                            <span class="date">15 juin</span>
+                            <span class="sep">•</span>
+                            <span class="price">20 €</span>
+                            <span class="sep">•</span>
+                            <span class="badge-eco">éco-énergie</span>
+                        </div>
+                        <div class="card-time">
+                            <i class="bi bi-clock-fill"></i>
+                            <span>12h45</span>
+                        </div>
+                    </div>
+                    <!-- Body : avatar / détails / bouton -->
+                    <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
+                        <img src="https://placehold.co/60x60" alt="Avatar" class="avatar rounded-circle">
+                        <div class="details flex-grow-1 px-3 m-auto">
+                            <h5>Mel gang</h5>
+                            <ul>
+                                <li>Animaux accepté</li>
+                                <li>Sans tabac</li>
+                                <li>Sans nourriture</li>
+                                <li>Sans les mains</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Footer : étoiles -->
+                    <div class="card-footer">
+                        <div class="stars">
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-participate">Participer</button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
+            <!-- Card -->
+            <div class="col">
+                <div class="carpool-card d-flex flex-column justify-content-between">
+                    <!-- Header : date • prix • badge  /  horloge -->
+                    <div class="card-header d-flex justify-content-between mb-3">
+                        <div class="card-info">
+                            <span class="date">15 juin</span>
+                            <span class="sep">•</span>
+                            <span class="price">20 €</span>
+                            <span class="sep">•</span>
+                            <span class="badge-eco">éco-énergie</span>
+                        </div>
+                        <div class="card-time">
+                            <i class="bi bi-clock-fill"></i>
+                            <span>12h45</span>
+                        </div>
+                    </div>
+                    <!-- Body : avatar / détails / bouton -->
+                    <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
+                        <img src="https://placehold.co/60x60" alt="Avatar" class="avatar rounded-circle">
+                        <div class="details flex-grow-1 px-3 m-auto">
+                            <h5>Mel gang</h5>
+                            <ul>
+                                <li>Animaux accepté</li>
+                                <li>Sans tabac</li>
+                                <li>Sans nourriture</li>
+                                <li>Sans les mains</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Footer : étoiles -->
+                    <div class="card-footer">
+                        <div class="stars">
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-participate">Participer</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <!-- Card -->
+            <div class="col">
+                <div class="carpool-card d-flex flex-column justify-content-between">
+                    <!-- Header : date • prix • badge  /  horloge -->
+                    <div class="card-header d-flex justify-content-between mb-3">
+                        <div class="card-info">
+                            <span class="date">15 juin</span>
+                            <span class="sep">•</span>
+                            <span class="price">20 €</span>
+                            <span class="sep">•</span>
+                            <span class="badge-eco">éco-énergie</span>
+                        </div>
+                        <div class="card-time">
+                            <i class="bi bi-clock-fill"></i>
+                            <span>12h45</span>
+                        </div>
+                    </div>
+                    <!-- Body : avatar / détails / bouton -->
+                    <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
+                        <img src="https://placehold.co/60x60" alt="Avatar" class="avatar rounded-circle">
+                        <div class="details flex-grow-1 px-3 m-auto">
+                            <h5>Mel gang</h5>
+                            <ul>
+                                <li>Animaux accepté</li>
+                                <li>Sans tabac</li>
+                                <li>Sans nourriture</li>
+                                <li>Sans les mains</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Footer : étoiles -->
+                    <div class="card-footer">
+                        <div class="stars">
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-participate">Participer</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            
         </div>
     </div>
 </section>

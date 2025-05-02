@@ -10,6 +10,7 @@ $router->get('/', 'HomeController@index');
 $router->get('/covoiturages', 'CovoituragesController@index');
 $router->get('/login', 'LoginController@index');
 $router->get('/contact', 'ContactController@index');
+$router->get('/signin', 'SigninController@index');
 
 // Dispatcher la requête
 $router->dispatch($_SERVER['REQUEST_URI']);

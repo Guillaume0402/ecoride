@@ -1,0 +1,22 @@
+@use "variables" as *;
+
+
+
+
+
+@mixin btn-custom-outline {
+    background: transparent;
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+        1px 1px 0 #000;
+    border: 1px solid $color-secondary !important;
+    color: white;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: $btn-gradient-hover;
+        color: $color-white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+}

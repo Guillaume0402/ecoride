@@ -1,8 +1,12 @@
 // buttons, cards, etc.
 @use "../abstracts" as *;
 
+
 .btn-ecoride {
     background: $btn-gradient;
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+        1px 1px 0 #000;
     color: white;
     border: none;
     &:hover {
@@ -11,18 +15,54 @@
     }
 }
 
-.btn-inscription {
+.btn-inscription, .btn-participate {
     background: $btn-gradient;
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+        1px 1px 0 #000;
     border: 1px solid $color-secondary !important;
-    color: white;
-    border: none;
+    color: white !important;
     transition: all 0.3s ease;
+
+    &:hover {
+        background: $btn-gradient-hover;
+        color: $color-white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
 }
 
+.btn-participate {
+    background: $btn-gradient;
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+        1px 1px 0 #000;
+    border: 1px solid $color-secondary !important;
+    color: white !important;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: $btn-gradient-hover;
+        color: $color-white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+}
+
+
 .btn-custom-outline {
-    background: $color-primary;
+    background: transparent;
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+        1px 1px 0 #000;
     border: 1px solid $color-secondary !important;
     color: white;
-    border: none;
     transition: all 0.3s ease;
+
+    &:hover {
+        background: $btn-gradient-hover;
+        color: $color-white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
 }

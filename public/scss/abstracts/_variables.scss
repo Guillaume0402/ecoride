@@ -2,7 +2,11 @@
 
 $color-primary: #215732;
 $color-secondary: #00ff50;
-$color-white: #f8f9f3;
+$color-white: #F8F9F3;
+$text-black: #000000;
+$text-white: #ffffff;
+$shadow-text: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+1px 1px 0 #000;
 
 $bg-gradient: linear-gradient(
   135deg,
@@ -15,6 +19,8 @@ $bg-gradient: linear-gradient(
 
 
 $btn-gradient: linear-gradient(to right, #ff4a02 100%, #ffa202 100%);
+$btn-gradient-hover: linear-gradient(135deg, #008000, #00b140);
+
 
 .bg-body-color-primary {
     background-color: $color-primary !important;

@@ -1,45 +1,232 @@
-.filter-wrapper {
-    position: relative;
-    overflow: hidden;
-    padding: 3rem 0;
+@use "../abstracts/variables" as *;
+@use "../abstracts/mixins" as mixin;
+@use "../components/button" as btn;
 
-    .filter-bg {
-        position: absolute;
-        inset: 0;
-        background: 
-        linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.05)),
-        $bg-gradient;
-        z-index: 0;
-        pointer-events: none;
+// -------------------- Filter Bar --------------------
+.filter-section {
+    .filter-bar {
+        background: rgba($color-white, 0.1);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba($color-white, 0.4);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+
+        .btn-filter {
+            @include mixin.btn-custom-outline;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-sort {
+            @include mixin.btn-custom-outline;
+        }
+    }
+}
+
+.carpool-card {
+    background: $color-white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba($text-black, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 16px rgba($text-black, 0.15);
     }
 
-    .filter-bar {
-        position: relative;
-        z-index: 1;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-radius: 12px;
-        padding: 1rem 1.5rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        min-height: 80px;
-        transition: backdrop-filter 0.3s ease-in-out;
+    // ----- Header -----
+    .card-header {
+        .card-info {
+            margin-left: 6rem;
 
-        .btn {
-            border-radius: 12px;
-            font-weight: 600;
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            background-color: rgba(255, 255, 255, 0.05);
+            .date,
+            .price,
+            .sep {
+                font-size: clamp(0.8rem, 2vw, 1rem);
+                color: $color-primary;
+                
+            }
 
-            &:hover {
-                background-color: rgba(255, 255, 255, 0.15);
+            .badge-eco {
+                background: $color-secondary;
+                color: $text-black;
+                font-size: 0.75rem;
+                text-transform: lowercase;
+                padding: 0.25em 0.5em;
+                border-radius: 6px;
+                border: 1px solid $color-primary;
             }
         }
 
-        .dropdown-menu {
-            border-radius: 10px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        .card-time {
+            display: flex;
+            align-items: center;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            color: $text-black;
+
+            i {
+                margin-right: 0.3rem;
+            }
+        }
+    }
+
+    // ----- Body -----
+    .card-body {
+        .avatar {
+            width: 80px;
+            height: 80px;
+            flex-shrink: 0;
+            object-fit: cover;
+        }
+
+        .details {
+            margin-left: 2rem;
+            h5 {
+                color: $color-primary;
+                font-size: 1.1rem;
+                margin-bottom: 0.5rem;
+            }
+            ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                li {
+                    font-size: clamp(0.85rem, 2vw, 1rem);
+                    color: $text-black;
+                    line-height: 1.4;
+                    margin-bottom: 0.25rem;
+                }
+            }
+        }
+
+        .btn-participate {
+            align-self: flex-start;
+            margin-top: 0.5rem;
+        }
+    }
+
+    // ----- Footer -----
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        .stars {
+            display: flex;
+            gap: 0.3rem;
+            margin-left: 6rem;
+            .star {
+                font-size: 1.4rem;
+                color: $text-black;
+                cursor: pointer;
+                transition: transform 0.2s, color 0.2s;
+                &:hover {
+                    transform: scale(1.2);
+                    color: #ffc107;
+                }
+            }
+        }
+    }
+}
+
+// ==== Mobile : empilement parfait (< 768px) ====
+@media (max-width: 767px) {
+    .carpool-card {
+        padding: 1rem;
+
+        .card-header {
+            flex-direction: column;
+            align-items: center !important;
+            .card-info {
+                justify-content: center;               
+            }
+        }
+
+        .card-body {
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center;        
+        }
+
+        .card-footer {
+            text-align: center;
+            margin-top: 1rem;
+        }
+    }
+}
+@media (max-width: 992px) {
+    .carpool-card {
+        padding: 1rem;
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            .card-info {
+                margin-bottom: 0.75rem;
+                margin-left:0;
+                
+            }
+        }
+
+        .card-body {
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center;
+            .btn-participate {
+                margin: 1rem auto 0 !important;
+            }
+        }
+
+        .card-footer {       
+            margin-left: 0;
+            .stars {
+                display: flex;
+                gap: 0.3rem;
+                margin-left: 0;
+                .star {
+                    font-size: 1.4rem;
+                    color: $text-black;
+                    cursor: pointer;
+                    transition: transform 0.2s, color 0.2s;
+                    &:hover {
+                        transform: scale(1.2);
+                        color: #ffc107;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 767px) {
+    .carpool-card {
+        padding: 1rem;
+
+        .card-header {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center !important;
+            .card-info {
+                justify-content: center;
+                margin-bottom: 0.75rem;
+            }
+        }
+
+        .card-body {
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center;
+            .btn-participate {
+                margin: 1rem auto 0 !important;
+            }
+        }
+
+        .card-footer {
+            text-align: center;
+            margin-top: 1rem;
         }
     }
 }
