@@ -1,4 +1,3 @@
-
 # 🌱 EcoRide – Plateforme de covoiturage écologique
 
 **EcoRide** est une application web fullstack développée en PHP Vanilla, HTML5, CSS3, Bootstrap et SASS.  
@@ -141,6 +140,32 @@ EcoRide/
 
 - **Kanban projet** :
   - To Do → En cours → En test → Terminé → Mergé
+
+---
+
+## 🗂️ Stratégie Git (résumé)
+
+- `main` → version stable (prod)
+- `develop` → version testée et en cours de validation
+- `feat/*` → nouvelles fonctionnalités
+- `fix/*` → corrections de bugs
+- `doc/*` → documentation
+
+**Workflow recommandé :**
+
+```bash
+git checkout develop
+git pull origin develop
+git checkout -b feat/ma-fonctionnalité
+# ... coder, puis :
+git add .
+git commit -m "feat: ajout de la modale de connexion"
+git push origin feat/ma-fonctionnalité
+```
+
+Une fois testé : merge vers `develop`, puis vers `main` quand c’est prêt pour la prod.
+
+📄 Voir le fichier [git-strategie.md](./git-strategie.md) pour plus de détails.
 
 ---
 
