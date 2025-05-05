@@ -1,14 +1,17 @@
 <?php
+
 use App\Router;
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <title>EcoRide</title>
     <link rel="stylesheet" href="<?= url('css/style.css') ?>">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
+
 <body class="page-container d-flex flex-column min-vh-100">
 
     <?php require_once __DIR__ . '/../../includes/header.php'; ?>
@@ -20,7 +23,8 @@ use App\Router;
     <?php require_once __DIR__ . '/../../includes/footer.php'; ?>
     <?php require_once __DIR__ . '/../../includes/auth-modal.php'; ?>
 
-    <!-- Bootstrap JS + ton JS -->
+    <!-- Un seul script Bootstrap ici -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

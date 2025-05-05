@@ -24,7 +24,7 @@
 }
 
 .carpool-card {
-    background: $color-white;
+    background: rgba(255, 255, 255, 0.082);
     border-radius: 12px;
     padding: 1.5rem;
     box-shadow: 0 2px 8px rgba($text-black, 0.1);
@@ -32,6 +32,7 @@
     flex-direction: column;
     justify-content: space-between;
     transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid $color-secondary;
 
     &:hover {
         transform: translateY(-4px);
@@ -47,7 +48,9 @@
             .price,
             .sep {
                 font-size: clamp(0.8rem, 2vw, 1rem);
-                color: $color-primary;
+                color: $text-white;
+                text-shadow: $shadow-text;
+
                 
             }
 
@@ -66,7 +69,9 @@
             display: flex;
             align-items: center;
             font-size: clamp(0.9rem, 2vw, 1rem);
-            color: $text-black;
+            color: $text-white;
+            text-shadow: $shadow-text;
+
 
             i {
                 margin-right: 0.3rem;
@@ -86,7 +91,9 @@
         .details {
             margin-left: 2rem;
             h5 {
-                color: $color-primary;
+                color: $text-white;
+                text-shadow: $shadow-text;
+
                 font-size: 1.1rem;
                 margin-bottom: 0.5rem;
             }
@@ -96,7 +103,9 @@
                 margin: 0;
                 li {
                     font-size: clamp(0.85rem, 2vw, 1rem);
-                    color: $text-black;
+                    color: $text-white;
+                    text-shadow: $shadow-text;
+
                     line-height: 1.4;
                     margin-bottom: 0.25rem;
                 }
@@ -119,7 +128,9 @@
             margin-left: 6rem;
             .star {
                 font-size: 1.4rem;
-                color: $text-black;
+                color: $text-white;
+                text-shadow: $shadow-text;
+
                 cursor: pointer;
                 transition: transform 0.2s, color 0.2s;
                 &:hover {

@@ -69,7 +69,7 @@
                         </div>
                         <!-- Body : avatar / détails / bouton -->
                         <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                            <img src="https://placehold.co/60x60" alt="Avatar" class="avatar rounded-circle">
+                            <img src=<?= asset('images/télé5.jpeg') ?> alt="Avatar" class="avatar rounded-circle">
                             <div class="details flex-grow-1 px-3 m-auto">
                                 <h5>Mel gang</h5>
                                 <ul>
@@ -115,7 +115,7 @@
                         </div>
                         <!-- Body : avatar / détails / bouton -->
                         <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                            <img src="https://placehold.co/60x60" alt="Avatar" class="avatar rounded-circle">
+                            <img src=<?= asset('images/télé4.jpeg') ?>  alt="Avatar" class="avatar rounded-circle">
                             <div class="details flex-grow-1 px-3 m-auto">
                                 <h5>Mel gang</h5>
                                 <ul>
@@ -161,7 +161,7 @@
                         </div>
                         <!-- Body : avatar / détails / bouton -->
                         <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                            <img src="https://placehold.co/60x60" alt="Avatar" class="avatar rounded-circle">
+                            <img src=<?= asset('images/télé3.jpeg') ?>  alt="Avatar" class="avatar rounded-circle">
                             <div class="details flex-grow-1 px-3 m-auto">
                                 <h5>Mel gang</h5>
                                 <ul>
@@ -207,7 +207,7 @@
                         </div>
                         <!-- Body : avatar / détails / bouton -->
                         <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                            <img src="https://placehold.co/60x60" alt="Avatar" class="avatar rounded-circle">
+                            <img src=<?= asset('images/télé2.jpeg') ?>  alt="Avatar" class="avatar rounded-circle">
                             <div class="details flex-grow-1 px-3 m-auto">
                                 <h5>Mel gang</h5>
                                 <ul>

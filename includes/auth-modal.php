@@ -4,7 +4,7 @@
 
         <div class="modal-header-custom">
     <div class="form-switcher d-flex justify-content-center gap-5">
-        <button id="showRegister" class="btn btn-link active-tab">Inscription</button>
+        <button id="showRegister" class="btn btn-link active-tab ">Inscription</button>
         <button id="showLogin" class="btn btn-link">Connexion</button>
     </div>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
@@ -16,7 +16,7 @@
 
 
             <!-- FORM INSCRIPTION -->
-            <form id="registerForm" class="auth-form">
+            <form id="registerForm" class="auth-form p-0 p-lg-5">
                 <div class="mb-3">
                     <label for="username" class="form-label">Pseudo*</label>
                     <input type="text" class="form-control" id="username" required>
@@ -39,7 +39,7 @@
             </form>
 
             <!-- FORM CONNEXION -->
-            <form id="loginForm" class="auth-form d-none">
+            <form id="loginForm" class="auth-form d-none p-0 p-lg-5">
                 <div class="mb-3">
                     <label for="emailLogin" class="form-label">Email*</label>
                     <input type="email" class="form-control" id="emailLogin" required>

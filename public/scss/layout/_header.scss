@@ -8,6 +8,7 @@
 .logo-title {
     font-size: 1.5rem;
     font-weight: 700;
+    text-shadow: $shadow-text;
 }
 
 .navbar-nav {
@@ -36,15 +37,14 @@ nav.sticky-top {
         background-color: rgba(0, 128, 0, 0.8);
         backdrop-filter: blur(5px); // Effet flou derrière
         padding: 2rem;
-        border-radius: 0 0 12px 12px;
-        margin-top: 0.5rem;
+        border-radius: 0 0 12px 12px;        
         width: 100%;
         text-align: center;
         position: absolute;
-        top: 70px; // hauteur de ta navbar
+        top: 100%;
         left: 0;
         right: 0;
-        z-index: 999; // pour passer devant tout
+        z-index: 1000;
         transition: all 0.3s ease-in-out;
 
         .navbar-brand {
@@ -70,8 +70,54 @@ nav.sticky-top {
         }
 
         a.nav-link {
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: 500;
+            text-shadow: $shadow-text;
         }
+
+        #navbarNavDropdown {
+            position: relative;
+        }
+
+        #closeMenuBurger {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1001;
+            margin: 0;
+        }
+
+        ul.navbar-nav {
+            margin-top: 1rem;
+        }
+    }
+}
+
+.navbar-toggler {
+    border: none;
+    padding: 0.25rem;
+    width: 40px;
+    height: 40px;
+    position: relative;
+
+    &:focus {
+        box-shadow: none;
+    }
+
+    .navbar-toggler-icon {
+        transition: transform 0.3s ease-in-out;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+
+    &[aria-expanded="true"] {
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 2l12 12M2 14L14 2'/%3e%3c/svg%3e");
+        }
+    }
+}
+
+@media (max-width: 991.98px) {
+    .navbar-toggler {
+        margin-right: 1rem;
     }
 }

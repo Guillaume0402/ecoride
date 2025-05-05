@@ -5,8 +5,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EcoRide</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
+    <!-- Ajoute le CSS de Bootstrap AVANT ton CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="<?= asset('css/style.css') ?>" />
 </head>
 
@@ -17,11 +18,16 @@
                 <img class="logo" src="<?= asset('images/logo.svg') ?>" alt="Logo EcoRide">
                 <span class="logo-title ms-2">Ecoride</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
-                aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNavDropdown"
+                aria-controls="navbarNavDropdown"
+                aria-expanded="false"
+                aria-label="Menu">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse justify-content-end mobile-menu me-5" id="navbarNavDropdown">
+            <div class="collapse navbar-collapse justify-content-end mobile-menu" id="navbarNavDropdown">
                 <ul class="navbar-nav gap-3">
                     <li class="nav-item ">
                         <a class="navlink nav-link " aria-current="page" href="<?= url('/') ?>">Accueil</a>
@@ -33,7 +39,7 @@
                         <a class="navlink nav-link " href="<?= url('contact') ?>">Contact</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <button class="btn btn-inscription" data-bs-toggle="modal" data-bs-target="#authModal" data-start="login">
+                        <button class="btn btn-inscription mt-3 mt-lg-1" data-bs-toggle="modal" data-bs-target="#authModal" data-start="login">
                             Connexion
                         </button>
 
@@ -43,4 +49,3 @@
             </div>
         </div>
     </nav>
-    <main class="flex-fill">
