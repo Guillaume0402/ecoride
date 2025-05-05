@@ -16,7 +16,8 @@ $router->get('/covoiturages', 'CovoituragesController@index');
 $router->get('/login', 'LoginController@index');
 $router->get('/contact', 'ContactController@index');
 $router->get('/login', 'LoginController@index');
-$router->get('/creation-covoiturage', 'CreationcovoiturageController@index');
+$router->get('/creation-covoiturage', 'CreationCovoiturageController@index');
+$router->get('/creation-profil', 'CreationProfilController@index');
 
 
 
