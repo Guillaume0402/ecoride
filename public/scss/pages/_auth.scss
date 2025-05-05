@@ -1,0 +1,142 @@
+@use "../abstracts" as *;
+
+.auth-modal-content {
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background: $bg-gradient;
+    color: $text-white;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    font-family: $font-primary;
+    .modal-header {
+        .btn-close {
+            opacity: 1;
+            background-image: none; // supprime le SVG par défaut
+            position: relative;
+            width: 1rem;
+            height: 1rem;
+
+            &::before {
+                content: "×";
+                color: $text-white;
+                font-size: 1.5rem;
+                line-height: 1;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            &:hover::before {
+                color: lighten($text-white, 10%);
+            }
+        }
+    }
+}
+
+.form-switcher {
+    .btn-link {
+        color: $text-white !important; // ✅ couleur blanche pour le texte
+        border: none;
+        background: none;        
+        font-size: clamp(0.7rem, 2vw, 1rem);
+        transition: border-color 0.3s, color 0.3s;
+        padding: 0;
+        text-decoration: none; // 🔥 désactive le underline arrondi
+        border-bottom: 1px solid transparent; // ligne invisible de base
+        border-radius: 0; // ✅ supprime l’arrondi        
+
+        &.active-tab {
+            border-color: $text-black; // ✅ ligne noire, droite
+        }
+
+        &:hover {
+            color: $color-primary;
+        }
+    }
+}
+
+.auth-form {
+    input.form-control {
+        color: $text-black;
+        border-radius: 0.5rem;
+        padding: 0.2rem 0.5rem;
+        font-size: 1rem;
+        font-family: $font-primary;
+        border: 2px solid $color-secondary;
+        transition: border-color 0.3s ease;
+
+        &:focus {
+            border-color: $color-primary;
+            box-shadow: 0 0 0 0.2rem rgba(33, 87, 50, 0.25);
+        }
+    }
+
+    label.form-label {
+        font-weight: 200;
+        color: $text-white;
+    }
+
+    .btn-inscription {
+        @extend .btn-inscription; // utilise ton style global
+        width: auto;
+        margin-top: 1rem;
+    }
+}
+
+.modal-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+
+    .form-switcher {
+        flex-grow: 1;
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+    }
+
+    .btn-close {
+        margin-left: auto;
+        margin-top: 0.25rem;
+    }
+}
+
+.modal-header-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    position: relative;
+
+    .form-switcher {
+        flex-grow: 1;
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+    }
+
+    .btn-close {
+        opacity: 1;
+        background-image: none;
+        position: absolute;
+        right: 1rem;
+        top: 0.2rem;
+        width: 1.5rem;
+        height: 1.5rem;
+
+        &::before {
+            content: "×";
+            color: $text-white;
+            font-size: 1.5rem;
+            line-height: 1;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        &:hover::before {
+            color: lighten($text-white, 10%);
+        }
+    }
+}

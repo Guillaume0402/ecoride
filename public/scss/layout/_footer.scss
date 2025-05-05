@@ -13,14 +13,14 @@ footer {
     align-items: center;
 }
 
-// @media (max-width: 576px) {
-//     footer a {
-//         margin-bottom: 0.25rem !important; // Réduit l’espace vertical entre les liens
-//     }
+@media (max-width: 576px) {
+    footer a {
+        margin-bottom: 0.25rem !important; // Réduit l’espace vertical entre les liens
+    }
 
-//     footer {
-//         gap: 0.5rem !important; // Réduit l’espace entre les éléments du flex (si `gap` est utilisé)
-//         padding-top: 1rem;
-//         padding-bottom: 1rem;
-//     }
-// }
+    footer {
+        
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+}

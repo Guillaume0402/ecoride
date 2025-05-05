@@ -7,15 +7,20 @@ use App\Router;
     <meta charset="UTF-8">
     <title>EcoRide</title>
     <link rel="stylesheet" href="<?= url('css/style.css') ?>">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body class="page-container d-flex flex-column min-vh-100">
+
     <?php require_once __DIR__ . '/../../includes/header.php'; ?>
 
-    <main>
+    <main class="flex-fill">
         <?= $content ?>
     </main>
 
     <?php require_once __DIR__ . '/../../includes/footer.php'; ?>
+    <?php require_once __DIR__ . '/../../includes/auth-modal.php'; ?>
+
+    <!-- Bootstrap JS + ton JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -33,9 +33,10 @@
                         <a class="navlink nav-link " href="<?= url('contact') ?>">Contact</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="navlink nav-link " href="<?= url('login') ?>" role="button">
+                        <button class="btn btn-inscription" data-bs-toggle="modal" data-bs-target="#authModal" data-start="login">
                             Connexion
-                        </a>
+                        </button>
+
 
                     </li>
                 </ul>
