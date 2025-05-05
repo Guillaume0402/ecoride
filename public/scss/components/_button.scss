@@ -1,71 +1,73 @@
-// buttons, cards, etc.
+// _buttons.scss
 @use "../abstracts" as *;
 
-.btn-ecoride {
+// Placeholder pour les styles communs
+%btn-base {
     font-family: $font-primary;
-    background: $btn-gradient;
     font-size: clamp(0.8rem, 2vw, 1rem);
+    transition: all 0.3s ease;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid $color-secondary !important;
+}
+
+// Placeholder pour le hover
+%btn-hover {
+    &:hover {
+        background: $btn-gradient-hover;
+        color: $color-white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+}
+
+// Placeholder pour le text-shadow « grillé »
+%btn-text-shadow {
     text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
         1px 1px 0 #000;
-    color: white;
+}
+
+// ————————————————
+// Boutons
+// ————————————————
+
+// Bouton principal EcoRide
+.btn-ecoride {
+    @extend %btn-base;
+    @extend %btn-text-shadow;
+    background: $btn-gradient;
+    color: $color-white;
     border: none;
+
     &:hover {
         background: darken($color-primary, 10%);
         color: $color-white;
     }
 }
 
-.btn-inscription,
-.btn-participate {
-    font-family: $font-primary;
-    padding: 0.2rem 0.5rem;
+// Bouton d’inscription
+.btn-inscription {
+    @extend %btn-base;
     background: $btn-gradient;
-    font-size: clamp(0.8rem, 2vw, 1rem);
-    border: 1px solid $color-secondary !important;
     color: $text-white;
-    transition: all 0.3s ease;
 
-    &:hover {
-        background: $btn-gradient-hover;
-        color: $color-white !important;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    }
+    @extend %btn-hover;
 }
 
+// Bouton “Participate”
 .btn-participate {
-    font-family: $font-primary;
+    @extend %btn-base;    
     background: $btn-gradient;
-    font-size: clamp(0.8rem, 2vw, 1rem);
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
-        1px 1px 0 #000;
-    border: 1px solid $color-secondary !important;
-    color: white !important;
-    transition: all 0.3s ease;
+    color: $color-white !important;
 
-    &:hover {
-        background: $btn-gradient-hover;
-        color: $color-white !important;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    }
+    @extend %btn-hover;
 }
 
+// Bouton outline custom
 .btn-custom-outline {
-    font-family: $font-primary;
-    padding: 0.2rem 0.5rem;
+    @extend %btn-base;
+    @extend %btn-text-shadow;
     background: transparent;
-    font-size: clamp(0.8rem, 2vw, 1rem);
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
-        1px 1px 0 #000;
-    border: 1px solid $color-secondary !important;
-    color: white;
-    transition: all 0.3s ease;
+    color: $color-white;
 
-    &:hover {
-        background: $btn-gradient-hover;
-        color: $color-white !important;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    }
+    @extend %btn-hover;
 }
