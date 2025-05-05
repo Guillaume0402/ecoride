@@ -1,21 +1,28 @@
 <?php include __DIR__ . '/../../includes/header.php'; ?>
 
 
-<div class="container-fluid py-5 text-white">
+<div class="container-fluid py-3 text-white">
     <div class="container-fluid">
 
         <!-- H1 PRINCIPAL + SOUS-TITRE + BOUTONS -->
-        <section class="text-center mb-4">
+        <section class="text-center mb-3">
             <h1 class="fw-bold">Éco-conduite, éco-attitude, EcoRide !</h1>
             <p class="lead">Rejoignez le mouvement du covoiturage responsable</p>
-            <div class="mt-3 d-none d-lg-inline-block">
-                <a href="<?= url('signin') ?>" class="btn btn-inscription me-2">Inscrivez-vous</a>
+            <div class="mt-1 mb-3 d-none d-lg-inline-block">
+                <button
+                    class="btn btn-inscription me-2"
+                    data-bs-toggle="modal"
+                    data-bs-target="#authModal"
+                    data-start="register">
+                    Inscrivez-vous
+                </button>
+
                 <a href="<?= url('covoiturages') ?>" class="btn btn-custom-outline">Rechercher un trajet</a>
             </div>
         </section>
 
         <!-- Collage d’images desktop uniquement -->
-        <div class="image-collage d-none d-lg-flex position-relative justify-content-center mb-5">
+        <div class="image-collage d-none d-lg-flex position-relative justify-content-center mb-3">
             <img src="<?= asset('images/img1.png') ?>" class="img1 position-absolute rounded shadow" alt="img1">
             <img src="<?= asset('images/img2.png') ?>" class="img2 position-absolute rounded shadow" alt="img2">
             <img src="<?= asset('images/img3.png') ?>" class="img3 position-absolute rounded shadow" alt="img3">
@@ -65,7 +72,7 @@
                             <label class="form-label">Date de départ :</label>
                             <input type="date" class="form-control" placeholder="05-11-2026">
                         </div>
-                        <button type="submit" class="btn btn-inscription fw-semibold d-block m-auto">Rechercher</button>
+                        <button type="submit" class="btn btn-inscription d-block m-auto">Rechercher</button>
                     </form>
                 </div>
             </div>
