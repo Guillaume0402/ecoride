@@ -1,0 +1,16 @@
+feat: Ajouter une nouvelle fonctionnalité
+
+# Ligne vide obligatoire
+
+# Détaille ici ce que tu as fait, pourquoi.
+# Laisse vide si pas nécessaire.
+
+# Types de commits recommandés :
+# feat:     Nouvelle fonctionnalité
+# fix:      Correction de bug
+# refactor: Refactorisation sans ajout de fonctionnalité
+# style:    Modifications CSS/HTML uniquement
+# doc:      Documentation uniquement
+# test:     Ajout/modification de tests
+# chore:    Tâches d’entretien (npm, config, etc.)
+# hotfix:   Correction urgente en production

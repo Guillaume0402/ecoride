@@ -17,7 +17,7 @@
                     Inscrivez-vous
                 </button>
 
-                <a href="<?= url('covoiturages') ?>" class="btn btn-custom-outline">Rechercher un trajet</a>
+                <a href="<?= url('liste-covoiturages') ?>" class="btn btn-custom-outline">Rechercher un trajet</a>
             </div>
         </section>
 
@@ -47,7 +47,7 @@
                 <!-- Boutons (mobile uniquement) -->
                 <div class="d-lg-none mb-4 d-flex flex-column align-items-center gap-3">
                     <a href="<?= url('signin') ?>" class="btn btn-inscription me-2">Inscrivez-vous</a>
-                    <a href="<?= url('covoiturages') ?>" class="btn btn-custom-outline">Rechercher un trajet</a>
+                    <a href="<?= url('liste-covoiturages') ?>" class="btn btn-custom-outline">Rechercher un trajet</a>
                 </div>
 
                 <!-- Image forêt (mobile uniquement) -->

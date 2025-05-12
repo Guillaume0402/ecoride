@@ -12,12 +12,13 @@ Router::$basePath = '';
 $router = new Router();
 
 $router->get('/', 'HomeController@index');
-$router->get('/covoiturages', 'CovoituragesController@index');
+$router->get('/liste-covoiturages', 'ListeCovoituragesController@index');
 $router->get('/login', 'LoginController@index');
 $router->get('/contact', 'ContactController@index');
 $router->get('/login', 'LoginController@index');
 $router->get('/creation-covoiturage', 'CreationCovoiturageController@index');
 $router->get('/creation-profil', 'CreationProfilController@index');
+$router->get('/my-profil', 'ProfilController@index');
 
 
 

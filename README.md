@@ -145,11 +145,25 @@ EcoRide/
 
 ## 🗂️ Stratégie Git (résumé)
 
-- `main` → version stable (prod)
-- `develop` → version testée et en cours de validation
-- `feat/*` → nouvelles fonctionnalités
-- `fix/*` → corrections de bugs
-- `doc/*` → documentation
+---
+
+## 🌿 Suivi des branches Git
+
+| Branche                     | Type       | Statut         | Description courte                                 | Merge vers     |
+|----------------------------|------------|----------------|----------------------------------------------------|----------------|
+| main                       | stable     | ✅ à conserver  | Version finale stable (prod)                       | -              |
+| develop                    | intégration| ✅ à conserver  | Version de développement principale                | main           |
+| feat/creation-profil       | feature    | ✅ à conserver  | Formulaire de création de profil                   | develop        |
+| feat/creation-covoiturage  | feature    | ✅ à conserver  | Formulaire de création de covoiturage              | develop        |
+| feat/nav-modale-auth       | feature    | ✅ à conserver  | Navigation + modale connexion/inscription          | develop        |
+| feat/home-page             | feature    | ✅ renommée     | Page d’accueil avec présentation et images         | develop        |
+| feat/search-covoiturages   | feature    | ✅ renommée     | Formulaire et affichage de recherche               | develop        |
+| refactor/routing           | refactor   | ✅ renommée     | Refonte du système de routage                      | develop        |
+| feat/pages-header-update   | feature    | ✅ en cours     | Nouvelles pages vierges + refonte du header        | develop        |
+
+> 🗑️ Branches supprimées : `sauvegarde-apres-stash`, `feature/router-refactor` (doublon inutile)
+
+
 
 **Workflow recommandé :**
 
