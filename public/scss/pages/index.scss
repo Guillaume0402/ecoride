@@ -1,10 +1,9 @@
-@forward '../abstracts';     // variables + mixins
-@forward '../components';    // vos classes btn-ecoride etc.
-@forward 'covoiturages';
-@forward 'home';
-@forward '404';
-@forward '500';
-@forward 'auth';
-@forward 'contact';
-
-
+@forward "../abstracts"; // variables + mixins
+@forward "../components"; // vos classes btn-ecoride etc.
+@forward "covoiturages";
+@forward "home";
+@forward "404";
+@forward "500";
+@forward "auth";
+@forward "contact";
+@forward "my-profil";

@@ -1,20 +1,14 @@
 <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content auth-modal-content">
-
-        <div class="modal-header-custom">
-    <div class="form-switcher d-flex justify-content-center gap-5">
-        <button id="showRegister" class="btn btn-link active-tab ">Inscription</button>
-        <button id="showLogin" class="btn btn-link">Connexion</button>
-    </div>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-</div>
-
-<h3 class="modal-title text-center fw-bold fs-2 mb-4 mt-4" id="authModalLabel">Inscription</h3>
-
-
-
-
+            <div class="modal-header-custom">
+                <div class="form-switcher d-flex justify-content-center gap-5">
+                    <button id="showRegister" class="btn btn-link active-tab ">Inscription</button>
+                    <button id="showLogin" class="btn btn-link">Connexion</button>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <h3 class="modal-title text-center fw-bold fs-2 mb-4 mt-4" id="authModalLabel">Inscription</h3>
             <!-- FORM INSCRIPTION -->
             <form id="registerForm" class="auth-form p-0 p-lg-5">
                 <div class="mb-3">
@@ -37,7 +31,6 @@
                     <button type="submit" class="btn btn-inscription">Inscription</button>
                 </div>
             </form>
-
             <!-- FORM CONNEXION -->
             <form id="loginForm" class="auth-form d-none p-0 p-lg-5">
                 <div class="mb-3">
@@ -53,11 +46,8 @@
                 </div>
             </form>
         </div>
-
     </div>
 </div>
-</div>
-
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const authModal = document.getElementById('authModal');
@@ -82,12 +72,9 @@
                 title.innerText = "Inscription";
             }
         }
-
         showLogin.addEventListener('click', () => setActiveTab('login'));
         showRegister.addEventListener('click', () => setActiveTab('register'));
-
         const modal = new bootstrap.Modal(authModal);
-
         document.querySelectorAll('[data-bs-target="#authModal"]').forEach(button => {
             button.addEventListener('click', () => {
                 const start = button.getAttribute('data-start') || 'register';
