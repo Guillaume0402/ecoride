@@ -1,0 +1,213 @@
+// Styles pour la page profil utilisateur (desktop + mobile)
+@use "../abstracts" as *;
+.my-profil-card {
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(8px);
+    border-radius: 1.2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    padding: 2.5rem 2rem;
+    margin-bottom: 3rem;
+    border: none;
+}
+
+.my-profil-card .profile-avatar {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 50%;
+    background: #fff;
+    margin-bottom: 1rem;
+}
+
+.my-profil-card .profile-infos {
+    font-size: 1.05rem;
+    color: $color-white;
+}
+
+.my-profil-card .profile-infos .fw-semibold {
+    color: $color-white;
+    font-weight: 600;
+}
+
+.my-profil-card .profile-badges {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 1.5rem;
+}
+.my-profil-card .profile-badges li {
+    color: $color-white;
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.my-profil-card .profile-badges li.valid {
+    color: $color-secondary;
+}
+.my-profil-card .profile-badges li.invalid {
+    color: #fff;
+    opacity: 0.7;
+}
+
+.my-profil-card .btn-inscription {
+    min-width: 120px;
+    font-size: 1rem;
+    padding: 0.4rem 1.2rem;
+}
+
+// Section avis voyageurs
+.avis-section {
+    margin-top: 2.5rem;
+}
+.avis-section h2 {
+    color: $color-white;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 700;
+    margin-bottom: 2.5rem;
+    text-align: center;
+}
+.avis-section .card {
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(8px);
+    border-radius: 1.2rem;
+    border: none;
+    color: $color-white;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+.avis-section .card .bi-star-fill {
+    color: #ffc107;
+    font-size: 1.2rem;
+}
+.avis-section .card .blockquote {
+    font-size: 1.05rem;
+    color: $color-white;
+    margin-bottom: 1.2rem;
+}
+.avis-section .card .profile-avatar-small {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    background: #fff;
+}
+.avis-section .card .fw-semibold {
+    color: $color-white;
+    font-weight: 600;
+}
+.avis-section .card .small {
+    color: $color-white;
+    opacity: 0.7;
+}
+
+// Responsive
+@media (max-width: 991.98px) {
+    .my-profil-card {
+        padding: 1.2rem 0.5rem;
+        margin-bottom: 2rem;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .my-profil-card .row.g-0 {
+        flex-direction: column;
+    }
+    .my-profil-card .col-md-4,
+    .my-profil-card .col-md-8 {
+        width: 100%;
+        max-width: 100%;
+        text-align: left;
+        margin-bottom: 1.5rem;
+    }
+    .my-profil-card .profile-avatar {
+        margin: 0 auto 1rem auto;
+        display: block;
+    }
+    .my-profil-card .profile-badges {
+        margin-bottom: 1.2rem;
+        text-align: left;
+    }
+    .my-profil-card .btn-inscription {
+        margin: 0 auto 1.5rem auto;
+        display: block;
+    }
+    .my-profil-card .profile-infos {
+        margin-bottom: 0.5rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .my-profil-card {
+        max-width: 95vw;
+        width: 100%;
+        margin: 0 auto 1.2rem auto;
+        padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        background: rgba(0, 0, 0, 0.08);
+    }
+    .my-profil-card .row.g-0 {
+        flex-direction: column;
+        gap: 0;
+    }
+    .my-profil-card .col-md-4 {
+        order: 1;
+        text-align: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0;
+    }
+    .my-profil-card .col-md-8 {
+        order: 2;
+        text-align: left;
+        margin-bottom: 0;
+        padding-top: 0;
+    }
+    .my-profil-card .profile-avatar {
+        margin: 0 auto 0.7rem auto;
+        display: block;
+        width: 64px;
+        height: 64px;
+    }
+    .my-profil-card .profile-badges {
+        margin-bottom: 1rem;
+        text-align: left;
+        align-items: flex-start;
+        font-size: 0.95rem;
+    }
+    .my-profil-card .btn-inscription {
+        margin: 0 auto 1rem auto;
+        display: block;
+        min-width: 100px;
+        font-size: 0.95rem;
+        padding: 0.3rem 1rem;
+    }
+    .my-profil-card .profile-infos {
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+    .my-profil-card .row.g-3 {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.1rem 0;
+    }
+    .my-profil-card .row.g-3 > [class^="col-"],
+    .my-profil-card .row.g-3 > [class*=" col-"] {
+        flex: 0 0 50%;
+        max-width: 50%;
+        margin-bottom: 0.2rem;
+        padding-left: 0.1rem;
+        padding-right: 0.1rem;
+    }
+    .avis-section h2 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+    .avis-section .card {
+        padding: 1rem 0.7rem;
+        border-radius: 0.8rem;
+    }
+    .avis-section .card .blockquote {
+        font-size: 0.95rem;
+    }
+}
