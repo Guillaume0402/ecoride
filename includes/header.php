@@ -2,7 +2,7 @@
 session_start();
 // Simulation : si tu veux "simuler une connexion", mets ceci :
 $_SESSION['user'] = [
-    'name' => 'John Doe',
+    'name' => 'Mel Gang',
     'avatar' => 'assets/images/télé1.jpeg',
 ];
 ?>
@@ -22,7 +22,7 @@ $_SESSION['user'] = [
 
     <!-- Ajoute le CSS de Bootstrap AVANT ton CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
     <link rel="stylesheet" href="<?= asset('css/style.css') ?>" />
 </head>
@@ -62,7 +62,7 @@ $_SESSION['user'] = [
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end animate__animated animate__fadeIn">
                                 <li><a class="dropdown-item" href="<?= url('my-profil') ?>"><i class="bi bi-person me-2"></i> Mon profil</a></li>
-                                <li><a class="dropdown-item" href="<?= url('creation-covoiturage') ?>"><i class="bi bi-plus-circle me-2"></i> Créer un trajet</a></li>
+                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#covoitModal"><i class="bi bi-plus-circle me-2"></i> Créer un trajet</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
