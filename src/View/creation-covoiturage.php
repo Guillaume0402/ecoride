@@ -1,4 +1,4 @@
-<?php include __DIR__ . '/../../includes/header.php'; ?>
+<?php require_once __DIR__ . '/partials/header.php'; ?>
 
 <div class="container py-5 d-flex flex-column align-items-center justify-content-center">
     <h2 class="text-primary mb-4 fw-semibold">Création covoiturage</h2>
@@ -47,4 +47,4 @@
     </div>
 </div>
 
-<?php include __DIR__ . '/../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/partials/footer.php'; ?>

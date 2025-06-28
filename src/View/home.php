@@ -1,5 +1,4 @@
-<?php include __DIR__ . '/../../includes/header.php'; ?>
-
+<?php require_once __DIR__ . '/partials/header.php'; ?>
 
 <div class="container-fluid py-3 text-white">
     <div class="container-fluid">
@@ -82,4 +81,4 @@
 </div>
 
 
-<?php include __DIR__ . '/../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/partials/footer.php'; ?>

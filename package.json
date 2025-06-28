@@ -4,9 +4,10 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "sass:watch": "sass --watch public/scss/main.scss public/assets/css/style.css",
-        "sass:build": "sass public/scss/main.scss public/assets/css/style.css --style=compressed",
-        "dev": "npm-run-all --parallel sass:watch"
+        "sass:watch": "sass --watch --load-path=node_modules assets/scss/main.scss public/assets/css/style.css",
+        "sass:build": "sass assets/scss/main.scss public/assets/css/style.css --style=compressed",
+        "dev": "npm-run-all --parallel sass:watch",
+        "build": "npm run sass:build"
     },
     "keywords": [],
     "author": "",

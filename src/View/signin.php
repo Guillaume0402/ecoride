@@ -1,6 +1,5 @@
-<?php include __DIR__ . '/../../includes/header.php'; ?>
-
+<?php require_once __DIR__ . '/partials/header.php'; ?>
 <h1>inscription</h1>
 
 
-<?php include __DIR__ . '/../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/partials/footer.php'; ?>

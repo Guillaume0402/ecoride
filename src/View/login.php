@@ -1,5 +1,5 @@
-<?php include __DIR__ . '/../../includes/header.php'; ?>
+<?php require_once __DIR__ . '/partials/header.php'; ?>
 
-<?php include __DIR__ . '/../../includes/auth-modal.php'; ?>
+<?php require_once __DIR__ . '/partials/auth-modal.php'; ?>
 
-<?php include __DIR__ . '/../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/partials/footer.php'; ?>

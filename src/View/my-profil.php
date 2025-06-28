@@ -1,4 +1,4 @@
-<?php include __DIR__ . '/../../includes/header.php'; ?>
+<?php require_once __DIR__ . '/partials/header.php'; ?>
 
 <div class="container py-5">
     <div class="row justify-content-center">
@@ -105,4 +105,4 @@
     </div>
 </div>
 
-<?php include __DIR__ . '/../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/partials/footer.php'; ?>

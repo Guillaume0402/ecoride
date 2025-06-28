@@ -1,12 +1,16 @@
-.form-box {
-  background-color: transparent;
-  border-radius: 0.5rem;
-  padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-  max-width: 450px;
-  width: 100%;
-  margin: 0 auto;
-}/*# sourceMappingURL=index.min.css.map */x 0 rgba(0, 0, 0, 0.6980392157), -1px 1px 0 rgba(0, 0, 0, 0.662745098), 1px 1px 0 rgba(0, 0, 0, 0.6980392157);
+.bg-body-color-primary {
+  background-color: #215732 !important;
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+}
+
+.logo-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.7529411765), 1px -1px 0 rgba(0, 0, 0, 0.6980392157), -1px 1px 0 rgba(0, 0, 0, 0.662745098), 1px 1px 0 rgba(0, 0, 0, 0.6980392157);
 }
 
 nav.sticky-top {
@@ -173,4 +177,6 @@ footer {
     padding-top: 1rem;
     padding-bottom: 1rem;
   }
-}/*# sourceMappingURL=index.min.css.map */
+}
+
+/*# sourceMappingURL=index.css.map */

@@ -1,0 +1,61 @@
+#yaml
+version: '3.8'
+
+services:
+  # Service Web (Apache + PHP)
+  web:
+    build: .
+    container_name: ecoride_web
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_NAME=ecoride
+      - DB_USER=ecoride_user
+      - DB_PASS=ecoride_password
+    networks:
+      - ecoride_network
+
+  # Service Base de données MySQL
+  db:
+    image: mysql:8.0
+    container_name: ecoride_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: ecoride
+      MYSQL_USER: ecoride_user
+      MYSQL_PASSWORD: ecoride_password
+    ports:
+      - "3307:3306"  # Port 3307 pour éviter conflits avec WAMP
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - ecoride_network
+
+  # phpMyAdmin pour gérer la base de données
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: ecoride_phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: ecoride_user
+      PMA_PASSWORD: ecoride_password
+      PMA_ROOT_PASSWORD: root_password
+    depends_on:
+      - db
+    networks:
+      - ecoride_network
+
+volumes:
+  mysql_data:
+
+networks:
+  ecoride_network:
+    driver: bridge

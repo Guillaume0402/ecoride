@@ -1,4 +1,4 @@
-<?php include __DIR__ . '/../../includes/header.php'; ?>
+<?php require_once __DIR__ . '/partials/header.php'; ?>
 
 <div class="container text-center py-5 page-500 d-flex flex-column justify-content-center align-items-center">
     <img src="<?= asset('images/500.png') ?>" alt="Erreur 500 EcoRide" class="img-fluid mb-4 rounded shadow" style="max-width: 300px;" />
@@ -14,4 +14,4 @@
     <a href="<?= url('/') ?>" class="btn btn-inscription mt-4">← Retour à l'accueil</a>
 </div>
 
-<?php include __DIR__ . '/../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/partials/footer.php'; ?>

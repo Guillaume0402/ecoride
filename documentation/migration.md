@@ -53,28 +53,30 @@ Renommez votre fichier exporté en `init.sql` et placez-le à la racine du proje
 
 Créez un fichier `Dockerfile` à la racine :
 
-```dockerfile
+#dockerfile
 FROM php:8.2-apache
 
 # Installation des extensions PHP nécessaires pour votre ECF
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
 # Installation d'extensions supplémentaires si nécessaire
-RUN apt-get update && apt-get install -y \
-    libzip-dev \
-    zip \
-    && docker-php-ext-install zip
+RUN apt-get update && apt-get install -y libzip-dev zip \
+    && docker-php-ext-install zip \
+    && rm -rf /var/lib/apt/lists/*
+
 
 # Activation du module Apache rewrite (pour les URL propres)
 RUN a2enmod rewrite
 
 # Configuration Apache pour votre ECF
-RUN echo '<Directory /var/www/html>\n\
-    Options Indexes FollowSymLinks\n\
-    AllowOverride All\n\
-    Require all granted\n\
-</Directory>' > /etc/apache2/conf-available/ecoride.conf \
-    && a2enconf ecoride
+RUN echo '<VirtualHost *:80>\n\
+    DocumentRoot /var/www/html/public\n\
+    <Directory /var/www/html/public>\n\
+        Options Indexes FollowSymLinks\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>\n\
+</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
 # Copie des fichiers du projet
 COPY . /var/www/html/
@@ -88,7 +90,7 @@ EXPOSE 80
 
 ### 2.2 Création du docker-compose.yml
 
-```yaml
+```
 version: '3.8'
 
 services:
@@ -183,7 +185,6 @@ node_modules
 ### 3.1 Création du fichier de configuration de base de données
 
 Créez `config/database.php` :
-
 ```php
 <?php
 class Database {
@@ -195,28 +196,37 @@ class Database {
     public $conn;
 
     public function __construct() {
-        $this->host = $_ENV['DB_HOST'] ?? 'db';
-        $this->db_name = $_ENV['DB_NAME'] ?? 'ecoride';
-        $this->username = $_ENV['DB_USER'] ?? 'ecoride_user';
-        $this->password = $_ENV['DB_PASSWORD'] ?? 'ecoride_password';
-        $this->port = $_ENV['DB_PORT'] ?? '3306';
+        $this->host     = getenv('DB_HOST') ?: 'db';
+        $this->db_name  = getenv('DB_NAME') ?: 'ecoride';
+        $this->username = getenv('DB_USER') ?: 'ecoride_user';
+        $this->password = getenv('DB_PASSWORD') ?: 'ecoride_password';
+        $this->port     = getenv('DB_PORT') ?: '3306';
     }
 
     public function getConnection() {
         $this->conn = null;
-        
+
         try {
-            $dsn = "mysql:host=" . $this->host . ";port=" . $this->port . ";dbname=" . $this->db_name . ";charset=utf8";
-            $this->conn = new PDO($dsn, $this->username, $this->password);
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch(PDOException $exception) {
-            echo "Erreur de connexion : " . $exception->getMessage();
+            $dsn = "mysql:host={$this->host};port={$this->port};dbname={$this->db_name};charset=utf8";
+            $this->conn = new PDO($dsn, $this->username, $this->password, [
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'",
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            ]);
+        } catch (PDOException $exception) {
+            if (getenv('APP_DEBUG') === 'true') {
+                echo "Erreur de connexion : " . $exception->getMessage();
+            } else {
+                echo "Erreur de connexion à la base de données.";
+            }
         }
 
         return $this->conn;
     }
+
+    public function disconnect() {
+        $this->conn = null;
+    }
 }
-?>
 ```
 
 ### 3.2 Mise à jour de votre code existant
@@ -311,7 +321,7 @@ docker-compose ps
 ### 6.1 Test de l'application
 1. Accédez à http://localhost:8080
 2. Vérifiez que votre page d'accueil s'affiche
-3. Testez vos différentes pages
+3. Testez vos différentes pagesdocker
 
 ### 6.2 Test de la base de données
 1. Accédez à phpMyAdmin : http://localhost:8081
