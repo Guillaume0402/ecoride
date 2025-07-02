@@ -1,4 +1,5 @@
 @use "../abstracts" as *;
+@use "sass:color";
 
 .auth-modal-content {
     border-radius: 0.5rem;
@@ -26,7 +27,7 @@
                 transform: translate(-50%, -50%);
             }
             &:hover::before {
-                color: lighten($text-white, 10%);
+                color: color.adjust($text-white, $lightness: 10%);
             }
         }
     }

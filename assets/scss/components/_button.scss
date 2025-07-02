@@ -1,12 +1,13 @@
 // _buttons.scss
 @use "../abstracts" as *;
+@use "sass:color";
 
 // Placeholder pour les styles communs
 %btn-base {
     font-family: $font-primary;
     font-size: clamp(0.8rem, 2vw, 1rem);
     transition: all 0.3s ease;
-    padding: 0.2rem 0.5rem;
+    padding: 0.5rem 0.8rem;
     border: 1px solid $color-secondary !important;
 }
 
@@ -39,7 +40,7 @@
     border: none;
 
     &:hover {
-        background: darken($color-primary, 10%);
+        background: color.adjust($color-primary, $lightness: -10%);
         color: $color-white;
     }
 }
@@ -49,7 +50,6 @@
     @extend %btn-base;
     background: $btn-gradient;
     color: $text-white;
-
     @extend %btn-hover;
 }
 
@@ -58,7 +58,6 @@
     @extend %btn-base;    
     background: $btn-gradient;
     color: $color-white !important;
-
     @extend %btn-hover;
 }
 
@@ -68,6 +67,5 @@
     @extend %btn-text-shadow;
     background: transparent;
     color: $color-white;
-
     @extend %btn-hover;
 }

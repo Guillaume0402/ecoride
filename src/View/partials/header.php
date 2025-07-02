@@ -1,5 +1,7 @@
 <?php
 session_start();
+
+use App\Router;
 // Simulation : si tu veux "simuler une connexion", mets ceci :
 $_SESSION['user'] = [
     'name' => 'Mel Gang',
@@ -8,26 +10,7 @@ $_SESSION['user'] = [
 ?>
 
 
-
-
-
-
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EcoRide</title>
-
-    <!-- Ajoute le CSS de Bootstrap AVANT ton CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-
-    <link rel="stylesheet" href="<?= asset('css/style.css') ?>" />
-</head>
-
-<body class="page-container d-flex flex-column min-vh-100">
+<header class="page-container d-flex flex-column">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm fixed-height-80">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center mx-auto" href="<?= url('/') ?>">
@@ -78,3 +61,4 @@ $_SESSION['user'] = [
             </div>
         </div>
     </nav>
+</header>

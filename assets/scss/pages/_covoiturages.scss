@@ -43,11 +43,14 @@
     .card-header {
         .card-info {
             margin-left: 6rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
 
             .date,
             .price,
             .sep {
-                font-size: clamp(0.8rem, 2vw, 1rem);
+                font-size: clamp(1.2rem, 2vw, 1.5rem);
                 color: $text-white;
                 text-shadow: $shadow-text;
 
@@ -57,9 +60,9 @@
             .badge-eco {
                 background: $color-secondary;
                 color: $text-black;
-                font-size: 0.75rem;
+                font-size: 0.9rem;
                 text-transform: lowercase;
-                padding: 0.25em 0.5em;
+                padding: 0.25em;
                 border-radius: 6px;
                 border: 1px solid $color-primary;
             }
@@ -68,7 +71,7 @@
         .card-time {
             display: flex;
             align-items: center;
-            font-size: clamp(0.9rem, 2vw, 1rem);
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
             color: $text-white;
             text-shadow: $shadow-text;
 
@@ -93,8 +96,7 @@
             h5 {
                 color: $text-white;
                 text-shadow: $shadow-text;
-
-                font-size: 1.1rem;
+                font-size: 1.5rem;
                 margin-bottom: 0.5rem;
             }
             ul {
@@ -102,10 +104,9 @@
                 padding: 0;
                 margin: 0;
                 li {
-                    font-size: clamp(0.85rem, 2vw, 1rem);
-                    color: $text-white;
-                    text-shadow: $shadow-text;
-
+                    font-size: clamp(1rem, 2vw, 1.2rem);
+                    color: $text-black;
+                    
                     line-height: 1.4;
                     margin-bottom: 0.25rem;
                 }
@@ -114,7 +115,8 @@
 
         .btn-participate {
             align-self: flex-start;
-            margin-top: 0.5rem;
+            margin-top: 0.5rem;            
+            padding: 1.5rem;
         }
     }
 
@@ -127,7 +129,7 @@
             gap: 0.3rem;
             margin-left: 6rem;
             .star {
-                font-size: 1.4rem;
+                font-size: 1.8rem;
                 color: $text-white;
                 text-shadow: $shadow-text;
 
@@ -143,22 +145,29 @@
 }
 
 // ==== Mobile : empilement parfait (< 768px) ====
+
 @media (max-width: 767px) {
     .carpool-card {
         padding: 1rem;
 
         .card-header {
-            flex-direction: column;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
             align-items: center !important;
             .card-info {
-                justify-content: center;               
+                justify-content: center;
+                margin-bottom: 0.75rem;
             }
         }
 
         .card-body {
             flex-direction: column !important;
             align-items: center !important;
-            text-align: center;        
+            text-align: center;
+            .btn-participate {
+                margin: 1rem auto 0 !important;
+            }
         }
 
         .card-footer {
@@ -197,8 +206,7 @@
                 gap: 0.3rem;
                 margin-left: 0;
                 .star {
-                    font-size: 1.4rem;
-                    color: $text-black;
+                    font-size: 1.4rem;                    
                     cursor: pointer;
                     transition: transform 0.2s, color 0.2s;
                     &:hover {
@@ -211,33 +219,3 @@
     }
 }
 
-@media (max-width: 767px) {
-    .carpool-card {
-        padding: 1rem;
-
-        .card-header {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center !important;
-            .card-info {
-                justify-content: center;
-                margin-bottom: 0.75rem;
-            }
-        }
-
-        .card-body {
-            flex-direction: column !important;
-            align-items: center !important;
-            text-align: center;
-            .btn-participate {
-                margin: 1rem auto 0 !important;
-            }
-        }
-
-        .card-footer {
-            text-align: center;
-            margin-top: 1rem;
-        }
-    }
-}

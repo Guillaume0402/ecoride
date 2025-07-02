@@ -8,8 +8,10 @@ use App\Router;
 <head>
     <meta charset="UTF-8">
     <title>EcoRide</title>
-    <link rel="stylesheet" href="<?= url('css/style.css') ?>">
+    <link rel="icon" type="image/svg+xml" href="<?= asset('images/logo.svg') ?>">
+    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 </head>
 
 <body class="page-container d-flex flex-column min-vh-100">

@@ -26,7 +26,7 @@
         </div>
     </section>
     <!-- Filtre & tri -->
-    <section class="filter-section mb-5">
+    <section class="filter-section m-5">
         <div class="container">
             <div class="d-flex align-items-center justify-content-between flex-wrap filter-bar px-3 py-2 rounded-2">
                 <button class="btn btn-filter mb-2 mb-md-0">
@@ -60,7 +60,7 @@
                                 <span class="sep">•</span>
                                 <span class="price">20 €</span>
                                 <span class="sep">•</span>
-                                <span class="badge-eco">éco-énergie</span>
+                                <span class="badge-eco ms-2">éco-énergie</span>
                             </div>
                             <div class="card-time">
                                 <i class="bi bi-clock-fill"></i>
