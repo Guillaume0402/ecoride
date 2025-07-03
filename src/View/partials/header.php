@@ -1,12 +1,5 @@
 <?php
-session_start();
-
 use App\Router;
-// Simulation : si tu veux "simuler une connexion", mets ceci :
-$_SESSION['user'] = [
-    'name' => 'Mel Gang',
-    'avatar' => 'assets/images/télé1.jpeg',
-];
 ?>
 
 
