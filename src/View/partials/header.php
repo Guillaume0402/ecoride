@@ -25,7 +25,7 @@ use App\Router;
                         <a class="navlink nav-link " aria-current="page" href="<?= url('/') ?>">Accueil</a>
                     </li>
                     <li class="nav-item ">
-                        <a class="navlink nav-link " href="<?= url('liste-covoiturages') ?>">Covoiturages et </a>
+                        <a class="navlink nav-link " href="<?= url('liste-covoiturages') ?>">Covoiturages</a>
                     </li>
                     <li class="nav-item ">
                         <a class="navlink nav-link " href="<?= url('contact') ?>">Contact</a>
