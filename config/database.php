@@ -1,4 +1,6 @@
 <?php
+
+use Dotenv\Dotenv;
 class Database {
     private $host;
     private $db_name;
@@ -7,11 +9,15 @@ class Database {
     public $conn;
 
     public function __construct() {
-        $this->host     = 'db';
-        $this->db_name  = 'ecoride';
-        $this->username = 'ecoride_user';
-        $this->password = 'ecoride_password';
-        
+        // Chargement du .env
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../'); // ou chemin racine projet
+        $dotenv->load();
+
+        // Initialisation des variables d’environnement
+        $this->host     = $_ENV['DB_HOST'] ?? 'localhost';
+        $this->db_name  = $_ENV['DB_NAME'] ?? 'test';
+        $this->username = $_ENV['DB_USER'] ?? 'root';
+        $this->password = $_ENV['DB_PASSWORD'] ?? '';
     }
 
     public function getConnection() {
