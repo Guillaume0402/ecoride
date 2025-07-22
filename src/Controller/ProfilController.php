@@ -1,5 +1,5 @@
 <?php
-namespace App\controller;
+namespace App\Controller;
 
 class ProfilController
 {

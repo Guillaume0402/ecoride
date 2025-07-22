@@ -50,7 +50,7 @@ class Router
 
         if (is_string($callback)) { // Si le callback est une string comme 'HomeController@index'
             [$controllerName, $methodName] = explode('@', $callback); // Sépare 'HomeController' et 'index'
-            $controllerClass = "App\\controller\\$controllerName"; // Construit le nom complet de la classe
+            $controllerClass = "App\\Controller\\$controllerName"; // Construit le nom complet de la classe
 
             if (!class_exists($controllerClass)) { // Vérifie si la classe du contrôleur existe
                 $this->abort500("Contrôleur introuvable : $controllerClass"); // Erreur 500 si introuvable

@@ -1,7 +1,7 @@
 <?php
-namespace App\controller;
+namespace App\Controller;
 
-class LoginController
+class CreationProfilController
 {
     public function index(): void
     {
@@ -10,6 +10,6 @@ class LoginController
             $message = "Formulaire reçu avec les données : " . json_encode($_POST);
         }
 
-        view('login', compact('message'));
+        view('creation-profil', compact('message'));
     }
 }

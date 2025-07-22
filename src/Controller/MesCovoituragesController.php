@@ -1,11 +1,11 @@
 <?php
-namespace App\controller;
+namespace App\Controller;
 
-class ListeCovoituragesController
+class MesCovoituragesController
 {
     public function index(): void
     {
         $trajets = []; // Ex : récupérés depuis une BDD plus tard
-        view('liste-covoiturages', compact('trajets'));
+        view('mes-covoiturages', compact('covoiturages'));
     }
 }

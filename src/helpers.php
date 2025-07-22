@@ -12,11 +12,11 @@ if (!function_exists('url')) { // Vérifie si la fonction url() n'existe pas dé
 if (!function_exists('view')) { // Vérifie si la fonction view() n'existe pas déjà
     function view(string $viewName, array $data = []): void  // Charge et affiche une vue avec des données
     { 
-        $viewPath = __DIR__ . "/view/{$viewName}.php"; // Construit le chemin vers le fichier de vue (dans src/view/)
+        $viewPath = __DIR__ . "/View/{$viewName}.php"; // Construit le chemin vers le fichier de vue (dans src/view/)
 
         if (!file_exists($viewPath)) { // Vérifie si le fichier de vue existe
             http_response_code(500); // Définit le code d'erreur 500 si le fichier n'existe pas
-            require __DIR__ . "/view/error-500.php"; // Charge la page d'erreur 500
+            require __DIR__ . "/View/error-500.php"; // Charge la page d'erreur 500
             return; // Arrête l'exécution de la fonction
         }
 
@@ -25,7 +25,7 @@ if (!function_exists('view')) { // Vérifie si la fonction view() n'existe pas d
         require $viewPath; // Inclut le fichier de vue qui génère du HTML
         $content = ob_get_clean(); // Récupère le HTML généré et vide le tampon
 
-        require __DIR__ . "/view/layout.php"; // Charge le template principal qui utilise $content
+        require __DIR__ . "/View/layout.php"; // Charge le template principal qui utilise $content
     }
 }
 
