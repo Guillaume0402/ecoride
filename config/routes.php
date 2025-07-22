@@ -75,9 +75,13 @@ return [
         "controller" => "App\Controller\PageController",
         "action" => "about"
     ],
+    "/liste-covoiturages" => [
+        "controller" => "App\Controller\PageController",
+        "action" => "listeCovoiturages"
+    ],
     "/contact" => [
-        "controller" => "App\Controller\ContactController",
-        "action" => "index"
+        "controller" => "App\Controller\PageController",
+        "action" => "contact"
     ],
     "/terms" => [
         "controller" => "App\Controller\PageController",

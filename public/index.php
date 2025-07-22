@@ -8,7 +8,7 @@ ini_set('html_errors', 1);              // Formate les erreurs en HTML (avec cou
 error_reporting(E_ALL);                 // Affiche tous les types d'erreurs
 
 // Debug : Afficher l'URL demandée
-echo "URL demandée : " . $_SERVER["REQUEST_URI"] . "<br>";
+// echo "URL demandée : " . $_SERVER["REQUEST_URI"] . "<br>";
 
 // Chemin racine de l'application (dossier parent de /public)
 define('APP_ROOT', dirname(__DIR__));
@@ -25,14 +25,14 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use App\Routing\Router;
 
 // Création d'une instance du routeur
-echo "Création du router...<br>";
+// echo "Création du router...<br>";
 $router = new Router();
 
 // Traitement de la requête HTTP entrante
 // $_SERVER["REQUEST_URI"] contient l'URL demandée par l'utilisateur
-echo "Traitement de la requête...<br>";
+// echo "Traitement de la requête...<br>";
 $router->handleRequest($_SERVER["REQUEST_URI"]);
-echo "Fin du traitement.<br>";
+// echo "Fin du traitement.<br>";
 
 
 

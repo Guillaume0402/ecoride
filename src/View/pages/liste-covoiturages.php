@@ -1,4 +1,4 @@
-<?php require_once __DIR__ . '/partials/header.php'; ?>
+<?php require_once __DIR__ . '/../partials/header.php'; ?>
 <div class="container">
     <div class="text-center mt-3">
         <h1>Liste des covoiturages</h1>
@@ -240,4 +240,4 @@
         </div>
     </section>
 </div>
-<?php require_once __DIR__ . '/partials/footer.php'; ?>
+<?php require_once __DIR__ . '/../partials/footer.php'; ?>

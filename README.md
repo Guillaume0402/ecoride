@@ -1,18 +1,17 @@
 # 🌱 EcoRide – Plateforme de covoiturage écologique
 
-**EcoRide** est une application web fullstack développée en PHP Vanilla avec architecture MVC.  
-Elle a été conçue pour promouvoir le covoiturage responsable à travers une interface moderne, responsive et fonctionnelle.
+**EcoRide** est une application web fullstack en PHP (Vanilla) avec architecture MVC, conçue pour promouvoir le covoiturage responsable via une interface moderne et responsive.
 
 ---
 
-## 🔧 Stack technique utilisée
+## 🔧 Stack technique
 
-| Front-end     | Back-end           | Base de données | DevOps & Outils           |
-| ------------- | ------------------ | --------------- | ------------------------- |
-| HTML5 / CSS3  | PHP 8.2 (Vanilla)  | MySQL 8.0       | Docker + Docker Compose   |
-| Bootstrap 5.3 | PDO / SQL          | phpMyAdmin      | Git + GitHub              |
-| SASS          | Sessions PHP       |                 | Sass (compilation CSS)    |
-| JavaScript    | Routing PHP custom |                 | npm (gestion dépendances) |
+| Front-end     | Back-end          | Base de données | DevOps & Outils           |
+| ------------- | ----------------- | --------------- | ------------------------- |
+| HTML5 / CSS3  | PHP 8.2 (Vanilla) | MySQL 8.0       | Docker + Docker Compose   |
+| Bootstrap 5.3 | PDO / SQL         | phpMyAdmin      | Git + GitHub              |
+| SASS          | Sessions PHP      |                 | npm (gestion dépendances) |
+| JavaScript    | Router MVC custom |                 | Sass (compilation CSS)    |
 
 ---
 
@@ -20,46 +19,39 @@ Elle a été conçue pour promouvoir le covoiturage responsable à travers une i
 
 -   🔍 Recherche de covoiturages par ville et date
 -   🧭 Affichage des trajets avec filtres et tri
--   👤 Système d'authentification (connexion/inscription)
--   🚗 Publication de trajets pour les conducteurs
+-   👤 Authentification (connexion/inscription)
+-   🚗 Publication de trajets pour conducteurs
 -   📋 Gestion des profils utilisateurs
 -   📱 Interface responsive (desktop + mobile)
 -   🎨 Design moderne avec animations CSS
 
 ---
 
-## 🐳 Installation avec Docker (Recommandé)
+## 🐳 Installation rapide (Docker recommandé)
 
 ### 1. Prérequis
 
--   Docker Desktop installé
--   Git installé
--   Node.js et npm installés
+-   Docker Desktop
+-   Git
+-   Node.js & npm
 
-### 2. Cloner et démarrer le projet
+### 2. Clonage et démarrage
 
 ```bash
-# Cloner le projet
 git clone <votre-repo>
 cd ecoride
-
-# Installer les dépendances npm
 npm install
-
-# Compiler le CSS
 npm run sass:build
-
-# Démarrer les services Docker
 docker-compose up -d
 ```
 
-### 3. Accéder à l'application
+### 3. Accès
 
--   **Application** : http://localhost:8080
+-   **App** : http://localhost:8080
 -   **phpMyAdmin** : http://localhost:8081
--   **Base de données** : localhost:3307
+-   **BDD** : localhost:3307
 
-### 4. Services disponibles
+### 4. Services Docker
 
 | Service    | Container          | Port | Description              |
 | ---------- | ------------------ | ---- | ------------------------ |
@@ -71,186 +63,191 @@ docker-compose up -d
 
 ## 🎨 Développement CSS/SASS
 
-### Scripts disponibles
+### Scripts utiles
 
 ```bash
-# Compilation CSS
 npm run sass:build         # Compilation unique
-npm run sass:watch         # Compilation automatique (développement)
-npm run dev                 # Mode développement complet
-
-# Gestion Docker
-docker-compose up -d        # Démarrer les services
-docker-compose down         # Arrêter les services
-docker-compose exec web bash # Accéder au container web
+npm run sass:watch         # Watch SASS (dev)
+npm run dev                # Mode dev complet
+docker-compose up -d       # Démarrer les services
+docker-compose down        # Stopper les services
+docker-compose exec web bash # Shell dans le container web
 ```
 
 ### Structure SASS
 
 ```
-assets/scss/                # Sources SASS (développement)
-├── abstracts/              # Variables, mixins, fonctions
-├── base/                   # Reset, globals, typography
-├── components/             # Boutons, formulaires, cards
-├── layout/                 # Header, footer, navigation
-├── pages/                  # Styles spécifiques aux pages
-└── main.scss              # Fichier principal
+assets/scss/                # Sources SASS
+├── abstracts/              # Variables, mixins
+├── base/                   # Reset, globals
+├── components/             # Boutons, formulaires
+├── layout/                 # Header, footer
+├── pages/                  # Styles pages
+└── main.scss               # Entrée principale
 
-public/assets/css/          # CSS compilé (production)
-└── style.css              # Fichier final (Bootstrap + custom)
+public/assets/css/          # CSS compilé
+└── style.css               # Fichier final
 ```
 
 ---
 
-## 📁 Arborescence du projet
+## 📁 Arborescence du projet (extrait)
 
 ```
-EcoRide/
-├── assets/                 # Sources de développement
-│   └── scss/              # Fichiers SASS sources
-├── public/                # Dossier public (DocumentRoot Docker)
-│   ├── assets/            # Images, CSS compilé
-│   ├── .htaccess          # Rewrite URL
-│   └── index.php          # Point d'entrée
-├── src/                   # Code source PHP
-│   ├── Controller/        # Contrôleurs MVC
-│   ├── Model/             # Modèles (vide pour l'instant)
-│   ├── View/              # Vues et templates
-│   │   ├── partials/      # Header, footer, modales
-│   │   └── layout.php     # Template principal
-│   ├── Router.php         # Routeur custom
-│   └── helpers.php        # Fonctions utilitaires
-├── config/                # Configuration
-│   └── database.php       # Connexion BDD
-├── documentation/         # Documentation projet
-├── vendor/                # Dépendances Composer
-├── node_modules/          # Dépendances npm
-├── docker-compose.yml     # Configuration Docker
-├── Dockerfile             # Image Docker custom
-└── package.json           # Scripts npm et dépendances
+ecoride/
+├── assets/
+│   └── scss/
+├── public/
+│   ├── assets/
+│   └── index.php
+├── src/
+│   ├── Controller/
+│   │   ├── Controller.php
+│   │   ├── ErrorController.php
+│   │   └── PageController.php
+│   ├── Db/
+│   ├── Model/
+│   ├── Routing/
+│   │   └── Router.php
+│   └── View/
+│       ├── layout.php
+│       ├── home.php
+│       ├── partials/
+│       │   ├── header.php
+│       │   └── footer.php
+│       └── pages/
+├── config/
+├── documentation/
+├── vendor/
+├── docker-compose.yml
+├── Dockerfile
+└── package.json
 ```
 
 ---
 
-## 🚀 Architecture technique
+## 🚀 Architecture technique & Router
 
-### Routing PHP custom
+### Routing MVC custom
 
-```php
-// Exemples de routes définies
-$router->get('/', 'HomeController@index');
-$router->get('/liste-covoiturages', 'ListeCovoituragesController@index');
-$router->get('/contact', 'ContactController@index');
-$router->get('/login', 'LoginController@index');
-```
+Le routing est géré par la classe `Router` : `src/Routing/Router.php`.
 
-### Pattern MVC
-
-```
-src/Controller/
-├── HomeController.php
-├── ContactController.php
-├── ListeCovoituragesController.php
-└── LoginController.php
-
-src/View/
-├── home.php
-├── contact.php
-├── liste-covoiturages.php
-└── login.php
-```
-
-### Helpers et utilitaires
+**Exemple d'utilisation :**
 
 ```php
-// Fonctions disponibles
-url('/path')              // Génère une URL absolue
-asset('css/style.css')    // Génère le chemin vers les assets
-view('template', $data)   // Charge une vue avec des données
+$router = new App\Routing\Router();
+$router->handleRequest($uri);
+```
+
+Le Router analyse l'URL, sélectionne le contrôleur et la méthode à appeler, puis charge la vue correspondante.
+
+**Organisation typique :**
+
+-   Contrôleurs : `src/Controller/`
+-   Vues : `src/View/`
+-   Layout principal : `src/View/layout.php`
+-   Partials (header/footer) : `src/View/partials/`
+
+**Exemple de contrôleur :**
+
+```php
+namespace App\Controller;
+
+class PageController extends Controller {
+    public function home() {
+        $this->render('home');
+    }
+
+    public function contact() {
+        $this->render('pages/contact');
+    }
+}
+```
+
+**Exemple de vue :**
+
+```php
+// src/View/home.php
+<?php require_once __DIR__ . '/partials/header.php'; ?>
+<main>
+    <h1>Bienvenue sur EcoRide !</h1>
+    <!-- contenu -->
+</main>
+<?php require_once __DIR__ . '/partials/footer.php'; ?>
 ```
 
 ---
 
 ## 🎯 Fonctionnalités développées
 
-### ✅ Pages implémentées
-
--   **Accueil** : Présentation du service avec hero section
--   **Liste covoiturages** : Affichage des trajets disponibles
--   **Contact** : Formulaire de contact avec validation
+-   **Accueil** : Présentation du service
+-   **Liste covoiturages** : Affichage des trajets
+-   **Contact** : Formulaire de contact
 -   **Connexion/Inscription** : Modales d'authentification
--   **Profil** : Gestion des informations utilisateur
--   **Création covoiturage** : Publication de nouveaux trajets
-
-### 🎨 Design et UX
-
--   Interface responsive (mobile-first)
--   Animations CSS fluides
--   Système de couleurs cohérent
--   Bootstrap customisé via SASS
--   Icons Bootstrap intégrés
+-   **Profil utilisateur** : Gestion du compte
+-   **Création de covoiturage** : Publication de trajets
 
 ---
 
 ## 👨‍💻 Git & Organisation
 
-### Stratégie de branches
+### Branches
 
 ```bash
-main                    # Version stable production
-develop                 # Intégration des fonctionnalités
-feat/nom-fonctionnalite # Développement feature
-fix/nom-correction      # Corrections de bugs
+main                    # Production
+develop                 # Intégration
+feat/xxx                # Nouvelle fonctionnalité
+fix/xxx                 # Correction
+refactor/xxx            # Refactoring
 ```
 
-### Convention de commits
+### Commits
 
 ```bash
-feat: ajout de la page de contact
-fix: correction des erreurs 404 CSS
-style: amélioration du design des cartes
-refactor: optimisation du routeur PHP
+feat: ajout fonctionnalité
+fix: correction bug
+style: amélioration design
+refactor: refonte code
 ```
 
 ---
 
-## 🛠️ Configuration Docker
+## 🛠️ Docker & Apache
 
-### Services configurés
+### docker-compose.yml (extrait)
 
 ```yaml
-# docker-compose.yml (simplifié)
 services:
-    web: # Apache + PHP 8.2
+    web:
         build: .
         ports: ["8080:80"]
-
-    db: # MySQL 8.0
+        volumes:
+            - .:/var/www/html
+    db:
         image: mysql:8.0
         ports: ["3307:3306"]
-
-    phpmyadmin: # Interface BDD
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: ecoride
+    phpmyadmin:
         image: phpmyadmin/phpmyadmin
         ports: ["8081:80"]
 ```
 
-### Configuration Apache
+### Dockerfile (extrait)
 
 ```dockerfile
-# Dockerfile (extrait)
 FROM php:8.2-apache
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 RUN a2enmod rewrite
+COPY . /var/www/html/
 ```
 
 ---
 
-## 📋 Base de données
-
-### Structure MySQL
+## 📋 Base de données (exemple)
 
 ```sql
--- Tables principales (exemple)
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100),
@@ -273,80 +270,30 @@ CREATE TABLE covoiturages (
 
 ---
 
-## 🧪 Tests et qualité
+## 🧪 Qualité & tests
 
-### Validation du code
-
--   Code PHP respectant les standards PSR
--   HTML5 valide et sémantique
--   CSS compilé et optimisé
--   Tests manuels sur différents navigateurs
-
-### Performance
-
--   CSS minifié en production
--   Images optimisées
--   Requêtes SQL optimisées
--   Cache approprié
+-   Respect des standards PSR
+-   HTML5/CSS3 valides
+-   Tests manuels navigateurs
+-   CSS minifié, images optimisées
+-   Architecture MVC propre
 
 ---
 
 ## 📌 Améliorations futures
 
-### Fonctionnalités prévues
-
 -   [ ] Système de réservation complet
--   [ ] Notifications en temps réel
--   [ ] API REST pour mobile
--   [ ] Système de paiement
+-   [ ] Notifications temps réel
+-   [ ] API REST mobile
+-   [ ] Paiement en ligne
 -   [ ] Géolocalisation avancée
 -   [ ] Tests automatisés
-
-### Optimisations techniques
-
--   [ ] Cache Redis
--   [ ] CDN pour les assets
--   [ ] Monitoring et logs
--   [ ] CI/CD Pipeline
--   [ ] Tests unitaires PHPUnit
 
 ---
 
 ## 🤝 Contribution
 
-Ce projet est réalisé dans le cadre de l'**ECF TP DWWM – Studi**.  
-Usage pédagogique uniquement.
-
-### Workflow de développement
-
-```bash
-# Créer une nouvelle fonctionnalité
-git checkout develop
-git pull origin develop
-git checkout -b feat/ma-nouvelle-fonctionnalite
-
-# Développer et commiter
-git add .
-git commit -m "feat: description de la fonctionnalité"
-
-# Pousser et merger
-git push origin feat/ma-nouvelle-fonctionnalite
-# Puis merge request vers develop
-```
-
----
-
-## 🧾 Licence
-
-Projet réalisé dans le cadre de l'**ECF TP DWWM – Studi**.  
-Usage pédagogique uniquement. Tous droits réservés © 2025.
-
----
-
-## 🙏 Remerciements
-
-Merci à Studi, à la communauté open source (PHP, Bootstrap, SASS, Docker),  
-et aux formateurs pour leur accompagnement tout au long du projet.
+Projet réalisé dans le cadre de l'**ECF TP DWWM – Studi**. Usage pédagogique uniquement.
 
 ---
 
