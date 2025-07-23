@@ -22,12 +22,6 @@ class AuthController
         require_once APP_ROOT . '/src/View/pages/login.php';
     }
 
-    public function showRegister(): void
-    {
-        // Afficher la page d'inscription
-        require_once APP_ROOT . '/src/View/pages/register.php';
-    }
-
     // MÉTHODES API POUR VOTRE MODAL (nouvelles routes)
     public function apiRegister(): void
     {
