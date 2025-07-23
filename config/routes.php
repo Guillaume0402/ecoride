@@ -10,16 +10,50 @@ return [
 
     // Routes pour l'authentification
     "/login" => [
+        'GET' => [
         "controller" => "App\Controller\AuthController",
-        "action" => "showLogin"
+        "action" => "showLogin"]
     ],
     "/register" => [
-        "controller" => "App\Controller\AuthController",
-        "action" => "showRegister"
+        'POST' => [
+            "controller" => "App\Controller\AuthController",
+            "action" => "showRegister"
+        ]
     ],
     "/logout" => [
         "controller" => "App\Controller\AuthController",
         "action" => "logout"
+    ],
+
+    // NOUVELLES ROUTES API pour votre modal
+        "/api/auth/register" => [
+        'POST' => [
+            "controller" => "App\Controller\AuthController",
+            "action" => "apiRegister"
+        ]
+    ],
+    "/api/auth/login" => [
+        'POST' => [
+            "controller" => "App\Controller\AuthController",
+            "action" => "apiLogin"
+        ]
+    ],
+    "/register" => [
+        'GET' => [
+            "controller" => "App\Controller\AuthController",
+            "action" => "showRegister"
+        ]
+    ],
+    "/api/auth/logout" => [
+    'POST' => [
+        "controller" => "App\Controller\AuthController",
+        "action" => "apiLogout"
+    ]
+    ],
+
+    "/api/auth/logout" => [
+        "controller" => "App\Controller\AuthController",
+        "action" => "apiLogout"
     ],
 
     // Routes pour les trajets

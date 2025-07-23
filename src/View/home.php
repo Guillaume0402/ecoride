@@ -45,7 +45,13 @@
 
                 <!-- Boutons (mobile uniquement) -->
                 <div class="d-lg-none mb-4 d-flex flex-column align-items-center gap-3">
-                    <a href="/signin" class="btn btn-inscription me-2">Inscrivez-vous</a>
+                    <button
+                        class="btn btn-inscription me-2"
+                        data-bs-toggle="modal"
+                        data-bs-target="#authModal"
+                        data-start="register">
+                        Inscrivez-vous
+                    </button>
                     <a href="/liste-covoiturages" class="btn btn-custom-outline">Rechercher un trajet</a>
                 </div>
 

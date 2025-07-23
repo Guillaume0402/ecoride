@@ -17,8 +17,13 @@ define('APP_ROOT', dirname(__DIR__));
 // Nom du fichier de configuration d'environnement
 define('APP_ENV', ".env.local");
 
+// Inclure la configuration
+require_once __DIR__ . '/../config/app.php';
+
 // Inclusion de l'autoloader de Composer pour charger automatiquement les classes
 require_once __DIR__ . '/../vendor/autoload.php';
+
+
 
 
 // Import de la classe Router
@@ -33,7 +38,12 @@ $router = new Router();
 $router->handleRequest($_SERVER["REQUEST_URI"]);
 
 
+if (php_sapi_name() === 'cli-server') {
+    $path = __DIR__ . parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
+    if (is_file($path)) {
+        return false;
+    }
+}
 
 
-
-
+echo "URI demandée : " . $_SERVER["REQUEST_URI"] . "<br>";

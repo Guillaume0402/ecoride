@@ -44,7 +44,7 @@ class Router
             if (!method_exists($controller, $action)) {
                 throw new \Exception("Action not found: " . $action . " in controller " . $controllerPath);
             }
-
+            error_log("PATH DEMANDE : " . $path);
             // Exécution de l'action
             $controller->$action();
         } catch (\Exception $e) {
