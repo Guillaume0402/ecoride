@@ -25,14 +25,13 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use App\Routing\Router;
 
 // Création d'une instance du routeur
-// echo "Création du router...<br>";
 $router = new Router();
 
 // Traitement de la requête HTTP entrante
 // $_SERVER["REQUEST_URI"] contient l'URL demandée par l'utilisateur
-// echo "Traitement de la requête...<br>";
+
 $router->handleRequest($_SERVER["REQUEST_URI"]);
-// echo "Fin du traitement.<br>";
+
 
 
 
