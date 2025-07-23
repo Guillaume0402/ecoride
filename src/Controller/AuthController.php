@@ -12,6 +12,7 @@ class AuthController
 
     public function __construct()
     {
+        error_log("CONSTRUCTEUR AuthController APPELÉ");
         $this->userModel = new UserModel();
     }
 
@@ -42,6 +43,11 @@ class AuthController
                 throw new \Exception('Cet email est déjà utilisé');
             }
 
+            if (!class_exists('App\Entity\User')) {
+                error_log("La classe App\\Entity\\User n'existe pas !");
+            } else {
+                error_log("La classe App\\Entity\\User est bien trouvée !");
+            }
             $user = new User($data['username'], $data['email']);
             $user->hashPassword($data['password']);
 

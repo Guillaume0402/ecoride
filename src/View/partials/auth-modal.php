@@ -60,7 +60,7 @@
 </div>
 
 <script>
-    // 🔥 SOLUTION : Déplacer les fonctions utilitaires en dehors du DOMContentLoaded
+    // SOLUTION : Déplacer les fonctions utilitaires en dehors du DOMContentLoaded
 
     // Fonction pour afficher les messages
     function showAlert(message, type = 'danger') {
@@ -98,6 +98,7 @@
         }
     }
 
+    // Fonction pour changer d'onglet (connexion/inscription)
     function setActiveTab(tab) {
         hideAlert(); // Masquer les alertes lors du changement d'onglet
 
@@ -122,6 +123,9 @@
         }
     }
 
+    // Fonction pour gérer l'authentification (connexion/inscription)
+    // Utilise fetch pour appeler les API correspondantes
+    // Renvoie une promesse pour gérer les réponses
     async function handleAuth(endpoint, formData) {
         try {
             const response = await fetch(`/api/auth/${endpoint}`, {
@@ -165,6 +169,7 @@
         const loginForm = document.getElementById('loginForm');
         const registerForm = document.getElementById('registerForm');
 
+        // Gestionnaires pour les boutons de changement d'onglet
         showLogin.addEventListener('click', () => setActiveTab('login'));
         showRegister.addEventListener('click', () => setActiveTab('register'));
 
@@ -188,6 +193,7 @@
             setLoading(registerForm, false);
         });
 
+        // Gestion du formulaire de connexion
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             hideAlert();

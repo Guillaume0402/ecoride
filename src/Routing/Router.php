@@ -8,6 +8,8 @@ use App\Controller\ErrorController;
 class Router
 {
 
+
+
     private $routes;
     public function __construct()
     {
@@ -19,6 +21,7 @@ class Router
     public function handleRequest(string $uri)
     {
         try {
+
             // Normalisation de l'URI pour correspondre au format des routes
             $path = $this->normalizePath($uri);
 
@@ -36,9 +39,20 @@ class Router
             if (!class_exists($controllerPath)) {
                 throw new \Exception("Controller class not found: " . $controllerPath);
             }
-
+            if (!class_exists($controllerPath)) {
+                error_log("Controller class introuvable : " . $controllerPath);
+                throw new \Exception("Controller class not found: " . $controllerPath);
+            }
             // Instanciation du contrôleur
             $controller = new $controllerPath();
+
+            error_log("On cherche la méthode : '$action' dans " . get_class($controller));
+            error_log("Méthodes trouvées dans le contrôleur : " . implode(', ', get_class_methods($controller)));
+
+            if (!method_exists($controller, $action)) {
+                error_log("Action introuvable : " . $action . " dans " . $controllerPath);
+                throw new \Exception("Action not found: " . $action . " in controller " . $controllerPath);
+            }
 
             // Vérification de l'existence de la méthode (action)
             if (!method_exists($controller, $action)) {

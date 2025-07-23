@@ -6,44 +6,46 @@ namespace App\Model;
 use App\Entity\User;
 use App\Db\Mysql;
 
-class UserModel 
+class UserModel
 {
     private \PDO $conn;
     private string $table = "users";
 
-    public function __construct() 
+    public function __construct()
     {
+        error_log("CONSTRUCTEUR UserModel AVANT Mysql::getInstance()");
         $this->conn = Mysql::getInstance()->getPDO();
+        error_log("CONSTRUCTEUR UserModel APRÈS Mysql::getInstance()");
     }
 
-    public function findById(int $id): ?User 
+    public function findById(int $id): ?User
     {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE id = :id");
         $stmt->execute([':id' => $id]);
-        
+
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $data ? $this->hydrate($data) : null;
     }
 
-    public function findByEmail(string $email): ?User 
+    public function findByEmail(string $email): ?User
     {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE email = :email");
         $stmt->execute([':email' => $email]);
-        
+
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $data ? $this->hydrate($data) : null;
     }
 
-    public function findByPseudo(string $pseudo): ?User 
+    public function findByPseudo(string $pseudo): ?User
     {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE pseudo = :pseudo");
         $stmt->execute([':pseudo' => $pseudo]);
-        
+
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $data ? $this->hydrate($data) : null;
     }
 
-    public function save(User $user): bool 
+    public function save(User $user): bool
     {
         // Validation avant sauvegarde
         $errors = $user->validate();
@@ -58,11 +60,11 @@ class UserModel
         }
     }
 
-    private function create(User $user): bool 
+    private function create(User $user): bool
     {
         $sql = "INSERT INTO {$this->table} (pseudo, email, password, role_id, credits, note, photo, created_at) 
                 VALUES (:pseudo, :email, :password, :role_id, :credits, :note, :photo, :created_at)";
-        
+
         $stmt = $this->conn->prepare($sql);
         $result = $stmt->execute([
             ':pseudo' => $user->getPseudo(),
@@ -82,13 +84,13 @@ class UserModel
         return $result;
     }
 
-    private function update(User $user): bool 
+    private function update(User $user): bool
     {
         $sql = "UPDATE {$this->table} 
                 SET pseudo = :pseudo, email = :email, role_id = :role_id, 
                     credits = :credits, note = :note, photo = :photo 
                 WHERE id = :id";
-        
+
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([
             ':pseudo' => $user->getPseudo(),
@@ -101,32 +103,32 @@ class UserModel
         ]);
     }
 
-    public function updateCredits(int $userId, int $newCredits): bool 
+    public function updateCredits(int $userId, int $newCredits): bool
     {
         $stmt = $this->conn->prepare("UPDATE {$this->table} SET credits = :credits WHERE id = :id");
         return $stmt->execute([':credits' => $newCredits, ':id' => $userId]);
     }
 
-    public function updateNote(int $userId, float $newNote): bool 
+    public function updateNote(int $userId, float $newNote): bool
     {
         $stmt = $this->conn->prepare("UPDATE {$this->table} SET note = :note WHERE id = :id");
         return $stmt->execute([':note' => $newNote, ':id' => $userId]);
     }
 
-    private function hydrate(array $data): User 
+    private function hydrate(array $data): User
     {
         $user = new User($data['pseudo'], $data['email']);
         $user->setId((int)$data['id'])
-             ->setPassword($data['password'])
-             ->setRoleId((int)$data['role_id'])
-             ->setCredits((int)$data['credits'])
-             ->setNote((float)$data['note'])
-             ->setPhoto($data['photo']);
-        
+            ->setPassword($data['password'])
+            ->setRoleId((int)$data['role_id'])
+            ->setCredits((int)$data['credits'])
+            ->setNote((float)$data['note'])
+            ->setPhoto($data['photo']);
+
         if ($data['created_at']) {
             $user->setCreatedAt(new \DateTime($data['created_at']));
         }
-        
+
         return $user;
     }
 }

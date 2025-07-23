@@ -4,7 +4,7 @@ namespace App\Db;
 
 class Mysql
 {
-    
+
     private string $dbName;
     private string $dbUser;
     private string $dbPassword;
@@ -13,7 +13,7 @@ class Mysql
 
     private ?\PDO $pdo = null;
     private static ?self $_instance = null;
- 
+
     private function __construct()
     {
         // Chargement de la configuration depuis le fichier .env.local
@@ -25,26 +25,29 @@ class Mysql
         $this->dbUser = $dbConf['db_user'];
         $this->dbPassword = $dbConf['db_password'];
         $this->dbPort = $dbConf['db_port'];
+        error_log("CONF MYSQL : host={$this->dbHost}, name={$this->dbName}, user={$this->dbUser}, port={$this->dbPort}");
     }
 
     public static function getInstance(): self
     {
+        error_log("Mysql::getInstance() appelé !");
         // Création de l'instance si elle n'existe pas encore
         if (self::$_instance === null) {
             self::$_instance = new self();
         }
-        return self::$_instance; 
+        return self::$_instance;
     }
 
-    public function getPDO():\PDO
+    public function getPDO(): \PDO
     {
-        // Création de la connexion seulement si elle n'existe pas encore (lazy loading)
         if (is_null($this->pdo)) {
-            // Construction du DSN (Data Source Name) pour MySQL
             $dsn = "mysql:host={$this->dbHost};charset=utf8;dbname={$this->dbName};port={$this->dbPort}";
-
-            // Création de la connexion PDO
-            $this->pdo = new \PDO($dsn, $this->dbUser, $this->dbPassword);
+            try {
+                $this->pdo = new \PDO($dsn, $this->dbUser, $this->dbPassword);
+            } catch (\PDOException $e) {
+                error_log("Erreur PDO lors de la connexion : " . $e->getMessage());
+                throw $e; // (optionnel : à commenter si tu veux une erreur contrôlée)
+            }
         }
         return $this->pdo;
     }

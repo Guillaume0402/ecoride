@@ -1,6 +1,7 @@
 <?php
 
 
+
 // Forcer l'affichage des erreurs sur Linux en développement
 ini_set('display_errors', 1);           // Affiche les erreurs à l'écran
 ini_set('display_startup_errors', 1);   // Affiche les erreurs au démarrage de PHP
@@ -46,4 +47,4 @@ if (php_sapi_name() === 'cli-server') {
 }
 
 
-echo "URI demandée : " . $_SERVER["REQUEST_URI"] . "<br>";
+
