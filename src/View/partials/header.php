@@ -1,13 +1,8 @@
-<?php
-use App\Router;
-?>
-
-
 <header class="page-container d-flex flex-column">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm fixed-height-80">
         <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center mx-auto" href="<?= url('/') ?>">
-                <img class="logo" src="<?= asset('images/logo.svg') ?>" alt="Logo EcoRide">
+            <a class="navbar-brand d-flex align-items-center mx-auto" href="/">
+                <img class="logo" src="/assets/images/logo.svg"  alt="Logo EcoRide">
                 <span class="logo-title ms-2">Ecoride</span>
             </a>
             <button class="navbar-toggler"
@@ -22,13 +17,13 @@ use App\Router;
             <div class="collapse navbar-collapse justify-content-end mobile-menu" id="navbarNavDropdown">
                 <ul class="navbar-nav gap-3">
                     <li class="nav-item align-items-center">
-                        <a class="navlink nav-link " aria-current="page" href="<?= url('/') ?>">Accueil</a>
+                        <a class="navlink nav-link " aria-current="page" href="/">Accueil</a>
                     </li>
                     <li class="nav-item ">
-                        <a class="navlink nav-link " href="<?= url('liste-covoiturages') ?>">Covoiturages</a>
+                        <a class="navlink nav-link " href="/liste-covoiturages">Covoiturages</a>
                     </li>
                     <li class="nav-item ">
-                        <a class="navlink nav-link " href="<?= url('contact') ?>">Contact</a>
+                        <a class="navlink nav-link " href="/contact">Contact</a>
                     </li>
                     <li class="nav-item dropdown d-flex flex-column align-items-center">
                         <?php if (isset($_SESSION['user'])): ?>
@@ -37,12 +32,12 @@ use App\Router;
                                 <span class="d-none d-lg-inline text-white "><?= $_SESSION['user']['name'] ?></span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end animate__animated animate__fadeIn">
-                                <li><a class="dropdown-item" href="<?= url('my-profil') ?>"><i class="bi bi-person me-2"></i> Mon profil</a></li>
+                                <li><a class="dropdown-item" href="/my-profil"><i class="bi bi-person me-2"></i> Mon profil</a></li>
                                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#covoitModal"><i class="bi bi-plus-circle me-2"></i> Créer un trajet</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i> Déconnexion</a></li>
+                                <li><a class="dropdown-item" id="logoutBtn" id="logoutBtn" href="/logout"><i class="bi bi-box-arrow-right me-2"></i> Déconnexion</a></li>
                             </ul>
                         <?php else: ?>
                             <button class="btn btn-inscription mt-3 mt-lg-1" data-bs-toggle="modal" data-bs-target="#authModal" data-start="login">

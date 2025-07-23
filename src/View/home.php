@@ -1,6 +1,8 @@
 <?php require_once __DIR__ . '/partials/header.php'; ?>
 
 <div class="container-fluid py-3 text-white">
+    <div id="authAlert" class="alert d-none"></div>
+
     <div class="container-fluid">
 
         <!-- H1 PRINCIPAL + SOUS-TITRE + BOUTONS -->
@@ -16,15 +18,15 @@
                     Inscrivez-vous
                 </button>
 
-                <a href="<?= url('liste-covoiturages') ?>" class="btn btn-custom-outline">Rechercher un trajet</a>
+                <a href="/liste-covoiturages" class="btn btn-custom-outline">Rechercher un trajet</a>
             </div>
         </section>
 
         <!-- Collage d’images desktop uniquement -->
         <div class="image-collage d-none d-lg-flex position-relative justify-content-center mb-3">
-            <img src="<?= asset('images/img1.png') ?>" class="img1 position-absolute rounded shadow" alt="img1">
-            <img src="<?= asset('images/img2.png') ?>" class="img2 position-absolute rounded shadow" alt="img2">
-            <img src="<?= asset('images/img3.png') ?>" class="img3 position-absolute rounded shadow" alt="img3">
+            <img src="/assets/images/img1.png" class="img1 position-absolute rounded shadow" alt="img1">
+            <img src="/assets/images/img2.png" class="img2 position-absolute rounded shadow" alt="img2">
+            <img src="/assets/images/img3.png" class="img3 position-absolute rounded shadow" alt="img3">
         </div>
 
         <!-- Grille responsive texte + formulaire -->
@@ -40,18 +42,24 @@
 
                 <!-- Image désert (mobile uniquement) -->
                 <div class="image-mobile d-lg-none my-4">
-                    <img src="<?= asset('images/img1.png') ?>" class="img-fluid rounded shadow" alt="Route désert">
+                    <img src="/assets/images/img1.png" class="img-fluid rounded shadow" alt="Route désert">
                 </div>
 
                 <!-- Boutons (mobile uniquement) -->
                 <div class="d-lg-none mb-4 d-flex flex-column align-items-center gap-3">
-                    <a href="<?= url('signin') ?>" class="btn btn-inscription me-2">Inscrivez-vous</a>
-                    <a href="<?= url('liste-covoiturages') ?>" class="btn btn-custom-outline">Rechercher un trajet</a>
+                    <button
+                        class="btn btn-inscription me-2"
+                        data-bs-toggle="modal"
+                        data-bs-target="#authModal"
+                        data-start="register">
+                        Inscrivez-vous
+                    </button>
+                    <a href="/liste-covoiturages" class="btn btn-custom-outline">Rechercher un trajet</a>
                 </div>
 
                 <!-- Image forêt (mobile uniquement) -->
                 <div class="image-mobile d-lg-none my-4 ">
-                    <img src="<?= asset('images/img2.png') ?>" class="img-fluid rounded shadow" alt="Route verdoyante">
+                    <img src="/assets/images/img2.png" class="img-fluid rounded shadow" alt="Route verdoyante">
                 </div>
             </div>
 
@@ -79,6 +87,13 @@
 
     </div>
 </div>
-
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('logout')) {
+        showAlert('Vous êtes bien déconnecté(e) !', 'success');
+    }
+});
+</script>
 
 <?php require_once __DIR__ . '/partials/footer.php'; ?>

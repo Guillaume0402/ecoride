@@ -1,4 +1,4 @@
-<?php require_once __DIR__ . '/partials/header.php'; ?>
+<?php require_once __DIR__ . '/../partials/header.php'; ?>
 <div class="container">
     <div class="text-center mt-3">
         <h1>Liste des covoiturages</h1>
@@ -69,7 +69,7 @@
                         </div>
                         <!-- Body : avatar / détails / bouton -->
                         <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                            <img src=<?= asset('images/télé5.jpeg') ?> alt="Avatar" class="avatar rounded-circle">
+                            <img src="" alt="Avatar" class="avatar rounded-circle">
                             <div class="details flex-grow-1 px-3 m-auto">
                                 <h5>Mel gang</h5>
                                 <ul>
@@ -115,7 +115,7 @@
                         </div>
                         <!-- Body : avatar / détails / bouton -->
                         <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                            <img src=<?= asset('images/télé4.jpeg') ?>  alt="Avatar" class="avatar rounded-circle">
+                            <img src="" alt="Avatar" class="avatar rounded-circle">
                             <div class="details flex-grow-1 px-3 m-auto">
                                 <h5>Mel gang</h5>
                                 <ul>
@@ -161,7 +161,7 @@
                         </div>
                         <!-- Body : avatar / détails / bouton -->
                         <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                            <img src=<?= asset('images/télé3.jpeg') ?>  alt="Avatar" class="avatar rounded-circle">
+                            <img src="" alt="Avatar" class="avatar rounded-circle">
                             <div class="details flex-grow-1 px-3 m-auto">
                                 <h5>Mel gang</h5>
                                 <ul>
@@ -207,7 +207,7 @@
                         </div>
                         <!-- Body : avatar / détails / bouton -->
                         <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                            <img src=<?= asset('images/télé2.jpeg') ?>  alt="Avatar" class="avatar rounded-circle">
+                            <img src="" alt="Avatar" class="avatar rounded-circle">
                             <div class="details flex-grow-1 px-3 m-auto">
                                 <h5>Mel gang</h5>
                                 <ul>
@@ -240,4 +240,4 @@
         </div>
     </section>
 </div>
-<?php require_once __DIR__ . '/partials/footer.php'; ?>
+<?php require_once __DIR__ . '/../partials/footer.php'; ?>

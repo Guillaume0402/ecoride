@@ -12,6 +12,7 @@
 - Facilité de déploiement
 - Isolation des dépendances
 - Configuration versionnée avec le projet
+- Architecture Entity/Model moderne
 
 ## 📂 Structure finale du projet
 
@@ -23,16 +24,39 @@ ecoride/
 ├── .dockerignore
 ├── init.sql
 ├── config/
-│   └── database.php
+│   └── app.php
 ├── public/
 │   ├── index.php
-│   ├── css/
-│   ├── js/
-│   └── images/
-└── src/
-    ├── controllers/
-    ├── models/
-    └── views/
+│   ├── assets/
+│   │   ├── css/
+│   │   ├── js/
+│   │   └── images/
+├── src/
+│   ├── Controller/
+│   │   ├── Controller.php
+│   │   ├── AuthController.php
+│   │   ├── UserController.php
+│   │   └── CovoiturageController.php
+│   ├── Entity/
+│   │   ├── User.php
+│   │   ├── Covoiturage.php
+│   │   └── Vehicle.php
+│   ├── Model/
+│   │   ├── UserModel.php
+│   │   ├── CovoiturageModel.php
+│   │   └── VehicleModel.php
+│   ├── Db/
+│   │   └── Mysql.php
+│   ├── Routing/
+│   │   └── Router.php
+│   └── View/
+│       ├── layout.php
+│       ├── partials/
+│       └── pages/
+├── assets/
+│   └── scss/
+├── documentation/
+└── vendor/
 ```
 
 ## 🔧 Étape 1 : Sauvegarde de votre base de données
@@ -51,32 +75,26 @@ Renommez votre fichier exporté en `init.sql` et placez-le à la racine du proje
 
 ### 2.1 Création du Dockerfile
 
-Créez un fichier `Dockerfile` à la racine :
-
-#dockerfile
+```dockerfile
 FROM php:8.2-apache
 
-# Installation des extensions PHP nécessaires pour votre ECF
+# Installation des extensions PHP nécessaires
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# Installation d'extensions supplémentaires si nécessaire
-RUN apt-get update && apt-get install -y libzip-dev zip \
+# Installation d'extensions supplémentaires
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    zip \
+    unzip \
+    git \
     && docker-php-ext-install zip \
     && rm -rf /var/lib/apt/lists/*
 
-
-# Activation du module Apache rewrite (pour les URL propres)
+# Activation du module Apache rewrite
 RUN a2enmod rewrite
 
-# Configuration Apache pour votre ECF
-RUN echo '<VirtualHost *:80>\n\
-    DocumentRoot /var/www/html/public\n\
-    <Directory /var/www/html/public>\n\
-        Options Indexes FollowSymLinks\n\
-        AllowOverride All\n\
-        Require all granted\n\
-    </Directory>\n\
-</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+# Configuration Apache pour EcoRide
+COPY docker/apache-config.conf /etc/apache2/sites-available/000-default.conf
 
 # Copie des fichiers du projet
 COPY . /var/www/html/
@@ -88,9 +106,38 @@ RUN chown -R www-data:www-data /var/www/html \
 EXPOSE 80
 ```
 
-### 2.2 Création du docker-compose.yml
+### 2.2 Configuration Apache (docker/apache-config.conf)
 
+```apache
+<VirtualHost *:80>
+    DocumentRoot /var/www/html/public
+    
+    <Directory /var/www/html/public>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+        
+        # URL Rewriting pour le Router
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule ^(.*)$ index.php [QSA,L]
+    </Directory>
+    
+    # Sécurité : Bloquer l'accès aux dossiers sensibles
+    <Directory /var/www/html/src>
+        Deny from all
+    </Directory>
+    
+    <Directory /var/www/html/config>
+        Deny from all
+    </Directory>
+</VirtualHost>
 ```
+
+### 2.3 Création du docker-compose.yml
+
+```yaml
 version: '3.8'
 
 services:
@@ -102,13 +149,17 @@ services:
       - "8080:80"
     volumes:
       - .:/var/www/html
+      - ./logs:/var/log/apache2
     depends_on:
       - db
     environment:
+      - APP_ENV=development
+      - APP_DEBUG=true
       - DB_HOST=db
-      - DB_NAME=ecoride
+      - DB_NAME=ecoride_db
       - DB_USER=ecoride_user
       - DB_PASS=ecoride_password
+      - DB_PORT=3306
     networks:
       - ecoride_network
 
@@ -118,14 +169,15 @@ services:
     container_name: ecoride_db
     environment:
       MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: ecoride
+      MYSQL_DATABASE: ecoride_db
       MYSQL_USER: ecoride_user
       MYSQL_PASSWORD: ecoride_password
     ports:
-      - "3307:3306"  # Port 3307 pour éviter conflits avec WAMP
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./docker/mysql-config.cnf:/etc/mysql/conf.d/custom.cnf
     networks:
       - ecoride_network
 
@@ -153,12 +205,13 @@ networks:
     driver: bridge
 ```
 
-### 2.3 Création du fichier .env
+### 2.4 Fichiers de configuration
 
+#### .env
 ```env
 # Configuration de la base de données
 DB_HOST=db
-DB_NAME=ecoride
+DB_NAME=ecoride_db
 DB_USER=ecoride_user
 DB_PASSWORD=ecoride_password
 DB_PORT=3306
@@ -167,140 +220,273 @@ DB_PORT=3306
 APP_ENV=development
 APP_DEBUG=true
 APP_URL=http://localhost:8080
+APP_ROOT=/var/www/html
+
+# Sécurité
+SESSION_TIMEOUT=3600
+HASH_SALT=your_random_salt_here
 ```
 
-### 2.4 Création du .dockerignore
-
+#### .dockerignore
 ```
 .git
 .gitignore
 README.md
-MIGRATION_WAMP_TO_DOCKER.md
+documentation/
 node_modules
 .env.local
+logs/
+vendor/
+*.log
+.vscode/
 ```
 
-## 🔧 Étape 3 : Adaptation du code PHP
+## 🔧 Étape 3 : Architecture Entity/Model moderne
 
-### 3.1 Création du fichier de configuration de base de données
+### 3.1 Singleton de connexion base de données
 
-Créez `config/database.php` :
 ```php
+// src/Db/Mysql.php
 <?php
-class Database {
-    private $host;
-    private $db_name;
-    private $username;
-    private $password;
-    private $port;
-    public $conn;
+namespace App\Db;
 
-    public function __construct() {
-        $this->host     = getenv('DB_HOST') ?: 'db';
-        $this->db_name  = getenv('DB_NAME') ?: 'ecoride';
-        $this->username = getenv('DB_USER') ?: 'ecoride_user';
-        $this->password = getenv('DB_PASSWORD') ?: 'ecoride_password';
-        $this->port     = getenv('DB_PORT') ?: '3306';
+class Mysql
+{
+    private string $dbName;
+    private string $dbUser;
+    private string $dbPassword;
+    private string $dbPort;
+    private string $dbHost;
+    private ?\PDO $pdo = null;
+    private static ?self $_instance = null;
+ 
+    private function __construct()
+    {
+        // Chargement de la configuration depuis les variables d'environnement
+        $this->dbHost = $_ENV['DB_HOST'] ?? 'db';
+        $this->dbName = $_ENV['DB_NAME'] ?? 'ecoride_db';
+        $this->dbUser = $_ENV['DB_USER'] ?? 'ecoride_user';
+        $this->dbPassword = $_ENV['DB_PASSWORD'] ?? 'ecoride_password';
+        $this->dbPort = $_ENV['DB_PORT'] ?? '3306';
     }
 
-    public function getConnection() {
-        $this->conn = null;
+    public static function getInstance(): self
+    {
+        if (self::$_instance === null) {
+            self::$_instance = new self();
+        }
+        return self::$_instance; 
+    }
 
-        try {
-            $dsn = "mysql:host={$this->host};port={$this->port};dbname={$this->db_name};charset=utf8";
-            $this->conn = new PDO($dsn, $this->username, $this->password, [
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'",
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-            ]);
-        } catch (PDOException $exception) {
-            if (getenv('APP_DEBUG') === 'true') {
-                echo "Erreur de connexion : " . $exception->getMessage();
-            } else {
-                echo "Erreur de connexion à la base de données.";
+    public function getPDO(): \PDO
+    {
+        if (is_null($this->pdo)) {
+            $dsn = "mysql:host={$this->dbHost};charset=utf8;dbname={$this->dbName};port={$this->dbPort}";
+            
+            try {
+                $this->pdo = new \PDO($dsn, $this->dbUser, $this->dbPassword, [
+                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                    \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+                    \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
+                ]);
+            } catch (\PDOException $e) {
+                throw new \Exception("Erreur de connexion à la base de données : " . $e->getMessage());
             }
         }
-
-        return $this->conn;
-    }
-
-    public function disconnect() {
-        $this->conn = null;
+        return $this->pdo;
     }
 }
 ```
 
-### 3.2 Mise à jour de votre code existant
-
-Si vous aviez des connexions en dur, remplacez-les par :
+### 3.2 Entity User moderne
 
 ```php
-// Ancien code WAMP (à remplacer)
-// $conn = new mysqli("localhost", "root", "", "ecoride");
-
-// Nouveau code Docker
-require_once 'config/database.php';
-$database = new Database();
-$conn = $database->getConnection();
-```
-
-## 🔧 Étape 4 : Structure recommandée pour votre ECF
-
-### 4.1 Organisation MVC suggérée
-
-```
-src/
-├── controllers/
-│   ├── HomeController.php
-│   ├── UserController.php
-│   ├── RideController.php
-│   └── AuthController.php
-├── models/
-│   ├── User.php
-│   ├── Ride.php
-│   └── Booking.php
-└── views/
-    ├── layouts/
-    │   ├── header.php
-    │   └── footer.php
-    ├── home/
-    ├── user/
-    └── ride/
-```
-
-### 4.2 Exemple de contrôleur de base
-
-```php
+// src/Entity/User.php
 <?php
-// src/controllers/BaseController.php
-class BaseController {
-    protected $db;
-    
-    public function __construct() {
-        require_once __DIR__ . '/../config/database.php';
-        $database = new Database();
-        $this->db = $database->getConnection();
+namespace App\Entity;
+
+class User 
+{
+    private ?int $id = null;
+    private string $pseudo;
+    private string $email;
+    private string $password;
+    private int $roleId = 1;
+    private int $credits = 20;
+    private float $note = 0.00;
+    private ?string $photo = null;
+    private ?\DateTime $createdAt = null;
+
+    public function __construct(string $pseudo, string $email)
+    {
+        $this->pseudo = $pseudo;
+        $this->email = $email;
+        $this->createdAt = new \DateTime();
     }
+
+    // Getters/Setters...
     
-    protected function render($view, $data = []) {
-        extract($data);
-        require_once __DIR__ . '/../views/' . $view . '.php';
+    public function hashPassword(string $plainPassword): void 
+    {
+        $this->password = password_hash($plainPassword, PASSWORD_DEFAULT);
+    }
+
+    public function verifyPassword(string $plainPassword): bool 
+    {
+        return password_verify($plainPassword, $this->password);
+    }
+
+    public function validate(): array 
+    {
+        $errors = [];
+        
+        if (empty($this->pseudo) || strlen($this->pseudo) < 3) {
+            $errors[] = "Le pseudo doit contenir au moins 3 caractères";
+        }
+        
+        if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Email invalide";
+        }
+        
+        return $errors;
     }
 }
-?>
 ```
 
-## 🚀 Étape 5 : Lancement de l'environnement Docker
+### 3.3 Model User avec pattern Repository
 
-### 5.1 Arrêt de WAMP
-1. Arrêtez tous les services WAMP
-2. Assurez-vous que les ports 80, 3306 ne sont pas utilisés
+```php
+// src/Model/UserModel.php
+<?php
+namespace App\Model;
 
-### 5.2 Construction et lancement
+use App\Entity\User;
+use App\Db\Mysql;
 
-Ouvrez un terminal dans le dossier de votre projet et exécutez :
+class UserModel 
+{
+    private \PDO $conn;
+    private string $table = "users";
+
+    public function __construct() 
+    {
+        $this->conn = Mysql::getInstance()->getPDO();
+    }
+
+    public function findByEmail(string $email): ?User 
+    {
+        $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE email = :email");
+        $stmt->execute([':email' => $email]);
+        
+        $data = $stmt->fetch();
+        return $data ? $this->hydrate($data) : null;
+    }
+
+    public function save(User $user): bool 
+    {
+        $errors = $user->validate();
+        if (!empty($errors)) {
+            throw new \InvalidArgumentException('Données invalides: ' . implode(', ', $errors));
+        }
+
+        return $user->getId() ? $this->update($user) : $this->create($user);
+    }
+
+    private function hydrate(array $data): User 
+    {
+        $user = new User($data['pseudo'], $data['email']);
+        $user->setId((int)$data['id'])
+             ->setPassword($data['password'])
+             ->setRoleId((int)$data['role_id'])
+             ->setCredits((int)$data['credits'])
+             ->setNote((float)$data['note'])
+             ->setPhoto($data['photo']);
+        
+        if ($data['created_at']) {
+            $user->setCreatedAt(new \DateTime($data['created_at']));
+        }
+        
+        return $user;
+    }
+}
+```
+
+## 🔧 Étape 4 : Configuration de l'application
+
+### 4.1 Fichier de configuration principal
+
+```php
+// config/app.php
+<?php
+
+// Définition des constantes
+define('APP_ROOT', dirname(__DIR__));
+define('APP_ENV', $_ENV['APP_ENV'] ?? 'development');
+define('APP_DEBUG', $_ENV['APP_DEBUG'] === 'true');
+
+// Autoloader simple (en attendant Composer)
+spl_autoload_register(function ($class) {
+    $prefix = 'App\\';
+    $baseDir = APP_ROOT . '/src/';
+    
+    if (strncmp($prefix, $class, strlen($prefix)) !== 0) {
+        return;
+    }
+    
+    $relativeClass = substr($class, strlen($prefix));
+    $file = $baseDir . str_replace('\\', '/', $relativeClass) . '.php';
+    
+    if (file_exists($file)) {
+        require $file;
+    }
+});
+
+// Gestion des erreurs
+if (APP_DEBUG) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+}
+
+// Configuration des sessions
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+session_start();
+```
+
+### 4.2 Point d'entrée moderne
+
+```php
+// public/index.php
+<?php
+require_once __DIR__ . '/../config/app.php';
+
+use App\Routing\Router;
+
+try {
+    $router = new Router();
+    $router->handleRequest($_SERVER['REQUEST_URI']);
+} catch (Exception $e) {
+    if (APP_DEBUG) {
+        echo "Erreur : " . $e->getMessage();
+    } else {
+        http_response_code(500);
+        echo "Une erreur est survenue.";
+    }
+}
+```
+
+## 🚀 Étape 5 : Lancement et tests
+
+### 5.1 Construction et lancement
 
 ```bash
-# Construction des images
+# Clone ou mise à jour du projet
+git pull origin main
+
+# Construction des images Docker
 docker-compose build
 
 # Lancement des services
@@ -310,111 +496,138 @@ docker-compose up -d
 docker-compose ps
 ```
 
-### 5.3 Accès aux services
+### 5.2 Accès aux services
 
 - **Application EcoRide** : http://localhost:8080
 - **phpMyAdmin** : http://localhost:8081
-- **Base de données** : localhost:3307 (depuis votre machine)
+- **Base de données** : localhost:3307
 
-## 🔍 Étape 6 : Vérification et tests
+### 5.3 Tests de validation
 
-### 6.1 Test de l'application
-1. Accédez à http://localhost:8080
-2. Vérifiez que votre page d'accueil s'affiche
-3. Testez vos différentes pagesdocker
-
-### 6.2 Test de la base de données
-1. Accédez à phpMyAdmin : http://localhost:8081
-2. Connectez-vous avec `ecoride_user` / `ecoride_password`
-3. Vérifiez que vos tables sont présentes et les données importées
-
-### 6.3 Test de connexion PHP-MySQL
-
-Créez un fichier `test_db.php` temporaire :
-
+#### Test de connexion base de données
 ```php
+// test_connection.php
 <?php
-require_once 'config/database.php';
+require_once 'config/app.php';
+
+use App\Db\Mysql;
 
 try {
-    $database = new Database();
-    $conn = $database->getConnection();
+    $db = Mysql::getInstance();
+    $pdo = $db->getPDO();
     
-    if ($conn) {
-        echo "✅ Connexion à la base de données réussie !<br>";
-        
-        // Test d'une requête simple
-        $stmt = $conn->query("SHOW TABLES");
-        $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        
-        echo "📋 Tables trouvées :<br>";
-        foreach ($tables as $table) {
-            echo "- " . $table . "<br>";
-        }
+    echo "✅ Connexion réussie !<br>";
+    
+    $stmt = $pdo->query("SHOW TABLES");
+    $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    
+    echo "📋 Tables trouvées :<br>";
+    foreach ($tables as $table) {
+        echo "- " . $table . "<br>";
     }
 } catch (Exception $e) {
     echo "❌ Erreur : " . $e->getMessage();
 }
-?>
+```
+
+#### Test Entity/Model
+```php
+// test_user.php
+<?php
+require_once 'config/app.php';
+
+use App\Entity\User;
+use App\Model\UserModel;
+
+try {
+    // Test Entity
+    $user = new User('TestUser', 'test@example.com');
+    $user->hashPassword('password123');
+    
+    echo "✅ Entity User créée<br>";
+    echo "Pseudo: " . $user->getPseudo() . "<br>";
+    echo "Email: " . $user->getEmail() . "<br>";
+    
+    // Test Model
+    $userModel = new UserModel();
+    
+    if ($userModel->save($user)) {
+        echo "✅ Utilisateur sauvegardé avec l'ID: " . $user->getId() . "<br>";
+    }
+    
+} catch (Exception $e) {
+    echo "❌ Erreur : " . $e->getMessage();
+}
 ```
 
 ## 🛠️ Commandes Docker utiles
 
-### Gestion des services
 ```bash
-# Démarrer les services
-docker-compose up -d
+# Gestion des services
+docker-compose up -d                    # Démarrer
+docker-compose down                     # Arrêter
+docker-compose restart                  # Redémarrer
+docker-compose logs web                 # Logs du service web
 
-# Arrêter les services
-docker-compose down
+# Accès aux containers
+docker-compose exec web bash            # Shell dans le container web
+docker-compose exec db mysql -u root -p # Accès MySQL
 
-# Redémarrer les services
-docker-compose restart
+# Monitoring
+docker-compose ps                       # État des services
+docker stats                           # Utilisation des ressources
+```
 
-# Voir les logs
-docker-compose logs
+## 📊 Monitoring et maintenance
 
-# Voir les logs d'un service spécifique
+### Logs applicatifs
+```bash
+# Logs Apache
 docker-compose logs web
+
+# Logs MySQL
+docker-compose logs db
+
+# Logs en temps réel
+docker-compose logs -f
 ```
 
-### Accès aux containers
+### Backup de la base de données
 ```bash
-# Accéder au container web
-docker-compose exec web bash
+# Export
+docker-compose exec db mysqldump -u ecoride_user -p ecoride_db > backup.sql
 
-# Accéder au container de base de données
-docker-compose exec db mysql -u ecoride_user -p ecoride
+# Import
+docker-compose exec -T db mysql -u ecoride_user -p ecoride_db < backup.sql
 ```
 
-## 🎯 Avantages obtenus
+## 🎯 Avantages de cette architecture
 
-✅ **Environnement isolé** : Pas de conflit avec d'autres projets
-✅ **Reproductibilité** : Même environnement sur toutes les machines
-✅ **Facilité de déploiement** : Configuration portable
-✅ **Gestion des versions** : PHP, MySQL versionnés
-✅ **Backup simple** : Export/import de volumes Docker
+✅ **Séparation des responsabilités** : Entity/Model/Controller bien définis
+✅ **Singleton de connexion** : Une seule instance PDO réutilisée
+✅ **Gestion d'erreurs robuste** : Try-catch et logging
+✅ **Configuration centralisée** : Variables d'environnement
+✅ **Sécurité renforcée** : Requêtes préparées, validation
+✅ **Maintenabilité** : Code modulaire et testable
 
-## 🚨 Points d'attention pour votre ECF
+## 🔄 Migration de données existantes
 
-1. **Documentation** : Cette migration montre votre capacité d'adaptation
-2. **Bonnes pratiques** : Utilisation de Docker est un plus professionnel
-3. **Sécurité** : Variables d'environnement pour les mots de passe
-4. **Architecture** : Structure MVC plus claire
+Si vous avez des données dans votre ancienne base WAMP :
 
-## 🔄 Retour en arrière (si nécessaire)
+```bash
+# 1. Export depuis WAMP
+mysqldump -u root -p ecoride > wamp_export.sql
 
-Si vous devez revenir à WAMP temporairement :
-1. `docker-compose down`
-2. Redémarrez WAMP
-3. Vos fichiers ne sont pas modifiés, tout fonctionne comme avant
+# 2. Import dans Docker
+docker-compose exec -T db mysql -u ecoride_user -p ecoride_db < wamp_export.sql
+```
 
 ## 📝 Prochaines étapes
 
-Après la migration réussie :
-1. Développer votre backend avec la nouvelle architecture
-2. Implémenter l'authentification
-3. Créer vos CRUD pour les trajets
-4. Ajouter les fonctionnalités de réservation
+1. **Compléter les Entities** : Covoiturage, Vehicle, etc.
+2. **Implémenter les Models** : CRUD complet
+3. **Développer les Controllers** : Logique métier
+4. **Créer les vues** : Interface utilisateur
+5. **Tests et optimisations** : Performance et sécurité
 
-Cette migration vous positionne parfaitement pour la suite de votre ECF !
+Cette migration vous donne une base solide et moderne pour votre ECF EcoRide ! 🚀

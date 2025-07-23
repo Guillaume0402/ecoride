@@ -1,4 +1,4 @@
-<?php require_once __DIR__ . '/partials/header.php'; ?>
+<?php require_once __DIR__ . '/../partials/header.php'; ?>
 
 <div class="container py-5">
     <div class="row justify-content-center">
@@ -14,7 +14,7 @@
                                 <span class="text-white ms-2">(24)</span>
                             </div>
                             <h2 class="fw-bold text-white mb-2">Mel Gang</h2>
-                            <img src="<?= asset('images/télé1.jpeg') ?>" alt="Avatar" class="rounded-circle bg-white mb-2" style="width:70px;height:70px;object-fit:cover;">
+                            <img src="/assets/images/télé1.jpeg" alt="Avatar" class="rounded-circle bg-white mb-2" style="width:70px;height:70px;object-fit:cover;">
                             <ul class="list-unstyled text-white small mb-3">
                                 <li>Animaux accepté</li>
                                 <li>Sans tabac</li>
@@ -93,7 +93,7 @@
                         <p class="mb-0">"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare."</p>
                     </blockquote>
                     <div class="d-flex align-items-center gap-2 mt-3">
-                        <img src="<?= asset('images/404.png') ?>" alt="Avatar" class="rounded-circle bg-white" style="width:40px;height:40px;object-fit:cover;">
+                        <img src="/assets/images/404.png" alt="Avatar" class="rounded-circle bg-white" style="width:40px;height:40px;object-fit:cover;">
                         <div>
                             <div class="fw-semibold text-white">Name Surname</div>
                             <div class="small text-white-50">Position, Company name</div>
@@ -105,4 +105,4 @@
     </div>
 </div>
 
-<?php require_once __DIR__ . '/partials/footer.php'; ?>
+<?php require_once __DIR__ . '/../partials/footer.php'; ?>
