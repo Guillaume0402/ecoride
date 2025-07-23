@@ -1,5 +1,6 @@
 <?php
 
+
 // Autoloader simple
 spl_autoload_register(function ($class) {
     $prefix = 'App\\';

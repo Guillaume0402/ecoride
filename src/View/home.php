@@ -1,6 +1,8 @@
 <?php require_once __DIR__ . '/partials/header.php'; ?>
 
 <div class="container-fluid py-3 text-white">
+    <div id="authAlert" class="alert d-none"></div>
+
     <div class="container-fluid">
 
         <!-- H1 PRINCIPAL + SOUS-TITRE + BOUTONS -->
@@ -85,6 +87,13 @@
 
     </div>
 </div>
-
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('logout')) {
+        showAlert('Vous êtes bien déconnecté(e) !', 'success');
+    }
+});
+</script>
 
 <?php require_once __DIR__ . '/partials/footer.php'; ?>

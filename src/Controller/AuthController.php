@@ -12,7 +12,7 @@ class AuthController
 
     public function __construct()
     {
-        error_log("CONSTRUCTEUR AuthController APPELÉ");
+        // error_log("CONSTRUCTEUR AuthController APPELÉ");
         $this->userModel = new UserModel();
     }
 
@@ -43,11 +43,11 @@ class AuthController
                 throw new \Exception('Cet email est déjà utilisé');
             }
 
-            if (!class_exists('App\Entity\User')) {
-                error_log("La classe App\\Entity\\User n'existe pas !");
-            } else {
-                error_log("La classe App\\Entity\\User est bien trouvée !");
-            }
+            // if (!class_exists('App\Entity\User')) {
+            //     error_log("La classe App\\Entity\\User n'existe pas !");
+            // } else {
+            //     error_log("La classe App\\Entity\\User est bien trouvée !");
+            // }
             $user = new User($data['username'], $data['email']);
             $user->hashPassword($data['password']);
 
@@ -79,9 +79,11 @@ class AuthController
                 throw new \Exception('Email ou mot de passe incorrect');
             }
 
-            $_SESSION['user_id'] = $user->getId();
-            $_SESSION['user_pseudo'] = $user->getPseudo();
-            $_SESSION['user_email'] = $user->getEmail();
+            $_SESSION['user'] = [
+                'name'   => $user->getPseudo(),
+                'email'  => $user->getEmail(),
+                'avatar' => "/assets/images/logo.svg" 
+            ];
 
             echo json_encode([
                 'success' => true,
@@ -104,7 +106,7 @@ class AuthController
     public function logout(): void
     {
         session_destroy();
-        header('Location: /');
+        header('Location: /?logout=1');
         exit;
     }
 }

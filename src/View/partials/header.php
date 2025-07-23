@@ -37,7 +37,7 @@
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
-                                <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right me-2"></i> Déconnexion</a></li>
+                                <li><a class="dropdown-item" id="logoutBtn" id="logoutBtn" href="/logout"><i class="bi bi-box-arrow-right me-2"></i> Déconnexion</a></li>
                             </ul>
                         <?php else: ?>
                             <button class="btn btn-inscription mt-3 mt-lg-1" data-bs-toggle="modal" data-bs-target="#authModal" data-start="login">

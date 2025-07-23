@@ -139,6 +139,15 @@
             const data = await response.json();
 
             if (data.success) {
+                // Désactiver tous les champs du formulaire courant
+                const currentForm = endpoint === 'login' ?
+                    document.getElementById('loginForm') :
+                    document.getElementById('registerForm');
+                Array.from(currentForm.elements).forEach(el => el.disabled = true);
+                // Optionnel : désactiver les interactions et réduire l'opacité
+                currentForm.style.pointerEvents = "none";
+                currentForm.style.opacity = 0.7; // (optionnel, visuel)
+
                 showAlert(data.message, 'success');
 
                 if (endpoint === 'login') {
@@ -152,14 +161,18 @@
                         document.getElementById('emailLogin').value = formData.email;
                     }, 1500);
                 }
+                return true; // <-- Retourne true si succès
             } else {
                 showAlert(data.message, 'danger');
+                return false; // <-- Retourne false si erreur serveur/app
             }
         } catch (error) {
             showAlert('Erreur de connexion au serveur', 'danger');
             console.error('Erreur:', error);
+            return false; // <-- Retourne false si erreur réseau/JS
         }
     }
+
 
     // 🔥 Les événements restent dans le DOMContentLoaded
     document.addEventListener('DOMContentLoaded', () => {
@@ -189,8 +202,11 @@
                 return;
             }
 
-            await handleAuth('register', data);
-            setLoading(registerForm, false);
+            const result = await handleAuth('register', data);
+
+            if (!result) {
+                setLoading(registerForm, false);
+            }
         });
 
         // Gestion du formulaire de connexion
@@ -202,8 +218,14 @@
             const formData = new FormData(loginForm);
             const data = Object.fromEntries(formData);
 
-            await handleAuth('login', data);
-            setLoading(loginForm, false);
+            // handleAuth renvoie une promesse, tu peux savoir s’il y a eu succès ou non
+            const result = await handleAuth('login', data);
+
+            // ATTENTION : setLoading(loginForm, false) ne doit être fait QUE si erreur !
+            // Donc : si le login a échoué, on réactive, sinon NON
+            if (!result) {
+                setLoading(loginForm, false);
+            }
         });
 
         // Gestion de l'ouverture de la modal
@@ -225,4 +247,29 @@
             setLoading(loginForm, false);
         });
     });
+
+    // Déconnexion via API (AJAX)
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showAlert('Vous êtes bien déconnecté(e) !', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/'; // Redirige vers l'accueil ou où tu veux
+                    }, 1000);
+                }
+            } catch (err) {
+                showAlert('Erreur lors de la déconnexion', 'danger');
+            }
+        });
+    }
 </script>

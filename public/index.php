@@ -21,6 +21,8 @@ define('APP_ENV', ".env.local");
 // Inclure la configuration
 require_once __DIR__ . '/../config/app.php';
 
+
+
 // Inclusion de l'autoloader de Composer pour charger automatiquement les classes
 require_once __DIR__ . '/../vendor/autoload.php';
 
