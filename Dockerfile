@@ -10,8 +10,16 @@ RUN curl -sS https://getcomposer.org/installer | php && \
     chmod +x /usr/local/bin/composer
 
 # Installation de MongoDB
-RUN pecl install mongodb \
-    && echo "extension=mongodb.so" > /usr/local/etc/php/conf.d/mongodb.ini
+RUN apt-get update && apt-get install -y \
+    libssl-dev \
+    pkg-config \
+    libcurl4-openssl-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    && pecl install mongodb \
+    && echo "extension=mongodb.so" > /usr/local/etc/php/conf.d/mongodb.ini \
+    && rm -rf /var/lib/apt/lists/*
 
 # Installation d'extensions supplémentaires
 RUN apt-get update && apt-get install -y libzip-dev zip \
