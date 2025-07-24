@@ -20,11 +20,11 @@ class Mysql
         $dbConf = parse_ini_file(APP_ROOT . "/" . APP_ENV);
 
         // Attribution des valeurs de configuration aux propriétés
-        $this->dbHost = $dbConf['db_host'];
-        $this->dbName = $dbConf['db_name'];
-        $this->dbUser = $dbConf['db_user'];
-        $this->dbPassword = $dbConf['db_password'];
-        $this->dbPort = $dbConf['db_port'];
+        $this->dbHost = $dbConf['DB_HOST'];
+        $this->dbName = $dbConf['DB_NAME'];
+        $this->dbUser = $dbConf['DB_USER'];
+        $this->dbPassword = $dbConf['DB_PASSWORD'];
+        $this->dbPort = $dbConf['DB_PORT'];
         error_log("CONF MYSQL : host={$this->dbHost}, name={$this->dbName}, user={$this->dbUser}, port={$this->dbPort}");
     }
 

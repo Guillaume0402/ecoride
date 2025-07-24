@@ -24,26 +24,6 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Structure de la table `avis`
---
-
-DROP TABLE IF EXISTS `avis`;
-CREATE TABLE IF NOT EXISTS `avis` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `chauffeur_id` int NOT NULL,
-  `passager_id` int NOT NULL,
-  `note` decimal(4,2) NOT NULL,
-  `commentaire` text,
-  `status` enum('en_attente','valide','refuse') DEFAULT 'en_attente',
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `fk_avis_chauffeur` (`chauffeur_id`),
-  KEY `fk_avis_passager` (`passager_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
 -- Structure de la table `covoiturages`
 --
 

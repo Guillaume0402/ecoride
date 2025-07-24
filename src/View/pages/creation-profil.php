@@ -48,7 +48,7 @@
 
 
   <!-- Submit button -->
-  <button data-mdb-ripple-init type="button" class="btn btn-primary btn-block mb-4">Annuler</button>
+  <button data-mdb-ripple-init type="button" class="btn btn-custom-outline">Annuler</button>
   <button data-mdb-ripple-init type="button" class="btn btn-inscription me-2">Sauvegarder</button>
 </form>
 </section>
