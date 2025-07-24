@@ -1,4 +1,4 @@
-<div class="form-box-profil mt-5">
+<div class="form-box-profil mt-5 mb-5">
     <div class="container mt-5 d-flex align-items-center justify-content-between form-section">
         <h3>Votre Profil</h3>
         <!-- Boutons -->
@@ -7,7 +7,7 @@
             <button type="submit" class="btn btn-inscription me-2">Sauvegarder</button>
         </div>
     </div>
-    <form method="POST" action="/profile/update" enctype="multipart/form-data" class="p-4 rounded shadow-sm">
+    <form method="POST" action="/profile/update" enctype="multipart/form-data" class="p-4">
         <!-- PHOTO -->
         <div class="mb-4 text-center form-section">
             <label for="photo" class="form-label fw-bold">Photo</label><br>

@@ -8,16 +8,24 @@ use App\Db\Mysql;
 
 class UserModel
 {
+    // Connexion PDO à la base de données
     private \PDO $conn;
+    // Nom de la table utilisée
     private string $table = "users";
 
     public function __construct()
     {
+        // Initialise la connexion à la base de données via le singleton Mysql
         error_log("CONSTRUCTEUR UserModel AVANT Mysql::getInstance()");
         $this->conn = Mysql::getInstance()->getPDO();
         error_log("CONSTRUCTEUR UserModel APRÈS Mysql::getInstance()");
     }
 
+    /**
+     * Recherche un utilisateur par son ID
+     * @param int $id
+     * @return User|null
+     */
     public function findById(int $id): ?User
     {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE id = :id");
@@ -27,6 +35,11 @@ class UserModel
         return $data ? $this->hydrate($data) : null;
     }
 
+    /**
+     * Recherche un utilisateur par son email
+     * @param string $email
+     * @return User|null
+     */
     public function findByEmail(string $email): ?User
     {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE email = :email");
@@ -36,6 +49,11 @@ class UserModel
         return $data ? $this->hydrate($data) : null;
     }
 
+    /**
+     * Recherche un utilisateur par son pseudo
+     * @param string $pseudo
+     * @return User|null
+     */
     public function findByPseudo(string $pseudo): ?User
     {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE pseudo = :pseudo");
@@ -45,6 +63,11 @@ class UserModel
         return $data ? $this->hydrate($data) : null;
     }
 
+    /**
+     * Sauvegarde un utilisateur (création ou mise à jour)
+     * @param User $user
+     * @return bool
+     */
     public function save(User $user): bool
     {
         // Validation avant sauvegarde
@@ -53,6 +76,7 @@ class UserModel
             throw new \InvalidArgumentException('Données invalides: ' . implode(', ', $errors));
         }
 
+        // Si l'utilisateur a déjà un ID, on met à jour, sinon on crée
         if ($user->getId()) {
             return $this->update($user);
         } else {
@@ -60,6 +84,11 @@ class UserModel
         }
     }
 
+    /**
+     * Crée un nouvel utilisateur en base de données
+     * @param User $user
+     * @return bool
+     */
     private function create(User $user): bool
     {
         $sql = "INSERT INTO {$this->table} (pseudo, email, password, role_id, credits, note, photo, created_at) 
@@ -77,6 +106,7 @@ class UserModel
             ':created_at' => $user->getCreatedAt()->format('Y-m-d H:i:s')
         ]);
 
+        // Récupère l'ID généré et l'assigne à l'objet User
         if ($result) {
             $user->setId((int)$this->conn->lastInsertId());
         }
@@ -84,6 +114,11 @@ class UserModel
         return $result;
     }
 
+    /**
+     * Met à jour un utilisateur existant
+     * @param User $user
+     * @return bool
+     */
     private function update(User $user): bool
     {
         $sql = "UPDATE {$this->table} 
@@ -103,18 +138,35 @@ class UserModel
         ]);
     }
 
+    /**
+     * Met à jour le nombre de crédits d'un utilisateur
+     * @param int $userId
+     * @param int $newCredits
+     * @return bool
+     */
     public function updateCredits(int $userId, int $newCredits): bool
     {
         $stmt = $this->conn->prepare("UPDATE {$this->table} SET credits = :credits WHERE id = :id");
         return $stmt->execute([':credits' => $newCredits, ':id' => $userId]);
     }
 
+    /**
+     * Met à jour la note d'un utilisateur
+     * @param int $userId
+     * @param float $newNote
+     * @return bool
+     */
     public function updateNote(int $userId, float $newNote): bool
     {
         $stmt = $this->conn->prepare("UPDATE {$this->table} SET note = :note WHERE id = :id");
         return $stmt->execute([':note' => $newNote, ':id' => $userId]);
     }
 
+    /**
+     * Hydrate un objet User à partir d'un tableau de données
+     * @param array $data
+     * @return User
+     */
     private function hydrate(array $data): User
     {
         $user = new User($data['pseudo'], $data['email']);
@@ -125,6 +177,7 @@ class UserModel
             ->setNote((float)$data['note'])
             ->setPhoto($data['photo']);
 
+        // Si la date de création existe, on la convertit en objet DateTime
         if ($data['created_at']) {
             $user->setCreatedAt(new \DateTime($data['created_at']));
         }

@@ -8,103 +8,123 @@ use App\Model\UserModel;
 
 class AuthController
 {
+    // Modèle utilisateur pour accéder aux données des utilisateurs
     private UserModel $userModel;
 
     public function __construct()
     {
-        // error_log("CONSTRUCTEUR AuthController APPELÉ");
+        // Instancie le modèle UserModel à chaque création du contrôleur
         $this->userModel = new UserModel();
     }
 
-    // MÉTHODES POUR AFFICHER LES PAGES (vos routes existantes)
+    // Affiche la page de connexion (route classique)
     public function showLogin(): void
     {
-        // Afficher la page de connexion
+        // Charge la vue de connexion
         require_once APP_ROOT . '/src/View/pages/login.php';
     }
 
-    // MÉTHODES API POUR VOTRE MODAL (nouvelles routes)
+    // API : Inscription d'un nouvel utilisateur (appelée via AJAX)
     public function apiRegister(): void
     {
         header('Content-Type: application/json');
 
         try {
+            // Récupère les données JSON envoyées par le client
             $data = json_decode(file_get_contents('php://input'), true);
 
+            // Vérifie que tous les champs sont remplis
             if (empty($data['username']) || empty($data['email']) || empty($data['password'])) {
                 throw new \Exception('Tous les champs sont obligatoires');
             }
 
+            // Vérifie la correspondance des mots de passe
             if ($data['password'] !== $data['confirmPassword']) {
                 throw new \Exception('Les mots de passe ne correspondent pas');
             }
 
+            // Vérifie si l'email existe déjà
             if ($this->userModel->findByEmail($data['email'])) {
                 throw new \Exception('Cet email est déjà utilisé');
             }
 
-            // if (!class_exists('App\Entity\User')) {
-            //     error_log("La classe App\\Entity\\User n'existe pas !");
-            // } else {
-            //     error_log("La classe App\\Entity\\User est bien trouvée !");
-            // }
+            // Vérifie si le pseudo existe déjà
+            if ($this->userModel->findByPseudo($data['username'])) {
+                throw new \Exception('Ce pseudo est déjà pris');
+            }
+
+            // Crée un nouvel utilisateur et hash le mot de passe
             $user = new User($data['username'], $data['email']);
             $user->hashPassword($data['password']);
 
+            // Sauvegarde l'utilisateur en base de données
             if ($this->userModel->save($user)) {
                 echo json_encode(['success' => true, 'message' => 'Inscription réussie !']);
             } else {
                 throw new \Exception('Erreur lors de l\'inscription');
             }
         } catch (\Exception $e) {
+            // Retourne l'erreur au format JSON
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
         exit;
     }
 
+    // API : Connexion utilisateur (appelée via AJAX)
     public function apiLogin(): void
     {
         header('Content-Type: application/json');
 
         try {
+            // Récupère les données JSON envoyées par le client
             $data = json_decode(file_get_contents('php://input'), true);
 
+            // Vérifie que l'email et le mot de passe sont fournis
             if (empty($data['email']) || empty($data['password'])) {
                 throw new \Exception('Email et mot de passe requis');
             }
 
+            // Recherche l'utilisateur par email
             $user = $this->userModel->findByEmail($data['email']);
 
+            // Vérifie l'existence de l'utilisateur et la validité du mot de passe
             if (!$user || !$user->verifyPassword($data['password'])) {
                 throw new \Exception('Email ou mot de passe incorrect');
             }
 
+            // Stocke les infos utilisateur en session (connexion)
             $_SESSION['user'] = [
                 'name'   => $user->getPseudo(),
                 'email'  => $user->getEmail(),
-                'avatar' => "/assets/images/logo.svg" 
+                'avatar' => "/assets/images/logo.svg"
             ];
 
+            // Retourne le succès et le pseudo au format JSON
             echo json_encode([
                 'success' => true,
                 'message' => 'Connexion réussie !',
                 'user' => ['pseudo' => $user->getPseudo()]
             ]);
         } catch (\Exception $e) {
+            // Retourne l'erreur au format JSON
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
         exit;
     }
 
+    // API : Déconnexion utilisateur (appelée via AJAX)
     public function apiLogout(): void
     {
+        // Détruit la session côté serveur
         session_destroy();
         header('Content-Type: application/json');
         echo json_encode(['success' => true]);
     }
 
+    // Déconnexion classique (redirection après logout)
     public function logout(): void
     {
+        // Détruit la session et redirige vers la page d'accueil avec un paramètre
         session_destroy();
         header('Location: /?logout=1');
         exit;
