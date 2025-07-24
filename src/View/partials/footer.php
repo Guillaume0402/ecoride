@@ -3,3 +3,5 @@
     <a class="navlink mb-0">Mentions légales</a>
     <a class="navlink mb-0">Coordonnées de contact</a>
 </footer>
+
+<script src="/js/auth-modal.js"></script>
