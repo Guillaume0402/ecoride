@@ -34,21 +34,12 @@ return [
         "action" => "apiLogout"
     ],
 
-    // Routes pour les trajets
-    "/rides" => [
-        "controller" => "App\Controller\RideController",
-        "action" => "index"
-    ],
-    "/rides/create" => [
-        "controller" => "App\Controller\RideController",
-        "action" => "create"
-    ],
-    "/rides/search" => [
-        "controller" => "App\Controller\RideController",
-        "action" => "search"
-    ],
-
+ 
     // Routes pour le profil utilisateur
+    "/creation-profil" => [
+        "controller" => "App\Controller\PageController",
+        "action" => "creationProfil"
+    ],
     "/profile" => [
         "controller" => "App\Controller\UserController",
         "action" => "profile"
@@ -58,30 +49,7 @@ return [
         "action" => "edit"
     ],
 
-    // Routes pour les réservations
-    "/bookings" => [
-        "controller" => "App\Controller\BookingController",
-        "action" => "index"
-    ],
-    "/bookings/create" => [
-        "controller" => "App\Controller\BookingController",
-        "action" => "create"
-    ],
-
-    // Routes pour l'administration
-    "/admin" => [
-        "controller" => "App\Controller\AdminController",
-        "action" => "dashboard"
-    ],
-    "/admin/users" => [
-        "controller" => "App\Controller\AdminController",
-        "action" => "users"
-    ],
-    "/admin/rides" => [
-        "controller" => "App\Controller\AdminController",
-        "action" => "rides"
-    ],
-
+  
     // Routes statiques
     "/about" => [
         "controller" => "App\Controller\PageController",

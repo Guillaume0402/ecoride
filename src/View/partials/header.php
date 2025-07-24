@@ -32,7 +32,7 @@
                                 <span class="d-none d-lg-inline text-white "><?= $_SESSION['user']['name'] ?></span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end animate__animated animate__fadeIn">
-                                <li><a class="dropdown-item" href="/my-profil"><i class="bi bi-person me-2"></i> Mon profil</a></li>
+                                <li><a class="dropdown-item" href="/creation-profil"><i class="bi bi-person me-2"></i> Mon profil</a></li>
                                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#covoitModal"><i class="bi bi-plus-circle me-2"></i> Créer un trajet</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
