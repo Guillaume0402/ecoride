@@ -2,12 +2,25 @@
 
 // Fonction pour afficher les messages
 function showAlert(message, type = "danger") {
-    const alertDiv = document.getElementById("authAlert");
-    alertDiv.className = `alert alert-${type} mx-3`;
-    alertDiv.textContent = message;
-    alertDiv.classList.remove("d-none");
+    const modalAlert = document.querySelector("#authModal #authAlert");
+    if (!modalAlert) return;
 
-    // Auto-masquer après 5 secondes
+    modalAlert.className = `alert alert-${type} mx-3`;
+    modalAlert.textContent = message;
+    modalAlert.classList.remove("d-none");
+
+    setTimeout(() => {
+        modalAlert.classList.add("d-none");
+    }, 5000);
+}
+
+// Fonction pour afficher des alertes globales (hors modal)
+function showGlobalAlert(message, type = "success") {
+    const alertDiv = document.getElementById("globalAlert");
+    alertDiv.className = `alert alert-${type} d-block position-fixed top-0 start-50 translate-middle-x mt-3`;
+    alertDiv.textContent = message;
+    alertDiv.style.zIndex = "2000"; // S'assurer qu'il passe au-dessus de tout
+
     setTimeout(() => {
         alertDiv.classList.add("d-none");
     }, 5000);
@@ -205,13 +218,15 @@ if (logoutBtn) {
             });
             const data = await response.json();
             if (data.success) {
-                showAlert("Vous êtes bien déconnecté(e) !", "success");
+                showGlobalAlert("Vous êtes bien déconnecté(e) !", "success");
                 setTimeout(() => {
                     window.location.href = "/"; // Redirige vers l'accueil ou où tu veux
                 }, 1000);
+            } else {
+                showGlobalAlert("Erreur lors de la déconnexion", "danger");
             }
         } catch (err) {
-            showAlert("Erreur lors de la déconnexion", "danger");
+            showGlobalAlert("Erreur lors de la déconnexion", "danger");
         }
     });
 }

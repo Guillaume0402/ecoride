@@ -1,7 +1,7 @@
 <?php require_once __DIR__ . '/partials/header.php'; ?>
 
 <div class="container-fluid py-3 text-white">
-    <div id="authAlert" class="alert d-none"></div>
+    <div id="globalAlert" class="alert d-none"></div>
 
     <div class="container-fluid">
 
@@ -91,7 +91,7 @@
     document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
     if (params.has('logout')) {
-        showAlert('Vous êtes bien déconnecté(e) !', 'success');
+        showGlobalAlert('Vous êtes bien déconnecté(e) !', 'success');
     }
 });
 </script>

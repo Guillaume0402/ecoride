@@ -12,7 +12,7 @@
 
             <!-- Zone d'alerte pour les messages -->
             <div id="authAlert" class="alert d-none mx-3" role="alert"></div>
-
+            
             <!-- FORM INSCRIPTION -->
             <form id="registerForm" class="auth-form p-0 p-lg-5">
                 <div class="mb-3">
@@ -58,5 +58,3 @@
         </div>
     </div>
 </div>
-
-

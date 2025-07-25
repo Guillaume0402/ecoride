@@ -40,7 +40,7 @@ class PageController extends Controller
         $this->render("pages/mes-covoiturages", []);
     }
 
-    public function monProfil(): void
+    public function Profil(): void
     {
         // Rendu du profil utilisateur
         $this->render("pages/my-profil", []);

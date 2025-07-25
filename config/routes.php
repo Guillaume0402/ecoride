@@ -40,9 +40,9 @@ return [
         "controller" => "App\Controller\PageController",
         "action" => "creationProfil"
     ],
-    "/profile" => [
-        "controller" => "App\Controller\UserController",
-        "action" => "profile"
+    "/my-profil" => [
+        "controller" => "App\Controller\PageController",
+        "action" => "Profil"
     ],
     "/profile/edit" => [
         "controller" => "App\Controller\UserController",

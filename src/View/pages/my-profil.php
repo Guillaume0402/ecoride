@@ -21,7 +21,12 @@
                                 <li>Sans nourriture</li>
                                 <li>Sans les mains</li>
                             </ul>
-                            <a href="#" class="btn btn-inscription px-4">Historique</a>
+                            <div class="d-flex flex-md-row gap-2">
+                                <a href="#" class="btn btn-custom-outline px-4">Historique</a>
+                                <a href="/creation-profil" class="btn btn-inscription px-4">Modifier</a>
+
+                            </div>
+
                         </div>
                     </div>
                     <div class="col-md-8">

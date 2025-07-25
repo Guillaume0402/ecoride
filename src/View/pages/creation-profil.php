@@ -1,17 +1,33 @@
-<div class="form-box-profil mt-5 mb-5">
-    <div class="container mt-5 d-flex align-items-center justify-content-between form-section">
-        <h3>Votre Profil</h3>
+<div class="container mt-5 mb-5">
+    <div class="container mt-2 d-flex align-items-center justify-content-between form-section">
+        <h4>Votre Profil</h4>
         <!-- Boutons -->
-        <div class="">
+        <div class="mb-3">
             <a href="/" class="btn btn-custom-outline">Annuler</a>
             <button type="submit" class="btn btn-inscription me-2">Sauvegarder</button>
         </div>
     </div>
     <form method="POST" action="/profile/update" enctype="multipart/form-data" class="p-4">
-        <!-- PHOTO -->
-        <div class="mb-4 text-center form-section">
-            <label for="photo" class="form-label fw-bold">Photo</label><br>
-            <input type="file" class="form-control w-auto d-inline-block" id="photo" name="photo">
+        <!-- Photo -->
+        <div class="mb-4">
+            <label for="photo" class="form-label">Photo</label>
+            <div class="d-flex align-items-center gap-4 flex-wrap">
+                <!-- Image preview -->
+                <img id="avatarPreview" src="/assets/images/logo.svg" alt="Avatar"
+                    class="rounded-circle shadow-sm border"
+                    style="width: 100px; height: 100px; object-fit: cover;">
+
+                <!-- Zone bouton de téléchargement -->
+                <label for="photo" class="upload-label d-inline-flex align-items-center gap-3 px-3 py-2 rounded-pill">
+                    <div class="upload-icon rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="bi bi-file-earmark-arrow-up-fill"></i>
+                    </div>
+                    <span id="photo-name" class="text-white">Télécharger votre photo</span>
+                </label>
+            </div>
+
+            <!-- Input masqué -->
+            <input type="file" class="d-none form-control" id="photo" name="photo" accept="image/*">
         </div>
 
         <!-- PSEUDO -->
@@ -42,7 +58,7 @@
         <!-- RÔLE -->
         <div class="mb-3 form-section">
             <label for="role" class="form-label">Rôles</label>
-            <select class="form-select" id="role" name="role" required onchange="toggleChauffeurFields()">
+            <select class="form-select form-control" id="role" name="role" required onchange="toggleChauffeurFields()">
                 <option value="">Sélectionner</option>
                 <option value="passager">Passager</option>
                 <option value="chauffeur">Chauffeur</option>
@@ -73,8 +89,8 @@
 
             <!-- Motorisation -->
             <div class="mb-3 form-section">
-                <label for="motor_type" class="form-label">Type de motorisation</label>
-                <select class="form-select" id="motor_type" name="motor_type">
+                <label for="motor_type" class="form-label form-control">Type de motorisation</label>
+                <select class="form-select form-control" id="motor_type" name="motor_type">
                     <option value="">Sélectionner</option>
                     <option value="essence">Essence</option>
                     <option value="diesel">Diesel</option>
@@ -85,8 +101,8 @@
 
             <!-- Nombre de places -->
             <div class="mb-3 form-section>
-                <label for=" seats" class="form-label">Nombre de places disponibles</label>
-                <select class="form-select" id="seats" name="seats">
+                <label for=" seats" class="form-label form-control">Nombre de places disponibles</label>
+                <select class="form-select form-control" id="seats" name="seats">
                     <option value="">Sélectionner</option>
                     <option>1</option>
                     <option>2</option>
@@ -132,6 +148,26 @@
 
 
 <script>
+    document.getElementById("photo").addEventListener("change", function() {
+        const file = this.files[0];
+        const nameDisplay = document.getElementById("photo-name");
+        const preview = document.getElementById("avatarPreview");
+
+        if (file) {
+            nameDisplay.textContent = file.name;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            nameDisplay.textContent = "Télécharger votre photo";
+            preview.src = "/assets/images/logo.svg"; // Valeur par défaut
+        }
+    });
+
+
     function toggleChauffeurFields() {
         const role = document.getElementById('role').value;
         const chauffeurFields = document.getElementById('chauffeur-fields');
