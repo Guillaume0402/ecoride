@@ -6,7 +6,7 @@ return [
     "/" => [
         "controller" => "App\Controller\PageController",
         "action" => "home"
-    ],
+    ],  
 
     // Routes pour l'authentification
     "/login" => [
@@ -14,7 +14,7 @@ return [
             "controller" => "App\Controller\AuthController",
             "action" => "showLogin"
         ]
-    ],    
+    ],
     "/logout" => [
         "controller" => "App\Controller\AuthController",
         "action" => "logout"
@@ -33,8 +33,20 @@ return [
         "controller" => "App\Controller\AuthController",
         "action" => "apiLogout"
     ],
+    // Route Admin
+    "/admin/dashboard" => [
+        "controller" => "App\Controller\AdminController",
+        "action" => "dashboard"
+    ],
+    "/admin/users" => [
+        "controller" => "App\Controller\AdminController",
+        "action" => "users"
+    ],
+    "/admin/stats" => [
+        "controller" => "App\Controller\AdminController",
+        "action" => "stats"
+    ],
 
- 
     // Routes pour le profil utilisateur
     "/creation-profil" => [
         "controller" => "App\Controller\PageController",
@@ -49,8 +61,8 @@ return [
         "action" => "edit"
     ],
 
-  
-    // Routes statiques
+
+    // Routes statiques   
     "/about" => [
         "controller" => "App\Controller\PageController",
         "action" => "about"

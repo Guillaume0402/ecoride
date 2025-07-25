@@ -209,11 +209,10 @@ class User
     public function getRoleName(): string 
     {
         return match($this->roleId) {
-            1 => 'Visiteur',
-            2 => 'Utilisateur',
-            3 => 'Employé',
-            4 => 'Admin',
-            default => 'Inconnu'
+            1 => 'Utilisateur',
+            2 => 'Employé',
+            3 => 'Admin',            
+            default => 'Visiteur'
         };
     }
 

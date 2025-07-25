@@ -1,3 +1,16 @@
 @use './layout/header';
 @use './layout/footer';
 @use './layout/index';
+
+
+#globalAlert {
+    min-width: 250px;
+    max-width: 400px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1rem;
+    padding: 0.8rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    transition: opacity 0.3s ease;
+}

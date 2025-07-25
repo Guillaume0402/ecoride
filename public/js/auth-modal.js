@@ -106,7 +106,11 @@ async function handleAuth(endpoint, formData) {
 
             if (endpoint === "login") {
                 setTimeout(() => {
-                    window.location.reload();
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        window.location.reload();
+                    }
                 }, 1500);
             } else if (endpoint === "register") {
                 setTimeout(() => {

@@ -93,17 +93,35 @@ class AuthController
             }
 
             // Stocke les infos utilisateur en session (connexion)
+            
             $_SESSION['user'] = [
                 'name'   => $user->getPseudo(),
                 'email'  => $user->getEmail(),
+                'roleId' => $user->getRoleId(),
+                'role'   => $user->getRoleName(),
                 'avatar' => "/assets/images/logo.svg"
             ];
+
+            // Détermine l'URL de redirection selon le rôle
+            switch ($user->getRoleId()) {
+                case 3: // admin
+                    $redirectUrl = '/admin/dashboard';
+                    break;
+                case 2: // employé
+                    $redirectUrl = '/employe';
+                    break;
+                case 1: // utilisateur
+                default:
+                    $redirectUrl = '/';
+                    break;
+            }
 
             // Retourne le succès et le pseudo au format JSON
             echo json_encode([
                 'success' => true,
                 'message' => 'Connexion réussie !',
-                'user' => ['pseudo' => $user->getPseudo()]
+                'user' => ['pseudo' => $user->getPseudo()],
+                'redirect' => $redirectUrl
             ]);
         } catch (\Exception $e) {
             // Retourne l'erreur au format JSON

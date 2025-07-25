@@ -49,11 +49,6 @@ class UserModel
         return $data ? $this->hydrate($data) : null;
     }
 
-    /**
-     * Recherche un utilisateur par son pseudo
-     * @param string $pseudo
-     * @return User|null
-     */
     public function findByPseudo(string $pseudo): ?User
     {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE pseudo = :pseudo");
@@ -63,11 +58,20 @@ class UserModel
         return $data ? $this->hydrate($data) : null;
     }
 
-    /**
-     * Sauvegarde un utilisateur (création ou mise à jour)
-     * @param User $user
-     * @return bool
-     */
+    public function findAllWithRoles(array $roleIds): array
+    {
+        $placeholders = implode(',', array_fill(0, count($roleIds), '?'));
+        $sql = "SELECT u.*, r.role_name 
+            FROM users u 
+            JOIN roles r ON u.role_id = r.id 
+            WHERE u.role_id IN ($placeholders)
+            ORDER BY u.created_at DESC";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($roleIds);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
     public function save(User $user): bool
     {
         // Validation avant sauvegarde
@@ -84,11 +88,6 @@ class UserModel
         }
     }
 
-    /**
-     * Crée un nouvel utilisateur en base de données
-     * @param User $user
-     * @return bool
-     */
     private function create(User $user): bool
     {
         $sql = "INSERT INTO {$this->table} (pseudo, email, password, role_id, credits, note, photo, created_at) 
@@ -114,11 +113,6 @@ class UserModel
         return $result;
     }
 
-    /**
-     * Met à jour un utilisateur existant
-     * @param User $user
-     * @return bool
-     */
     private function update(User $user): bool
     {
         $sql = "UPDATE {$this->table} 
@@ -138,35 +132,18 @@ class UserModel
         ]);
     }
 
-    /**
-     * Met à jour le nombre de crédits d'un utilisateur
-     * @param int $userId
-     * @param int $newCredits
-     * @return bool
-     */
     public function updateCredits(int $userId, int $newCredits): bool
     {
         $stmt = $this->conn->prepare("UPDATE {$this->table} SET credits = :credits WHERE id = :id");
         return $stmt->execute([':credits' => $newCredits, ':id' => $userId]);
     }
 
-    /**
-     * Met à jour la note d'un utilisateur
-     * @param int $userId
-     * @param float $newNote
-     * @return bool
-     */
     public function updateNote(int $userId, float $newNote): bool
     {
         $stmt = $this->conn->prepare("UPDATE {$this->table} SET note = :note WHERE id = :id");
         return $stmt->execute([':note' => $newNote, ':id' => $userId]);
     }
 
-    /**
-     * Hydrate un objet User à partir d'un tableau de données
-     * @param array $data
-     * @return User
-     */
     private function hydrate(array $data): User
     {
         $user = new User($data['pseudo'], $data['email']);

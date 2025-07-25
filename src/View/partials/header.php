@@ -2,7 +2,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm fixed-height-80">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center mx-auto" href="/">
-                <img class="logo" src="/assets/images/logo.svg"  alt="Logo EcoRide">
+                <img class="logo" src="/assets/images/logo.svg" alt="Logo EcoRide">
                 <span class="logo-title ms-2">Ecoride</span>
             </a>
             <button class="navbar-toggler"
@@ -32,18 +32,29 @@
                                 <span class="d-none d-lg-inline text-white "><?= $_SESSION['user']['name'] ?></span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end animate__animated animate__fadeIn">
+
+                                <?php if ($_SESSION['user']['roleId'] === 3): ?>
+                                    <li><a class="dropdown-item" href="/admin/dashboard"><i class="bi bi-speedometer2 me-2"></i> Dashboard admin</a></li>
+                                    <li><a class="dropdown-item" href="/admin/users"><i class="bi bi-people me-2"></i> Gérer les utilisateurs</a></li>
+                                    <li><a class="dropdown-item" href="/admin/stats"><i class="bi bi-bar-chart-line me-2"></i> Statistiques</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                <?php endif; ?>
+
                                 <li><a class="dropdown-item" href="/my-profil"><i class="bi bi-person me-2"></i> Mon profil</a></li>
                                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#covoitModal"><i class="bi bi-plus-circle me-2"></i> Créer un trajet</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
-                                <li><a class="dropdown-item" id="logoutBtn"  href="/logout"><i class="bi bi-box-arrow-right me-2"></i> Déconnexion</a></li>
+                                <li><a class="dropdown-item" id="logoutBtn" href="/logout"><i class="bi bi-box-arrow-right me-2"></i> Déconnexion</a></li>
                             </ul>
                         <?php else: ?>
                             <button class="btn btn-inscription mt-3 mt-lg-1" data-bs-toggle="modal" data-bs-target="#authModal" data-start="login">
                                 Connexion
                             </button>
                         <?php endif; ?>
+
                     </li>
                 </ul>
             </div>
