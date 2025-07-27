@@ -1,12 +1,12 @@
 <?php
-$user = $user ?? null;
+$user = $_SESSION['user'] ?? null;
 
-if (!isset($user)) {
+if (!$user) {
     header('Location: /login');
     exit;
 }
 
-// Redirection si l'utilisateur est admin (role_id = 3)
+// Redirection si l'utilisateur est admin
 if ($user['role_id'] === 3) {
     header('Location: /admin/dashboard');
     exit;
@@ -45,7 +45,7 @@ if ($user['role_id'] === 3) {
                                 </ul>
                                 <div class="d-flex flex-md-row gap-2">
                                     <a href="#" class="btn btn-custom-outline px-4">Historique</a>
-                                    <a href="/creation-profil" class="btn btn-inscription px-4">Modifier</a>
+                                    <a href="/creation-profil" class="btn btn-inscription px-4">Modifier Profil</a>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -58,11 +58,11 @@ if ($user['role_id'] === 3) {
                             </div>
                             <div class="col-6 col-lg-4">
                                 <div class="fw-semibold">Chauffeur</div>
-                                <div class="small"><?= in_array($user['role_id'], [2, 4]) ? 'Oui' : 'Non' ?></div>
+                                <div class="small"><?= in_array($user['travel_role'], ['chauffeur', 'les-deux']) ? 'Oui' : 'Non' ?></div>
                             </div>
                             <div class="col-6 col-lg-4">
                                 <div class="fw-semibold">Passager</div>
-                                <div class="small"><?= in_array($user['role_id'], [1, 4]) ? 'Oui' : 'Non' ?></div>
+                                <div class="small"><?= in_array($user['travel_role'], ['passager', 'les-deux']) ? 'Oui' : 'Non' ?></div>
                             </div>
                             <?php if (!empty($vehicles)): ?>
                                 <!-- Onglets -->
@@ -80,33 +80,61 @@ if ($user['role_id'] === 3) {
                                 <div class="tab-content" id="vehicleTabsContent">
                                     <?php foreach ($vehicles as $index => $vehicle): ?>
                                         <div class="tab-pane fade <?= $index === 0 ? 'show active' : '' ?>" id="vehicle-<?= $index ?>" role="tabpanel">
-                                            <div class="card bg-transparent border rounded-3 p-3 text-white">
-                                                <div class="fw-bold mb-2">Modèle : <?= htmlspecialchars($vehicle['marque']) . ' ' . htmlspecialchars($vehicle['modele']) ?></div>
-                                                <div class="row small">
-                                                    <div class="col-md-4">Couleur : <?= htmlspecialchars($vehicle['couleur']) ?></div>
-                                                    <div class="col-md-4">Immatriculation : <?= htmlspecialchars($vehicle['immatriculation']) ?></div>
-                                                    <div class="col-md-4">Date : <?= date('d/m/Y', strtotime($vehicle['date_premiere_immatriculation'])) ?></div>
-                                                    <div class="col-md-4">Énergie : <?= htmlspecialchars($vehicle['fuel_type_id']) ?></div>
-                                                    <div class="col-md-4">Places : <?= htmlspecialchars($vehicle['places_dispo']) ?></div>
-                                                    <div class="col-12 mt-2">
-                                                        <strong>Préférences :</strong><br>
-                                                        <?php
-                                                        $prefs = explode(',', $vehicle['preferences'] ?? '');
-                                                        foreach ($prefs as $pref) {
-                                                            if (trim($pref)) {
-                                                                echo '<span class="badge bg-success me-2">' . htmlspecialchars(trim($pref)) . '</span>';
+                                            <div class="card bg-transparent border rounded-3 p-3 text-white h-100 d-flex flex-column justify-content-between">
+
+                                                <!-- Infos principales du véhicule -->
+                                                <div>
+                                                    <div class="fw-bold mb-3">Modèle : <?= htmlspecialchars($vehicle['marque']) . ' ' . htmlspecialchars($vehicle['modele']) ?></div>
+
+                                                    <div class="row small">
+                                                        <div class="col-md-4">Couleur : <?= htmlspecialchars($vehicle['couleur']) ?></div>
+                                                        <div class="col-md-4">Immatriculation : <?= htmlspecialchars($vehicle['immatriculation']) ?></div>
+                                                        <div class="col-md-4">Date : <?= date('d/m/Y', strtotime($vehicle['date_premiere_immatriculation'])) ?></div>
+                                                        <div class="col-md-4">Énergie : <?= htmlspecialchars($vehicle['fuel_type_id']) ?></div>
+                                                        <div class="col-md-4">Places : <?= htmlspecialchars($vehicle['places_dispo']) ?></div>
+
+                                                        <div class="col-12 mt-3">
+                                                            <strong>Préférences :</strong><br>
+                                                            <?php
+                                                            // Initialisation des préférences
+                                                            $prefs = explode(',', $vehicle['preferences'] ?? '');
+                                                            // Liste des préférences connues pour un style personnalisé
+                                                            $allowedPrefs = ['fumeur', 'non-fumeur', 'animaux', 'pas-animaux'];
+                                                            foreach ($prefs as $pref) {
+                                                                $prefClean = strtolower(trim($pref));
+                                                                if (in_array($prefClean, $allowedPrefs)) {
+                                                                    $safe = htmlspecialchars($prefClean);
+                                                                    echo '<span class="badge badge-pref ' . $prefClean . ' me-2">' . $safe . '</span>';
+                                                                }
                                                             }
-                                                        }
-                                                        ?>
-                                                        <?php if (!empty($vehicle['custom_preferences'])): ?>
-                                                            <span class="badge bg-secondary"><?= htmlspecialchars($vehicle['custom_preferences']) ?></span>
-                                                        <?php endif; ?>
+                                                            ?>
+
+                                                            <?php if (!empty($vehicle['custom_preferences'])): ?>
+                                                                <span class="badge badge-pref custom"><?= htmlspecialchars($vehicle['custom_preferences']) ?></span>
+                                                            <?php endif; ?>
+                                                        </div>
                                                     </div>
                                                 </div>
+
+                                                <!-- Bouton Modifier aligné bas droite -->
+                                                <div class="d-flex justify-content-end mt-4">
+                                                    <a href="/vehicle/edit" class="btn btn-custom-outline px-4">
+
+                                                        <i class="bi bi-pencil-square me-1"></i> Modifier véhicule
+                                                    </a>
+                                                    <form method="POST" action="/vehicle/delete" onsubmit="return confirm('Voulez-vous vraiment supprimer ce véhicule ?');">
+                                                        <input type="hidden" name="vehicle_id" value="<?= $vehicle['id'] ?>">
+                                                        <button type="submit" class="btn btn-inscription px-4 ms-2">
+                                                            <i class="bi bi-trash me-1"></i> Supprimer
+                                                        </button>
+                                                    </form>
+                                                </div>
+
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
+
                             <?php else: ?>
                                 <div class="alert alert-warning">Aucun véhicule renseigné</div>
                             <?php endif; ?>

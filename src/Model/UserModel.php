@@ -144,32 +144,34 @@ class UserModel
         return $stmt->execute([':note' => $newNote, ':id' => $userId]);
     }
 
-   private function hydrate(array $data): User
-{
-    $user = new User($data['pseudo'], $data['email']);
+    private function hydrate(array $data): User
+    {
+        $user = new User($data['pseudo'], $data['email']);
 
-    $user->setId((int)$data['id'])
-        ->setPseudo($data['pseudo'])  // ✅ à ajouter
-        ->setEmail($data['email'])    // ✅ à ajouter
-        ->setPassword($data['password'])
-        ->setRoleId((int)$data['role_id'])
-        ->setCredits((int)$data['credits'])
-        ->setNote((float)$data['note'])
-        ->setPhoto($data['photo']);
+        $user->setId((int)$data['id'])
+            ->setPseudo($data['pseudo'])
+            ->setEmail($data['email'])
+            ->setPassword($data['password'])
+            ->setRoleId((int)$data['role_id'])
+            ->setCredits((int)$data['credits'])
+            ->setNote((float)$data['note'])
+            ->setPhoto($data['photo'])
+            ->setTravelRole($data['travel_role'] ?? 'passager');
 
-    if (!empty($data['created_at'])) {
-        $user->setCreatedAt(new \DateTime($data['created_at']));
+        if (!empty($data['created_at'])) {
+            $user->setCreatedAt(new \DateTime($data['created_at']));
+        }
+
+        return $user;
     }
-
-    return $user;
-}
 
 
     public function updateProfil(array $data): void
     {
         $sql = "UPDATE users SET 
-                pseudo = :pseudo,
-                role_id = :role_id";
+            pseudo = :pseudo,
+            role_id = :role_id,
+            travel_role = :travel_role"; // ✅ nouveau champ
 
         if (!empty($data['photo'])) {
             $sql .= ", photo = :photo";
@@ -184,6 +186,7 @@ class UserModel
         $params = [
             'pseudo' => $data['pseudo'],
             'role_id' => $data['role_id'],
+            'travel_role' => $data['travel_role'], // ✅ on l’ajoute ici aussi
             'id' => $data['id'],
         ];
 

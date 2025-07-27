@@ -1,6 +1,8 @@
 <?php
 
-return [
+error_log("✅ ROUTES.PHP CHARGÉ");
+
+$routes = [
 
     // =========================
     // 🌍 Pages publiques
@@ -78,10 +80,36 @@ return [
         "action" => "Profil"
     ],
 
-    // (optionnel si utilisé)
     "/profile/edit" => [
         "controller" => "App\Controller\UserController",
         "action" => "edit"
+    ],
+
+    "/vehicle/create" => [
+        'GET' => [
+            "controller" => "App\Controller\VehicleController",
+            "action" => "create"
+        ],
+        'POST' => [
+            "controller" => "App\Controller\VehicleController",
+            "action" => "store"
+        ]
+    ],
+    "/vehicle/edit" => [
+        'GET' => [
+            "controller" => "App\Controller\VehicleController",
+            "action" => "edit"
+        ],
+        'POST' => [
+            "controller" => "App\Controller\VehicleController",
+            "action" => "update"
+        ]
+    ],
+    "/vehicle/delete" => [
+        'POST' => [
+            "controller" => "App\Controller\VehicleController",
+            "action" => "delete"
+        ]
     ],
 
     // =========================
@@ -100,3 +128,9 @@ return [
         "action" => "stats"
     ]
 ];
+
+// ✅ Retour avec normalisation des clés
+return array_combine(
+    array_map(fn($key) => rtrim($key, '/') ?: '/', array_keys($routes)),
+    array_values($routes)
+);

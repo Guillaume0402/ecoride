@@ -13,6 +13,7 @@ class User
     private float $note = 0.00;
     private ?string $photo = null;
     private ?\DateTime $createdAt = null;
+    private string $travelRole = 'passager';
 
     public function __construct(string $pseudo, string $email)
     {
@@ -66,6 +67,11 @@ class User
     public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
+    }
+
+    public function getTravelRole(): string
+    {
+        return $this->travelRole;
     }
 
     // ========== SETTERS ==========
@@ -124,35 +130,41 @@ class User
         return $this;
     }
 
+    public function setTravelRole(string $role): self
+    {
+        $this->travelRole = $role;
+        return $this;
+    }
+
     // ========== MÉTHODES MÉTIER ==========
 
-    
+
     // Hash le mot de passe avant stockage
-     
+
     public function hashPassword(string $plainPassword): void
     {
         $this->password = password_hash($plainPassword, PASSWORD_DEFAULT);
     }
 
-    
+
     // Vérifie si le mot de passe fourni correspond au hash stocké
-    
+
     public function verifyPassword(string $plainPassword): bool
     {
         return password_verify($plainPassword, $this->password);
     }
 
-    
+
     // Vérifie si l'email est valide
-    
+
     public function isValidEmail(): bool
     {
         return filter_var($this->email, FILTER_VALIDATE_EMAIL) !== false;
     }
 
-    
+
     // Retourne les initiales du pseudo
-    
+
     public function getInitiales(): string
     {
         $words = explode(' ', $this->pseudo);
@@ -163,9 +175,9 @@ class User
         return substr($initiales, 0, 2); // Maximum 2 initiales
     }
 
-    
+
     // Ajoute des crédits au compte utilisateur
-    
+
     public function addCredits(int $amount): void
     {
         if ($amount > 0) {
@@ -173,9 +185,9 @@ class User
         }
     }
 
-    
+
     // Débite des crédits du compte utilisateur
-    
+
     public function debitCredits(int $amount): bool
     {
         if ($amount > 0 && $this->credits >= $amount) {
@@ -185,17 +197,17 @@ class User
         return false;
     }
 
-    
+
     // Vérifie si l'utilisateur a suffisamment de crédits
-    
+
     public function hasEnoughCredits(int $amount): bool
     {
         return $this->credits >= $amount;
     }
 
-    
+
     // Met à jour la note moyenne de l'utilisateur
-    
+
     public function updateNote(float $newNote): void
     {
         if ($newNote >= 0 && $newNote <= 5) {
@@ -203,9 +215,9 @@ class User
         }
     }
 
-    
+
     // Retourne le nom du rôle basé sur l'ID
-    
+
     public function getRoleName(): string
     {
         return match ($this->roleId) {
@@ -216,49 +228,49 @@ class User
         };
     }
 
-    
+
     // Vérifie si l'utilisateur est admin
-    
+
     public function isAdmin(): bool
     {
         return $this->roleId === 4;
     }
 
-    
+
     // Vérifie si l'utilisateur a une photo
-     
+
     public function hasPhoto(): bool
     {
         return !empty($this->photo);
     }
 
-    
+
     // Retourne l'URL de la photo ou une image par défaut
-     
+
     public function getPhotoUrl(): string
     {
         return $this->photo ?? '/assets/images/default-avatar.png';
     }
 
-    
+
     // Convertit l'entity en tableau (utile pour JSON)
-    
+
     public function toArray(bool $includePassword = false): array
     {
         $data = [
-        'id'         => $this->id,
-        'pseudo'     => $this->pseudo,
-        'email'      => $this->email,
-        'role_id'    => $this->roleId,
-        'roleId'     => $this->roleId,
-        'role_name'  => $this->getRoleName(),
-        'credits'    => $this->credits,
-        'note'       => $this->note,
-        'photo'      => $this->photo ?? '/assets/images/logo.svg',
-        'photo_url'  => $this->getPhotoUrl(),
-        'initiales'  => $this->getInitiales(),
-        'created_at' => $this->createdAt?->format('Y-m-d H:i:s'),
-    ];
+            'id'         => $this->id,
+            'pseudo'     => $this->pseudo,
+            'email'      => $this->email,
+            'role_id'    => $this->roleId,
+            'roleId'     => $this->roleId,
+            'role_name'  => $this->getRoleName(),
+            'credits'    => $this->credits,
+            'note'       => $this->note,
+            'photo'      => $this->photo ?? '/assets/images/logo.svg',
+            'photo_url'  => $this->getPhotoUrl(),
+            'initiales'  => $this->getInitiales(),
+            'created_at' => $this->createdAt?->format('Y-m-d H:i:s'),
+        ];
 
         if ($includePassword) {
             $data['password'] = $this->password;
@@ -267,9 +279,9 @@ class User
         return $data;
     }
 
-    
+
     // Validation des données de l'utilisateur
-    
+
     public function validate(): array
     {
         $errors = [];

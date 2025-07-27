@@ -37,10 +37,23 @@ class PageController extends Controller
         }
 
         $user = $_SESSION['user'];
+        $vehicleModel = new \App\Model\VehicleModel();
 
-        // ✅ Envoie les données à la vue via render()
-        $this->render("pages/creation-profil", ['user' => $user]);
+        // Si un id de véhicule est passé en GET : on le récupère
+        $vehicle = null;
+        if (!empty($_GET['id'])) {
+            $vehicle = $vehicleModel->findById((int) $_GET['id']);
+        } else {
+            // sinon on prend celui de l'utilisateur
+            $vehicle = $vehicleModel->findByUserId($user['id']);
+        }
+
+        $this->render("pages/creation-profil", [
+            'user' => $user,
+            'vehicle' => $vehicle
+        ]);
     }
+
 
     public function mesCovoiturages(): void
     {

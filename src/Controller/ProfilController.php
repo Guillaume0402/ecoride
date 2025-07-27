@@ -19,7 +19,6 @@ class ProfilController extends Controller
     // Affiche le formulaire prérempli
     public function showForm(): void
     {
-        require_once APP_ROOT . "/src/View/pages/creation-profil.php";
         if (empty($_SESSION['user'])) {
             $_SESSION['error'] = "Vous devez être connecté pour accéder à votre profil.";
             header("Location: /login");
@@ -28,16 +27,13 @@ class ProfilController extends Controller
 
         $userId = $_SESSION['user']['id'];
 
-        // Récupère les données utilisateur et véhicule
+        // ✅ Charger uniquement les infos utilisateur
         $user = $this->userModel->findById($userId);
-        $vehicle = $this->vehicleModel->findByUserId($userId);
-        var_dump($vehicle); exit;
 
-        // Charge la vue avec les données
-        // Utilise render pour charger le layout + CSS
-        $this->render("pages/profile", [
-            'user' => $user,
-            'vehicle' => $vehicle
+        // ❌ Ne pas charger $vehicle ici si on ne modifie que le profil
+        $this->render("pages/creation-profil", [
+            'user' => $user
+            // ✅ Pas de 'vehicle'
         ]);
     }
 
@@ -55,7 +51,7 @@ class ProfilController extends Controller
         }
 
         $userId = $_SESSION['user']['id'];
-        $role = $_POST['role'] ?? 'passager';
+
 
 
 
@@ -63,7 +59,8 @@ class ProfilController extends Controller
         $data = [
             'id' => $userId,
             'pseudo' => trim($_POST['pseudo'] ?? ''),
-            'role_id' => $this->mapRoleToId($role),
+            'role_id' => $_SESSION['user']['role_id'],
+            'travel_role' => $_POST['travel_role'] ?? 'passager',
             'photo' => null,
             'password' => !empty($_POST['new_password']) ? $_POST['new_password'] : null
         ];
@@ -78,7 +75,7 @@ class ProfilController extends Controller
 
 
         // Mise à jour véhicule si chauffeur
-        if (in_array($role, ['chauffeur', 'les-deux'])) {
+        if (in_array($data['travel_role'], ['chauffeur', 'les-deux'])) {
             // Formatage correct de la date d'immatriculation
             $dateFr = $_POST['date_premiere_immatriculation'] ?? '';
             $dateSql = null;
@@ -106,7 +103,9 @@ class ProfilController extends Controller
                 'preferences' => $_POST['preferences'] ?? [],
                 'custom_preferences' => $_POST['custom_preferences'] ?? ''
             ];
-            $this->vehicleModel->save($vehicle);
+            if (!empty($vehicle['immatriculation'])) {
+                $this->vehicleModel->insert($vehicle);
+            }
         }
 
         // Met à jour la session

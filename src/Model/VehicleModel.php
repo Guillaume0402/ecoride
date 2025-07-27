@@ -87,23 +87,27 @@ class VehicleModel
         return $data ?: null;
     }
 
-    /**
-     * Enregistre ou met à jour un véhicule
-     * Si le véhicule existe déjà, il est mis à jour, sinon il est créé
-     */
-    public function save(array $vehicle): void
+    public function findById(int $id): ?array
     {
-        $sql = "INSERT INTO vehicles (
-        user_id, marque, modele, couleur, immatriculation,
-        date_premiere_immatriculation, fuel_type_id, places_dispo,
-        preferences, custom_preferences, created_at
-    ) VALUES (
-        :user_id, :marque, :modele, :couleur, :immatriculation,
-        :date_premiere_immatriculation, :fuel_type_id, :places_dispo,
-        :preferences, :custom_preferences, NOW()
-    )";
-
+        $sql = "SELECT * FROM vehicles WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':id' => $id]);
+        $vehicle = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        return $vehicle ?: null;
+    }
+
+    public function insert(array $vehicle): void
+    {
+        $sql = "INSERT INTO {$this->table} (
+                user_id, marque, modele, couleur, immatriculation,
+                date_premiere_immatriculation, fuel_type_id, places_dispo,
+                preferences, custom_preferences, created_at
+            ) VALUES (
+                :user_id, :marque, :modele, :couleur, :immatriculation,
+                :date_immat, :fuel_type_id, :places_dispo,
+                :preferences, :custom_preferences, NOW()
+            )";
 
         $data = [
             ':user_id' => $vehicle['user_id'],
@@ -111,13 +115,14 @@ class VehicleModel
             ':modele' => $vehicle['modele'] ?? '',
             ':couleur' => $vehicle['couleur'] ?? '',
             ':immatriculation' => $vehicle['immatriculation'] ?? '',
-            ':date_premiere_immatriculation' => $vehicle['date_premiere_immatriculation'] ?? null,
+            ':date_immat' => $vehicle['date_premiere_immatriculation'] ?? null,
             ':fuel_type_id' => $vehicle['fuel_type_id'] ?? null,
             ':places_dispo' => ($vehicle['places_dispo'] === '4+') ? 4 : $vehicle['places_dispo'],
             ':preferences' => implode(',', $vehicle['preferences'] ?? []),
             ':custom_preferences' => $vehicle['custom_preferences'] ?? ''
         ];
 
+        $stmt = $this->conn->prepare($sql);
         if (!$stmt->execute($data)) {
             echo "<pre>";
             var_dump($data);
@@ -126,6 +131,8 @@ class VehicleModel
             exit;
         }
     }
+
+
 
     public function getFuelTypes(): array
     {
@@ -139,5 +146,11 @@ class VehicleModel
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE user_id = :user_id");
         $stmt->execute([':user_id' => $userId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function deleteById(int $vehicleId): bool
+    {
+        $stmt = $this->conn->prepare("DELETE FROM {$this->table} WHERE id = :id");
+        return $stmt->execute([':id' => $vehicleId]);
     }
 }

@@ -4,8 +4,7 @@ if (!$user) {
     echo "<p class='text-danger'>Aucun utilisateur connecté.</p>";
     return;
 }
-
-$vehicle = $vehicle ?? null; ?>
+ ?>
 
 <!-- Alertes de succès et d'erreur -->
 <?php if (!empty($_SESSION['success'])): ?>
@@ -23,15 +22,16 @@ $vehicle = $vehicle ?? null; ?>
 
 
 <div class="container mt-5 mb-5">
-    <div class="container mt-2 d-flex align-items-center justify-content-between form-section">
-        <h4>Votre Profil</h4>
-        <!-- Boutons -->
-        <div class="mb-3">
-            <a href="/" class="btn btn-custom-outline">Annuler</a>
-            <button type="submit" class="btn btn-inscription me-2">Sauvegarder</button>
-        </div>
-    </div>
+
     <form method="POST" action="/profile" enctype="multipart/form-data" class="p-4">
+        <div class="container mt-2 d-flex align-items-center justify-content-between form-section">
+            <h4>Votre Profil</h4>
+            <!-- Boutons -->
+            <div class="mb-3">
+                <a href="/" class="btn btn-custom-outline">Annuler</a>
+                <button type="submit" class="btn btn-inscription me-2">Sauvegarder</button>
+            </div>
+        </div>
         <!-- Photo -->
         <div class="mb-4">
             <label for="photo" class="form-label">Photo</label>
@@ -86,103 +86,99 @@ $vehicle = $vehicle ?? null; ?>
         <!-- RÔLE -->
         <div class="mb-3 form-section">
             <label for="role" class="form-label">Rôles</label>
-            <select class="form-select form-control" id="role" name="role" required onchange="toggleChauffeurFields()">
+            <select class="form-select form-control" id="travel_role" name="travel_role" required onchange="toggleChauffeurFields()">
                 <option value="">Sélectionner</option>
-                <option value="passager" <?= isset($user['role_id']) && $user['role_id'] == 1 ? 'selected' : '' ?>>Passager</option>
-                <option value="chauffeur" <?= isset($user['role_id']) && $user['role_id'] == 2 ? 'selected' : '' ?>>Chauffeur</option>
-                <option value="les-deux" <?= isset($user['role_id']) && $user['role_id'] == 3 ? 'selected' : '' ?>>Les deux</option>
-
+                <option value="passager" <?= ($user['travel_role'] ?? '') === 'passager' ? 'selected' : '' ?>>Passager</option>
+                <option value="chauffeur" <?= ($user['travel_role'] ?? '') === 'chauffeur' ? 'selected' : '' ?>>Chauffeur</option>
+                <option value="les-deux" <?= ($user['travel_role'] ?? '') === 'les-deux' ? 'selected' : '' ?>>Les deux</option>
             </select>
+
         </div>
 
         <!-- SECTION CHAUFFEUR -->
-        <div id="chauffeur-fields" style="display: none;">
-            <hr>
-            <!-- Plaque -->
-            <div class="mb-3 form-section">
-                <label for="immatriculation" class="form-label">Plaque d'immatriculation</label>
-                <input type="text" class="form-control" id="immatriculation" name="immatriculation"
-                    value="<?= isset($vehicle['immatriculation']) ? htmlspecialchars($vehicle['immatriculation']) : '' ?>">
-            </div>
-
-            <!-- Date -->
-            <div class="mb-3 form-section">
-                <label for="date_premiere_immatriculation" class="form-label">Date de première immatriculation</label>
-                <input type="date" class="form-control" id="date_premiere_immatriculation" name="date_premiere_immatriculation"
-                    value="<?= isset($vehicle['date_premiere_immatriculation']) ? htmlspecialchars($vehicle['date_premiere_immatriculation']) : '' ?> required">
-            </div>
-
-            <!-- Modèle -->
-            <div class="mb-3 form-section">
-                <label for="marque" class="form-label">Marque</label>
-                <input type="text" class="form-control" id="marque" name="marque"
-                    value="<?= isset($vehicle['marque']) ? htmlspecialchars($vehicle['marque']) : '' ?>">
-                <label for="modele" class="form-label">Modèle</label>
-                <input type="text" class="form-control" id="modele" name="modele"
-                    value="<?= isset($vehicle['modele']) ? htmlspecialchars($vehicle['modele']) : '' ?>">
-                <label for="couleur" class="form-label">Couleur</label>
-                <input type="text" class="form-control" id="couleur" name="couleur"
-                    value="<?= isset($vehicle['couleur']) ? htmlspecialchars($vehicle['couleur']) : '' ?>">
-
-                <!-- Motorisation -->
+        
+            <div id="chauffeur-fields" style="display: none;">
+                <hr>
+                <!-- Plaque -->
                 <div class="mb-3 form-section">
-                    <label for="fuel_type_id" class="form-label">Type de motorisation</label>
-                    <select class="form-select form-control" id="fuel_type_id" name="fuel_type_id">
-                        <option value="1" <?= isset($vehicle['fuel_type_id']) && $vehicle['fuel_type_id'] == 1 ? 'selected' : '' ?>>Essence</option>
-                        <option value="2" <?= isset($vehicle['fuel_type_id']) && $vehicle['fuel_type_id'] == 2 ? 'selected' : '' ?>>Diesel</option>
-                        <option value="3" <?= isset($vehicle['fuel_type_id']) && $vehicle['fuel_type_id'] == 3 ? 'selected' : '' ?>>Électrique</option>
-                        <option value="4" <?= isset($vehicle['fuel_type_id']) && $vehicle['fuel_type_id'] == 4 ? 'selected' : '' ?>>Hybride</option>
-                    </select>
+                    <label for="immatriculation" class="form-label">Plaque d'immatriculation</label>
+                    <input type="text" class="form-control" id="immatriculation" name="immatriculation"
+                        value="">
                 </div>
 
-                <!-- Nombre de places -->
+                <!-- Date -->                
                 <div class="mb-3 form-section">
-                    <label for="places_dispo" class="form-label">Nombre de places disponibles</label>
-                    <select class="form-select form-control" id="places_dispo" name="places_dispo">
-                        <option value="">Sélectionner</option>
-                        <option value="1" <?= isset($vehicle['places_dispo']) && $vehicle['places_dispo'] == '1' ? 'selected' : '' ?>>1</option>
-                        <option value="2" <?= isset($vehicle['places_dispo']) && $vehicle['places_dispo'] == '2' ? 'selected' : '' ?>>2</option>
-                        <option value="3" <?= isset($vehicle['places_dispo']) && $vehicle['places_dispo'] == '3' ? 'selected' : '' ?>>3</option>
-                        <option value="4+" <?= isset($vehicle['places_dispo']) && $vehicle['places_dispo'] == '4+' ? 'selected' : '' ?>>4+</option>
-
-                    </select>
+                    <label for="date_premiere_immatriculation" class="form-label">Date de première immatriculation</label>
+                    <input type="date" class="form-control" id="date_premiere_immatriculation" name="date_premiere_immatriculation"
+                        value="" required>
                 </div>
 
-                <!-- PRÉFÉRENCES -->
-                <?php
-                $prefs = isset($vehicle['preferences']) ? explode(',', $vehicle['preferences']) : [];
-                ?>
-                <div class="mb-3">
-                    <label class="form-label">Préférences</label>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="fumeur" name="preferences[]"
-                            <?= in_array('fumeur', $prefs) ? 'checked' : '' ?>>
-                        <label class="form-check-label">Fumeur</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="non-fumeur" name="preferences[]"
-                            <?= in_array('non-fumeur', $prefs) ? 'checked' : '' ?>>
-                        <label class="form-check-label">Non-fumeur</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="animaux" name="preferences[]"
-                            <?= in_array('animaux', $prefs) ? 'checked' : '' ?>>
-                        <label class="form-check-label">Animaux acceptés</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="pas-animaux" name="preferences[]"
-                            <?= in_array('pas-animaux', $prefs) ? 'checked' : '' ?>>
-                        <label class="form-check-label">Pas d'animal</label>
+
+                <!-- Modèle -->
+                <div class="mb-3 form-section">
+                    <label for="marque" class="form-label">Marque</label>
+                    <input type="text" class="form-control" id="marque" name="marque"
+                        value="">
+                    <label for="modele" class="form-label">Modèle</label>
+                    <input type="text" class="form-control" id="modele" name="modele"
+                        value="">
+                    <label for="couleur" class="form-label">Couleur</label>
+                    <input type="text" class="form-control" id="couleur" name="couleur"
+                        value="">
+
+                    <!-- Motorisation -->
+                    <div class="mb-3 form-section">
+                        <label for="fuel_type_id" class="form-label">Type de motorisation</label>
+                        <select class="form-select form-control" id="fuel_type_id" name="fuel_type_id">
+                            <option value="1">Essence</option>
+                            <option value="2">Diesel</option>
+                            <option value="3">Électrique</option>
+                            <option value="4">Hybride</option>
+                        </select>
                     </div>
 
-                    <!-- Ajout personnalisé -->
-                    <label for="custom_preferences" class="form-label mt-2">Ajouter vos préférences</label>
-                    <textarea class="form-control" id="custom_preferences" name="custom_preferences"
-                        rows="3" maxlength="250"><?= isset($vehicle['custom_preferences']) ? htmlspecialchars($vehicle['custom_preferences']) : '' ?></textarea>
+                    <!-- Nombre de places -->
+                    <div class="mb-3 form-section">
+                        <label for="places_dispo" class="form-label">Nombre de places disponibles</label>
+                        <select class="form-select form-control" id="places_dispo" name="places_dispo">
+                            <option value="">Sélectionner</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4+">4+</option>
 
+                        </select>
+                    </div>
+
+                    <!-- PRÉFÉRENCES -->
+                   
+                    <div class="mb-3">
+                        <label class="form-label">Préférences</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="fumeur" name="preferences[]">
+                            <label class="form-check-label">Fumeur</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="non-fumeur" name="preferences[]">
+                            <label class="form-check-label">Non-fumeur</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="animaux" name="preferences[]">
+                            <label class="form-check-label">Animaux acceptés</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="pas-animaux" name="preferences[]">
+                            <label class="form-check-label">Pas d'animal</label>
+                        </div>
+
+                        <!-- Ajout personnalisé -->
+                        <label for="custom_preferences" class="form-label mt-2">Ajouter vos préférences</label>
+                        <textarea class="form-control" id="custom_preferences" name="custom_preferences"
+                            rows="3" maxlength="250"></textarea>
+
+                    </div>
                 </div>
-            </div>
-
+            
             <!-- Boutons -->
             <div class="text-end mt-4">
                 <a href="/" class="btn btn-custom-outline">Annuler</a>
@@ -215,7 +211,7 @@ $vehicle = $vehicle ?? null; ?>
 
 
     function toggleChauffeurFields() {
-        const role = document.getElementById('role').value;
+        const role = document.getElementById('travel_role').value;
         const chauffeurFields = document.getElementById('chauffeur-fields');
         if (role === 'chauffeur' || role === 'les-deux') {
             chauffeurFields.style.display = 'block';

@@ -24,9 +24,8 @@ class Router
             error_log("➡️ URI appelée : $uri");
             error_log("➡️ URI normalisée : $path");
             error_log("➡️ Méthode HTTP : " . $_SERVER['REQUEST_METHOD']);
-            error_log("➡️ Routes disponibles : " . implode(', ', array_keys($this->routes)));
-
-            if (!isset($this->routes[$path])) {
+            error_log("➡️ Routes disponibles : " . implode(', ', array_keys($this->routes)));            
+            if (!isset($this->routes[$path])) {               
                 throw new \Exception("Route not found for path: " . $path);
             }
 
