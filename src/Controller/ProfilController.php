@@ -19,7 +19,6 @@ class ProfilController extends Controller
     // Affiche le formulaire prérempli
     public function showForm(): void
     {
-        require_once APP_ROOT . "/src/View/pages/creation-profil.php";
         if (empty($_SESSION['user'])) {
             $_SESSION['error'] = "Vous devez être connecté pour accéder à votre profil.";
             header("Location: /login");
@@ -28,15 +27,11 @@ class ProfilController extends Controller
 
         $userId = $_SESSION['user']['id'];
 
-        // Récupère les données utilisateur et véhicule
         $user = $this->userModel->findById($userId);
         $vehicle = $this->vehicleModel->findByUserId($userId);
-        var_dump($vehicle); exit;
 
-        // Charge la vue avec les données
-        // Utilise render pour charger le layout + CSS
-        $this->render("pages/profile", [
-            'user' => $user,
+        $this->render("pages/creation-profil", [
+            'user' => $user?->toArray() ?? [],
             'vehicle' => $vehicle
         ]);
     }
@@ -106,7 +101,13 @@ class ProfilController extends Controller
                 'preferences' => $_POST['preferences'] ?? [],
                 'custom_preferences' => $_POST['custom_preferences'] ?? ''
             ];
-            $this->vehicleModel->save($vehicle);
+
+            $existingVehicle = $this->vehicleModel->findByUserId($userId);
+            if ($existingVehicle) {
+                $this->vehicleModel->update($userId, $vehicle);
+            } else {
+                $this->vehicleModel->create($vehicle);
+            }
         }
 
         // Met à jour la session
