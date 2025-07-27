@@ -11,12 +11,12 @@ error_reporting(E_ALL);                 // Affiche tous les types d'erreurs
 // Debug : Afficher l'URL demandée
 // echo "URL demandée : " . $_SERVER["REQUEST_URI"] . "<br>";
 
-// Chemin racine de l'application (dossier parent de /public)
 define('APP_ROOT', dirname(__DIR__));
+define('APP_ENV', '.env.local');
 
+// Charger les constantes globales
+require_once APP_ROOT . '/config/constants.php';
 
-// Nom du fichier de configuration d'environnement
-define('APP_ENV', ".env.local");
 
 // Inclure la configuration
 require_once __DIR__ . '/../config/app.php';

@@ -1,4 +1,25 @@
-<?php require_once __DIR__ . '/../partials/header.php'; ?>
+<?php
+$user = $user ?? null;
+
+if (!isset($user)) {
+    header('Location: /login');
+    exit;
+}
+
+// Redirection si l'utilisateur est admin (role_id = 3)
+if ($user['role_id'] === 3) {
+    header('Location: /admin/dashboard');
+    exit;
+}
+?>
+
+<?php if (!empty($_SESSION['success'])): ?>
+    <div class="alert alert-success text-center mx-3" role="alert">
+        <?= htmlspecialchars($_SESSION['success']) ?>
+    </div>
+    <?php unset($_SESSION['success']); ?>
+<?php endif; ?>
+
 
 <div class="container py-5">
     <div class="row justify-content-center">
@@ -13,79 +34,88 @@
                                 </span>
                                 <span class="text-white ms-2">(24)</span>
                             </div>
-                            <h2 class="fw-bold text-white mb-2">Mel Gang</h2>
-                            <img src="/assets/images/télé1.jpeg" alt="Avatar" class="rounded-circle bg-white mb-2" style="width:70px;height:70px;object-fit:cover;">
-                            <ul class="list-unstyled text-white small mb-3">
-                                <li>Animaux accepté</li>
-                                <li>Sans tabac</li>
-                                <li>Sans nourriture</li>
-                                <li>Sans les mains</li>
-                            </ul>
-                            <div class="d-flex flex-md-row gap-2">
-                                <a href="#" class="btn btn-custom-outline px-4">Historique</a>
-                                <a href="/creation-profil" class="btn btn-inscription px-4">Modifier</a>
-
-                            </div>
-
+                            <?php if (isset($_SESSION['user'])): ?>
+                                <h2 class="fw-bold text-white mb-2"><?= $_SESSION['user']['pseudo'] ?? '' ?></h2>
+                                <img src="<?= $_SESSION['user']['photo_url'] ?? '/assets/images/logo.svg' ?>" alt="Avatar" class="rounded-circle bg-white mb-2" style="width:70px;height:70px;object-fit:cover;">
+                                <ul class="list-unstyled text-white small mb-3">
+                                    <li>Animaux accepté</li>
+                                    <li>Sans tabac</li>
+                                    <li>Sans nourriture</li>
+                                    <li>Sans les mains</li>
+                                </ul>
+                                <div class="d-flex flex-md-row gap-2">
+                                    <a href="#" class="btn btn-custom-outline px-4">Historique</a>
+                                    <a href="/creation-profil" class="btn btn-inscription px-4">Modifier</a>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <div class="col-md-8">
                         <div class="row g-3 text-white">
                             <div class="col-6 col-lg-4">
                                 <div class="fw-semibold">Date d'inscription</div>
-                                <div class="small">12-06-2026</div>
+                                <div class="small"><?= date('d-m-Y', strtotime($user['created_at'])) ?></div>
                             </div>
                             <div class="col-6 col-lg-4">
                                 <div class="fw-semibold">Chauffeur</div>
-                                <div class="small">Oui</div>
+                                <div class="small"><?= in_array($user['role_id'], [2, 4]) ? 'Oui' : 'Non' ?></div>
                             </div>
                             <div class="col-6 col-lg-4">
                                 <div class="fw-semibold">Passager</div>
-                                <div class="small">Non</div>
+                                <div class="small"><?= in_array($user['role_id'], [1, 4]) ? 'Oui' : 'Non' ?></div>
                             </div>
-                            <div class="col-6 col-lg-4">
-                                <div class="fw-semibold">Véhicules 1</div>
-                                <div class="small">Nissan Micra</div>
-                            </div>
-                            <div class="col-6 col-lg-4">
-                                <div class="fw-semibold">Type énergie</div>
-                                <div class="small">Essence</div>
-                            </div>
-                            <div class="col-6 col-lg-4">
-                                <div class="fw-semibold">Immatriculation</div>
-                                <div class="small">Nissan Micra</div>
-                            </div>
-                            <div class="col-6 col-lg-4">
-                                <div class="fw-semibold">Véhicule 2</div>
-                                <div class="small">Renault Zoé</div>
-                            </div>
-                            <div class="col-6 col-lg-4">
-                                <div class="fw-semibold">Type énergie</div>
-                                <div class="small">Electrique</div>
-                            </div>
-                            <div class="col-6 col-lg-4">
-                                <div class="fw-semibold">Immatriculation</div>
-                                <div class="small">Renault Zoé</div>
-                            </div>
-                            <div class="col-6 col-lg-4">
-                                <div class="fw-semibold">Véhicules</div>
-                                <div class="small">Full name</div>
-                            </div>
-                            <div class="col-6 col-lg-4">
-                                <div class="fw-semibold">Car</div>
-                                <div class="small">In-person</div>
-                            </div>
-                            <div class="col-6 col-lg-4">
-                                <div class="fw-semibold">Véhicules</div>
-                                <div class="small">Full name</div>
-                            </div>
+                            <?php if (!empty($vehicles)): ?>
+                                <!-- Onglets -->
+                                <ul class="nav nav-tabs mb-4" id="vehicleTabs" role="tablist">
+                                    <?php foreach ($vehicles as $index => $vehicle): ?>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link <?= $index === 0 ? 'active' : '' ?>" id="vehicle-tab-<?= $index ?>"
+                                                data-bs-toggle="tab" data-bs-target="#vehicle-<?= $index ?>" type="button" role="tab">
+                                                Véhicule <?= $index + 1 ?>
+                                            </button>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                                <!-- Contenu des onglets -->
+                                <div class="tab-content" id="vehicleTabsContent">
+                                    <?php foreach ($vehicles as $index => $vehicle): ?>
+                                        <div class="tab-pane fade <?= $index === 0 ? 'show active' : '' ?>" id="vehicle-<?= $index ?>" role="tabpanel">
+                                            <div class="card bg-transparent border rounded-3 p-3 text-white">
+                                                <div class="fw-bold mb-2">Modèle : <?= htmlspecialchars($vehicle['marque']) . ' ' . htmlspecialchars($vehicle['modele']) ?></div>
+                                                <div class="row small">
+                                                    <div class="col-md-4">Couleur : <?= htmlspecialchars($vehicle['couleur']) ?></div>
+                                                    <div class="col-md-4">Immatriculation : <?= htmlspecialchars($vehicle['immatriculation']) ?></div>
+                                                    <div class="col-md-4">Date : <?= date('d/m/Y', strtotime($vehicle['date_premiere_immatriculation'])) ?></div>
+                                                    <div class="col-md-4">Énergie : <?= htmlspecialchars($vehicle['fuel_type_id']) ?></div>
+                                                    <div class="col-md-4">Places : <?= htmlspecialchars($vehicle['places_dispo']) ?></div>
+                                                    <div class="col-12 mt-2">
+                                                        <strong>Préférences :</strong><br>
+                                                        <?php
+                                                        $prefs = explode(',', $vehicle['preferences'] ?? '');
+                                                        foreach ($prefs as $pref) {
+                                                            if (trim($pref)) {
+                                                                echo '<span class="badge bg-success me-2">' . htmlspecialchars(trim($pref)) . '</span>';
+                                                            }
+                                                        }
+                                                        ?>
+                                                        <?php if (!empty($vehicle['custom_preferences'])): ?>
+                                                            <span class="badge bg-secondary"><?= htmlspecialchars($vehicle['custom_preferences']) ?></span>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php else: ?>
+                                <div class="alert alert-warning">Aucun véhicule renseigné</div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <h2 class="text-center text-white mb-5">Les avis des voyageurs</h2>
     <div class="row justify-content-center g-4">
         <?php for ($i = 0; $i < 3; $i++): ?>
@@ -95,7 +125,7 @@
                         <?php for ($j = 0; $j < 5; $j++): ?><i class="bi bi-star-fill text-warning"></i><?php endfor; ?>
                     </div>
                     <blockquote class="blockquote text-white mb-3">
-                        <p class="mb-0">"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare."</p>
+                        <p class="mb-0">"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique."</p>
                     </blockquote>
                     <div class="d-flex align-items-center gap-2 mt-3">
                         <img src="/assets/images/404.png" alt="Avatar" class="rounded-circle bg-white" style="width:40px;height:40px;object-fit:cover;">
@@ -108,6 +138,3 @@
             </div>
         <?php endfor; ?>
     </div>
-</div>
-
-<?php require_once __DIR__ . '/../partials/footer.php'; ?>

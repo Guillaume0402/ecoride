@@ -144,21 +144,58 @@ class UserModel
         return $stmt->execute([':note' => $newNote, ':id' => $userId]);
     }
 
-    private function hydrate(array $data): User
-    {
-        $user = new User($data['pseudo'], $data['email']);
-        $user->setId((int)$data['id'])
-            ->setPassword($data['password'])
-            ->setRoleId((int)$data['role_id'])
-            ->setCredits((int)$data['credits'])
-            ->setNote((float)$data['note'])
-            ->setPhoto($data['photo']);
+   private function hydrate(array $data): User
+{
+    $user = new User($data['pseudo'], $data['email']);
 
-        // Si la date de création existe, on la convertit en objet DateTime
-        if ($data['created_at']) {
-            $user->setCreatedAt(new \DateTime($data['created_at']));
+    $user->setId((int)$data['id'])
+        ->setPseudo($data['pseudo'])  // ✅ à ajouter
+        ->setEmail($data['email'])    // ✅ à ajouter
+        ->setPassword($data['password'])
+        ->setRoleId((int)$data['role_id'])
+        ->setCredits((int)$data['credits'])
+        ->setNote((float)$data['note'])
+        ->setPhoto($data['photo']);
+
+    if (!empty($data['created_at'])) {
+        $user->setCreatedAt(new \DateTime($data['created_at']));
+    }
+
+    return $user;
+}
+
+
+    public function updateProfil(array $data): void
+    {
+        $sql = "UPDATE users SET 
+                pseudo = :pseudo,
+                role_id = :role_id";
+
+        if (!empty($data['photo'])) {
+            $sql .= ", photo = :photo";
         }
 
-        return $user;
+        if (!empty($data['password'])) {
+            $sql .= ", password = :password";
+        }
+
+        $sql .= " WHERE id = :id";
+
+        $params = [
+            'pseudo' => $data['pseudo'],
+            'role_id' => $data['role_id'],
+            'id' => $data['id'],
+        ];
+
+        if (!empty($data['photo'])) {
+            $params['photo'] = $data['photo'];
+        }
+
+        if (!empty($data['password'])) {
+            $params['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+        }
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
     }
 }

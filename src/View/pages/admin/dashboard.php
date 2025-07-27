@@ -20,8 +20,8 @@
 
     <!-- Main content -->
     <main class="flex-fill p-4">
-        <h1 class="mb-4">Bienvenue, <?= htmlspecialchars($_SESSION['user']['name']) ?> 👋</h1>
-        <p class="text-muted">Rôle : <?= htmlspecialchars($_SESSION['user']['role']) ?></p>
+        <h1 class="mb-4">Bienvenue, <?= htmlspecialchars($_SESSION['user']['pseudo']) ?> 👋</h1>
+        <p class="text-muted">Rôle : <?= htmlspecialchars($_SESSION['user']['role_name']) ?></p>
 
         <hr>
 

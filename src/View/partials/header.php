@@ -28,12 +28,12 @@
                     <li class="nav-item dropdown d-flex flex-column align-items-center">
                         <?php if (isset($_SESSION['user'])): ?>
                             <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
-                                <img src="<?= $_SESSION['user']['avatar'] ?>" alt="Avatar" class="avatar-img" />
-                                <span class="d-none d-lg-inline text-white "><?= $_SESSION['user']['name'] ?></span>
+                                <img src="<?= $_SESSION['user']['photo_url'] ?? '/assets/images/logo.svg' ?>" alt="Avatar" class="avatar-img" />
+                                <span class="d-none d-lg-inline text-white "><?= $_SESSION['user']['pseudo'] ?? ''?></span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end animate__animated animate__fadeIn">
 
-                                <?php if ($_SESSION['user']['roleId'] === 3): ?>
+                                <?php if ($_SESSION['user']['role_id'] === 3): ?>
                                     <li><a class="dropdown-item" href="/admin/dashboard"><i class="bi bi-speedometer2 me-2"></i> Dashboard admin</a></li>
                                     <li><a class="dropdown-item" href="/admin/users"><i class="bi bi-people me-2"></i> Gérer les utilisateurs</a></li>
                                     <li><a class="dropdown-item" href="/admin/stats"><i class="bi bi-bar-chart-line me-2"></i> Statistiques</a></li>

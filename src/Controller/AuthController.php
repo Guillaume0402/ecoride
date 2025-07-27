@@ -76,59 +76,55 @@ class AuthController
         header('Content-Type: application/json');
 
         try {
-            // Récupère les données JSON envoyées par le client
             $data = json_decode(file_get_contents('php://input'), true);
 
-            // Vérifie que l'email et le mot de passe sont fournis
             if (empty($data['email']) || empty($data['password'])) {
                 throw new \Exception('Email et mot de passe requis');
             }
 
-            // Recherche l'utilisateur par email
             $user = $this->userModel->findByEmail($data['email']);
 
-            // Vérifie l'existence de l'utilisateur et la validité du mot de passe
             if (!$user || !$user->verifyPassword($data['password'])) {
                 throw new \Exception('Email ou mot de passe incorrect');
             }
 
-            // Stocke les infos utilisateur en session (connexion)
-            
-            $_SESSION['user'] = [
-                'name'   => $user->getPseudo(),
-                'email'  => $user->getEmail(),
-                'roleId' => $user->getRoleId(),
-                'role'   => $user->getRoleName(),
-                'avatar' => "/assets/images/logo.svg"
-            ];
+            // Récupération complète depuis toArray()
+            $userArray = $user->toArray();
 
-            // Détermine l'URL de redirection selon le rôle
+            // 🔥 Ajout manuel de compatibilité pour le header
+            $userArray['roleId']  = $user->getRoleId();       // pour ton switch redirection
+            $userArray['role_id'] = $user->getRoleId();       // pour ton menu admin
+            $userArray['avatar']  = $user->getPhoto() ?: "/assets/images/logo.svg";
+
+            // Session utilisateur
+            $_SESSION['user'] = $userArray;
+
+            // Redirection selon rôle
             switch ($user->getRoleId()) {
-                case 3: // admin
+                case 3:
                     $redirectUrl = '/admin/dashboard';
                     break;
-                case 2: // employé
+                case 2:
                     $redirectUrl = '/employe';
                     break;
-                case 1: // utilisateur
                 default:
                     $redirectUrl = '/';
                     break;
             }
 
-            // Retourne le succès et le pseudo au format JSON
             echo json_encode([
                 'success' => true,
                 'message' => 'Connexion réussie !',
-                'user' => ['pseudo' => $user->getPseudo()],
+                'user'    => ['pseudo' => $user->getPseudo()],
                 'redirect' => $redirectUrl
             ]);
         } catch (\Exception $e) {
-            // Retourne l'erreur au format JSON
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
+
         exit;
     }
+
 
     // API : Déconnexion utilisateur (appelée via AJAX)
     public function apiLogout(): void
