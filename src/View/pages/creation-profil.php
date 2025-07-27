@@ -1,10 +1,6 @@
 <!-- On définit l'utilisateur si non déjà défini -->
 <?php $user = $user ?? null;
-if (!$user) {
-    echo "<p class='text-danger'>Aucun utilisateur connecté.</p>";
-    return;
-}
- ?>
+?>
 
 <!-- Alertes de succès et d'erreur -->
 <?php if (!empty($_SESSION['success'])): ?>
@@ -20,10 +16,13 @@ if (!$user) {
     </div>
 <?php endif; ?>
 
+<?php if (!$user): ?>
+    <div class="alert alert-danger text-center w-75 mx-auto">Aucun utilisateur connecté.</div>
+<?php endif; ?>
 
 <div class="container mt-5 mb-5">
 
-    <form method="POST" action="/profile" enctype="multipart/form-data" class="p-4">
+    <form method="POST" action="/creation-profil" enctype="multipart/form-data" class="p-4">
         <div class="container mt-2 d-flex align-items-center justify-content-between form-section">
             <h4>Votre Profil</h4>
             <!-- Boutons -->
@@ -96,89 +95,89 @@ if (!$user) {
         </div>
 
         <!-- SECTION CHAUFFEUR -->
-        
-            <div id="chauffeur-fields" style="display: none;">
-                <hr>
-                <!-- Plaque -->
+
+        <div id="chauffeur-fields" style="display: none;">
+            <hr>
+            <!-- Plaque -->
+            <div class="mb-3 form-section">
+                <label for="immatriculation" class="form-label">Plaque d'immatriculation</label>
+                <input type="text" class="form-control" id="immatriculation" name="immatriculation"
+                    value="">
+            </div>
+
+            <!-- Date -->
+            <div class="mb-3 form-section">
+                <label for="date_premiere_immatriculation" class="form-label">Date de première immatriculation</label>
+                <input type="date" class="form-control" id="date_premiere_immatriculation" name="date_premiere_immatriculation"
+                    value="" required>
+            </div>
+
+
+            <!-- Modèle -->
+            <div class="mb-3 form-section">
+                <label for="marque" class="form-label">Marque</label>
+                <input type="text" class="form-control" id="marque" name="marque"
+                    value="">
+                <label for="modele" class="form-label">Modèle</label>
+                <input type="text" class="form-control" id="modele" name="modele"
+                    value="">
+                <label for="couleur" class="form-label">Couleur</label>
+                <input type="text" class="form-control" id="couleur" name="couleur"
+                    value="">
+
+                <!-- Motorisation -->
                 <div class="mb-3 form-section">
-                    <label for="immatriculation" class="form-label">Plaque d'immatriculation</label>
-                    <input type="text" class="form-control" id="immatriculation" name="immatriculation"
-                        value="">
+                    <label for="fuel_type_id" class="form-label">Type de motorisation</label>
+                    <select class="form-select form-control" id="fuel_type_id" name="fuel_type_id">
+                        <option value="1">Essence</option>
+                        <option value="2">Diesel</option>
+                        <option value="3">Électrique</option>
+                        <option value="4">Hybride</option>
+                    </select>
                 </div>
 
-                <!-- Date -->                
+                <!-- Nombre de places -->
                 <div class="mb-3 form-section">
-                    <label for="date_premiere_immatriculation" class="form-label">Date de première immatriculation</label>
-                    <input type="date" class="form-control" id="date_premiere_immatriculation" name="date_premiere_immatriculation"
-                        value="" required>
+                    <label for="places_dispo" class="form-label">Nombre de places disponibles</label>
+                    <select class="form-select form-control" id="places_dispo" name="places_dispo">
+                        <option value="">Sélectionner</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4+">4+</option>
+
+                    </select>
                 </div>
 
+                <!-- PRÉFÉRENCES -->
 
-                <!-- Modèle -->
-                <div class="mb-3 form-section">
-                    <label for="marque" class="form-label">Marque</label>
-                    <input type="text" class="form-control" id="marque" name="marque"
-                        value="">
-                    <label for="modele" class="form-label">Modèle</label>
-                    <input type="text" class="form-control" id="modele" name="modele"
-                        value="">
-                    <label for="couleur" class="form-label">Couleur</label>
-                    <input type="text" class="form-control" id="couleur" name="couleur"
-                        value="">
-
-                    <!-- Motorisation -->
-                    <div class="mb-3 form-section">
-                        <label for="fuel_type_id" class="form-label">Type de motorisation</label>
-                        <select class="form-select form-control" id="fuel_type_id" name="fuel_type_id">
-                            <option value="1">Essence</option>
-                            <option value="2">Diesel</option>
-                            <option value="3">Électrique</option>
-                            <option value="4">Hybride</option>
-                        </select>
+                <div class="mb-3">
+                    <label class="form-label">Préférences</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="fumeur" name="preferences[]">
+                        <label class="form-check-label">Fumeur</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="non-fumeur" name="preferences[]">
+                        <label class="form-check-label">Non-fumeur</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="animaux" name="preferences[]">
+                        <label class="form-check-label">Animaux acceptés</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="pas-animaux" name="preferences[]">
+                        <label class="form-check-label">Pas d'animal</label>
                     </div>
 
-                    <!-- Nombre de places -->
-                    <div class="mb-3 form-section">
-                        <label for="places_dispo" class="form-label">Nombre de places disponibles</label>
-                        <select class="form-select form-control" id="places_dispo" name="places_dispo">
-                            <option value="">Sélectionner</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4+">4+</option>
+                    <!-- Ajout personnalisé -->
+                    <label for="custom_preferences" class="form-label mt-2">Ajouter vos préférences</label>
+                    <textarea class="form-control" id="custom_preferences" name="custom_preferences"
+                        rows="3" maxlength="250"></textarea>
 
-                        </select>
-                    </div>
-
-                    <!-- PRÉFÉRENCES -->
-                   
-                    <div class="mb-3">
-                        <label class="form-label">Préférences</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="fumeur" name="preferences[]">
-                            <label class="form-check-label">Fumeur</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="non-fumeur" name="preferences[]">
-                            <label class="form-check-label">Non-fumeur</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="animaux" name="preferences[]">
-                            <label class="form-check-label">Animaux acceptés</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="pas-animaux" name="preferences[]">
-                            <label class="form-check-label">Pas d'animal</label>
-                        </div>
-
-                        <!-- Ajout personnalisé -->
-                        <label for="custom_preferences" class="form-label mt-2">Ajouter vos préférences</label>
-                        <textarea class="form-control" id="custom_preferences" name="custom_preferences"
-                            rows="3" maxlength="250"></textarea>
-
-                    </div>
                 </div>
-            
+            </div>
+
             <!-- Boutons -->
             <div class="text-end mt-4">
                 <a href="/" class="btn btn-custom-outline">Annuler</a>

@@ -15,29 +15,6 @@ class VehicleModel
     }
 
     /**
-     * Crée un véhicule pour un utilisateur
-     */
-    public function create(array $data): bool
-    {
-        $sql = "INSERT INTO {$this->table} 
-                (user_id, marque, modele, couleur, immatriculation, date_premiere_immatriculation, fuel_type_id, places_dispo, created_at)
-                VALUES (:user_id, :marque, :modele, :couleur, :immatriculation, :date_immat, :fuel_type_id, :places_dispo, NOW())";
-
-        $stmt = $this->conn->prepare($sql);
-
-        return $stmt->execute([
-            ':user_id'         => $data['user_id'],
-            ':marque'          => $data['marque'],
-            ':modele'          => $data['modele'],
-            ':couleur'         => $data['couleur'],
-            ':immatriculation' => $data['immatriculation'],
-            ':date_immat'      => $data['date_premiere_immatriculation'],
-            ':fuel_type_id'    => $data['fuel_type_id'],
-            ':places_dispo'    => $data['places_dispo']
-        ]);
-    }
-
-    /**
      * Met à jour le véhicule d’un utilisateur
      */
     public function update(int $userId, array $data): bool
@@ -45,7 +22,7 @@ class VehicleModel
         $sql = "UPDATE {$this->table} SET 
                     marque = :marque,
                     modele = :modele,
-                    couleur = :couleur,
+                    couleur = :couleur, 
                     immatriculation = :immatriculation,
                     date_premiere_immatriculation = :date_immat,
                     fuel_type_id = :fuel_type_id,
@@ -97,7 +74,7 @@ class VehicleModel
         return $vehicle ?: null;
     }
 
-    public function insert(array $vehicle): void
+    public function create(array $vehicle): bool
     {
         $sql = "INSERT INTO {$this->table} (
                 user_id, marque, modele, couleur, immatriculation,
@@ -123,13 +100,7 @@ class VehicleModel
         ];
 
         $stmt = $this->conn->prepare($sql);
-        if (!$stmt->execute($data)) {
-            echo "<pre>";
-            var_dump($data);
-            var_dump($stmt->errorInfo());
-            echo "</pre>";
-            exit;
-        }
+        return $stmt->execute($data);
     }
 
 
@@ -152,5 +123,20 @@ class VehicleModel
     {
         $stmt = $this->conn->prepare("DELETE FROM {$this->table} WHERE id = :id");
         return $stmt->execute([':id' => $vehicleId]);
+    }
+
+    public function existsByImmatriculation(string $immatriculation, ?int $excludeUserId = null): bool
+    {
+        $sql = "SELECT id FROM {$this->table} WHERE immatriculation = :immatriculation";
+        $params = [':immatriculation' => $immatriculation];
+
+        if ($excludeUserId !== null) {
+            $sql .= " AND user_id != :excludeUserId";
+            $params[':excludeUserId'] = $excludeUserId;
+        }
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+        return (bool) $stmt->fetch();
     }
 }

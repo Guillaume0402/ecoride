@@ -1,7 +1,5 @@
 <?php
 
-error_log("✅ ROUTES.PHP CHARGÉ");
-
 $routes = [
 
     // =========================
@@ -71,8 +69,14 @@ $routes = [
     ],
 
     "/creation-profil" => [
-        "controller" => "App\Controller\PageController",
-        "action" => "creationProfil"
+        'GET' => [
+            "controller" => "App\\Controller\\ProfilController",
+            "action" => "showForm"
+        ],
+        'POST' => [
+            "controller" => "App\\Controller\\ProfilController",
+            "action" => "update"
+        ]
     ],
 
     "/my-profil" => [
@@ -97,11 +101,11 @@ $routes = [
     ],
     "/vehicle/edit" => [
         'GET' => [
-            "controller" => "App\Controller\VehicleController",
+            "controller" => "App\\Controller\\VehicleController",
             "action" => "edit"
         ],
         'POST' => [
-            "controller" => "App\Controller\VehicleController",
+            "controller" => "App\\Controller\\VehicleController",
             "action" => "update"
         ]
     ],

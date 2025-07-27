@@ -99,10 +99,65 @@ class VehicleController extends Controller
             'custom_preferences' => $_POST['custom_preferences'] ?? ''
         ];
 
-        $this->vehicleModel->insert($vehicle);
+        $this->vehicleModel->update($userId, $vehicle);;
 
         $_SESSION['success'] = "Véhicule mis à jour avec succès.";
         header("Location: /my-profil");
+        exit;
+    }
+
+    public function store(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            exit('Méthode non autorisée');
+        }
+
+        $userId = $_SESSION['user']['id'] ?? null;
+
+        if (!$userId) {
+            $_SESSION['error'] = "Utilisateur non connecté.";
+            header("Location: /login");
+            exit;
+        }
+
+        $dateFr = $_POST['date_premiere_immatriculation'] ?? '';
+        $dateSql = null;
+        if (!empty($dateFr)) {
+            $dateSql = \DateTime::createFromFormat('Y-m-d', $dateFr)?->format('Y-m-d');
+        }
+
+        $vehicle = [
+            'user_id' => $userId,
+            'marque' => trim($_POST['marque'] ?? ''),
+            'modele' => trim($_POST['modele'] ?? ''),
+            'couleur' => trim($_POST['couleur'] ?? ''),
+            'immatriculation' => trim($_POST['immatriculation'] ?? ''),
+            'date_premiere_immatriculation' => $dateSql,
+            'fuel_type_id' => $_POST['fuel_type_id'] ?? null,
+            'places_dispo' => $_POST['places_dispo'] ?? null,
+            'preferences' => $_POST['preferences'] ?? [],
+            'custom_preferences' => $_POST['custom_preferences'] ?? ''
+        ];
+
+        // ✅ Vérifie si une immatriculation existe déjà
+        if ($this->vehicleModel->existsByImmatriculation($vehicle['immatriculation'])) {
+            $_SESSION['error'] = "Cette immatriculation est déjà utilisée.";
+            header("Location: /vehicle/create");
+            exit;
+        }
+
+        // ✅ Création du véhicule
+        $success = $this->vehicleModel->create($vehicle);
+
+        if ($success) {
+            $_SESSION['success'] = "Véhicule ajouté avec succès.";
+            header("Location: /my-profil");
+        } else {
+            $_SESSION['error'] = "Erreur lors de l'ajout du véhicule.";
+            header("Location: /vehicle/create");
+        }
+
         exit;
     }
 }
