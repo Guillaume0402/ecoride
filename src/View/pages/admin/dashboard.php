@@ -4,7 +4,7 @@
         <h4 class="text-white mb-4">Admin</h4>
         <ul class="nav flex-column gap-2">
             <li class="nav-item">
-                <a class="nav-link text-white" href="/admin/dashboard">🏠 Tableau de bord</a>
+                <a class="nav-link text-white" href="/admin">🏠 Tableau de bord</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link text-white" href="/admin/users">👥 Gérer les utilisateurs</a>

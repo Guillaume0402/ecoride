@@ -1,5 +1,3 @@
-<?php require_once __DIR__ . '/../partials/header.php'; ?>
-
 <div class="container py-5 d-flex flex-column align-items-center justify-content-center">
     <h2 class="text-primary mb-4 fw-semibold">Création covoiturage</h2>
     <div class="card shadow-lg border-0 rounded-4 p-4" style="max-width: 400px; width: 100%; background: linear-gradient(135deg, #137a03 0%, #128208 31%, #3abb34 58%, #129717 70%);">
@@ -47,4 +45,3 @@
     </div>
 </div>
 
-<?php require_once __DIR__ . '/../partials/footer.php'; ?>

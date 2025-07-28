@@ -27,4 +27,12 @@ class ErrorController extends Controller
             'message' => $message
         ]);
     }
+
+    public function show405(string $message = "Méthode non autorisée"): void
+    {
+        http_response_code(405);
+        $this->render("errors/error-405", [
+            'message' => $message
+        ]);
+    }
 }

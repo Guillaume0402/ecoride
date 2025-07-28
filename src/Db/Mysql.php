@@ -25,12 +25,12 @@ class Mysql
         $this->dbUser = $dbConf['DB_USER'];
         $this->dbPassword = $dbConf['DB_PASSWORD'];
         $this->dbPort = $dbConf['DB_PORT'];
-        error_log("CONF MYSQL : host={$this->dbHost}, name={$this->dbName}, user={$this->dbUser}, port={$this->dbPort}");
+        
     }
 
     public static function getInstance(): self
     {
-        error_log("Mysql::getInstance() appelé !");
+        
         // Création de l'instance si elle n'existe pas encore
         if (self::$_instance === null) {
             self::$_instance = new self();
@@ -45,7 +45,7 @@ class Mysql
             try {
                 $this->pdo = new \PDO($dsn, $this->dbUser, $this->dbPassword);
             } catch (\PDOException $e) {
-                error_log("Erreur PDO lors de la connexion : " . $e->getMessage());
+               
                 throw $e; // (optionnel : à commenter si tu veux une erreur contrôlée)
             }
         }

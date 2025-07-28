@@ -16,9 +16,9 @@ class UserModel
     public function __construct()
     {
         // Initialise la connexion à la base de données via le singleton Mysql
-        error_log("CONSTRUCTEUR UserModel AVANT Mysql::getInstance()");
+        
         $this->conn = Mysql::getInstance()->getPDO();
-        error_log("CONSTRUCTEUR UserModel APRÈS Mysql::getInstance()");
+        
     }
 
     /**

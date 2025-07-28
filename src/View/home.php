@@ -1,4 +1,4 @@
-<?php require_once __DIR__ . '/partials/header.php'; ?>
+
 
 <div class="container-fluid py-3 text-white">
     <div id="globalAlert" class="alert d-none"></div>
@@ -96,4 +96,3 @@
 });
 </script>
 
-<?php require_once __DIR__ . '/partials/footer.php'; ?>

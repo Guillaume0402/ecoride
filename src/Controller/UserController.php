@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Model\UserModel;
 use App\Model\VehicleModel;
-use App\Entity\Vehicle;
 
 class UserController extends Controller
 {
@@ -12,49 +11,39 @@ class UserController extends Controller
 
     public function __construct()
     {
-
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-
+        parent::__construct();
         $this->userModel = new UserModel();
+
+        if (!isset($_SESSION['user'])) {
+            $_SESSION['error'] = "Veuillez vous connecter.";
+            redirect('/login');
+        }
     }
 
-    // Traitement du formulaire d'ajout/mise à jour de profil
     public function update(): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            abort(405);
+        }
+
         $userId = $_SESSION['user']['id'];
         $role = $_POST['role'] ?? 'passager';
 
-        // Sécurité : un admin garde son rôle admin même s’il modifie son profil
-        if ($_SESSION['user']['role_id'] === 3) {
-            $roleId = 3; // on force le rôle admin
-        } else {
-            $roleId = $this->mapRoleToId($role);
-        }
+        // 🔒 Empêche la perte du rôle admin
+        $roleId = ($_SESSION['user']['role_id'] === 3) 
+            ? 3 
+            : $this->mapRoleToId($role);
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405);
-            exit('Méthode non autorisée');
-        }
-
-        if (empty($_SESSION['user']) || !isset($_SESSION['user']['id'])) {
-            http_response_code(403);
-            exit('Utilisateur non connecté');
-        }
-
-        // Données du formulaire
+        // Données utilisateur
         $data = [
-            'id'           => $userId,
-            'pseudo'       => $_POST['pseudo'] ?? '',
-            'role_id'      => $roleId,
-            'photo'        => null,
-            'password'     => !empty($_POST['new_password']) ? $_POST['new_password'] : null
+            'id'       => $userId,
+            'pseudo'   => $_POST['pseudo'] ?? '',
+            'role_id'  => $roleId,
+            'photo'    => null,
+            'password' => !empty($_POST['new_password']) ? $_POST['new_password'] : null
         ];
 
-
-        // Photo
+        // 📷 Upload photo
         if (!empty($_FILES['photo']['name'])) {
             $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/';
             $fileName = uniqid() . '_' . basename($_FILES['photo']['name']);
@@ -65,23 +54,21 @@ class UserController extends Controller
             }
         }
 
-
+        // 🚗 Gestion du véhicule si chauffeur ou les deux
         if (in_array($role, ['chauffeur', 'les-deux'])) {
             $vehicleModel = new VehicleModel();
 
-            // Regroupe les données du véhicule
             $vehicleData = [
                 'user_id' => $userId,
                 'marque' => $_POST['model'] ?? '',
                 'modele' => $_POST['model'] ?? '',
-                'couleur' => 'N/A', // à adapter si tu as le champ
+                'couleur' => 'N/A',
                 'immatriculation' => $_POST['plate'] ?? '',
                 'date_premiere_immatriculation' => $_POST['registration_date'] ?? '',
                 'fuel_type_id' => $this->mapMotorType($_POST['motor_type'] ?? ''),
                 'places_dispo' => $_POST['seats'] ?? 0
             ];
 
-            // Vérifie si un véhicule existe déjà pour l'utilisateur
             $existingVehicle = $vehicleModel->findByUserId($userId);
 
             if ($existingVehicle) {
@@ -92,10 +79,9 @@ class UserController extends Controller
         }
 
         try {
-            // Mise à jour
             $this->userModel->updateProfil($data);
 
-            // Recharge les données en session
+            // 🔄 Met à jour la session
             $user = $this->userModel->findById($userId);
             if ($user) {
                 $_SESSION['user'] = $user->toArray();
@@ -106,8 +92,7 @@ class UserController extends Controller
             $_SESSION['error'] = "Erreur lors de la mise à jour du profil : " . $e->getMessage();
         }
 
-        header("Location: /my-profil");
-        exit;
+        redirect('/my-profil');
     }
 
     private function mapMotorType(string $type): int
@@ -124,10 +109,10 @@ class UserController extends Controller
     private function mapRoleToId(string $role): int
     {
         return match ($role) {
-            'passager'     => 1,
-            'chauffeur'    => 2,
-            'les-deux'     => 3,
-            default        => 1
+            'passager'  => 1,
+            'chauffeur' => 2,
+            'les-deux'  => 3,
+            default     => 1
         };
     }
 }

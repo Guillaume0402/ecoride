@@ -148,7 +148,7 @@ class User
     /**
      * Mise à jour du profil utilisateur
      */
-    public function updateProfile(int $userId, array $data): bool
+    public function updateProfil(int $userId, array $data): bool
     {
         try {
             $sql = "UPDATE {$this->table}

@@ -229,7 +229,7 @@ $router->handleRequest($_SERVER['REQUEST_URI']);
 // Exemples d'URLs gérées :
 // /                     → PageController::home()
 // /auth/login          → AuthController::login()
-// /user/profile        → UserController::profile()
+// /user/profil        → UserController::profil()
 // /covoiturage/create  → CovoiturageController::create()
 ```
 

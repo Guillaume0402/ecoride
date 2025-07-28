@@ -8,6 +8,12 @@
     color: white;
     text-transform: capitalize;
     display: inline-block;
+    margin: 0.2rem; /* espace entre badges */
+    max-width: 150px; /* limite largeur */
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    text-align: center;
 }
 
 .badge-pref.fumeur {
@@ -25,7 +31,15 @@
 .badge-pref.custom {
     background: linear-gradient(to right, #6a11cb, #2575fc);
     font-style: italic;
+    display: block; /* ✅ force un retour à la ligne */
+    width: fit-content; /* ✅ largeur adaptée au contenu */
+    margin-top: 0.5rem; /* espace avec les badges normaux */
+    max-width: 100%; /* ✅ pas de débordement */
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
+
 
 .btn-custom-outline {
     border: 1px solid #00ff88;

@@ -90,7 +90,7 @@ if ($user['role_id'] === 3) {
                                                         <div class="col-md-4">Couleur : <?= htmlspecialchars($vehicle['couleur']) ?></div>
                                                         <div class="col-md-4">Immatriculation : <?= htmlspecialchars($vehicle['immatriculation']) ?></div>
                                                         <div class="col-md-4">Date : <?= date('d/m/Y', strtotime($vehicle['date_premiere_immatriculation'])) ?></div>
-                                                        <div class="col-md-4">Énergie : <?= htmlspecialchars($vehicle['fuel_type_id']) ?></div>
+                                                        <div class="col-md-4">Énergie : <?= htmlspecialchars($vehicle['fuel_type_name']) ?></div>
                                                         <div class="col-md-4">Places : <?= htmlspecialchars($vehicle['places_dispo']) ?></div>
 
                                                         <div class="col-12 mt-3">
@@ -110,7 +110,12 @@ if ($user['role_id'] === 3) {
                                                             ?>
 
                                                             <?php if (!empty($vehicle['custom_preferences'])): ?>
-                                                                <span class="badge badge-pref custom"><?= htmlspecialchars($vehicle['custom_preferences']) ?></span>
+                                                                <?php
+                                                                $customPrefs = explode(',', $vehicle['custom_preferences']);
+                                                                foreach ($customPrefs as $customPref):
+                                                                    $cleanPref = htmlspecialchars(trim($customPref)); ?>
+                                                                    <span class="badge badge-pref custom"><?= $cleanPref ?></span>
+                                                                <?php endforeach; ?>
                                                             <?php endif; ?>
                                                         </div>
                                                     </div>
@@ -118,7 +123,7 @@ if ($user['role_id'] === 3) {
 
                                                 <!-- Bouton Modifier aligné bas droite -->
                                                 <div class="d-flex justify-content-end mt-4">
-                                                    <a href="/vehicle/edit" class="btn btn-custom-outline px-4">
+                                                    <a href="/vehicle/edit?id=<?= $vehicle['id'] ?>" class="btn btn-custom-outline px-4">
 
                                                         <i class="bi bi-pencil-square me-1"></i> Modifier véhicule
                                                     </a>

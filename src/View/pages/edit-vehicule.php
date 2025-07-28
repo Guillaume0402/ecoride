@@ -21,6 +21,7 @@ $prefs = isset($vehicle['preferences']) ? explode(',', $vehicle['preferences']) 
     <h2 class="mb-4 text-center">Modifier mon véhicule</h2>
 
     <form method="POST" action="/vehicle/edit" class="p-4">
+         <input type="hidden" name="vehicle_id" value="<?= htmlspecialchars($vehicle['id']) ?>">
         <!-- Plaque -->
         <div class="mb-3">
             <label for="immatriculation" class="form-label">Plaque d'immatriculation</label>

@@ -17,17 +17,19 @@ class VehicleModel
     /**
      * Met à jour le véhicule d’un utilisateur
      */
-    public function update(int $userId, array $data): bool
+    public function update(int $vehicleId, array $data): bool
     {
         $sql = "UPDATE {$this->table} SET 
-                    marque = :marque,
-                    modele = :modele,
-                    couleur = :couleur, 
-                    immatriculation = :immatriculation,
-                    date_premiere_immatriculation = :date_immat,
-                    fuel_type_id = :fuel_type_id,
-                    places_dispo = :places_dispo
-                WHERE user_id = :user_id";
+                marque = :marque,
+                modele = :modele,
+                couleur = :couleur, 
+                immatriculation = :immatriculation,
+                date_premiere_immatriculation = :date_immat,
+                fuel_type_id = :fuel_type_id,
+                places_dispo = :places_dispo,
+                preferences = :preferences,
+                custom_preferences = :custom_preferences
+            WHERE id = :id";
 
         $stmt = $this->conn->prepare($sql);
 
@@ -39,9 +41,12 @@ class VehicleModel
             ':date_immat'      => $data['date_premiere_immatriculation'],
             ':fuel_type_id'    => $data['fuel_type_id'],
             ':places_dispo'    => $data['places_dispo'],
-            ':user_id'         => $userId
+            ':preferences'     => implode(',', $data['preferences']),
+            ':custom_preferences' => $data['custom_preferences'],
+            ':id'              => $vehicleId
         ]);
     }
+
 
     /**
      * Supprime un véhicule
@@ -114,10 +119,17 @@ class VehicleModel
 
     public function findAllByUserId(int $userId): array
     {
-        $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE user_id = :user_id");
+        $sql = "SELECT v.*, f.type_name AS fuel_type_name
+            FROM {$this->table} v
+            LEFT JOIN fuel_types f ON v.fuel_type_id = f.id
+            WHERE v.user_id = :user_id";
+
+        $stmt = $this->conn->prepare($sql);
         $stmt->execute([':user_id' => $userId]);
+
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+
 
     public function deleteById(int $vehicleId): bool
     {
@@ -125,18 +137,58 @@ class VehicleModel
         return $stmt->execute([':id' => $vehicleId]);
     }
 
-    public function existsByImmatriculation(string $immatriculation, ?int $excludeUserId = null): bool
+    public function existsByImmatriculation(string $immatriculation, int $userId, ?int $excludeVehicleId = null): bool
     {
-        $sql = "SELECT id FROM {$this->table} WHERE immatriculation = :immatriculation";
-        $params = [':immatriculation' => $immatriculation];
+        $sql = "SELECT id FROM {$this->table} 
+            WHERE immatriculation = :immatriculation 
+            AND user_id = :user_id";
 
-        if ($excludeUserId !== null) {
-            $sql .= " AND user_id != :excludeUserId";
-            $params[':excludeUserId'] = $excludeUserId;
+        $params = [
+            ':immatriculation' => $immatriculation,
+            ':user_id' => $userId
+        ];
+
+        if ($excludeVehicleId !== null) {
+            $sql .= " AND id != :exclude_id";
+            $params[':exclude_id'] = $excludeVehicleId;
         }
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
         return (bool) $stmt->fetch();
+    }
+
+    public function findByImmatriculation(string $immatriculation)
+    {
+        $sql = "SELECT * FROM vehicles WHERE immatriculation = :immatriculation LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':immatriculation' => $immatriculation]);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
+
+    public function updateById(array $data): bool
+    {
+        $sql = "UPDATE {$this->table} SET 
+                marque = :marque,
+                modele = :modele,
+                couleur = :couleur, 
+                immatriculation = :immatriculation,
+                date_premiere_immatriculation = :date_immat,
+                fuel_type_id = :fuel_type_id,
+                places_dispo = :places_dispo
+            WHERE id = :id";
+
+        $stmt = $this->conn->prepare($sql);
+
+        return $stmt->execute([
+            ':marque'          => $data['marque'],
+            ':modele'          => $data['modele'],
+            ':couleur'         => $data['couleur'],
+            ':immatriculation' => $data['immatriculation'],
+            ':date_immat'      => $data['date_premiere_immatriculation'],
+            ':fuel_type_id'    => $data['fuel_type_id'],
+            ':places_dispo'    => $data['places_dispo'],
+            ':id'              => $data['id']
+        ]);
     }
 }

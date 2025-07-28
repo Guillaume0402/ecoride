@@ -21,6 +21,8 @@ require_once APP_ROOT . '/config/constants.php';
 // Inclure la configuration
 require_once __DIR__ . '/../config/app.php';
 
+// Inclusion du helper global ✅
+require_once APP_ROOT . '/src/helpers.php';
 
 
 // Inclusion de l'autoloader de Composer pour charger automatiquement les classes
@@ -31,6 +33,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 // Import de la classe Router
 use App\Routing\Router;
+
+
 
 // Création d'une instance du routeur
 $router = new Router();

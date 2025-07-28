@@ -15,7 +15,7 @@ class Controller
     {
         extract($data);
         
-        $viewPath = APP_ROOT . '/src/View/' . $view . '.php';
+        $viewPath = APP_ROOT . '/src/View/' . ltrim($view, '/') . '.php';
         if (!file_exists($viewPath)) {
             throw new \Exception("Le fichier de vue {$viewPath} n'existe pas.");
         }

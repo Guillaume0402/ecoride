@@ -85,7 +85,7 @@
         <!-- RÔLE -->
         <div class="mb-3 form-section">
             <label for="role" class="form-label">Rôles</label>
-            <select class="form-select form-control" id="travel_role" name="travel_role" required onchange="toggleChauffeurFields()">
+            <select class="form-select form-control" id="travel_role" name="travel_role" onchange="toggleChauffeurFields()">
                 <option value="">Sélectionner</option>
                 <option value="passager" <?= ($user['travel_role'] ?? '') === 'passager' ? 'selected' : '' ?>>Passager</option>
                 <option value="chauffeur" <?= ($user['travel_role'] ?? '') === 'chauffeur' ? 'selected' : '' ?>>Chauffeur</option>
@@ -139,12 +139,12 @@
                 <!-- Nombre de places -->
                 <div class="mb-3 form-section">
                     <label for="places_dispo" class="form-label">Nombre de places disponibles</label>
-                    <select class="form-select form-control" id="places_dispo" name="places_dispo">
+                    <select class="form-select form-control" id="places_dispo" name="places_dispo" required>
                         <option value="">Sélectionner</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
-                        <option value="4+">4+</option>
+                        <option value="4">4</option>
 
                     </select>
                 </div>

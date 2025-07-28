@@ -1,5 +1,3 @@
-<?php require_once __DIR__ . '/../partials/header.php'; ?>
-
 <section class="contact-section d-flex flex-column align-items-center justify-content-center">
     <h1 class="contact-title mb-5 mt-5">Contactez-nous</h1>
     <div class="contact-card-wrapper w-100 d-flex justify-content-center px-3 mb-5">
@@ -27,4 +25,3 @@
 
 
 
-<?php require_once __DIR__ . '/../partials/footer.php'; ?>

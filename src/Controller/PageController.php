@@ -2,51 +2,51 @@
 
 namespace App\Controller;
 
+use App\Model\VehicleModel;
+
 class PageController extends Controller
 {
+    private VehicleModel $vehicleModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->vehicleModel = new VehicleModel();
+    }
+
     public function home(): void
     {
-        // Rendu de la page d'accueil avec les données
-        $this->render("home", []);
+        $this->render("home");
     }
 
     public function contact(): void
     {
-        // Rendu de la page de contact
-        $this->render("pages/contact", []);
+        $this->render("pages/contact");
     }
 
     public function listeCovoiturages(): void
     {
-        // Rendu de la liste des covoiturages
-        $this->render("pages/liste-covoiturages", []);
+        $this->render("pages/liste-covoiturages");
     }
 
     public function creationCovoiturage(): void
     {
-        // Rendu de la création de covoiturage
-        $this->render("pages/creation-covoiturage", []);
+        $this->render("pages/creation-covoiturage");
     }
 
     public function creationProfil(): void
     {
         if (!isset($_SESSION['user'])) {
             $_SESSION['error'] = "Vous devez être connecté pour accéder à cette page.";
-            header('Location: /login');
-            exit;
+            redirect('/login');
         }
 
         $user = $_SESSION['user'];
-        $vehicleModel = new \App\Model\VehicleModel();
 
-        // Si un id de véhicule est passé en GET : on le récupère
-        $vehicle = null;
-        if (!empty($_GET['id'])) {
-            $vehicle = $vehicleModel->findById((int) $_GET['id']);
-        } else {
-            // sinon on prend celui de l'utilisateur
-            $vehicle = $vehicleModel->findByUserId($user['id']);
-        }
+        // Si un id de véhicule est passé en GET, on le récupère
+        $vehicle = !empty($_GET['id'])
+            ? $this->vehicleModel->findById((int) $_GET['id'])
+            : $this->vehicleModel->findByUserId($user['id']);
 
         $this->render("pages/creation-profil", [
             'user' => $user,
@@ -54,25 +54,19 @@ class PageController extends Controller
         ]);
     }
 
-
     public function mesCovoiturages(): void
     {
-        // Rendu de mes covoiturages
-        $this->render("pages/mes-covoiturages", []);
+        $this->render("pages/mes-covoiturages");
     }
 
-    public function Profil(): void
+    public function profil(): void
     {
-        if (empty($_SESSION['user'])) {
-            header('Location: /login');
-            exit;
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
         }
 
         $user = $_SESSION['user'];
-
-        // Ajout : récupération du véhicule
-        $vehicleModel = new \App\Model\VehicleModel();
-        $vehicles = $vehicleModel->findAllByUserId($user['id']);
+        $vehicles = $this->vehicleModel->findAllByUserId($user['id']);
 
         $this->render("pages/my-profil", [
             'user' => $user,
@@ -80,29 +74,23 @@ class PageController extends Controller
         ]);
     }
 
-
     public function login(): void
     {
-        // Rendu de la page de connexion
-        $this->render("pages/login", []);
+        $this->render("pages/login");
     }
 
-    // Pages manquantes à créer
     public function about(): void
     {
-        // TODO: Créer src/View/pages/about.php
-        $this->render("pages/about", []);
+        $this->render("pages/about");
     }
 
     public function terms(): void
     {
-        // TODO: Créer src/View/pages/terms.php
-        $this->render("pages/terms", []);
+        $this->render("pages/terms");
     }
 
     public function privacy(): void
     {
-        // TODO: Créer src/View/pages/privacy.php
-        $this->render("pages/privacy", []);
+        $this->render("pages/privacy");
     }
 }

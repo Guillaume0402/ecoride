@@ -1,140 +1,139 @@
 <?php
 
-$routes = [
 
-    // =========================
-    // 🌍 Pages publiques
-    // =========================
-    "/" => [
-        "controller" => "App\Controller\PageController",
-        "action" => "home"
-    ],
-    "/about" => [
-        "controller" => "App\Controller\PageController",
-        "action" => "about"
-    ],
-    "/contact" => [
-        "controller" => "App\Controller\PageController",
-        "action" => "contact"
-    ],
-    "/terms" => [
-        "controller" => "App\Controller\PageController",
-        "action" => "terms"
-    ],
-    "/privacy" => [
-        "controller" => "App\Controller\PageController",
-        "action" => "privacy"
-    ],
-    "/liste-covoiturages" => [
-        "controller" => "App\Controller\PageController",
-        "action" => "listeCovoiturages"
-    ],
-
-    // =========================
-    // 🔐 Authentification
-    // =========================
-    "/login" => [
-        "controller" => "App\Controller\AuthController",
-        "action" => "showLogin"
-    ],
-    "/logout" => [
-        "controller" => "App\Controller\AuthController",
-        "action" => "logout"
-    ],
-    "/api/auth/register" => [
-        "controller" => "App\Controller\AuthController",
-        "action" => "apiRegister"
-    ],
-    "/api/auth/login" => [
-        "controller" => "App\Controller\AuthController",
-        "action" => "apiLogin"
-    ],
-    "/api/auth/logout" => [
-        "controller" => "App\Controller\AuthController",
-        "action" => "apiLogout"
-    ],
-
-    // =========================
-    // 👤 Profil utilisateur
-    // =========================
-    "/profile" => [
+return [
+    // Route pour la page d'accueil   
+    '/' => [
         'GET' => [
-            "controller" => "App\Controller\ProfilController",
-            "action" => "showForm"
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'home'
+        ]
+    ],
+    // Routes pour l'authentification    
+    '/login' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\AuthController',
+            'action' => 'showLogin'
+        ]
+    ],
+    '/logout' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\AuthController',
+            'action' => 'logout'
+        ]
+    ],
+    // NOUVELLES ROUTES API pour votre modal   
+    '/api/auth/register' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\AuthController',
+            'action' => 'apiRegister'
+        ]
+    ],
+    '/api/auth/login' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\AuthController',
+            'action' => 'apiLogin'
+        ]
+    ],
+    '/api/auth/logout' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\AuthController',
+            'action' => 'apiLogout'
+        ]
+    ],
+    // Routes pour le profil utilisateur   
+    '/my-profil' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'profil'
+        ]
+    ],
+    '/profil/edit' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\UserController',
+            'action' => 'edit'
+        ]
+    ],
+    '/creation-profil' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'creationProfil'
         ],
         'POST' => [
-            "controller" => "App\Controller\ProfilController",
-            "action" => "update"
+            'controller' => 'App\\Controller\\ProfilController',
+            'action' => 'update'
         ]
     ],
-
-    "/creation-profil" => [
-        'GET' => [
-            "controller" => "App\\Controller\\ProfilController",
-            "action" => "showForm"
+    '/vehicle/delete' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\VehicleController',
+            'action' => 'delete'
+        ]
+    ],
+    '/vehicle/edit' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\VehicleController',
+            'action' => 'update'
         ],
-        'POST' => [
-            "controller" => "App\\Controller\\ProfilController",
-            "action" => "update"
-        ]
-    ],
-
-    "/my-profil" => [
-        "controller" => "App\Controller\PageController",
-        "action" => "Profil"
-    ],
-
-    "/profile/edit" => [
-        "controller" => "App\Controller\UserController",
-        "action" => "edit"
-    ],
-
-    "/vehicle/create" => [
         'GET' => [
-            "controller" => "App\Controller\VehicleController",
-            "action" => "create"
-        ],
-        'POST' => [
-            "controller" => "App\Controller\VehicleController",
-            "action" => "store"
+            'controller' => 'App\\Controller\\VehicleController',
+            'action' => 'edit'
         ]
     ],
-    "/vehicle/edit" => [
+    // Routes pour l\'administration
+    '/admin' => [
         'GET' => [
-            "controller" => "App\\Controller\\VehicleController",
-            "action" => "edit"
-        ],
-        'POST' => [
-            "controller" => "App\\Controller\\VehicleController",
-            "action" => "update"
+            'controller' => 'App\\Controller\\AdminController',
+            'action' => 'dashboard'
         ]
     ],
-    "/vehicle/delete" => [
-        'POST' => [
-            "controller" => "App\Controller\VehicleController",
-            "action" => "delete"
+    '/admin/dashboard' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\AdminController',
+            'action' => 'dashboard'
         ]
     ],
-
-    // =========================
-    // ⚙️ Administration
-    // =========================
-    "/admin/dashboard" => [
-        "controller" => "App\Controller\AdminController",
-        "action" => "dashboard"
+    '/admin/users' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\AdminController',
+            'action' => 'users'
+        ]
     ],
-    "/admin/users" => [
-        "controller" => "App\Controller\AdminController",
-        "action" => "users"
+    '/admin/stats' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\AdminController',
+            'action' => 'stats'
+        ]
     ],
-    "/admin/stats" => [
-        "controller" => "App\Controller\AdminController",
-        "action" => "stats"
+    // Routes statiques  
+    '/about' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'about'
+        ]
+    ],
+    '/liste-covoiturages' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'listeCovoiturages'
+        ]
+    ],
+    '/contact' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'contact'
+        ]
+    ],
+    '/terms' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'terms'
+        ]
+    ],
+    '/privacy' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'privacy'
+        ]
     ]
 ];
-
-// ✅ Retour avec normalisation des clés
-return array_combine(
-    array_map(fn($key) => rtrim($key, '/') ?: '/', array_keys($routes)),
-    array_values($routes)
-);
