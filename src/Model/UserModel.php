@@ -16,9 +16,8 @@ class UserModel
     public function __construct()
     {
         // Initialise la connexion à la base de données via le singleton Mysql
-        
+
         $this->conn = Mysql::getInstance()->getPDO();
-        
     }
 
     /**
@@ -169,9 +168,9 @@ class UserModel
     public function updateProfil(array $data): void
     {
         $sql = "UPDATE users SET 
-            pseudo = :pseudo,
-            role_id = :role_id,
-            travel_role = :travel_role"; // ✅ nouveau champ
+        pseudo = :pseudo,
+        role_id = :role_id,
+        travel_role = :travel_role";
 
         if (!empty($data['photo'])) {
             $sql .= ", photo = :photo";
@@ -184,18 +183,19 @@ class UserModel
         $sql .= " WHERE id = :id";
 
         $params = [
-            'pseudo' => $data['pseudo'],
-            'role_id' => $data['role_id'],
-            'travel_role' => $data['travel_role'], // ✅ on l’ajoute ici aussi
-            'id' => $data['id'],
+            'pseudo'      => $data['pseudo'],
+            'role_id'     => $data['role_id'],
+            'travel_role' => $data['travel_role'],
+            'id'          => $data['id'],
         ];
 
         if (!empty($data['photo'])) {
             $params['photo'] = $data['photo'];
         }
 
+        // ⚠️ Le password est déjà hashé dans le controller
         if (!empty($data['password'])) {
-            $params['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+            $params['password'] = $data['password'];
         }
 
         $stmt = $this->conn->prepare($sql);

@@ -6,3 +6,5 @@
 </footer>
 
 <script src="/js/auth-modal.js"></script>
+<script src="/js/js-alert.js"></script>
+

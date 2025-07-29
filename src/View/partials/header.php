@@ -28,8 +28,13 @@
                     <li class="nav-item dropdown d-flex flex-column align-items-center">
                         <?php if (isset($_SESSION['user'])): ?>
                             <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
-                                <img src="<?= $_SESSION['user']['photo_url'] ?? '/assets/images/logo.svg' ?>" alt="Avatar" class="avatar-img" />
-                                <span class="d-none d-lg-inline text-white "><?= $_SESSION['user']['pseudo'] ?? ''?></span>
+                                <img src="<?= !empty($_SESSION['user']['photo'])
+                                                ? htmlspecialchars($_SESSION['user']['photo'])
+                                                : '/assets/images/logo.svg' ?>"
+                                    alt="Avatar"
+                                    class="rounded-circle"
+                                    style="width: 40px; height: 40px; object-fit: cover;">
+                                <span class="d-none d-lg-inline text-white "><?= $_SESSION['user']['pseudo'] ?? '' ?></span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end animate__animated animate__fadeIn">
 

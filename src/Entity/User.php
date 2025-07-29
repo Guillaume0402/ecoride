@@ -258,18 +258,19 @@ class User
     public function toArray(bool $includePassword = false): array
     {
         $data = [
-            'id'         => $this->id,
-            'pseudo'     => $this->pseudo,
-            'email'      => $this->email,
-            'role_id'    => $this->roleId,
-            'roleId'     => $this->roleId,
-            'role_name'  => $this->getRoleName(),
-            'credits'    => $this->credits,
-            'note'       => $this->note,
-            'photo'      => $this->photo ?? '/assets/images/logo.svg',
-            'photo_url'  => $this->getPhotoUrl(),
-            'initiales'  => $this->getInitiales(),
-            'created_at' => $this->createdAt?->format('Y-m-d H:i:s'),
+            'id'          => $this->id,
+            'pseudo'      => $this->pseudo,
+            'email'       => $this->email,
+            'role_id'     => $this->roleId,
+            'roleId'      => $this->roleId,
+            'role_name'   => $this->getRoleName(),
+            'credits'     => $this->credits,
+            'note'        => $this->note,
+            'photo'       => $this->photo ?? '/assets/images/logo.svg',
+            'photo_url'   => $this->getPhotoUrl(),
+            'initiales'   => $this->getInitiales(),
+            'created_at'  => $this->createdAt?->format('Y-m-d H:i:s'),
+            'travel_role' => $this->travelRole, // ✅ Ajouté
         ];
 
         if ($includePassword) {
@@ -278,6 +279,7 @@ class User
 
         return $data;
     }
+
 
 
     // Validation des données de l'utilisateur

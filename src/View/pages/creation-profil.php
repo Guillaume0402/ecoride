@@ -4,20 +4,23 @@
 
 <!-- Alertes de succès et d'erreur -->
 <?php if (!empty($_SESSION['success'])): ?>
-    <div class="alert alert-success text-center w-75 mx-auto">
-        <?= $_SESSION['success'];
-        unset($_SESSION['success']); ?>
+    <div class="alert alert-success text-center w-75 mx-auto auto-dismiss">
+        <?= $_SESSION['success']; ?>
+        <?php unset($_SESSION['success']); ?>
     </div>
 <?php endif; ?>
+
 <?php if (!empty($_SESSION['error'])): ?>
-    <div class="alert alert-danger text-center w-75 mx-auto">
-        <?= $_SESSION['error'];
-        unset($_SESSION['error']); ?>
+    <div class="alert alert-danger text-center w-75 mx-auto auto-dismiss">
+        <?= $_SESSION['error']; ?>
+        <?php unset($_SESSION['error']); ?>
     </div>
 <?php endif; ?>
 
 <?php if (!$user): ?>
-    <div class="alert alert-danger text-center w-75 mx-auto">Aucun utilisateur connecté.</div>
+    <div class="alert alert-danger text-center w-75 mx-auto auto-dismiss">
+        Aucun utilisateur connecté.
+    </div>
 <?php endif; ?>
 
 <div class="container mt-5 mb-5">
@@ -27,7 +30,7 @@
             <h4>Votre Profil</h4>
             <!-- Boutons -->
             <div class="mb-3">
-                <a href="/" class="btn btn-custom-outline">Annuler</a>
+                <a href="/my-profil" class="btn btn-custom-outline">Annuler</a>
                 <button type="submit" class="btn btn-inscription me-2">Sauvegarder</button>
             </div>
         </div>
@@ -109,7 +112,7 @@
             <div class="mb-3 form-section">
                 <label for="date_premiere_immatriculation" class="form-label">Date de première immatriculation</label>
                 <input type="date" class="form-control" id="date_premiere_immatriculation" name="date_premiere_immatriculation"
-                    value="" required>
+                    value="">
             </div>
 
 
@@ -139,7 +142,7 @@
                 <!-- Nombre de places -->
                 <div class="mb-3 form-section">
                     <label for="places_dispo" class="form-label">Nombre de places disponibles</label>
-                    <select class="form-select form-control" id="places_dispo" name="places_dispo" required>
+                    <select class="form-select form-control" id="places_dispo" name="places_dispo">
                         <option value="">Sélectionner</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
@@ -177,48 +180,47 @@
 
                 </div>
             </div>
-
-            <!-- Boutons -->
-            <div class="text-end mt-4">
-                <a href="/" class="btn btn-custom-outline">Annuler</a>
-                <button type="submit" class="btn btn-inscription me-2">Sauvegarder</button>
-            </div>
+        </div>
+        <!-- Boutons -->
+        <div class="text-end mt-4">
+            <a href="/my-profil" class="btn btn-custom-outline">Annuler</a>
+            <button type="submit" class="btn btn-inscription me-2">Sauvegarder</button>
+        </div>
     </form>
 </div>
 
 
 
 <script>
+    // Gestion de l'aperçu et du nom du fichier lors du téléchargement d'une photo de profil
     document.getElementById("photo").addEventListener("change", function() {
         const file = this.files[0];
         const nameDisplay = document.getElementById("photo-name");
         const preview = document.getElementById("avatarPreview");
 
         if (file) {
+            // Affiche le nom du fichier sélectionné
             nameDisplay.textContent = file.name;
 
+            // Affiche un aperçu de l'image sélectionnée
             const reader = new FileReader();
             reader.onload = function(e) {
                 preview.src = e.target.result;
             };
             reader.readAsDataURL(file);
         } else {
+            // Réinitialise l'affichage si aucun fichier n'est sélectionné
             nameDisplay.textContent = "Télécharger votre photo";
             preview.src = "/assets/images/logo.svg"; // Valeur par défaut
         }
     });
 
+    // Au chargement de la page, affiche ou masque les champs chauffeur selon le rôle sélectionné
+    document.addEventListener("DOMContentLoaded", () => {
+        toggleChauffeurFields();
+    });
 
-    function toggleChauffeurFields() {
-        const role = document.getElementById('travel_role').value;
-        const chauffeurFields = document.getElementById('chauffeur-fields');
-        if (role === 'chauffeur' || role === 'les-deux') {
-            chauffeurFields.style.display = 'block';
-        } else {
-            chauffeurFields.style.display = 'none';
-        }
-    }
-
+    // Affiche ou masque le mot de passe dans les champs concernés
     function togglePassword(inputId, btn) {
         const input = document.getElementById(inputId);
         const icon = btn.querySelector("i");
@@ -233,7 +235,42 @@
             icon.classList.add("bi-eye-slash");
         }
     }
+
+    // (Sécurité) Double appel pour s'assurer que les champs chauffeur sont bien affichés/masqués au chargement
     document.addEventListener("DOMContentLoaded", () => {
         toggleChauffeurFields(); // Pour afficher les champs si besoin
     });
+
+    // Affiche ou masque dynamiquement les champs liés au rôle chauffeur
+    function toggleChauffeurFields() {
+        const role = document.getElementById('travel_role').value;
+        const chauffeurFields = document.getElementById('chauffeur-fields');
+        const dateField = document.getElementById('date_premiere_immatriculation');
+        const placesField = document.getElementById('places_dispo');
+        const marqueField = document.getElementById('marque');
+        const modeleField = document.getElementById('modele');
+        const couleurField = document.getElementById('couleur');
+        const immatField = document.getElementById('immatriculation');
+
+        if (role === 'chauffeur' || role === 'les-deux') {
+            // Affiche les champs véhicule si le rôle est chauffeur ou les deux
+            chauffeurFields.style.display = 'block';
+
+            // Vérifie si tous les champs véhicule sont vides
+            const noVehicleUpdate =
+                immatField.value.trim() === '' &&
+                marqueField.value.trim() === '' &&
+                modeleField.value.trim() === '' &&
+                couleurField.value.trim() === '';
+
+            // Si aucun champ véhicule n'est rempli → on enlève les required sur date et places
+            dateField.required = !noVehicleUpdate;
+            placesField.required = !noVehicleUpdate;
+        } else {
+            // Masque les champs véhicule si le rôle n'est pas chauffeur
+            chauffeurFields.style.display = 'none';
+            dateField.required = false;
+            placesField.required = false;
+        }
+    }
 </script>

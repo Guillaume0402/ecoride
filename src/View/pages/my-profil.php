@@ -14,7 +14,7 @@ if ($user['role_id'] === 3) {
 ?>
 
 <?php if (!empty($_SESSION['success'])): ?>
-    <div class="alert alert-success text-center mx-3" role="alert">
+    <div class="alert alert-success text-center mx-3 auto-dismiss" role="alert">
         <?= htmlspecialchars($_SESSION['success']) ?>
     </div>
     <?php unset($_SESSION['success']); ?>
@@ -108,14 +108,10 @@ if ($user['role_id'] === 3) {
                                                                 }
                                                             }
                                                             ?>
-
                                                             <?php if (!empty($vehicle['custom_preferences'])): ?>
-                                                                <?php
-                                                                $customPrefs = explode(',', $vehicle['custom_preferences']);
-                                                                foreach ($customPrefs as $customPref):
-                                                                    $cleanPref = htmlspecialchars(trim($customPref)); ?>
-                                                                    <span class="badge badge-pref custom"><?= $cleanPref ?></span>
-                                                                <?php endforeach; ?>
+                                                                <span class="badge badge-pref custom">
+                                                                    <?= htmlspecialchars(trim($vehicle['custom_preferences'])) ?>
+                                                                </span>
                                                             <?php endif; ?>
                                                         </div>
                                                     </div>

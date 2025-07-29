@@ -6,6 +6,7 @@
 %btn-base {
     font-family: $font-primary;
     font-size: clamp(0.8rem, 2vw, 1rem);
+    font-weight: 700;
     transition: all 0.3s ease;
     padding: 0.5rem 0.8rem;
     border: 1px solid $color-secondary !important;
@@ -50,14 +51,7 @@
     @extend %btn-base;
     background: $btn-gradient;
     color: $text-white;
-    @extend %btn-hover;
-}
-
-// Bouton “Participate”
-.btn-participate {
-    @extend %btn-base;    
-    background: $btn-gradient;
-    color: $color-white !important;
+    text-shadow: $shadow-text;
     @extend %btn-hover;
 }
 

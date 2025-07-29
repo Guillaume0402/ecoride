@@ -90,7 +90,7 @@
                                 <span class="star">☆</span>
                             </div>
                             <div>
-                                <button class="btn btn-participate">Participer</button>
+                                <button class="btn btn-inscription">Participer</button>
                             </div>
                         </div>
 
@@ -136,7 +136,7 @@
                                 <span class="star">☆</span>
                             </div>
                             <div>
-                                <button class="btn btn-participate">Participer</button>
+                                <button class="btn btn-inscription">Participer</button>
                             </div>
                         </div>
 
@@ -182,7 +182,7 @@
                                 <span class="star">☆</span>
                             </div>
                             <div>
-                                <button class="btn btn-participate">Participer</button>
+                                <button class="btn btn-inscription">Participer</button>
                             </div>
                         </div>
 
@@ -228,7 +228,7 @@
                                 <span class="star">☆</span>
                             </div>
                             <div>
-                                <button class="btn btn-participate">Participer</button>
+                                <button class="btn btn-inscription">Participer</button>
                             </div>
                         </div>
 

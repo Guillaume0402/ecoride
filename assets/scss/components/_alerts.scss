@@ -1,0 +1,42 @@
+@use "../abstracts" as *;
+
+.alert {
+    position: fixed; // ✅ fixé par rapport à la fenêtre
+    top: 20px;
+    left: 50%; // ✅ centré horizontalement
+    transform: translateX(-50%);
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    font-size: clamp(1rem, 1vw + 0.5rem, 1.5rem);
+    font-weight: 500;
+    width: auto;
+    max-width: 400px;
+    min-width: 200px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    opacity: 1;
+    z-index: 9999;
+    text-shadow: $shadow-text;   
+    transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+    &.fade-in {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+
+    &.fade-out {
+        opacity: 0;
+        transform: translate(-50%, -10px);
+    }
+}
+
+.alert-success {
+    background: $color-primary;
+    color: white;
+    border: 1px solid $color-secondary;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    border: none;
+}
