@@ -18,7 +18,7 @@ class EmployeeController extends Controller
             redirect('/login');
         }
 
-        if ($_SESSION['user']['roleId'] !== 2) {
+        if ($_SESSION['user']['role-id'] !== 2) {
             abort(403, "Accès interdit");
         }
     }

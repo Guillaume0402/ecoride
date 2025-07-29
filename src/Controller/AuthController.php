@@ -48,7 +48,24 @@ class AuthController extends Controller
                 throw new \Exception('Erreur lors de l\'inscription');
             }
 
-            return ['success' => true, 'message' => 'Inscription réussie !'];
+            // 🔥 Récupérer le user complet depuis la DB
+            $newUser = $this->userModel->findByEmail($data['email']);
+
+            // ✅ Créer la session sécurisée
+            $this->createUserSession($newUser);
+
+            $redirectUrl = match ((int) $newUser->getRoleId()) {
+                3 => '/admin',
+                2 => '/employe',
+                default => '/',
+            };
+
+            return [
+                'success' => true,
+                'message' => 'Inscription réussie et connexion automatique !',
+                'user'    => ['pseudo' => $newUser->getPseudo()],
+                'redirect' => $redirectUrl
+            ];
         });
     }
 
@@ -66,14 +83,10 @@ class AuthController extends Controller
                 throw new \Exception('Email ou mot de passe incorrect');
             }
 
-            $userArray = $user->toArray();
-            $userArray['roleId']  = $user->getRoleId();
-            $userArray['role_id'] = $user->getRoleId();
-            $userArray['avatar']  = $user->getPhoto() ?: "/assets/images/logo.svg";
+            // ✅ Créer la session sécurisée
+            $this->createUserSession($user);
 
-            $_SESSION['user'] = $userArray;
-
-            $redirectUrl = match ($user->getRoleId()) {
+            $redirectUrl = match ((int) $user->getRoleId()) {
                 3 => '/admin',
                 2 => '/employe',
                 default => '/',
@@ -119,5 +132,21 @@ class AuthController extends Controller
         header('Content-Type: application/json');
         echo json_encode($data);
         exit;
+    }
+
+    /**
+     * ✅ Création de session uniforme et sécurisée
+     */
+    private function createUserSession(User $user): void
+    {
+        session_regenerate_id(true);
+        $_SESSION['user'] = [
+            'id'      => $user->getId(),
+            'pseudo'  => $user->getPseudo(),            
+            'email'   => $user->getEmail(),
+            'role_id' => $user->getRoleId(),
+            'role_name' => $user->getRoleName() ?? 'Utilisateur',
+            'photo'   => $user->getPhoto() ?: '/assets/images/logo.svg'
+        ];
     }
 }

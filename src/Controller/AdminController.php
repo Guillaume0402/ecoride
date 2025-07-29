@@ -13,7 +13,7 @@ class AdminController extends Controller
             redirect('/login');
         }
 
-        if ($_SESSION['user']['roleId'] !== 3) {
+        if ($_SESSION['user']['role_id'] !== 3) {
             abort(403, "Accès interdit");
         }
     }

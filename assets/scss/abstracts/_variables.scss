@@ -1,27 +1,54 @@
 // variables, mixins, functions
 
+
+$font-primary: "Poppins", sans-serif;
+$font-secondary: "Inter", serif;
+
+
 $color-primary: #215732;
 $color-secondary: #00ff50;
 $color-white: #f8f9f3;
 $text-black: #000000;
-$text-white: #f7e9e9;
-$shadow-text: -1px -1px 0 #000000c0, 1px -1px 0 #000000b2, -1px 1px 0 #000000a9,
-    1px 1px 0 #000000b2;
+$text-white: #ffffff;
+$shadow-text: -1px -1px 0 #797979c0, 1px -1px 0 797979c0, -1px 1px 0 797979c0,
+    1px 1px 0 #797979c0;
+
+$bg-gradient-dark: linear-gradient(
+    135deg,
+    #051f02 0%,   // presque noir avec une touche de vert
+    #093206 30%,  // vert très foncé
+    #145012 60%,  // vert profond
+    #0a2d08 80%   // presque noir
+);
 
 $bg-gradient: linear-gradient(
     135deg,
-    #137a03 0%,
-    #128208 31%,
-    #3abb34 58%,
-    #129717 70%
+    #0f5e02 0%,   // vert foncé
+    #106d06 30%,  // vert moyen
+    #2e9b28 60%,  // vert plus clair
+    #127517 80%   // vert profond
+);
+
+$navbar-gradient: linear-gradient(
+    135deg,
+    #051f02 0%,
+    #093206 30%,
+    #145012 60%,
+    #0a2d08 80%
 );
 
 $btn-gradient: linear-gradient(to right, #ff4a02 100%, #ffa202 100%);
 $btn-gradient-hover: linear-gradient(135deg, #008000, #00b140);
 
-.bg-body-color-primary {
-    background-color: $color-primary !important;
+.navbar.bg-primary {
+  background: $navbar-gradient !important;
 }
 
-$font-primary: "Poppins", sans-serif;
-$font-secondary: "Inter", serif;
+footer.bg-primary {
+  background: $navbar-gradient !important;
+}
+
+.text-muted {
+  color: #d0ff00 !important;
+}
+
