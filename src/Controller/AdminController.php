@@ -6,6 +6,8 @@ class AdminController extends Controller
 {
     public function __construct()
     {
+        parent::__construct();
+
         if (!isset($_SESSION['user'])) {
             $_SESSION['error'] = "Veuillez vous connecter.";
             redirect('/login');

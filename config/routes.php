@@ -105,6 +105,18 @@ return [
             'action' => 'stats'
         ]
     ],
+
+    // Routes employés
+
+       '/employe' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\EmployeeController',
+            'action' => 'dashboard'
+        ]
+    ],
+
+
+
     // Routes statiques  
     '/about' => [
         'GET' => [
