@@ -3,7 +3,16 @@
 
 // FORMULAIRE
 .form-box {
-    background-color: $bg-gradient-dark;
+    background: $color-white !important;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    max-width: 650px;
+    width: 100%;
+    margin: 0 auto;
+}
+.form-box-home {
+    background: $color-fade-white !important;
     border-radius: 0.5rem;
     padding: 2rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);

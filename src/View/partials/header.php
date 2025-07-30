@@ -1,5 +1,5 @@
-<header class="page-container d-flex flex-column">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm fixed-height-80">
+<header class="page-container d-flex flex-column sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm fixed-height-80">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center mx-auto" href="/">
                 <img class="logo" src="/assets/images/logo.svg" alt="Logo EcoRide">
@@ -16,6 +16,9 @@
             </button>
             <div class="collapse navbar-collapse justify-content-end mobile-menu" id="navbarNavDropdown">
                 <ul class="navbar-nav gap-3">
+                    <li class="nav-item ">
+                        <a class="navlink nav-link " href="/contact">Qui sommes-nous ?</a>
+                    </li>
                     <li class="nav-item align-items-center">
                         <a class="navlink nav-link " aria-current="page" href="/">Accueil</a>
                     </li>
@@ -23,11 +26,9 @@
                         <a class="navlink nav-link " href="/liste-covoiturages">Covoiturages</a>
                     </li>
                     <li class="nav-item ">
-                        <a class="navlink nav-link " href="/contact">Qui sommes-nous ?</a>
-                    </li>
-                    <li class="nav-item ">
                         <a class="navlink nav-link " href="/contact">Contact</a>
                     </li>
+                    
                     <li class="nav-item dropdown d-flex flex-column align-items-center">
                         <?php if (isset($_SESSION['user'])): ?>
                             <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">

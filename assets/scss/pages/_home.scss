@@ -1,15 +1,11 @@
 // specific pages
 @use "../abstracts" as *;
 
-
-
-
-
-// IMAGE COLLAGE (desktop only)
+// IMAGE COLLAGE POUR DESKTOP
 .image-collage {
     position: relative;
-    height: 280px;
-    
+    height: 450px;
+    margin-bottom: 120px;
 
     img {
         position: absolute;
@@ -46,9 +42,94 @@
     z-index: 3;
 }
 
+.popular-destinations {
+    background: $color-white;    
+    max-width: 1800px;
+    margin: 0 auto;
+    border-radius: 10px;
+    padding: 20px;
+    width: auto;
 
+    h3 {
+        font-weight: bold;
+        color: #2e5e2e;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 2px solid #2e5e2e;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
 
+    .destination-card {
+        background: #ffffff;
+        border: 1px solid #d1d5d1;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);        
+        margin: 0 auto; /* 🔑 centre chaque card */
+        transition: transform 0.3s ease;
 
+        &:hover {
+            transform: translateY(-3px);
+        }
+
+        h5 {
+            font-weight: bold;
+            color: #2c3e50;
+            border-bottom: 2px solid #2e5e2e;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+
+        ul {
+            padding: 0;
+            li {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background: #f9f9f9;
+                padding: 8px 12px;
+                margin-bottom: 6px;
+                border-radius: 5px;
+                color: #333; /* 🔑 visible */
+                font-weight: 500;
+
+                &:hover {
+                    background: #eef5ee;
+                }
+
+                .credits {
+                    color: #28a745;
+                    font-weight: 600;
+                }
+
+                button {
+                    border-radius: 50%;
+                    width: 25px;
+                    height: 25px;
+                    padding: 0;
+                    font-size: 14px;
+                    line-height: 1;
+                }
+            }
+        }
+    }
+
+    .btn-success {
+        background: #2e5e2e;
+        border: none;
+        padding: 10px 25px;
+        font-size: 16px;
+        margin-top: 20px;
+        border-radius: 6px;
+        transition: background 0.3s;
+
+        &:hover {
+            background: #256b25;
+        }
+    }
+}
 
 // IMAGES POUR MOBILE UNIQUEMENT
 .image-mobile {
@@ -62,10 +143,9 @@
     }
 }
 
-.section-form{
+.section-form {
     margin-top: 180px;
 }
-
 
 // RESPONSIVE MOBILE
 @media (max-width: 991.98px) {
@@ -81,10 +161,11 @@
         margin-top: 1rem;
     }
 
+    .popular-destinations {
+        margin-top: 20px;
+    }
+
     .row.align-items-center {
         margin-top: 10px;
     }
-
 }
-
-
