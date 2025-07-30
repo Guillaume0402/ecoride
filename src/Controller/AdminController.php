@@ -28,7 +28,9 @@ class AdminController extends Controller
 
     public function stats(): void
     {
-        $this->render("pages/admin/stats");
+        $this->render("pages/admin/stats", [
+        'isAdminPage' => true
+    ]);
     }
 
     /**

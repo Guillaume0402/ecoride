@@ -1,6 +1,9 @@
+@use "../abstracts" as *;
+
+
 // FORMULAIRE
 .form-box {
-    background-color: transparent;
+    background-color: $bg-gradient-dark;
     border-radius: 0.5rem;
     padding: 2rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);

@@ -18,7 +18,7 @@
                     Inscrivez-vous
                 </button>
 
-                <a href="/liste-covoiturages" class="btn btn-custom-outline">Rechercher un trajet</a>
+                <a href="/liste-covoiturages" class="btn btn-inscription">Rechercher un trajet</a>
             </div>
         </section>
 

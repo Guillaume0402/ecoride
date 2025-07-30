@@ -23,6 +23,9 @@
                         <a class="navlink nav-link " href="/liste-covoiturages">Covoiturages</a>
                     </li>
                     <li class="nav-item ">
+                        <a class="navlink nav-link " href="/contact">Qui sommes-nous ?</a>
+                    </li>
+                    <li class="nav-item ">
                         <a class="navlink nav-link " href="/contact">Contact</a>
                     </li>
                     <li class="nav-item dropdown d-flex flex-column align-items-center">

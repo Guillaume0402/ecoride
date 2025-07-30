@@ -54,15 +54,15 @@ if ($user['role_id'] === 3) {
                         <div class="row g-3 text-white">
                             <div class="col-6 col-lg-4">
                                 <div class="fw-semibold">Date d'inscription</div>
-                                <div class="small"><?= date('d-m-Y', strtotime($user['created_at'])) ?></div>
+                                <div class="small"><?= !empty($user['created_at']) ? date('d-m-Y', strtotime($user['created_at'])) : 'Non renseignée' ?></div>
                             </div>
                             <div class="col-6 col-lg-4">
                                 <div class="fw-semibold">Chauffeur</div>
-                                <div class="small"><?= in_array($user['travel_role'], ['chauffeur', 'les-deux']) ? 'Oui' : 'Non' ?></div>
+                                <div class="small"><?= (!empty($user['travel_role']) && in_array($user['travel_role'], ['chauffeur', 'les-deux'])) ? 'Oui' : 'Non' ?></div>
                             </div>
                             <div class="col-6 col-lg-4">
                                 <div class="fw-semibold">Passager</div>
-                                <div class="small"><?= in_array($user['travel_role'], ['passager', 'les-deux']) ? 'Oui' : 'Non' ?></div>
+                                <div class="small"><?= (!empty($user['travel_role']) && in_array($user['travel_role'], ['passager', 'les-deux'])) ? 'Oui' : 'Non' ?></div>
                             </div>
                             <?php if (!empty($vehicles)): ?>
                                 <!-- Onglets -->
