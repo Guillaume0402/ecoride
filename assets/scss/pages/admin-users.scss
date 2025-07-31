@@ -1,0 +1,27 @@
+@use "../abstracts" as *;
+
+.nav-tabs .nav-link.active {
+    background-color: $color-primary !important;
+    color: #fff !important;
+    border-color: $color-secondary !important;
+    font-weight: bold;
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: #2ecc71 !important;
+    color: #000000 !important;
+}
+
+.actions-col {
+    width: 150px;
+    white-space: nowrap;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.actions-col-user {
+    width: 100px;
+    white-space: nowrap;
+    text-align: center;
+    vertical-align: middle;
+}

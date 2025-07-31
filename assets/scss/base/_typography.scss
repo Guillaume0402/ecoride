@@ -23,6 +23,13 @@ h3 {
     text-shadow: $shadow-text;
 
 }
+h4 {
+    font-size: clamp(0.8rem, 2.5vw, 2.5rem);
+    font-weight: 600;
+    line-height: 1.2;    
+    text-shadow: $shadow-text;
+
+}
 
 p {
     font-size: clamp(0.8rem, 2vw, 1.25rem);

@@ -12,16 +12,16 @@ class User
     private int $credits = 20;
     private float $note = 0.00;
     private ?string $photo = null;
-    private ?\DateTime $createdAt = null;
+    private ?\DateTimeImmutable $createdAt = null;
     private string $travelRole = 'passager';
+    private int $isActive = 1; // compte actif par défaut
 
-    public function __construct(string $pseudo, string $email)
+    public function __construct(?string $email = null, ?string $password = null)
     {
-        $this->pseudo = $pseudo;
         $this->email = $email;
-        $this->createdAt = new \DateTime();
+        $this->password = $password;
+        $this->createdAt = new \DateTimeImmutable();
     }
-
     // ========== GETTERS ==========
 
     public function getId(): ?int
@@ -64,7 +64,7 @@ class User
         return $this->photo;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -74,6 +74,10 @@ class User
         return $this->travelRole;
     }
 
+    public function getIsActive(): int
+    {
+        return $this->isActive;
+    }
     // ========== SETTERS ==========
 
     public function setId(int $id): self
@@ -124,7 +128,7 @@ class User
         return $this;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): self
+    public function setCreatedAt(\DateTimeImmutable $createdAt): self
     {
         $this->createdAt = $createdAt;
         return $this;
@@ -133,6 +137,12 @@ class User
     public function setTravelRole(string $role): self
     {
         $this->travelRole = $role;
+        return $this;
+    }
+
+    public function setIsActive(int $isActive): self
+    {
+        $this->isActive = $isActive;
         return $this;
     }
 
@@ -233,7 +243,7 @@ class User
 
     public function isAdmin(): bool
     {
-        return $this->roleId === 4;
+        return $this->roleId === 3;
     }
 
 
@@ -270,7 +280,7 @@ class User
             'photo_url'   => $this->getPhotoUrl(),
             'initiales'   => $this->getInitiales(),
             'created_at'  => $this->createdAt?->format('Y-m-d H:i:s'),
-            'travel_role' => $this->travelRole, // ✅ Ajouté
+            'travel_role' => $this->travelRole,
         ];
 
         if ($includePassword) {
@@ -312,7 +322,7 @@ class User
             $errors[] = "La note doit être entre 0 et 5";
         }
 
-        if (!in_array($this->roleId, [1, 2, 3, 4])) {
+        if (!in_array($this->roleId, [1, 2, 3])) {
             $errors[] = "ID de rôle invalide";
         }
 

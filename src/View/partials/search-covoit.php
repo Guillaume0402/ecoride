@@ -1,5 +1,5 @@
 <div class="modal fade" id="covoitModal" tabindex="-1" aria-labelledby="covoitModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered">class
         <div class="form-box modal-content auth-modal-content text-white">
             <div class="modal-header">
                 <h5 class="modal-title" id="covoitModalLabel">Rechercher un covoiturage</h5>

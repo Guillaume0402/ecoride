@@ -20,3 +20,5 @@ if (!defined('UPLOAD_DIR')) {
 if (!defined('BASE_URL')) {
     define('BASE_URL', '/');
 }
+
+define('SITE_URL', 'http://localhost:8080/');

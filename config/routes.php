@@ -105,10 +105,29 @@ return [
             'action' => 'stats'
         ]
     ],
+    '/admin/users/create' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\AdminController',
+            'action' => 'createEmployee'
+        ]
+    ],
+    '/admin/users/toggle/{id}' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\AdminController',
+            'action' => 'toggleEmployeeStatus'
+        ]
+    ],
+    '/admin/users/delete/{id}' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\AdminController',
+            'action' => 'deleteEmployee'
+        ]
+    ],
+
 
     // Routes employés
 
-       '/employe' => [
+    '/employe' => [
         'GET' => [
             'controller' => 'App\\Controller\\EmployeeController',
             'action' => 'dashboard'

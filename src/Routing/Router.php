@@ -12,55 +12,60 @@ class Router
         error_log("Routes chargées : " . print_r(array_keys($this->routes), true));
     }
 
+    // Ajoute une route à la configuration
     public function handleRequest(string $uri): void
     {
         $path = $this->normalizePath($uri);
+        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
         error_log("Recherche de la route : $path");
 
-        if (!isset($this->routes[$path])) {
+        $matchedRoute = null;
+        $params = [];
+
+        foreach ($this->routes as $routePath => $routeConfig) {
+            // Convertir /admin/users/toggle/{id} → regex
+            $pattern = preg_replace('#\{[a-zA-Z_]+\}#', '(\d+)', $routePath);
+
+            if (preg_match("#^$pattern$#", $path, $matches)) {
+                $matchedRoute = $routeConfig[$method] ?? $routeConfig;
+                // Extraire les paramètres (ex: id = 8)
+                preg_match_all('#\{([a-zA-Z_]+)\}#', $routePath, $paramNames);
+                array_shift($matches); // Retirer la correspondance complète
+                $params = array_combine($paramNames[1], $matches);
+                break;
+            }
+        }
+
+        if (!$matchedRoute) {
             abort(404, "Route non trouvée : $path");
         }
 
-        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-        error_log("➡️ URI appelée : $path, méthode : $method");
+        $controllerPath = $matchedRoute['controller'];
+        $action = $matchedRoute['action'];
 
-        $routeConfig = $this->routes[$path];
-        error_log("Config de la route $path : " . print_r($routeConfig, true));
-        
-        if (isset($routeConfig[$method])) {
-            $route = $routeConfig[$method];
-        } elseif (isset($routeConfig['controller'])) {
-            $route = $routeConfig;
-        } else {
-            abort(405, "{$method} non autorisée pour $path");
-        }
-
-        $controllerPath = $route['controller'];
-        $action = $route['action'];
-
-        error_log("🔍 Vérification classe : $controllerPath");
         if (!class_exists($controllerPath)) {
             abort(500, "Controller introuvable : $controllerPath");
         }
 
         $controller = new $controllerPath();
-        error_log("Classe trouvée, instance créée");
 
-        error_log("🔍 Vérification méthode : $action");
         if (!method_exists($controller, $action)) {
             abort(500, "Méthode $action introuvable dans $controllerPath");
         }
 
-        error_log("Méthode trouvée, exécution de $controllerPath::$action");
-        $controller->$action();
+        // Appel du contrôleur avec les paramètres
+        call_user_func_array([$controller, $action], $params);
     }
 
+
+    // Normalise le chemin de l'URI pour enlever les slash finaux
     public static function normalizePath(string $uri): string
     {
         $path = parse_url($uri, PHP_URL_PATH);
         return rtrim($path, '/') ?: '/';
     }
 
+    // Vérifie si le chemin correspond à la route active
     public static function isActiveRoute(string $path): bool
     {
         return self::normalizePath($_SERVER["REQUEST_URI"]) === $path;
