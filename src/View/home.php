@@ -1,3 +1,6 @@
+<?php include 'partials/search-covoit.php'; ?>
+
+
 <div class="container-fluid text-white">
     <div id="globalAlert" class="alert d-none"></div>
 
@@ -83,35 +86,12 @@
                         <i class="bi bi-car-front text-success"></i>
                     </h3>
                     <div class="text-center mt-3">
-                        <button class="btn btn-inscription">Rechercher un trajet</button>
+                        <button class="btn btn-inscription" data-bs-toggle="modal" data-bs-target="#covoitModal">Rechercher un trajet</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!--  FORMULAIRE CENTRÉ 
-    <div class="row justify-content-center mb-4">
-        <div class="col-lg-6 col-md-8">
-            <div class="form-box text-white rounded p-4 shadow">
-                <form>
-                    <div class="mb-3">
-                        <label class="form-label text-dark">Ville de départ :</label>
-                        <input type="text" class="form-control" placeholder="Ex : Fleurance">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label text-dark">Ville d’arrivée :</label>
-                        <input type="text" class="form-control" placeholder="Ex : Auch">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label text-dark">Date de départ :</label>
-                        <input type="date" class="form-control">
-                    </div>
-                    <button type="submit" class="btn btn-inscription d-block m-auto">Rechercher</button>
-                </form>
-            </div>
-        </div>
-    </div>  -->
 
 
     <!-- TEXTE EN BAS -->
