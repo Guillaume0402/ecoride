@@ -51,6 +51,11 @@ class AuthController extends Controller
             // 🔥 Récupérer le user complet depuis la DB
             $newUser = $this->userModel->findByEmail($data['email']);
 
+            // ✅ Vérifier si le compte est actif avant connexion auto
+            if (!$newUser->getIsActive()) {
+                throw new \Exception('Votre compte a été créé mais désactivé. Contactez l\'administrateur.');
+            }
+            
             // ✅ Créer la session sécurisée
             $this->createUserSession($newUser);
 
@@ -81,6 +86,11 @@ class AuthController extends Controller
             $user = $this->userModel->findByEmail($data['email']);
             if (!$user || !$user->verifyPassword($data['password'])) {
                 throw new \Exception('Email ou mot de passe incorrect');
+            }
+
+            // Vérification du statut
+            if (!$user->getIsActive()) {
+                throw new \Exception('Votre compte a été désactivé. Contactez l\'administrateur.');
             }
 
             // ✅ Créer la session sécurisée
@@ -142,7 +152,7 @@ class AuthController extends Controller
         session_regenerate_id(true);
         $_SESSION['user'] = [
             'id'      => $user->getId(),
-            'pseudo'  => $user->getPseudo(),            
+            'pseudo'  => $user->getPseudo(),
             'email'   => $user->getEmail(),
             'role_id' => $user->getRoleId(),
             'role_name' => $user->getRoleName() ?? 'Utilisateur',

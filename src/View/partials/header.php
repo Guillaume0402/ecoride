@@ -28,7 +28,7 @@
                     <li class="nav-item ">
                         <a class="navlink nav-link " href="/contact">Contact</a>
                     </li>
-                    
+
                     <li class="nav-item dropdown d-flex flex-column align-items-center">
                         <?php if (isset($_SESSION['user'])): ?>
                             <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
@@ -37,10 +37,9 @@
                                     alt="Avatar"
                                     class="rounded-circle"
                                     style="width: 40px; height: 40px; object-fit: cover;">
-                                <span class="d-none d-lg-inline text-white "><?= $_SESSION['user']['pseudo'] ?? '' ?></span>
+                                <span class="d-none d-lg-inline text-white"><?= $_SESSION['user']['pseudo'] ?? '' ?></span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end animate__animated animate__fadeIn">
-
                                 <?php if ((int) $_SESSION['user']['role_id'] === 3): ?>
                                     <li><a class="dropdown-item" href="/admin/dashboard"><i class="bi bi-speedometer2 me-2"></i> Dashboard admin</a></li>
                                     <li><a class="dropdown-item" href="/admin/users"><i class="bi bi-people me-2"></i> Gérer les utilisateurs</a></li>
@@ -48,13 +47,13 @@
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
+                                <?php else: ?>
+                                    <li><a class="dropdown-item" href="/my-profil"><i class="bi bi-person me-2"></i> Mon profil</a></li>
+                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#covoitModal"><i class="bi bi-plus-circle me-2"></i> Créer un trajet</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
                                 <?php endif; ?>
-
-                                <li><a class="dropdown-item" href="/my-profil"><i class="bi bi-person me-2"></i> Mon profil</a></li>
-                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#covoitModal"><i class="bi bi-plus-circle me-2"></i> Créer un trajet</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
                                 <li><a class="dropdown-item" id="logoutBtn" href="/logout"><i class="bi bi-box-arrow-right me-2"></i> Déconnexion</a></li>
                             </ul>
                         <?php else: ?>
@@ -62,8 +61,8 @@
                                 Connexion
                             </button>
                         <?php endif; ?>
-
                     </li>
+
                 </ul>
             </div>
         </div>

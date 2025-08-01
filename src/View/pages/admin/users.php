@@ -58,7 +58,7 @@
                     <i class="bi bi-plus-circle me-2"></i> Ajouter un employé
                 </button>
                 <div class="collapse mb-3 <?= !empty($formErrors) ? 'show' : '' ?>" id="collapseAddEmployee">
-                    <div class="form-box-home text-black rounded p-4 w-100">
+                    <div class="form-box text-black rounded p-4 w-100">
                         <h4 class="text-center">Ajouter un employé</h4>
 
                         <!-- Bloc d'erreur -->
@@ -138,12 +138,6 @@
                                                 <i class="bi <?= $employee['is_active'] ? 'bi-check-circle' : 'bi-x-circle' ?>"></i>
                                             </button>
                                         </form>
-
-                                        <!-- Modifier -->
-                                        <a href="/admin/users/update/<?= $employee['id'] ?>"
-                                            class="btn btn-sm btn-info">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
                                     </td>
                                 </tr>
                             <?php endforeach ?>
