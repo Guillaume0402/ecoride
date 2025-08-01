@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
+
 class AdminController extends Controller
 {
     public function __construct()
@@ -32,13 +34,11 @@ class AdminController extends Controller
         ]);
     }
 
-    // Page de gestion des utilisateurs
+    // Page de gestion des utilisateurs et employés
     public function users(): void
     {
-        $userModel = new \App\Model\UserModel();
-
-        $employees = $userModel->findAllEmployees();
-        $users = $userModel->findAllUsers();
+        $employees = $this->userRepository->findAllEmployees();
+        $users = $this->userRepository->findAllUsers();
 
         $this->render("pages/admin/users", [
             'employees' => $employees,
@@ -68,16 +68,15 @@ class AdminController extends Controller
             $errors[] = "Les mots de passe ne correspondent pas.";
         }
 
-        $userModel = new \App\Model\UserModel();
-        if ($userModel->findByEmail($email)) {
+        // Vérifier si l’email existe déjà
+        if ($this->userRepository->findByEmail($email)) {
             $errors[] = "Un compte avec cet email existe déjà.";
         }
 
         if (!empty($errors)) {
-            $employees = $userModel->findAllEmployees();
-            $users = $userModel->findAllUsers();
+            $employees = $this->userRepository->findAllEmployees();
+            $users = $this->userRepository->findAllUsers();
 
-            // 🔹 Rendu direct (PAS de redirection)
             $this->render("pages/admin/users", [
                 'employees' => $employees,
                 'users' => $users,
@@ -90,20 +89,22 @@ class AdminController extends Controller
             return;
         }
 
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-        $user = new \App\Entity\User($email, $hashedPassword);
-        $user->setPseudo($pseudo)
-            ->setRoleId(2)
+        // ✅ Création de l'entité User
+        $user = (new User())
+            ->setPseudo($pseudo)
+            ->setEmail($email)
+            ->setRoleId(2) // employé
             ->setCredits(20);
 
-        $userModel->create($user);
+        // ✅ Hash du mot de passe
+        $this->userService->hashPassword($user, $password);
+
+        // ✅ Insertion en DB
+        $this->userRepository->create($user);
 
         $_SESSION['success'] = "Employé ajouté avec succès.";
         redirect('/admin/users');
     }
-
-
 
     // Met à jour le statut d'un employé (actif/inactif)
     public function toggleEmployeeStatus(int $id): void
@@ -112,9 +113,7 @@ class AdminController extends Controller
             abort(405, "Méthode non autorisée");
         }
 
-        $userModel = new \App\Model\UserModel();
-
-        if ($userModel->toggleActive($id)) {
+        if ($this->userRepository->toggleActive($id)) {
             $_SESSION['success'] = "Statut de l'employé mis à jour avec succès.";
         } else {
             $_SESSION['error'] = "Impossible de mettre à jour le statut.";
@@ -122,18 +121,14 @@ class AdminController extends Controller
 
         redirect('/admin/users');
     }
-    // Supprime un employé
+
+    // Supprime un employé ou utilisateur
     public function deleteEmployee(int $id): void
     {
-        $userModel = new \App\Model\UserModel();
+        $user = $this->userRepository->findById($id);
 
-        // 🔹 Vérifie si c’est un utilisateur ou un employé
-        $user = $userModel->findById($id);
-
-        if ($userModel->delete($id)) {
+        if ($this->userRepository->delete($id)) {
             $_SESSION['success'] = "Compte supprimé avec succès.";
-
-            // Définit l’onglet actif
             $_SESSION['active_tab'] = ($user->getRoleId() === 1) ? 'utilisateurs' : 'employes';
         } else {
             $_SESSION['error'] = "Erreur lors de la suppression.";

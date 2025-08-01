@@ -2,31 +2,25 @@
 
 namespace App\Controller;
 
-
-
-
 class EmployeeController extends Controller
 {
-
     public function __construct()
     {
         parent::__construct();
-
 
         if (!isset($_SESSION['user'])) {
             $_SESSION['error'] = "Veuillez vous connecter.";
             redirect('/login');
         }
 
-        if ($_SESSION['user']['role-id'] !== 2) {
+        if ($_SESSION['user']['role_id'] !== 2) { // ✅ Correction de l'indice
             abort(403, "Accès interdit");
         }
     }
 
     public function dashboard(): void
     {
-        
-        
+        // 🔥 Données mockées, à remplacer plus tard par des requêtes Repository
         $pendingReviews = [
             [
                 'id' => 1,

@@ -13,7 +13,7 @@ class Vehicle
     private string $datePremiereImmatriculation;
     private int $fuelTypeId;
     private int $placesDispo;
-    private ?string $createdAt;
+    private ?\DateTimeImmutable $createdAt;
 
     public function __construct(array $data = [])
     {
@@ -30,6 +30,8 @@ class Vehicle
         }
     }
 
+    
+
     // Getters
     public function getId(): ?int { return $this->id; }
     public function getUserId(): int { return $this->userId; }
@@ -40,7 +42,9 @@ class Vehicle
     public function getDatePremiereImmatriculation(): string { return $this->datePremiereImmatriculation; }
     public function getFuelTypeId(): int { return $this->fuelTypeId; }
     public function getPlacesDispo(): int { return $this->placesDispo; }
-    public function getCreatedAt(): ?string { return $this->createdAt; }
+    public function getCreatedAt(): ?\DateTimeImmutable {
+    return $this->createdAt;
+}
 
     // Setters
     public function setId(?int $id): void { $this->id = $id; }
@@ -52,7 +56,9 @@ class Vehicle
     public function setDatePremiereImmatriculation(string $date): void { $this->datePremiereImmatriculation = $date; }
     public function setFuelTypeId(int $id): void { $this->fuelTypeId = $id; }
     public function setPlacesDispo(int $places): void { $this->placesDispo = $places; }
-    public function setCreatedAt(?string $createdAt): void { $this->createdAt = $createdAt; }
+    public function setCreatedAt(?string $createdAt): void {
+    $this->createdAt = $createdAt ? new \DateTimeImmutable($createdAt) : null;
+}
 
     public function toArray(): array
     {

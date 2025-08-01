@@ -2,17 +2,11 @@
 
 namespace App\Controller;
 
-use App\Model\UserModel;
-use App\Controller\Controller;
-
 class UserController extends Controller
 {
-    private UserModel $userModel;
-
     public function __construct()
     {
         parent::__construct();
-        $this->userModel = new UserModel();
 
         if (!isset($_SESSION['user'])) {
             $_SESSION['error'] = "Veuillez vous connecter.";
@@ -20,5 +14,27 @@ class UserController extends Controller
         }
     }
 
-    
+    // ✅ Exemple de future méthode (liste des utilisateurs)
+    public function listUsers(): void
+    {
+        $users = $this->userRepository->findAllUsers();
+
+        $this->render('pages/user/list', [
+            'users' => $users
+        ]);
+    }
+
+    // ✅ Exemple : afficher un profil utilisateur
+    public function show(int $id): void
+    {
+        $user = $this->userRepository->findById($id);
+
+        if (!$user) {
+            abort(404, "Utilisateur non trouvé");
+        }
+
+        $this->render('pages/user/profile', [
+            'user' => $this->userService->toArray($user)
+        ]);
+    }
 }

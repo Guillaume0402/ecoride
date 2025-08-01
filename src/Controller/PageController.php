@@ -2,16 +2,16 @@
 
 namespace App\Controller;
 
-use App\Model\VehicleModel;
+use App\Repository\VehicleRepository;
 
 class PageController extends Controller
 {
-    private VehicleModel $vehicleModel;
+    private VehicleRepository $vehicleRepository;
 
     public function __construct()
     {
         parent::__construct();
-        $this->vehicleModel = new VehicleModel();
+        $this->vehicleRepository = new VehicleRepository();
     }
 
     public function home(): void
@@ -43,10 +43,11 @@ class PageController extends Controller
 
         $user = $_SESSION['user'];
 
-        // Si un id de véhicule est passé en GET, on le récupère
-        $vehicle = !empty($_GET['id'])
-            ? $this->vehicleModel->findById((int) $_GET['id'])
-            : $this->vehicleModel->findByUserId($user['id']);
+        $vehicleEntity = !empty($_GET['id'])
+            ? $this->vehicleRepository->findById((int) $_GET['id'])
+            : $this->vehicleRepository->findByUserId($user['id']);
+
+        $vehicle = $vehicleEntity ? $vehicleEntity->toArray() : null;
 
         $this->render("pages/creation-profil", [
             'user' => $user,
@@ -66,7 +67,10 @@ class PageController extends Controller
         }
 
         $user = $_SESSION['user'];
-        $vehicles = $this->vehicleModel->findAllByUserId($user['id']);
+        $vehicleEntities = $this->vehicleRepository->findAllByUserId($user['id']);
+
+        // Convertir la liste d'entités en tableaux pour la vue
+        $vehicles = array_map(fn($v) => $v->toArray(), $vehicleEntities);
 
         $this->render("pages/my-profil", [
             'user' => $user,

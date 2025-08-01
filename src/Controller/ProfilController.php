@@ -2,19 +2,19 @@
 
 namespace App\Controller;
 
-use App\Model\UserModel;
-use App\Model\VehicleModel;
+use App\Entity\User;
+use App\Entity\Vehicle;
+use App\Repository\UserRepository;
+use App\Repository\VehicleRepository;
 
 class ProfilController extends Controller
 {
-    private UserModel $userModel;
-    private VehicleModel $vehicleModel;
+    private VehicleRepository $vehicleRepository;
 
     public function __construct()
     {
         parent::__construct();
-        $this->userModel = new UserModel();
-        $this->vehicleModel = new VehicleModel();
+        $this->vehicleRepository = new VehicleRepository();
 
         if (!isset($_SESSION['user'])) {
             $_SESSION['error'] = "Vous devez être connecté pour accéder à votre profil.";
@@ -25,11 +25,10 @@ class ProfilController extends Controller
     public function showForm(): void
     {
         $userId = $_SESSION['user']['id'];
-        $user = $this->userModel->findById($userId);
-        $userData = $user ? $user->toArray() : null;
+        $user = $this->userRepository->findById($userId);
 
         $this->render("pages/creation-profil", [
-            'user' => $userData
+            'user' => $user ? $this->userService->toArray($user) : null
         ]);
     }
 
@@ -40,58 +39,54 @@ class ProfilController extends Controller
         }
 
         $userId = $_SESSION['user']['id'];
-        $user = $this->userModel->findById($userId);
+        $user = $this->userRepository->findById($userId);
 
-        //  On conserve le rôle actuel si aucun nouveau choisi
+        if (!$user) {
+            $_SESSION['error'] = "Utilisateur introuvable.";
+            redirect('/creation-profil');
+        }
+
         $currentTravelRole = $_SESSION['user']['travel_role'] ?? 'passager';
         $newTravelRole = $_POST['travel_role'] ?? $currentTravelRole;
 
-        // Gestion mot de passe
+        // Gestion du mot de passe
         $currentPassword = $_POST['current_password'] ?? '';
         $newPassword = $_POST['new_password'] ?? '';
-        $hashedPassword = null;
 
         if (!empty($newPassword)) {
-            if (empty($currentPassword) || !password_verify($currentPassword, $user->getPassword())) {
+            if (empty($currentPassword) || !$this->userService->verifyPassword($user, $currentPassword)) {
                 $_SESSION['error'] = "Mot de passe actuel incorrect.";
                 redirect('/creation-profil');
             }
-            $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+            $this->userService->hashPassword($user, $newPassword);
         }
 
-        // 🔹 Données à mettre à jour
-        $data = [
-            'id'          => $userId,
-            'pseudo'      => trim($_POST['pseudo'] ?? $user->getPseudo()),
-            'role_id'     => $_SESSION['user']['role_id'],
-            'travel_role' => $newTravelRole,
-            'photo'       => null,
-            'password'    => $hashedPassword
-        ];
+        // Mise à jour de l'entité User
+        $user->setPseudo(trim($_POST['pseudo'] ?? $user->getPseudo()));
+        $user->setTravelRole($newTravelRole);
+        $user->setRoleId($_SESSION['user']['role_id']);
 
-        // 📸 Upload photo
         if (!empty($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
-            $data['photo'] = $this->handlePhotoUpload($_FILES['photo']);
+            $user->setPhoto($this->handlePhotoUpload($_FILES['photo']));
         }
 
-        $this->userModel->updateProfil($data);
+        $this->userRepository->update($user);
 
-        // Détection de saisie véhicule
+        // Gestion du véhicule
         $vehicleFieldsEmpty = empty($_POST['immatriculation']) &&
             empty($_POST['marque']) &&
             empty($_POST['modele']) &&
             empty($_POST['couleur']);
 
-        if (
-            in_array($data['travel_role'], ['chauffeur', 'les-deux']) &&
-            !$vehicleFieldsEmpty
-        ) {
+        if (in_array($newTravelRole, ['chauffeur', 'les-deux']) && !$vehicleFieldsEmpty) {
             $this->handleVehicleUpdate($userId);
         } else {
-            $_SESSION['success'] = "Profil mis à jour avec succès TOP ";
+            $_SESSION['success'] = "Profil mis à jour avec succès.";
         }
 
-        $_SESSION['user'] = $this->userModel->findById($userId)->toArray();
+        $updatedUser = $this->userRepository->findById($userId);
+        $_SESSION['user'] = $this->userService->toArray($updatedUser);
+
         redirect('/my-profil');
     }
 
@@ -101,22 +96,19 @@ class ProfilController extends Controller
         $filename = uniqid() . '-' . basename($file['name']);
         $targetFile = $targetDir . $filename;
 
-        if (!move_uploaded_file($file['tmp_name'], $targetFile)) {
-            return null;
-        }
-
-        return '/uploads/' . $filename;
+        return move_uploaded_file($file['tmp_name'], $targetFile) 
+            ? '/uploads/' . $filename 
+            : null;
     }
 
     private function handleVehicleUpdate(int $userId): void
     {
-        $dateSql = null;
         $dateFr = $_POST['date_premiere_immatriculation'] ?? '';
-        if (!empty($dateFr)) {
-            $dateSql = \DateTime::createFromFormat('Y-m-d', $dateFr)?->format('Y-m-d');
-        }
+        $dateSql = !empty($dateFr)
+            ? \DateTime::createFromFormat('Y-m-d', $dateFr)?->format('Y-m-d')
+            : null;
 
-        $vehicle = [
+        $vehicleEntity = new Vehicle([
             'user_id' => $userId,
             'marque' => trim($_POST['marque'] ?? ''),
             'modele' => trim($_POST['modele'] ?? ''),
@@ -124,29 +116,28 @@ class ProfilController extends Controller
             'immatriculation' => trim($_POST['immatriculation'] ?? ''),
             'date_premiere_immatriculation' => $dateSql,
             'fuel_type_id' => $_POST['fuel_type_id'] ?? null,
-            'places_dispo' => $_POST['places_dispo'] ?? null,
-            'preferences' => $_POST['preferences'] ?? [],
-            'custom_preferences' => $_POST['custom_preferences'] ?? ''
-        ];
+            'places_dispo' => (int)($_POST['places_dispo'] ?? 0)
+        ]);
 
-        if (empty($vehicle['marque']) && empty($vehicle['modele']) && empty($vehicle['immatriculation'])) {
+        if (empty($vehicleEntity->getMarque()) && 
+            empty($vehicleEntity->getModele()) && 
+            empty($vehicleEntity->getImmatriculation())) {
             return;
         }
 
-        if ($this->vehicleModel->existsByImmatriculation($vehicle['immatriculation'], $userId)) {
+        if ($this->vehicleRepository->existsByImmatriculation($vehicleEntity->getImmatriculation(), $userId)) {
             $_SESSION['error'] = "Cette immatriculation est déjà utilisée par un autre utilisateur.";
             redirect('/creation-profil');
         }
 
-        $existingVehicle = $this->vehicleModel->findByUserId($userId);
+        $existingVehicle = $this->vehicleRepository->findByUserId($userId);
 
-        // Si un véhicule existe ET que l'immatriculation envoyée = immatriculation existante → Update
-        if ($existingVehicle && $existingVehicle['immatriculation'] === $vehicle['immatriculation']) {
-            $this->vehicleModel->update($existingVehicle['id'], $vehicle);
+        if ($existingVehicle && $existingVehicle->getImmatriculation() === $vehicleEntity->getImmatriculation()) {
+            $vehicleEntity->setId($existingVehicle->getId());
+            $this->vehicleRepository->update($vehicleEntity);
             $_SESSION['success'] = "Véhicule mis à jour avec succès";
         } else {
-            // Sinon → Ajout d'un nouveau véhicule
-            $this->vehicleModel->create($vehicle);
+            $this->vehicleRepository->create($vehicleEntity);
             $_SESSION['success'] = "Nouveau véhicule ajouté avec succès";
         }
     }

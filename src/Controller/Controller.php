@@ -2,13 +2,23 @@
 
 namespace App\Controller;
 
+use App\Repository\UserRepository;
+use App\Service\UserService;
+
 class Controller
 {
+    protected UserRepository $userRepository;
+    protected UserService $userService;
+
     public function __construct()
     {
         if (session_status() === PHP_SESSION_NONE) {
-            session_start(); // Toujours démarrer la session
+            session_start();
         }
+
+        // Initialisation des services communs
+        $this->userRepository = new UserRepository();
+        $this->userService = new UserService();
     }
 
     protected function render(string $view, array $data = []): void

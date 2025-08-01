@@ -3,18 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Model\UserModel;
 
 class AuthController extends Controller
 {
-    private UserModel $userModel;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->userModel = new UserModel();
-    }
-
     public function showLogin(): void
     {
         $this->render("pages/login");
@@ -25,37 +16,49 @@ class AuthController extends Controller
         $this->jsonResponse(function () {
             $data = json_decode(file_get_contents('php://input'), true);
 
+            // ✅ Validation basique
             if (empty($data['username']) || empty($data['email']) || empty($data['password'])) {
                 throw new \Exception('Tous les champs sont obligatoires');
             }
-
             if ($data['password'] !== ($data['confirmPassword'] ?? '')) {
                 throw new \Exception('Les mots de passe ne correspondent pas');
             }
 
-            if ($this->userModel->findByEmail($data['email'])) {
+            // ✅ Vérification existence utilisateur
+            if ($this->userRepository->findByEmail($data['email'])) {
                 throw new \Exception('Cet email est déjà utilisé');
             }
-
-            if ($this->userModel->findByPseudo($data['username'])) {
+            if ($this->userRepository->findByPseudo($data['username'])) {
                 throw new \Exception('Ce pseudo est déjà pris');
             }
 
-            $user = new User($data['username'], $data['email']);
-            $user->hashPassword($data['password']);
+            // ✅ Création de l’objet User
+            $user = (new User())
+                ->setPseudo($data['username'])
+                ->setEmail($data['email']);
 
-            if (!$this->userModel->save($user)) {
+            // ✅ Validation avancée via service
+            $errors = $this->userService->validate($user);
+            if (!empty($errors)) {
+                throw new \Exception(implode(', ', $errors));
+            }
+
+            // ✅ Hash du mot de passe
+            $this->userService->hashPassword($user, $data['password']);
+
+            // ✅ Sauvegarde en DB
+            if (!$this->userRepository->create($user)) {
                 throw new \Exception('Erreur lors de l\'inscription');
             }
 
             // 🔥 Récupérer le user complet depuis la DB
-            $newUser = $this->userModel->findByEmail($data['email']);
+            $newUser = $this->userRepository->findByEmail($data['email']);
 
             // ✅ Vérifier si le compte est actif avant connexion auto
             if (!$newUser->getIsActive()) {
                 throw new \Exception('Votre compte a été créé mais désactivé. Contactez l\'administrateur.');
             }
-            
+
             // ✅ Créer la session sécurisée
             $this->createUserSession($newUser);
 
@@ -83,12 +86,13 @@ class AuthController extends Controller
                 throw new \Exception('Email et mot de passe requis');
             }
 
-            $user = $this->userModel->findByEmail($data['email']);
-            if (!$user || !$user->verifyPassword($data['password'])) {
+            // ✅ Recherche utilisateur
+            $user = $this->userRepository->findByEmail($data['email']);
+            if (!$user || !$this->userService->verifyPassword($user, $data['password'])) {
                 throw new \Exception('Email ou mot de passe incorrect');
             }
 
-            // Vérification du statut
+            // ✅ Vérification du statut
             if (!$user->getIsActive()) {
                 throw new \Exception('Votre compte a été désactivé. Contactez l\'administrateur.');
             }
@@ -151,12 +155,12 @@ class AuthController extends Controller
     {
         session_regenerate_id(true);
         $_SESSION['user'] = [
-            'id'      => $user->getId(),
-            'pseudo'  => $user->getPseudo(),
-            'email'   => $user->getEmail(),
-            'role_id' => $user->getRoleId(),
-            'role_name' => $user->getRoleName() ?? 'Utilisateur',
-            'photo'   => $user->getPhoto() ?: '/assets/images/logo.svg'
+            'id'        => $user->getId(),
+            'pseudo'    => $user->getPseudo(),
+            'email'     => $user->getEmail(),
+            'role_id'   => $user->getRoleId(),
+            'role_name' => $this->userService->getRoleName($user),
+            'photo'     => $user->getPhoto() ?: '/assets/images/logo.svg'
         ];
     }
 }
