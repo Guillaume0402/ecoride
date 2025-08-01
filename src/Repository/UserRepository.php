@@ -17,10 +17,12 @@ class UserRepository
 
     public function create(User $user): bool
     {
+        $this->validateTravelRole($user);
+
         $sql = "INSERT INTO {$this->table} 
             (pseudo, email, password, role_id, credits, note, photo, created_at, travel_role, is_active)
             VALUES (:pseudo, :email, :password, :role_id, :credits, :note, :photo, :created_at, :travel_role, :is_active)";
-        
+
         $stmt = $this->conn->prepare($sql);
         $result = $stmt->execute([
             ':pseudo'      => $user->getPseudo(),
@@ -43,12 +45,14 @@ class UserRepository
 
     public function update(User $user): bool
     {
+        $this->validateTravelRole($user);
+
         $sql = "UPDATE {$this->table} 
                 SET pseudo = :pseudo, email = :email, password = :password, role_id = :role_id, 
                     credits = :credits, note = :note, photo = :photo, travel_role = :travel_role, 
                     is_active = :is_active 
                 WHERE id = :id";
-        
+
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([
             ':pseudo'      => $user->getPseudo(),
@@ -69,7 +73,7 @@ class UserRepository
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE id = :id");
         $stmt->execute([':id' => $id]);
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $data ? $this->hydrate($data) : null;
+        return $data ? new User($data) : null;
     }
 
     public function findByEmail(string $email): ?User
@@ -77,7 +81,7 @@ class UserRepository
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE email = :email");
         $stmt->execute([':email' => $email]);
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $data ? $this->hydrate($data) : null;
+        return $data ? new User($data) : null;
     }
 
     public function findByPseudo(string $pseudo): ?User
@@ -85,20 +89,22 @@ class UserRepository
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE pseudo = :pseudo");
         $stmt->execute([':pseudo' => $pseudo]);
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $data ? $this->hydrate($data) : null;
+        return $data ? new User($data) : null;
     }
 
     public function findAllWithRoles(array $roleIds): array
     {
         $placeholders = implode(',', array_fill(0, count($roleIds), '?'));
         $sql = "SELECT u.*, r.role_name 
-                FROM users u 
-                JOIN roles r ON u.role_id = r.id 
-                WHERE u.role_id IN ($placeholders)
-                ORDER BY u.created_at DESC";
+            FROM users u 
+            JOIN roles r ON u.role_id = r.id 
+            WHERE u.role_id IN ($placeholders)
+            ORDER BY u.created_at DESC";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($roleIds);
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        return array_map(fn($data) => new User($data), $results);
     }
 
     public function updateCredits(int $userId, int $newCredits): bool
@@ -115,6 +121,10 @@ class UserRepository
 
     public function updateProfil(array $data): void
     {
+        if (!in_array($data['travel_role'], ['passager', 'chauffeur', 'les-deux'])) {
+            $data['travel_role'] = 'passager';
+        }
+
         $sql = "UPDATE {$this->table} SET 
                 pseudo = :pseudo, 
                 role_id = :role_id, 
@@ -126,7 +136,7 @@ class UserRepository
             $sql .= ", password = :password";
         }
         $sql .= " WHERE id = :id";
-        
+
         $params = [
             'pseudo'      => $data['pseudo'],
             'role_id'     => $data['role_id'],
@@ -152,7 +162,8 @@ class UserRepository
                 WHERE u.role_id = 2";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return array_map(fn($data) => new User($data), $results);
     }
 
     public function findAllUsers(): array
@@ -163,7 +174,8 @@ class UserRepository
                 WHERE u.role_id = 1";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return array_map(fn($data) => new User($data), $results);
     }
 
     public function toggleActive(int $userId): bool
@@ -188,24 +200,13 @@ class UserRepository
         return $stmt->execute([':id' => $userId]);
     }
 
-    private function hydrate(array $data): User
+
+
+    private function validateTravelRole(User $user): void
     {
-        $user = new User($data['email'], $data['password']);
-        $user->setId((int)$data['id'])
-            ->setPseudo($data['pseudo'])
-            ->setEmail($data['email'])
-            ->setPassword($data['password'])
-            ->setRoleId((int)$data['role_id'])
-            ->setIsActive((int)$data['is_active'])
-            ->setCredits((int)$data['credits'])
-            ->setNote((float)$data['note'])
-            ->setPhoto($data['photo'])
-            ->setTravelRole($data['travel_role'] ?? 'passager');
-
-        if (!empty($data['created_at'])) {
-            $user->setCreatedAt(new \DateTimeImmutable($data['created_at']));
+        $validRoles = ['passager', 'chauffeur', 'les-deux'];
+        if (!in_array($user->getTravelRole(), $validRoles)) {
+            $user->setTravelRole('passager');
         }
-
-        return $user;
     }
 }

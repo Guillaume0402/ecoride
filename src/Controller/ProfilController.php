@@ -72,17 +72,7 @@ class ProfilController extends Controller
 
         $this->userRepository->update($user);
 
-        // Gestion du véhicule
-        $vehicleFieldsEmpty = empty($_POST['immatriculation']) &&
-            empty($_POST['marque']) &&
-            empty($_POST['modele']) &&
-            empty($_POST['couleur']);
-
-        if (in_array($newTravelRole, ['chauffeur', 'les-deux']) && !$vehicleFieldsEmpty) {
-            $this->handleVehicleUpdate($userId);
-        } else {
-            $_SESSION['success'] = "Profil mis à jour avec succès.";
-        }
+        $_SESSION['success'] = "Profil mis à jour avec succès.";
 
         $updatedUser = $this->userRepository->findById($userId);
         $_SESSION['user'] = $this->userService->toArray($updatedUser);
@@ -96,49 +86,8 @@ class ProfilController extends Controller
         $filename = uniqid() . '-' . basename($file['name']);
         $targetFile = $targetDir . $filename;
 
-        return move_uploaded_file($file['tmp_name'], $targetFile) 
-            ? '/uploads/' . $filename 
+        return move_uploaded_file($file['tmp_name'], $targetFile)
+            ? '/uploads/' . $filename
             : null;
-    }
-
-    private function handleVehicleUpdate(int $userId): void
-    {
-        $dateFr = $_POST['date_premiere_immatriculation'] ?? '';
-        $dateSql = !empty($dateFr)
-            ? \DateTime::createFromFormat('Y-m-d', $dateFr)?->format('Y-m-d')
-            : null;
-
-        $vehicleEntity = new Vehicle([
-            'user_id' => $userId,
-            'marque' => trim($_POST['marque'] ?? ''),
-            'modele' => trim($_POST['modele'] ?? ''),
-            'couleur' => trim($_POST['couleur'] ?? ''),
-            'immatriculation' => trim($_POST['immatriculation'] ?? ''),
-            'date_premiere_immatriculation' => $dateSql,
-            'fuel_type_id' => $_POST['fuel_type_id'] ?? null,
-            'places_dispo' => (int)($_POST['places_dispo'] ?? 0)
-        ]);
-
-        if (empty($vehicleEntity->getMarque()) && 
-            empty($vehicleEntity->getModele()) && 
-            empty($vehicleEntity->getImmatriculation())) {
-            return;
-        }
-
-        if ($this->vehicleRepository->existsByImmatriculation($vehicleEntity->getImmatriculation(), $userId)) {
-            $_SESSION['error'] = "Cette immatriculation est déjà utilisée par un autre utilisateur.";
-            redirect('/creation-profil');
-        }
-
-        $existingVehicle = $this->vehicleRepository->findByUserId($userId);
-
-        if ($existingVehicle && $existingVehicle->getImmatriculation() === $vehicleEntity->getImmatriculation()) {
-            $vehicleEntity->setId($existingVehicle->getId());
-            $this->vehicleRepository->update($vehicleEntity);
-            $_SESSION['success'] = "Véhicule mis à jour avec succès";
-        } else {
-            $this->vehicleRepository->create($vehicleEntity);
-            $_SESSION['success'] = "Nouveau véhicule ajouté avec succès";
-        }
     }
 }

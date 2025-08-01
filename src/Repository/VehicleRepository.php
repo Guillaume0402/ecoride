@@ -18,25 +18,28 @@ class VehicleRepository
     public function create(Vehicle $vehicle): bool
     {
         $sql = "INSERT INTO {$this->table} (
-                    user_id, marque, modele, couleur, immatriculation,
-                    date_premiere_immatriculation, fuel_type_id, places_dispo,
-                    created_at
-                ) VALUES (
-                    :user_id, :marque, :modele, :couleur, :immatriculation,
-                    :date_immat, :fuel_type_id, :places_dispo,
-                    NOW()
-                )";
+                user_id, marque, modele, couleur, immatriculation,
+                date_premiere_immatriculation, fuel_type_id, places_dispo,
+                preferences, custom_preferences, created_at
+            ) VALUES (
+                :user_id, :marque, :modele, :couleur, :immatriculation,
+                :date_immat, :fuel_type_id, :places_dispo,
+                :preferences, :custom_preferences, NOW()
+            )";
 
         $stmt = $this->conn->prepare($sql);
+        
         $result = $stmt->execute([
             ':user_id'        => $vehicle->getUserId(),
             ':marque'         => $vehicle->getMarque(),
             ':modele'         => $vehicle->getModele(),
             ':couleur'        => $vehicle->getCouleur(),
-            ':immatriculation'=> $vehicle->getImmatriculation(),
+            ':immatriculation' => $vehicle->getImmatriculation(),
             ':date_immat'     => $vehicle->getDatePremiereImmatriculation(),
             ':fuel_type_id'   => $vehicle->getFuelTypeId(),
             ':places_dispo'   => $vehicle->getPlacesDispo(),
+            ':preferences'    => $vehicle->getPreferences() ?? '',
+            ':custom_preferences' => $vehicle->getCustomPreferences() ?? '',
         ]);
 
         if ($result) {
@@ -49,14 +52,16 @@ class VehicleRepository
     public function update(Vehicle $vehicle): bool
     {
         $sql = "UPDATE {$this->table} SET 
-                    marque = :marque,
-                    modele = :modele,
-                    couleur = :couleur, 
-                    immatriculation = :immatriculation,
-                    date_premiere_immatriculation = :date_immat,
-                    fuel_type_id = :fuel_type_id,
-                    places_dispo = :places_dispo
-                WHERE id = :id";
+                marque = :marque,
+                modele = :modele,
+                couleur = :couleur, 
+                immatriculation = :immatriculation,
+                date_premiere_immatriculation = :date_immat,
+                fuel_type_id = :fuel_type_id,
+                places_dispo = :places_dispo,
+                preferences = :preferences,
+                custom_preferences = :custom_preferences
+            WHERE id = :id";
 
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([
@@ -67,9 +72,12 @@ class VehicleRepository
             ':date_immat'      => $vehicle->getDatePremiereImmatriculation(),
             ':fuel_type_id'    => $vehicle->getFuelTypeId(),
             ':places_dispo'    => $vehicle->getPlacesDispo(),
+            ':preferences'     => $vehicle->getPreferences(),
+            ':custom_preferences' => $vehicle->getCustomPreferences(),
             ':id'              => $vehicle->getId()
         ]);
     }
+
 
     public function deleteById(int $vehicleId): bool
     {
@@ -85,28 +93,40 @@ class VehicleRepository
 
     public function findById(int $id): ?Vehicle
     {
-        $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE id = :id");
+        $sql = "SELECT v.*, f.type_name AS fuel_type_name
+        FROM {$this->table} v
+        LEFT JOIN fuel_types f ON v.fuel_type_id = f.id
+        WHERE v.id = :id";
+
+        $stmt = $this->conn->prepare($sql);
         $stmt->execute([':id' => $id]);
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
-
+       
         return $data ? new Vehicle($data) : null;
     }
 
     public function findByUserId(int $userId): ?Vehicle
     {
-        $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE user_id = :user_id");
+        $sql = "SELECT v.*, f.type_name AS fuel_type_name
+        FROM {$this->table} v
+        LEFT JOIN fuel_types f ON v.fuel_type_id = f.id
+        WHERE v.user_id = :user_id
+        LIMIT 1";
+
+        $stmt = $this->conn->prepare($sql);
         $stmt->execute([':user_id' => $userId]);
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         return $data ? new Vehicle($data) : null;
     }
 
+
     public function findAllByUserId(int $userId): array
     {
         $sql = "SELECT v.*, f.type_name AS fuel_type_name
-                FROM {$this->table} v
-                LEFT JOIN fuel_types f ON v.fuel_type_id = f.id
-                WHERE v.user_id = :user_id";
+        FROM {$this->table} v
+        LEFT JOIN fuel_types f ON v.fuel_type_id = f.id
+        WHERE v.user_id = :user_id";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([':user_id' => $userId]);

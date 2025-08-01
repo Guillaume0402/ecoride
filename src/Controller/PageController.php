@@ -67,10 +67,7 @@ class PageController extends Controller
         }
 
         $user = $_SESSION['user'];
-        $vehicleEntities = $this->vehicleRepository->findAllByUserId($user['id']);
-
-        // Convertir la liste d'entités en tableaux pour la vue
-        $vehicles = array_map(fn($v) => $v->toArray(), $vehicleEntities);
+        $vehicles = $this->vehicleRepository->findAllByUserId($user['id']);
 
         $this->render("pages/my-profil", [
             'user' => $user,

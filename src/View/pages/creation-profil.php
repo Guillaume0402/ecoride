@@ -99,88 +99,7 @@
 
         <!-- SECTION CHAUFFEUR -->
 
-        <div id="chauffeur-fields" style="display: none;">
-            <hr>
-            <!-- Plaque -->
-            <div class="mb-3 form-section">
-                <label for="immatriculation" class="form-label">Plaque d'immatriculation</label>
-                <input type="text" class="form-control" id="immatriculation" name="immatriculation"
-                    value="">
-            </div>
 
-            <!-- Date -->
-            <div class="mb-3 form-section">
-                <label for="date_premiere_immatriculation" class="form-label">Date de première immatriculation</label>
-                <input type="date" class="form-control" id="date_premiere_immatriculation" name="date_premiere_immatriculation"
-                    value="">
-            </div>
-
-
-            <!-- Modèle -->
-            <div class="mb-3 form-section">
-                <label for="marque" class="form-label">Marque</label>
-                <input type="text" class="form-control" id="marque" name="marque"
-                    value="">
-                <label for="modele" class="form-label">Modèle</label>
-                <input type="text" class="form-control" id="modele" name="modele"
-                    value="">
-                <label for="couleur" class="form-label">Couleur</label>
-                <input type="text" class="form-control" id="couleur" name="couleur"
-                    value="">
-
-                <!-- Motorisation -->
-                <div class="mb-3 form-section">
-                    <label for="fuel_type_id" class="form-label">Type de motorisation</label>
-                    <select class="form-select form-control" id="fuel_type_id" name="fuel_type_id">
-                        <option value="1">Essence</option>
-                        <option value="2">Diesel</option>
-                        <option value="3">Électrique</option>
-                        <option value="4">Hybride</option>
-                    </select>
-                </div>
-
-                <!-- Nombre de places -->
-                <div class="mb-3 form-section">
-                    <label for="places_dispo" class="form-label">Nombre de places disponibles</label>
-                    <select class="form-select form-control" id="places_dispo" name="places_dispo">
-                        <option value="">Sélectionner</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-
-                    </select>
-                </div>
-
-                <!-- PRÉFÉRENCES -->
-
-                <div class="mb-3">
-                    <label class="form-label">Préférences</label>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="fumeur" name="preferences[]">
-                        <label class="form-check-label">Fumeur</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="non-fumeur" name="preferences[]">
-                        <label class="form-check-label">Non-fumeur</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="animaux" name="preferences[]">
-                        <label class="form-check-label">Animaux acceptés</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="pas-animaux" name="preferences[]">
-                        <label class="form-check-label">Pas d'animal</label>
-                    </div>
-
-                    <!-- Ajout personnalisé -->
-                    <label for="custom_preferences" class="form-label mt-2">Ajouter vos préférences</label>
-                    <textarea class="form-control" id="custom_preferences" name="custom_preferences"
-                        rows="3" maxlength="250"></textarea>
-
-                </div>
-            </div>
-        </div>
         <!-- Boutons -->
         <div class="text-end mt-4">
             <a href="/my-profil" class="btn btn-custom-outline">Annuler</a>
@@ -215,11 +134,6 @@
         }
     });
 
-    // Au chargement de la page, affiche ou masque les champs chauffeur selon le rôle sélectionné
-    document.addEventListener("DOMContentLoaded", () => {
-        toggleChauffeurFields();
-    });
-
     // Affiche ou masque le mot de passe dans les champs concernés
     function togglePassword(inputId, btn) {
         const input = document.getElementById(inputId);
@@ -233,44 +147,6 @@
             input.type = "password";
             icon.classList.remove("bi-eye");
             icon.classList.add("bi-eye-slash");
-        }
-    }
-
-    // (Sécurité) Double appel pour s'assurer que les champs chauffeur sont bien affichés/masqués au chargement
-    document.addEventListener("DOMContentLoaded", () => {
-        toggleChauffeurFields(); // Pour afficher les champs si besoin
-    });
-
-    // Affiche ou masque dynamiquement les champs liés au rôle chauffeur
-    function toggleChauffeurFields() {
-        const role = document.getElementById('travel_role').value;
-        const chauffeurFields = document.getElementById('chauffeur-fields');
-        const dateField = document.getElementById('date_premiere_immatriculation');
-        const placesField = document.getElementById('places_dispo');
-        const marqueField = document.getElementById('marque');
-        const modeleField = document.getElementById('modele');
-        const couleurField = document.getElementById('couleur');
-        const immatField = document.getElementById('immatriculation');
-
-        if (role === 'chauffeur' || role === 'les-deux') {
-            // Affiche les champs véhicule si le rôle est chauffeur ou les deux
-            chauffeurFields.style.display = 'block';
-
-            // Vérifie si tous les champs véhicule sont vides
-            const noVehicleUpdate =
-                immatField.value.trim() === '' &&
-                marqueField.value.trim() === '' &&
-                modeleField.value.trim() === '' &&
-                couleurField.value.trim() === '';
-
-            // Si aucun champ véhicule n'est rempli → on enlève les required sur date et places
-            dateField.required = !noVehicleUpdate;
-            placesField.required = !noVehicleUpdate;
-        } else {
-            // Masque les champs véhicule si le rôle n'est pas chauffeur
-            chauffeurFields.style.display = 'none';
-            dateField.required = false;
-            placesField.required = false;
         }
     }
 </script>

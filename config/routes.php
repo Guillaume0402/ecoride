@@ -64,6 +64,27 @@ return [
             'action' => 'update'
         ]
     ],
+
+    '/vehicle/create' => [
+        // Afficher le formulaire vide
+        'GET' => [
+            'controller' => 'App\\Controller\\VehicleController',
+            'action' => 'create'
+        ],
+        // Traiter le formulaire de création
+        'POST' => [
+            'controller' => 'App\\Controller\\VehicleController',
+            'action' => 'store'
+        ]
+    ],
+    '/vehicle/update' => [
+        // Traiter les modifications du véhicule
+        'POST' => [
+            'controller' => 'App\\Controller\\VehicleController',
+            'action' => 'update'
+        ]
+    ],
+    // Traiter la suppression du véhicule
     '/vehicle/delete' => [
         'POST' => [
             'controller' => 'App\\Controller\\VehicleController',
@@ -71,15 +92,13 @@ return [
         ]
     ],
     '/vehicle/edit' => [
-        'POST' => [
-            'controller' => 'App\\Controller\\VehicleController',
-            'action' => 'update'
-        ],
+        // Afficher le formulaire pré-rempli
         'GET' => [
             'controller' => 'App\\Controller\\VehicleController',
             'action' => 'edit'
         ]
     ],
+
     // Routes pour l\'administration
     '/admin' => [
         'GET' => [

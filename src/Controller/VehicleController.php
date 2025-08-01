@@ -20,27 +20,58 @@ class VehicleController extends Controller
         }
     }
 
-    public function delete(): void
+    public function create(): void
+    {
+        // Affiche le formulaire vide pour ajouter un véhicule
+        $this->render("pages/form-vehicule", [
+            'vehicle' => []
+        ]);
+    }
+
+    public function store(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             abort(405);
         }
 
-        $vehicleId = (int) ($_POST['vehicle_id'] ?? 0);
-        if ($vehicleId <= 0) {
-            $_SESSION['error'] = "ID de véhicule invalide.";
-            redirect('/my-profil');
+        $userId = $_SESSION['user']['id'];
+
+        if (empty($_POST['places_dispo']) || !is_numeric($_POST['places_dispo'])) {
+            $_SESSION['error'] = "Veuillez sélectionner un nombre de places valide.";
+            redirect('/vehicle/create');
         }
 
-        $vehicle = $this->vehicleRepository->findById($vehicleId);
-        if (!$vehicle || $vehicle->getUserId() !== $_SESSION['user']['id']) {
-            $_SESSION['error'] = "Véhicule introuvable ou non autorisé.";
-            redirect('/my-profil');
+        $dateFr = $_POST['date_premiere_immatriculation'] ?? '';
+        $dateSql = !empty($dateFr)
+            ? \DateTime::createFromFormat('Y-m-d', $dateFr)?->format('Y-m-d')
+            : null;
+
+
+        $vehicle = new Vehicle([
+            'user_id' => $userId,
+            'marque' => trim($_POST['marque'] ?? ''),
+            'modele' => trim($_POST['modele'] ?? ''),
+            'couleur' => trim($_POST['couleur'] ?? ''),
+            'immatriculation' => trim($_POST['immatriculation'] ?? ''),
+            'date_premiere_immatriculation' => $dateSql,
+            'fuel_type_id' => $_POST['fuel_type_id'] ?? null,
+            'places_dispo' => (int) $_POST['places_dispo'],
+            'preferences' => isset($_POST['preferences']) ? implode(',', $_POST['preferences']) : '',
+            'custom_preferences' => trim($_POST['custom_preferences'] ?? '')
+        ]);
+
+        if ($this->vehicleRepository->existsByImmatriculation($vehicle->getImmatriculation(), 0)) {
+            $_SESSION['error'] = "Cette immatriculation est déjà utilisée.";
+            redirect('/vehicle/create');
         }
 
-        $this->vehicleRepository->deleteById($vehicleId);
-        $_SESSION['success'] = "Véhicule supprimé avec succès.";
-        redirect('/my-profil');
+        if ($this->vehicleRepository->create($vehicle)) {
+            $_SESSION['success'] = "Véhicule ajouté avec succès.";
+            redirect('/my-profil');
+        } else {
+            $_SESSION['error'] = "Erreur lors de l'ajout du véhicule.";
+            redirect('/vehicle/create');
+        }
     }
 
     public function edit(): void
@@ -55,7 +86,7 @@ class VehicleController extends Controller
             redirect('/my-profil');
         }
 
-        $this->render("pages/edit-vehicule", [
+        $this->render("pages/form-vehicule", [
             'vehicle' => $vehicle->toArray()
         ]);
     }
@@ -91,6 +122,8 @@ class VehicleController extends Controller
             ? \DateTime::createFromFormat('Y-m-d', $dateFr)?->format('Y-m-d')
             : null;
 
+        $preferences = isset($_POST['preferences']) ? implode(',', $_POST['preferences']) : '';
+
         $vehicle = new Vehicle([
             'id' => $vehicleId,
             'user_id' => $userId,
@@ -100,7 +133,9 @@ class VehicleController extends Controller
             'immatriculation' => $immatriculation,
             'date_premiere_immatriculation' => $dateSql,
             'fuel_type_id' => $_POST['fuel_type_id'] ?? null,
-            'places_dispo' => (int) $_POST['places_dispo']
+            'places_dispo' => (int) $_POST['places_dispo'],
+            'preferences' => $preferences,  // <--- ici !
+            'custom_preferences' => trim($_POST['custom_preferences'] ?? '')
         ]);
 
         $this->vehicleRepository->update($vehicle);
@@ -109,46 +144,26 @@ class VehicleController extends Controller
         redirect('/my-profil');
     }
 
-    public function store(): void
+    public function delete(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             abort(405);
         }
 
-        $userId = $_SESSION['user']['id'];
-
-        if (empty($_POST['places_dispo']) || !is_numeric($_POST['places_dispo'])) {
-            $_SESSION['error'] = "Veuillez sélectionner un nombre de places valide.";
-            redirect('/vehicle/create');
-        }
-
-        $dateFr = $_POST['date_premiere_immatriculation'] ?? '';
-        $dateSql = !empty($dateFr)
-            ? \DateTime::createFromFormat('Y-m-d', $dateFr)?->format('Y-m-d')
-            : null;
-
-        $vehicle = new Vehicle([
-            'user_id' => $userId,
-            'marque' => trim($_POST['marque'] ?? ''),
-            'modele' => trim($_POST['modele'] ?? ''),
-            'couleur' => trim($_POST['couleur'] ?? ''),
-            'immatriculation' => trim($_POST['immatriculation'] ?? ''),
-            'date_premiere_immatriculation' => $dateSql,
-            'fuel_type_id' => $_POST['fuel_type_id'] ?? null,
-            'places_dispo' => (int) $_POST['places_dispo']
-        ]);
-
-        if ($this->vehicleRepository->existsByImmatriculation($vehicle->getImmatriculation(), 0)) {
-            $_SESSION['error'] = "Cette immatriculation est déjà utilisée.";
-            redirect('/vehicle/create');
-        }
-
-        if ($this->vehicleRepository->create($vehicle)) {
-            $_SESSION['success'] = "Véhicule ajouté avec succès.";
+        $vehicleId = (int) ($_POST['vehicle_id'] ?? 0);
+        if ($vehicleId <= 0) {
+            $_SESSION['error'] = "ID de véhicule invalide.";
             redirect('/my-profil');
-        } else {
-            $_SESSION['error'] = "Erreur lors de l'ajout du véhicule.";
-            redirect('/vehicle/create');
         }
+
+        $vehicle = $this->vehicleRepository->findById($vehicleId);
+        if (!$vehicle || $vehicle->getUserId() !== $_SESSION['user']['id']) {
+            $_SESSION['error'] = "Véhicule introuvable ou non autorisé.";
+            redirect('/my-profil');
+        }
+
+        $this->vehicleRepository->deleteById($vehicleId);
+        $_SESSION['success'] = "Véhicule supprimé avec succès.";
+        redirect('/my-profil');
     }
 }
