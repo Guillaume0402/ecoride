@@ -11,17 +11,11 @@
     width: 100%;
     margin: 0 auto;
     border: 2px solid $color-secondary;
-}
-.form-box-home {
-    background: $color-white !important;
-    border-radius: 0.5rem;
-    padding: 2rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    max-width: 650px;
-    width: 100%;
-    margin: 0 auto;
-}
 
+    label {
+        color: var(--text-black) !important;
+    }
+}
 .form-box-profil {
     background-color: transparent;
     border-radius: 0.5rem;

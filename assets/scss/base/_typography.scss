@@ -44,7 +44,7 @@ a {
     font-family: $font-primary;
     text-decoration: none;
     font-weight: 600;
-    color: $color-white !important;
+    color: var(--text-black);
     transition: all 0.3s ease-out;
 
     &:hover {
@@ -56,7 +56,7 @@ a {
     font-family: $font-primary;
     font-weight: 400;
     text-decoration: none;
-    color: $color-white !important;
+    color: var(--text-black);
     transition: all 0.3s ease;
 
     &:hover {

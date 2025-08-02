@@ -6,7 +6,7 @@
 
     <section class="container mt-5 ">
         <div class="col-lg-6 col-12 d-flex justify-content-center mb-4  m-auto">
-            <div class="form-box text-white rounded p-4 w-100 ">
+            <div class="form-box rounded p-4 w-100 ">
                 <form>
                     <div class="mb-3">
                         <label class="form-label">Ville de départ :</label>
@@ -29,17 +29,25 @@
     <section class="filter-section m-5">
         <div class="container">
             <div class="d-flex align-items-center justify-content-between flex-wrap filter-bar px-3 py-2 rounded-2">
-                <button class="btn btn-filter mb-2 mb-md-0">
-                    <i class="bi bi-funnel-fill me-2"></i> Filters
-                </button>
                 <div class="dropdown">
-                    <button class="btn btn-sort dropdown-toggle" data-bs-toggle="dropdown">
-                        Sort by
+                    <button class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown">
+                        Filtrer
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="#">Price</a></li>
+                        <li><a class="dropdown-item" href="#">Animaux acceptés</a></li>
+                        <li><a class="dropdown-item" href="#">Pas d'animaux</a></li>
+                        <li><a class="dropdown-item" href="#">Fumeur</a></li>
+                        <li><a class="dropdown-item" href="#">Non-fumeur</a></li>
+                    </ul>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-sort dropdown-toggle" data-bs-toggle="dropdown">
+                        Trier par
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#">Prix</a></li>
                         <li><a class="dropdown-item" href="#">Date</a></li>
-                        <li><a class="dropdown-item" href="#">Eco-energy</a></li>
+                        <li><a class="dropdown-item" href="#">Éco-énergie</a></li>
                     </ul>
                 </div>
             </div>
@@ -69,7 +77,7 @@
                         </div>
                         <!-- Body : avatar / détails / bouton -->
                         <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                            <img src="" alt="Avatar" class="avatar rounded-circle">
+                            <img src="assets/images/logo.svg" alt="Avatar" class="avatar rounded-circle">
                             <div class="details flex-grow-1 px-3 m-auto">
                                 <h5>Mel gang</h5>
                                 <ul>
@@ -115,7 +123,7 @@
                         </div>
                         <!-- Body : avatar / détails / bouton -->
                         <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                            <img src="" alt="Avatar" class="avatar rounded-circle">
+                            <img src="assets/images/logo.svg" alt="Avatar" class="avatar rounded-circle">
                             <div class="details flex-grow-1 px-3 m-auto">
                                 <h5>Mel gang</h5>
                                 <ul>
@@ -161,7 +169,7 @@
                         </div>
                         <!-- Body : avatar / détails / bouton -->
                         <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                            <img src="" alt="Avatar" class="avatar rounded-circle">
+                            <img src="assets/images/logo.svg" alt="Avatar" class="avatar rounded-circle">
                             <div class="details flex-grow-1 px-3 m-auto">
                                 <h5>Mel gang</h5>
                                 <ul>
@@ -207,7 +215,7 @@
                         </div>
                         <!-- Body : avatar / détails / bouton -->
                         <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                            <img src="" alt="Avatar" class="avatar rounded-circle">
+                            <img src="assets/images/logo.svg" alt="Avatar" class="avatar rounded-circle">
                             <div class="details flex-grow-1 px-3 m-auto">
                                 <h5>Mel gang</h5>
                                 <ul>

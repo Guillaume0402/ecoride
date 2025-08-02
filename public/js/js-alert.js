@@ -1,7 +1,5 @@
-document.addEventListener('DOMContentLoaded', () => {
-    console.log("JS Alert chargé ✅"); // Debug
-    const alerts = document.querySelectorAll('.auto-dismiss');
-    console.log(`Alertes détectées : ${alerts.length}`);
+document.addEventListener('DOMContentLoaded', () => {   
+    const alerts = document.querySelectorAll('.auto-dismiss');  
 
     alerts.forEach(alert => {
         setTimeout(() => {

@@ -1,6 +1,14 @@
 // specific pages
 @use "../abstracts" as *;
 
+h1 {
+    color: var(--color-white);
+}
+
+p {
+    color: var(--color-white);
+}
+
 // IMAGE COLLAGE POUR DESKTOP
 .image-collage {
     position: relative;
@@ -43,92 +51,45 @@
 }
 
 .popular-destinations {
-    background: $color-white;    
-    max-width: 1800px;
-    margin: 0 auto;
-    border-radius: 10px;
+    box-shadow: var(--shadow-box);
+}
+
+.card-list-item {
+
+    background: var(--list-bg);
+    color: var(--list-text);
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: none;
     padding: 20px;
-    width: auto;
-
-    h3 {
-        font-weight: bold;
-        color: #2e5e2e;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        border-bottom: 2px solid #2e5e2e;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
+    &:hover {
+        background: var(--list-hover);
+        box-shadow: 2px 2px 8px 0 #1e90340a;
     }
-
-    .destination-card {
-        background: #ffffff;
-        border: 1px solid #d1d5d1;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);        
-        margin: 0 auto; /* 🔑 centre chaque card */
-        transition: transform 0.3s ease;
-
-        &:hover {
-            transform: translateY(-3px);
-        }
-
-        h5 {
-            font-weight: bold;
-            color: #2c3e50;
-            border-bottom: 2px solid #2e5e2e;
-            padding-bottom: 5px;
-            margin-bottom: 10px;
-        }
-
-        ul {
-            padding: 0;
-            li {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                background: #f9f9f9;
-                padding: 8px 12px;
-                margin-bottom: 6px;
-                border-radius: 5px;
-                color: #333; /* 🔑 visible */
-                font-weight: 500;
-
-                &:hover {
-                    background: #eef5ee;
-                }
-
-                .credits {
-                    color: #28a745;
-                    font-weight: 600;
-                }
-
-                button {
-                    border-radius: 50%;
-                    width: 25px;
-                    height: 25px;
-                    padding: 0;
-                    font-size: 14px;
-                    line-height: 1;
-                }
-            }
-        }
+    span {
+        flex: 1 1 0;
+        text-align: left;
+        font-size: 1rem;
+        font-weight: 700;
     }
-
-    .btn-success {
-        background: #2e5e2e;
-        border: none;
-        padding: 10px 25px;
-        font-size: 16px;
-        margin-top: 20px;
-        border-radius: 6px;
-        transition: background 0.3s;
-
-        &:hover {
-            background: #256b25;
-        }
+    .fw-bold {
+        flex: 0 0 100px;
+        text-align: right;
+        font-size: 1.05rem;
+        color: var(--text-black) !important;
     }
+    button {
+        flex: 0 0 auto;
+        margin-left: 16px;
+    }
+}
+.card-header {
+    background: transparent !important;
+    border-bottom: 2.5px solid var(--color-primary, #215732) !important;
+    font-size: 1.18rem;
+    letter-spacing: 0.02em;
+}
+.card {
+    border-radius: 1.2rem !important;
 }
 
 // IMAGES POUR MOBILE UNIQUEMENT
@@ -161,11 +122,25 @@
         margin-top: 1rem;
     }
 
-    .popular-destinations {
-        margin-top: 20px;
-    }
-
     .row.align-items-center {
         margin-top: 10px;
+    }
+    .popular-destinations {
+        width: 100%;
+        margin-top: 0;
+        padding: 10px !important;
+    }
+    .card-list-item {
+        padding: 10px;
+        span {
+            font-size: 0.9rem;
+        }
+        .fw-bold {
+            font-size: 1rem;
+        }
+        button {
+            padding: 0.2rem;
+            font-size: 1rem;
+        }
     }
 }

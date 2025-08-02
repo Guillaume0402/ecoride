@@ -37,7 +37,7 @@
                                     alt="Avatar"
                                     class="rounded-circle"
                                     style="width: 40px; height: 40px; object-fit: cover;">
-                                <span class="d-none d-lg-inline text-white"><?= $_SESSION['user']['pseudo'] ?? '' ?></span>
+                                <span class="d-none d-lg-inline"><?= $_SESSION['user']['pseudo'] ?? '' ?></span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end animate__animated animate__fadeIn">
                                 <?php if ((int) $_SESSION['user']['role_id'] === 3): ?>
@@ -49,7 +49,7 @@
                                     </li>
                                 <?php else: ?>
                                     <li><a class="dropdown-item" href="/my-profil"><i class="bi bi-person me-2"></i> Mon profil</a></li>
-                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#covoitModal"><i class="bi bi-plus-circle me-2"></i> Créer un trajet</a></li>
+                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="/covoit-modal"><i class="bi bi-plus-circle me-2"></i> Créer un trajet</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
@@ -61,6 +61,13 @@
                                 Connexion
                             </button>
                         <?php endif; ?>
+                    </li>
+                    <li>
+                        <!-- Dans ta navbar Bootstrap -->
+                        <button id="themeToggleBtn" class="btn btn-outline ms-2" title="Changer de thème">
+                            <i class="bi bi-moon-stars"></i>
+                        </button>
+
                     </li>
 
                 </ul>

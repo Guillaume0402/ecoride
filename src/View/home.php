@@ -8,7 +8,7 @@
     <section class="text-center mb-3 mt-5">
         <h1 class="fw-bold">Éco-conduite, éco-attitude, EcoRide !</h1>
         <p class="lead">Rejoignez le mouvement du covoiturage responsable</p>
-        <div class="mt-1 mb-3 d-none d-lg-inline-block">
+        <div class="mt-1 mb-5 d-none d-lg-inline-block">
             <button class="btn btn-inscription me-2" data-bs-toggle="modal" data-bs-target="#authModal" data-start="register">
                 Inscrivez-vous
             </button>
@@ -27,71 +27,125 @@
 
 
     <!-- DESTINATIONS POPULAIRES CENTRÉES -->
-    <div class="row justify-content-center mb-5 mt-5">
-        <div class="col">
-            <div class="container-fluid popular-destinations p-4 rounded shadow-sm w-100">
-                <h3 class="text-center mb-4">
+    <div class="row justify-content-center ">
+        <div class="col-12">
+            <div class="container popular-destinations rounded  px-5 py-3 w-100">
+                <h3 class="text-center mb-4 mt-3">
                     <i class="bi bi-car-front text-success"></i>
-                    Les destinations les plus populaires
+                    Destinations populaires
                     <i class="bi bi-car-front text-success"></i>
                 </h3>
-                <div class="row g-3 mt-5 mb-5">
-
+                <div class="row g-4 mt-4 mb-5">
                     <!-- PARIS -->
-                    <div class="col-lg-4 col-md-6 col-12">
-                        <div class="destination-card p-3 rounded">
-                            <h5 class="text-center">Paris</h5>
-                            <hr>
-                            <ul class="list-unstyled">
-                                <li>Depuis > Lille – <span class="credits">25 crédits</span> <button class="btn btn-sm btn-outline-success float-end">+</button></li>
-                                <li>Depuis > Lyon – <span class="credits">48 crédits</span> <button class="btn btn-sm btn-outline-success float-end">+</button></li>
-                                <li>Depuis > Rennes – <span class="credits">35 crédits</span> <button class="btn btn-sm btn-outline-success float-end">+</button></li>
-                                <li>Depuis > Rouen – <span class="credits">19 crédits</span> <button class="btn btn-sm btn-outline-success float-end">+</button></li>
-                            </ul>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card shadow-lg h-100 border-0">
+                            <div class="card-header bg-white text-center fw-bold border-0 border-bottom border-success">
+                                Paris
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled m-0">
+                                    <li class="d-flex align-items-center justify-content-between py-2 px-2 rounded mb-2 card-list-item">
+                                        <span>Départ de : Lille </span>
+                                        <span class="fw-bold text-success">25 crédits</span>
+                                        <button class="btn btn-outline-success btn-sm ms-2"><i class="bi bi-plus"></i></button>
+                                    </li>
+                                    <li class="d-flex align-items-center justify-content-between py-2 px-2 rounded mb-2 card-list-item">
+                                        <span>Départ de : Lyon </span>
+                                        <span class="fw-bold text-success">48 crédits</span>
+                                        <button class="btn btn-outline-success btn-sm ms-2"><i class="bi bi-plus"></i></button>
+                                    </li>
+                                    <li class="d-flex align-items-center justify-content-between py-2 px-2 rounded mb-2 card-list-item">
+                                        <span>Départ de : Rennes </span>
+                                        <span class="fw-bold text-success">35 crédits</span>
+                                        <button class="btn btn-outline-success btn-sm ms-2"><i class="bi bi-plus"></i></button>
+                                    </li>
+                                    <li class="d-flex align-items-center justify-content-between py-2 px-2 rounded card-list-item">
+                                        <span>Départ de : Rouen </span>
+                                        <span class="fw-bold text-success">19 crédits</span>
+                                        <button class="btn btn-outline-success btn-sm ms-2"><i class="bi bi-plus"></i></button>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-
                     <!-- LYON -->
-                    <div class="col-lg-4 col-md-6 col-12">
-                        <div class="destination-card p-3 rounded">
-                            <h5 class="text-center">Lyon</h5>
-                            <hr>
-                            <ul class="list-unstyled">
-                                <li>Depuis > Paris – <span class="credits">53 crédits</span> <button class="btn btn-sm btn-outline-success float-end">+</button></li>
-                                <li>Depuis > St-Étienne – <span class="credits">12 crédits</span> <button class="btn btn-sm btn-outline-success float-end">+</button></li>
-                                <li>Depuis > Grenoble – <span class="credits">21 crédits</span> <button class="btn btn-sm btn-outline-success float-end">+</button></li>
-                                <li>Depuis > Marseille – <span class="credits">30 crédits</span> <button class="btn btn-sm btn-outline-success float-end">+</button></li>
-                            </ul>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card shadow-lg h-100 border-0">
+                            <div class="card-header bg-white text-center fw-bold border-0 border-bottom border-success">
+                                Lyon
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled m-0">
+                                    <li class="d-flex align-items-center justify-content-between py-2 px-2 rounded mb-2 card-list-item">
+                                        <span>Départ de : Paris </span>
+                                        <span class="fw-bold text-success">53 crédits</span>
+                                        <button class="btn btn-outline-success btn-sm ms-2"><i class="bi bi-plus"></i></button>
+                                    </li>
+                                    <li class="d-flex align-items-center justify-content-between py-2 px-2 rounded mb-2 card-list-item">
+                                        <span>Départ de : St-Étienne </span>
+                                        <span class="fw-bold text-success">12 crédits</span>
+                                        <button class="btn btn-outline-success btn-sm ms-2"><i class="bi bi-plus"></i></button>
+                                    </li>
+                                    <li class="d-flex align-items-center justify-content-between py-2 px-2 rounded mb-2 card-list-item">
+                                        <span>Départ de : Grenoble </span>
+                                        <span class="fw-bold text-success">21 crédits</span>
+                                        <button class="btn btn-outline-success btn-sm ms-2"><i class="bi bi-plus"></i></button>
+                                    </li>
+                                    <li class="d-flex align-items-center justify-content-between py-2 px-2 rounded card-list-item">
+                                        <span>Départ de : Marseille </span>
+                                        <span class="fw-bold text-success">30 crédits</span>
+                                        <button class="btn btn-outline-success btn-sm ms-2"><i class="bi bi-plus"></i></button>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-
                     <!-- RENNES -->
-                    <div class="col-lg-4 col-md-6 col-12">
-                        <div class="destination-card p-3 rounded">
-                            <h5 class="text-center">Rennes</h5>
-                            <hr>
-                            <ul class="list-unstyled">
-                                <li>Depuis > Nantes – <span class="credits">20 crédits</span> <button class="btn btn-sm btn-outline-success float-end">+</button></li>
-                                <li>Depuis > Caen – <span class="credits">29 crédits</span> <button class="btn btn-sm btn-outline-success float-end">+</button></li>
-                                <li>Depuis > Paris – <span class="credits">45 crédits</span> <button class="btn btn-sm btn-outline-success float-end">+</button></li>
-                                <li>Depuis > Bordeaux – <span class="credits">40 crédits</span> <button class="btn btn-sm btn-outline-success float-end">+</button></li>
-                            </ul>
+                    <div class="col-lg-4 col-md-6 mx-auto">
+                        <div class="card shadow-lg h-100 border-0">
+                            <div class="card-header bg-white text-center fw-bold border-0 border-bottom border-success">
+                                Rennes
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled m-0">
+                                    <li class="d-flex align-items-center justify-content-between py-2 px-2 rounded mb-2 card-list-item">
+                                        <span>Départ de: Nantes</span>
+                                        <span class="fw-bold text-success">20 crédits</span>
+                                        <button class="btn btn-outline-success btn-sm ms-2"><i class="bi bi-plus"></i></button>
+                                    </li>
+                                    <li class="d-flex align-items-center justify-content-between py-2 px-2 rounded mb-2 card-list-item">
+                                        <span>Départ de: Caen</span>
+                                        <span class="fw-bold text-success">29 crédits</span>
+                                        <button class="btn btn-outline-success btn-sm ms-2"><i class="bi bi-plus"></i></button>
+                                    </li>
+                                    <li class="d-flex align-items-center justify-content-between py-2 px-2 rounded mb-2 card-list-item">
+                                        <span>Départ de: Paris</span>
+                                        <span class="fw-bold text-success">45 crédits</span>
+                                        <button class="btn btn-outline-success btn-sm ms-2"><i class="bi bi-plus"></i></button>
+                                    </li>
+                                    <li class="d-flex align-items-center justify-content-between py-2 px-2 rounded card-list-item">
+                                        <span>Départ de: Bordeaux</span>
+                                        <span class="fw-bold text-success">40 crédits</span>
+                                        <button class="btn btn-outline-success btn-sm ms-2"><i class="bi bi-plus"></i></button>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    
-                    <h3 class="text-center mb-4 mt-5">
-                        <i class="bi bi-car-front text-success"></i>
-                        Rechercher un trajet
-                        <i class="bi bi-car-front text-success"></i>
-                    </h3>
-                    <div class="text-center mt-3">
-                        <button class="btn btn-inscription" data-bs-toggle="modal" data-bs-target="#covoitModal">Rechercher un trajet</button>
-                    </div>
+                <h3 class="text-center mb-4 mt-5">
+                    <i class="bi bi-car-front text-success"></i>
+                    Rechercher un trajet
+                    <i class="bi bi-car-front text-success"></i>
+                </h3>
+                <div class="text-center mt-3 mb-3">
+                    <button class="btn btn-inscription" data-bs-toggle="modal" data-bs-target="#covoitModal">Rechercher un trajet</button>
                 </div>
             </div>
         </div>
     </div>
+
 
 
     <!-- TEXTE EN BAS -->
