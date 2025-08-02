@@ -1,4 +1,4 @@
-<div class="modal fade" id="covoitModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="createCovoitModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content auth-modal-content">
             <div class="modal-header-custom">

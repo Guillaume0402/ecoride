@@ -8,6 +8,9 @@
 
 <!-- Un seul script Bootstrap ici -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/auth-modal.js"></script>
-<script src="/js/js-alert.js"></script>
-<script src="/js/toggle-theme.js"></script>
+
+<?php if (isset($isAdminPage) && $isAdminPage): ?>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<?php endif; ?>
+<script type="module" src="/js/main.js"></script>
+

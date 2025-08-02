@@ -99,14 +99,14 @@ class User
         $this->roleId = $roleId;
         return $this;
     }
-    public function setCredits(int $credits): self
+    public function setCredits(?int $credits = 0): self
     {
-        $this->credits = $credits;
+        $this->credits = $credits ?? 0;
         return $this;
     }
-    public function setNote(float $note): self
+    public function setNote(?float $note = 0): self
     {
-        $this->note = $note;
+        $this->note = $note ?? 0;
         return $this;
     }
     public function setPhoto(?string $photo): self

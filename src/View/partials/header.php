@@ -49,7 +49,9 @@
                                     </li>
                                 <?php else: ?>
                                     <li><a class="dropdown-item" href="/my-profil"><i class="bi bi-person me-2"></i> Mon profil</a></li>
-                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="/covoit-modal"><i class="bi bi-plus-circle me-2"></i> Créer un trajet</a></li>
+                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createCovoitModal">
+                                            <i class="bi bi-plus-circle me-2"></i> Créer un trajet
+                                        </a></li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>

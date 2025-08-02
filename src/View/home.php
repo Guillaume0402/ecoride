@@ -140,7 +140,7 @@
                     <i class="bi bi-car-front text-success"></i>
                 </h3>
                 <div class="text-center mt-3 mb-3">
-                    <button class="btn btn-inscription" data-bs-toggle="modal" data-bs-target="#covoitModal">Rechercher un trajet</button>
+                    <button class="btn btn-inscription" data-bs-toggle="modal" data-bs-target="#searchCovoitModal">Rechercher un trajet</button>
                 </div>
             </div>
         </div>
