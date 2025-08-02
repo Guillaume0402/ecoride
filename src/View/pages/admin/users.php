@@ -111,15 +111,17 @@
                         <?php if (!empty($employees)) : ?>
                             <?php foreach ($employees as $employee): ?>
                                 <tr>
-                                    <td><?= $employee['id'] ?></td>
-                                    <td><?= htmlspecialchars($employee['pseudo']) ?></td>
-                                    <td><?= htmlspecialchars($employee['email']) ?></td>
-                                    <td><?= ucfirst($employee['role_name']) ?></td>
-                                    <td><?= $employee['credits'] ?></td>
-                                    <td><?= date('d/m/Y', strtotime($employee['created_at'])) ?></td>
+                                    <td><?= $employee->getId() ?></td>
+                                    <td><?= htmlspecialchars($employee->getPseudo()) ?></td>
+                                    <td><?= htmlspecialchars($employee->getEmail()) ?></td>
+                                    <td><?= ucfirst($employee->getRoleId()) ?></td>
+                                    <td><?= $employee->getCredits() ?></td>
+                                    <td><?= $employee->getCreatedAt()
+                                            ? $employee->getCreatedAt()->format('d/m/Y')
+                                            : '' ?></td>
                                     <td class="actions-col-user">
                                         <!-- Supprimer -->
-                                        <a href="/admin/users/delete/<?= $employee['id'] ?>"
+                                        <a href="/admin/users/delete/<?= $employee->getId() ?>"
                                             class="btn btn-sm btn-danger delete-btn"
                                             data-type="employé"
                                             data-action="supprimer">
@@ -128,14 +130,14 @@
                                         </a>
 
                                         <!-- Activer / Désactiver -->
-                                        <form action="/admin/users/toggle/<?= $employee['id'] ?>"
+                                        <form action="/admin/users/toggle/<?= $employee->getId() ?>"
                                             method="POST"
                                             class="d-inline">
                                             <button type="submit"
-                                                class="btn btn-sm <?= $employee['is_active'] ? 'btn-success' : 'btn-warning' ?> toggle-btn"
+                                                class="btn btn-sm <?= $employee->getIsActive() ? 'btn-success' : 'btn-warning' ?> toggle-btn"
                                                 data-type="employé"
-                                                data-action="<?= $employee['is_active'] ? 'désactiver' : 'activer' ?>">
-                                                <i class="bi <?= $employee['is_active'] ? 'bi-check-circle' : 'bi-x-circle' ?>"></i>
+                                                data-action="<?= $employee->getIsActive() ? 'désactiver' : 'activer' ?>">
+                                                <i class="bi <?= $employee->getIsActive() ? 'bi-check-circle' : 'bi-x-circle' ?>"></i>
                                             </button>
                                         </form>
                                     </td>
@@ -163,14 +165,14 @@
                     <tbody>
                         <?php foreach ($users as $user): ?>
                             <tr>
-                                <td><?= $user['id'] ?></td>
-                                <td><?= htmlspecialchars($user['pseudo']) ?></td>
-                                <td><?= htmlspecialchars($user['email']) ?></td>
-                                <td><?= ucfirst($user['role_name']) ?></td>
-                                <td><?= $user['credits'] ?></td>
-                                <td><?= date('d/m/Y', strtotime($user['created_at'])) ?></td>
+                                <td><?= $user->getId() ?></td>
+                                <td><?= htmlspecialchars($user->getPseudo()) ?></td>
+                                <td><?= htmlspecialchars($user->getEmail()) ?></td>
+                                <td><?= ucfirst($user->getRoleId()) ?></td>
+                                <td><?= $user->getCredits() ?></td>
+                                <td><?= $user->getCreatedAt() ? $user->getCreatedAt()->format('d/m/Y') : '' ?></td>
                                 <td class="actions-col-user">
-                                    <a href="/admin/users/delete/<?= $user['id'] ?>" class="btn btn-sm btn-danger delete-btn"
+                                    <a href="/admin/users/delete/<?= $user->getId() ?>" class="btn btn-sm btn-danger delete-btn"
                                         data-type="utilisateur">
                                         <i class="bi bi-trash"></i>
                                     </a>
@@ -205,5 +207,3 @@
 
 
 <?php unset($_SESSION['active_tab']); ?>
-
-
