@@ -1,21 +1,16 @@
 @use "../abstracts" as *;
 
-.footer {
-  
+footer {  
   border-top: 2px solid rgba(255, 255, 255, 0.2);
-
   a {
-    color: #fff !important;
+    color: var(--text-black);
     transition: color 0.3s ease, transform 0.3s ease;
 
     &:hover {
-      color: #99f2c8 !important;
+      color: var(--text-white) !important;
       transform: translateY(-2px);
+      text-shadow: var(--shadow-text);
     }
-  }
-
-  .footer-copy {
-    opacity: 0.8;
   }
 
   @media (max-width: 576px) {

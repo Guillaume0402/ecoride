@@ -52,14 +52,5 @@ a {
     }
 }
 
-.navlink {
-    font-family: $font-primary;
-    font-weight: 400;
-    text-decoration: none;
-    color: var(--text-black);
-    transition: all 0.3s ease;
 
-    &:hover {
-        color: $color-secondary !important;
-    }
-}
+

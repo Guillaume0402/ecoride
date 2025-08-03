@@ -5,7 +5,7 @@
     font-family: $font-primary;
     font-size: clamp(2rem, 4vw, 3rem);
     font-weight: bold;
-    color: $color-white;
+    color: var(--text-black);
     margin-bottom: 2rem;
     text-align: center;
 }
