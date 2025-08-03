@@ -25,6 +25,7 @@
         #3eca43 80%
     );
     --shadow-box: 0 10px 30px rgba(0, 0, 0, 0.4);
+    --shadow-text: 1px 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 /* Thème alternatif */
@@ -55,4 +56,5 @@
         #0a2d08 80%
     );
     --shadow-box: 0 10px 30px rgba(255, 255, 255, 0.4);
+    --shadow-text: 1px 1px 3px rgba(255, 255, 255, 0.4);
 }
