@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
+use App\Entity\UserEntity;
 
 class AdminController extends Controller
 {
@@ -90,7 +90,7 @@ class AdminController extends Controller
         }
 
         // ✅ Création de l'entité User
-        $user = (new User())
+        $user = (new UserEntity())
             ->setPseudo($pseudo)
             ->setEmail($email)
             ->setRoleId(2) // employé

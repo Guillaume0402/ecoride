@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Vehicle;
+use App\Entity\VehicleEntity;
 use App\Repository\VehicleRepository;
 
 class VehicleController extends Controller
@@ -47,7 +47,7 @@ class VehicleController extends Controller
             : null;
 
 
-        $vehicle = new Vehicle([
+        $vehicle = new VehicleEntity([
             'user_id' => $userId,
             'marque' => trim($_POST['marque'] ?? ''),
             'modele' => trim($_POST['modele'] ?? ''),
@@ -124,7 +124,7 @@ class VehicleController extends Controller
 
         $preferences = isset($_POST['preferences']) ? implode(',', $_POST['preferences']) : '';
 
-        $vehicle = new Vehicle([
+        $vehicle = new VehicleEntity([
             'id' => $vehicleId,
             'user_id' => $userId,
             'marque' => trim($_POST['marque'] ?? ''),

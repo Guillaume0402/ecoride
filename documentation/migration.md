@@ -2,17 +2,17 @@
 
 ## 📋 Prérequis
 
-- Docker Desktop installé sur Windows
-- Votre projet EcoRide actuel fonctionnel sous WAMP
-- Accès à votre base de données via phpMyAdmin
+-   Docker Desktop installé sur Windows
+-   Votre projet EcoRide actuel fonctionnel sous WAMP
+-   Accès à votre base de données via phpMyAdmin
 
 ## 🎯 Objectifs de la migration
 
-- Environnement de développement reproductible
-- Facilité de déploiement
-- Isolation des dépendances
-- Configuration versionnée avec le projet
-- Architecture Entity/Model moderne
+-   Environnement de développement reproductible
+-   Facilité de déploiement
+-   Isolation des dépendances
+-   Configuration versionnée avec le projet
+-   Architecture Entity/Model moderne
 
 ## 📂 Structure finale du projet
 
@@ -62,6 +62,7 @@ ecoride/
 ## 🔧 Étape 1 : Sauvegarde de votre base de données
 
 ### 1.1 Export depuis phpMyAdmin (WAMP)
+
 1. Ouvrez phpMyAdmin : `http://localhost/phpmyadmin`
 2. Sélectionnez votre base de données EcoRide
 3. Cliquez sur l'onglet "Exporter"
@@ -69,6 +70,7 @@ ecoride/
 5. Cliquez sur "Exécuter" et sauvegardez le fichier `ecoride_backup.sql`
 
 ### 1.2 Préparation du fichier d'initialisation
+
 Renommez votre fichier exporté en `init.sql` et placez-le à la racine du projet.
 
 ## 🔧 Étape 2 : Configuration Docker
@@ -111,24 +113,24 @@ EXPOSE 80
 ```apache
 <VirtualHost *:80>
     DocumentRoot /var/www/html/public
-    
+
     <Directory /var/www/html/public>
         Options Indexes FollowSymLinks
         AllowOverride All
         Require all granted
-        
+
         # URL Rewriting pour le Router
         RewriteEngine On
         RewriteCond %{REQUEST_FILENAME} !-f
         RewriteCond %{REQUEST_FILENAME} !-d
         RewriteRule ^(.*)$ index.php [QSA,L]
     </Directory>
-    
+
     # Sécurité : Bloquer l'accès aux dossiers sensibles
     <Directory /var/www/html/src>
         Deny from all
     </Directory>
-    
+
     <Directory /var/www/html/config>
         Deny from all
     </Directory>
@@ -138,76 +140,77 @@ EXPOSE 80
 ### 2.3 Création du docker-compose.yml
 
 ```yaml
-version: '3.8'
+version: "3.8"
 
 services:
-  # Service Web (Apache + PHP)
-  web:
-    build: .
-    container_name: ecoride_web
-    ports:
-      - "8080:80"
-    volumes:
-      - .:/var/www/html
-      - ./logs:/var/log/apache2
-    depends_on:
-      - db
-    environment:
-      - APP_ENV=development
-      - APP_DEBUG=true
-      - DB_HOST=db
-      - DB_NAME=ecoride_db
-      - DB_USER=ecoride_user
-      - DB_PASS=ecoride_password
-      - DB_PORT=3306
-    networks:
-      - ecoride_network
+    # Service Web (Apache + PHP)
+    web:
+        build: .
+        container_name: ecoride_web
+        ports:
+            - "8080:80"
+        volumes:
+            - .:/var/www/html
+            - ./logs:/var/log/apache2
+        depends_on:
+            - db
+        environment:
+            - APP_ENV=development
+            - APP_DEBUG=true
+            - DB_HOST=db
+            - DB_NAME=ecoride_db
+            - DB_USER=ecoride_user
+            - DB_PASS=ecoride_password
+            - DB_PORT=3306
+        networks:
+            - ecoride_network
 
-  # Service Base de données MySQL
-  db:
-    image: mysql:8.0
-    container_name: ecoride_db
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: ecoride_db
-      MYSQL_USER: ecoride_user
-      MYSQL_PASSWORD: ecoride_password
-    ports:
-      - "3307:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./docker/mysql-config.cnf:/etc/mysql/conf.d/custom.cnf
-    networks:
-      - ecoride_network
+    # Service Base de données MySQL
+    db:
+        image: mysql:8.0
+        container_name: ecoride_db
+        environment:
+            MYSQL_ROOT_PASSWORD: root_password
+            MYSQL_DATABASE: ecoride_db
+            MYSQL_USER: ecoride_user
+            MYSQL_PASSWORD: ecoride_password
+        ports:
+            - "3307:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+            - ./docker/mysql-config.cnf:/etc/mysql/conf.d/custom.cnf
+        networks:
+            - ecoride_network
 
-  # phpMyAdmin pour gérer la base de données
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: ecoride_phpmyadmin
-    ports:
-      - "8081:80"
-    environment:
-      PMA_HOST: db
-      PMA_USER: ecoride_user
-      PMA_PASSWORD: ecoride_password
-      PMA_ROOT_PASSWORD: root_password
-    depends_on:
-      - db
-    networks:
-      - ecoride_network
+    # phpMyAdmin pour gérer la base de données
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: ecoride_phpmyadmin
+        ports:
+            - "8081:80"
+        environment:
+            PMA_HOST: db
+            PMA_USER: ecoride_user
+            PMA_PASSWORD: ecoride_password
+            PMA_ROOT_PASSWORD: root_password
+        depends_on:
+            - db
+        networks:
+            - ecoride_network
 
 volumes:
-  mysql_data:
+    mysql_data:
 
 networks:
-  ecoride_network:
-    driver: bridge
+    ecoride_network:
+        driver: bridge
 ```
 
 ### 2.4 Fichiers de configuration
 
 #### .env
+
 ```env
 # Configuration de la base de données
 DB_HOST=db
@@ -228,6 +231,7 @@ HASH_SALT=your_random_salt_here
 ```
 
 #### .dockerignore
+
 ```
 .git
 .gitignore
@@ -259,7 +263,7 @@ class Mysql
     private string $dbHost;
     private ?\PDO $pdo = null;
     private static ?self $_instance = null;
- 
+
     private function __construct()
     {
         // Chargement de la configuration depuis les variables d'environnement
@@ -275,14 +279,14 @@ class Mysql
         if (self::$_instance === null) {
             self::$_instance = new self();
         }
-        return self::$_instance; 
+        return self::$_instance;
     }
 
     public function getPDO(): \PDO
     {
         if (is_null($this->pdo)) {
             $dsn = "mysql:host={$this->dbHost};charset=utf8;dbname={$this->dbName};port={$this->dbPort}";
-            
+
             try {
                 $this->pdo = new \PDO($dsn, $this->dbUser, $this->dbPassword, [
                     \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
@@ -305,7 +309,7 @@ class Mysql
 <?php
 namespace App\Entity;
 
-class User 
+class User
 {
     private ?int $id = null;
     private string $pseudo;
@@ -325,29 +329,29 @@ class User
     }
 
     // Getters/Setters...
-    
-    public function hashPassword(string $plainPassword): void 
+
+    public function hashPassword(string $plainPassword): void
     {
         $this->password = password_hash($plainPassword, PASSWORD_DEFAULT);
     }
 
-    public function verifyPassword(string $plainPassword): bool 
+    public function verifyPassword(string $plainPassword): bool
     {
         return password_verify($plainPassword, $this->password);
     }
 
-    public function validate(): array 
+    public function validate(): array
     {
         $errors = [];
-        
+
         if (empty($this->pseudo) || strlen($this->pseudo) < 3) {
             $errors[] = "Le pseudo doit contenir au moins 3 caractères";
         }
-        
+
         if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
             $errors[] = "Email invalide";
         }
-        
+
         return $errors;
     }
 }
@@ -360,29 +364,29 @@ class User
 <?php
 namespace App\Model;
 
-use App\Entity\User;
+use App\Entity\UserEntity;
 use App\Db\Mysql;
 
-class UserModel 
+class UserModel
 {
     private \PDO $conn;
     private string $table = "users";
 
-    public function __construct() 
+    public function __construct()
     {
         $this->conn = Mysql::getInstance()->getPDO();
     }
 
-    public function findByEmail(string $email): ?User 
+    public function findByEmail(string $email): ?User
     {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE email = :email");
         $stmt->execute([':email' => $email]);
-        
+
         $data = $stmt->fetch();
         return $data ? $this->hydrate($data) : null;
     }
 
-    public function save(User $user): bool 
+    public function save(User $user): bool
     {
         $errors = $user->validate();
         if (!empty($errors)) {
@@ -392,20 +396,20 @@ class UserModel
         return $user->getId() ? $this->update($user) : $this->create($user);
     }
 
-    private function hydrate(array $data): User 
+    private function hydrate(array $data): User
     {
-        $user = new User($data['pseudo'], $data['email']);
+        $user = new UserEntity($data['pseudo'], $data['email']);
         $user->setId((int)$data['id'])
              ->setPassword($data['password'])
              ->setRoleId((int)$data['role_id'])
              ->setCredits((int)$data['credits'])
              ->setNote((float)$data['note'])
              ->setPhoto($data['photo']);
-        
+
         if ($data['created_at']) {
             $user->setCreatedAt(new \DateTime($data['created_at']));
         }
-        
+
         return $user;
     }
 }
@@ -428,14 +432,14 @@ define('APP_DEBUG', $_ENV['APP_DEBUG'] === 'true');
 spl_autoload_register(function ($class) {
     $prefix = 'App\\';
     $baseDir = APP_ROOT . '/src/';
-    
+
     if (strncmp($prefix, $class, strlen($prefix)) !== 0) {
         return;
     }
-    
+
     $relativeClass = substr($class, strlen($prefix));
     $file = $baseDir . str_replace('\\', '/', $relativeClass) . '.php';
-    
+
     if (file_exists($file)) {
         require $file;
     }
@@ -498,13 +502,14 @@ docker-compose ps
 
 ### 5.2 Accès aux services
 
-- **Application EcoRide** : http://localhost:8080
-- **phpMyAdmin** : http://localhost:8081
-- **Base de données** : localhost:3307
+-   **Application EcoRide** : http://localhost:8080
+-   **phpMyAdmin** : http://localhost:8081
+-   **Base de données** : localhost:3307
 
 ### 5.3 Tests de validation
 
 #### Test de connexion base de données
+
 ```php
 // test_connection.php
 <?php
@@ -515,12 +520,12 @@ use App\Db\Mysql;
 try {
     $db = Mysql::getInstance();
     $pdo = $db->getPDO();
-    
+
     echo "✅ Connexion réussie !<br>";
-    
+
     $stmt = $pdo->query("SHOW TABLES");
     $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
-    
+
     echo "📋 Tables trouvées :<br>";
     foreach ($tables as $table) {
         echo "- " . $table . "<br>";
@@ -531,30 +536,31 @@ try {
 ```
 
 #### Test Entity/Model
+
 ```php
 // test_user.php
 <?php
 require_once 'config/app.php';
 
-use App\Entity\User;
+use App\Entity\UserEntity;
 use App\Model\UserModel;
 
 try {
     // Test Entity
-    $user = new User('TestUser', 'test@example.com');
+    $user = new UserEntity('TestUser', 'test@example.com');
     $user->hashPassword('password123');
-    
+
     echo "✅ Entity User créée<br>";
     echo "Pseudo: " . $user->getPseudo() . "<br>";
     echo "Email: " . $user->getEmail() . "<br>";
-    
+
     // Test Model
-    $userModel = new UserModel();
-    
+    $userModel = new UserEntityModel();
+
     if ($userModel->save($user)) {
         echo "✅ Utilisateur sauvegardé avec l'ID: " . $user->getId() . "<br>";
     }
-    
+
 } catch (Exception $e) {
     echo "❌ Erreur : " . $e->getMessage();
 }
@@ -581,6 +587,7 @@ docker stats                           # Utilisation des ressources
 ## 📊 Monitoring et maintenance
 
 ### Logs applicatifs
+
 ```bash
 # Logs Apache
 docker-compose logs web
@@ -593,6 +600,7 @@ docker-compose logs -f
 ```
 
 ### Backup de la base de données
+
 ```bash
 # Export
 docker-compose exec db mysqldump -u ecoride_user -p ecoride_db > backup.sql

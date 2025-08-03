@@ -2,9 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
-use App\Entity\Vehicle;
-use App\Repository\UserRepository;
 use App\Repository\VehicleRepository;
 
 class ProfilController extends Controller

@@ -10,6 +10,10 @@
     --list-text: #0a0a0a;
     --color-border: #000000;
 
+    --table-bg: var(--color-fade-white);
+    --table-text: var(--list-text);
+    --table-border: var(--color-border);
+
     --bg-gradient: linear-gradient(
         135deg,
         #eafff5 0%,
@@ -39,6 +43,10 @@
     --list-hover: #283928;
     --list-text: #e0ffe7;
     --color-border: #ffffff;
+    
+    --table-bg: #0f2d0c;
+    --table-text: #e0ffe7;
+    --table-border: #28be23;
 
     --bg-gradient: linear-gradient(
         135deg,

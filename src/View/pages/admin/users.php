@@ -1,6 +1,6 @@
 <div class="d-flex" style="min-height: 100vh;">
     <!-- Sidebar -->
-    <nav class="bg-dark text-white p-3" style="width: 250px;">
+    <nav class="admin-side p-3" style="width: 250px;">
         <h4 class="text-white mb-4">Admin</h4>
         <ul class="nav flex-column gap-2">
             <li class="nav-item">
@@ -94,93 +94,96 @@
                     </div>
                 </div>
 
-
-                <table class="table table-bordered table-hover align-middle bg-white text-dark table-striped">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Pseudo</th>
-                            <th>Email</th>
-                            <th>Rôle</th>
-                            <th>Crédits</th>
-                            <th>Créé le</th>
-                            <th class="actions-col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (!empty($employees)) : ?>
-                            <?php foreach ($employees as $employee): ?>
-                                <tr>
-                                    <td><?= $employee->getId() ?></td>
-                                    <td><?= htmlspecialchars($employee->getPseudo()) ?></td>
-                                    <td><?= htmlspecialchars($employee->getEmail()) ?></td>
-                                    <td><?= ucfirst($employee->getRoleId()) ?></td>
-                                    <td><?= $employee->getCredits() ?></td>
-                                    <td><?= $employee->getCreatedAt()
-                                            ? $employee->getCreatedAt()->format('d/m/Y')
-                                            : '' ?></td>
-                                    <td class="actions-col-user">
-                                        <!-- Supprimer -->
-                                        <a href="/admin/users/delete/<?= $employee->getId() ?>"
-                                            class="btn btn-sm btn-danger delete-btn"
-                                            data-type="employé"
-                                            data-action="supprimer">
-
-                                            <i class="bi bi-trash"></i>
-                                        </a>
-
-                                        <!-- Activer / Désactiver -->
-                                        <form action="/admin/users/toggle/<?= $employee->getId() ?>"
-                                            method="POST"
-                                            class="d-inline">
-                                            <button type="submit"
-                                                class="btn btn-sm <?= $employee->getIsActive() ? 'btn-success' : 'btn-warning' ?> toggle-btn"
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle bg-white text-dark table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Pseudo</th>
+                                <th>Email</th>
+                                <th>Rôle</th>
+                                <th>Crédits</th>
+                                <th>Créé le</th>
+                                <th class="actions-col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($employees)) : ?>
+                                <?php foreach ($employees as $employee): ?>
+                                    <tr>
+                                        <td data-label="ID"><?= $employee->getId() ?></td>
+                                        <td data-label="Pseudo"><?= htmlspecialchars($employee->getPseudo()) ?></td>
+                                        <td data-label="Email"><?= htmlspecialchars($employee->getEmail()) ?></td>
+                                        <td data-label="Rôle"><?= ucfirst($employee->getRoleId()) ?></td>
+                                        <td data-label="Crédits"><?= $employee->getCredits() ?></td>
+                                        <td data-label="Créé le"><?= $employee->getCreatedAt()
+                                                                        ? $employee->getCreatedAt()->format('d/m/Y')
+                                                                        : '' ?></td>
+                                        <td class="actions-col-user">
+                                            <!-- Supprimer -->
+                                            <a href="/admin/users/delete/<?= $employee->getId() ?>"
+                                                class="btn btn-sm btn-danger delete-btn"
                                                 data-type="employé"
-                                                data-action="<?= $employee->getIsActive() ? 'désactiver' : 'activer' ?>">
-                                                <i class="bi <?= $employee->getIsActive() ? 'bi-check-circle' : 'bi-x-circle' ?>"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <?php endforeach ?>
-                        <?php endif ?>
+                                                data-action="supprimer">
 
-                    </tbody>
-                </table>
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+
+                                            <!-- Activer / Désactiver -->
+                                            <form action="/admin/users/toggle/<?= $employee->getId() ?>"
+                                                method="POST"
+                                                class="d-inline">
+                                                <button type="submit"
+                                                    class="btn btn-sm <?= $employee->getIsActive() ? 'btn-success' : 'btn-warning' ?> toggle-btn"
+                                                    data-type="employé"
+                                                    data-action="<?= $employee->getIsActive() ? 'désactiver' : 'activer' ?>">
+                                                    <i class="bi <?= $employee->getIsActive() ? 'bi-check-circle' : 'bi-x-circle' ?>"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach ?>
+                            <?php endif ?>
+
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <!-- Onglet Utilisateurs -->
             <div class="tab-pane fade <?= (($_SESSION['active_tab'] ?? '') === 'utilisateurs') ? 'show active' : '' ?>" id="utilisateurs">
-                <table class="table table-bordered table-hover align-middle bg-white text-dark table-striped">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Pseudo</th>
-                            <th>Email</th>
-                            <th>Rôle</th>
-                            <th>Crédits</th>
-                            <th>Créé le</th>
-                            <th class="actions-col-user">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($users as $user): ?>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle bg-white text-dark table-striped">
+                        <thead class="table-dark">
                             <tr>
-                                <td><?= $user->getId() ?></td>
-                                <td><?= htmlspecialchars($user->getPseudo()) ?></td>
-                                <td><?= htmlspecialchars($user->getEmail()) ?></td>
-                                <td><?= ucfirst($user->getRoleId()) ?></td>
-                                <td><?= $user->getCredits() ?></td>
-                                <td><?= $user->getCreatedAt() ? $user->getCreatedAt()->format('d/m/Y') : '' ?></td>
-                                <td class="actions-col-user">
-                                    <a href="/admin/users/delete/<?= $user->getId() ?>" class="btn btn-sm btn-danger delete-btn"
-                                        data-type="utilisateur">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </td>
+                                <th>ID</th>
+                                <th>Pseudo</th>
+                                <th>Email</th>
+                                <th>Rôle</th>
+                                <th>Crédits</th>
+                                <th>Créé le</th>
+                                <th class="actions-col-user">Actions</th>
                             </tr>
-                        <?php endforeach ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($users as $user): ?>
+                                <tr>
+                                    <td data-label="ID"><?= $user->getId() ?></td>
+                                    <td data-label="Pseudo"><?= htmlspecialchars($user->getPseudo()) ?></td>
+                                    <td data-label="Email"><?= htmlspecialchars($user->getEmail()) ?></td>
+                                    <td data-label="Rôle"><?= ucfirst($user->getRoleId()) ?></td>
+                                    <td data-label="Crédits"><?= $user->getCredits() ?></td>
+                                    <td data-label="Créé le"><?= $user->getCreatedAt() ? $user->getCreatedAt()->format('d/m/Y') : '' ?></td>
+                                    <td class="actions-col-user">
+                                        <a href="/admin/users/delete/<?= $user->getId() ?>" class="btn btn-sm btn-danger delete-btn"
+                                            data-type="utilisateur">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </section>

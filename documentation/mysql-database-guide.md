@@ -282,7 +282,7 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        $this->userModel = new User();
+        $this->userModel = new UserEntity();
     }
 
     /**

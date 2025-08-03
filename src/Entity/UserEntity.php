@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-class User
+class UserEntity
 {
     private ?int $id = null;
     private string $pseudo;

@@ -24,7 +24,7 @@ class Controller
     protected function render(string $view, array $data = []): void
     {
         extract($data);
-        
+
         $viewPath = APP_ROOT . '/src/View/' . ltrim($view, '/') . '.php';
         if (!file_exists($viewPath)) {
             throw new \Exception("Le fichier de vue {$viewPath} n'existe pas.");
@@ -33,7 +33,7 @@ class Controller
         ob_start();
         require $viewPath;
         $content = ob_get_clean();
-        
+
         require APP_ROOT . '/src/View/layout.php';
     }
 }

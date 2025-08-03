@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-class Vehicle
+class VehicleEntity
 {
     private ?int $id;
     private int $userId;

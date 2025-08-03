@@ -2,24 +2,24 @@
 
 namespace App\Service;
 
-use App\Entity\User;
+use App\Entity\UserEntity;
 
 class UserService
 {
     // ===========================
     //  Sécurité
     // ===========================
-    public function hashPassword(User $user, string $plainPassword): void
+    public function hashPassword(UserEntity $user, string $plainPassword): void
     {
         $user->setPassword(password_hash($plainPassword, PASSWORD_DEFAULT));
     }
 
-    public function verifyPassword(User $user, string $plainPassword): bool
+    public function verifyPassword(UserEntity $user, string $plainPassword): bool
     {
         return password_verify($plainPassword, $user->getPassword());
     }
 
-    public function isValidEmail(User $user): bool
+    public function isValidEmail(UserEntity $user): bool
     {
         return filter_var($user->getEmail(), FILTER_VALIDATE_EMAIL) !== false;
     }
@@ -27,7 +27,7 @@ class UserService
     // ===========================
     //  Gestion de l'utilisateur
     // ===========================
-    public function validate(User $user): array
+    public function validate(UserEntity $user): array
     {
         $errors = [];
 
@@ -56,7 +56,7 @@ class UserService
         return $errors;
     }
 
-    public function getRoleName(User $user): string
+    public function getRoleName(UserEntity $user): string
     {
         return match ($user->getRoleId()) {
             1 => 'Utilisateur',
@@ -66,12 +66,12 @@ class UserService
         };
     }
 
-    public function isAdmin(User $user): bool
+    public function isAdmin(UserEntity $user): bool
     {
         return $user->getRoleId() === 3;
     }
 
-    public function getInitiales(User $user): string
+    public function getInitiales(UserEntity $user): string
     {
         $words = explode(' ', $user->getPseudo());
         $initiales = '';
@@ -84,14 +84,14 @@ class UserService
     // ===========================
     //  Gestion des crédits
     // ===========================
-    public function addCredits(User $user, int $amount): void
+    public function addCredits(UserEntity $user, int $amount): void
     {
         if ($amount > 0) {
             $user->setCredits($user->getCredits() + $amount);
         }
     }
 
-    public function debitCredits(User $user, int $amount): bool
+    public function debitCredits(UserEntity $user, int $amount): bool
     {
         if ($amount > 0 && $user->getCredits() >= $amount) {
             $user->setCredits($user->getCredits() - $amount);
@@ -100,7 +100,7 @@ class UserService
         return false;
     }
 
-    public function hasEnoughCredits(User $user, int $amount): bool
+    public function hasEnoughCredits(UserEntity $user, int $amount): bool
     {
         return $user->getCredits() >= $amount;
     }
@@ -108,7 +108,7 @@ class UserService
     // ===========================
     //  Note utilisateur
     // ===========================
-    public function updateNote(User $user, float $newNote): void
+    public function updateNote(UserEntity $user, float $newNote): void
     {
         if ($newNote >= 0 && $newNote <= 5) {
             $user->setNote(round($newNote, 2));
@@ -118,12 +118,12 @@ class UserService
     // ===========================
     //  Gestion de la photo
     // ===========================
-    public function hasPhoto(User $user): bool
+    public function hasPhoto(UserEntity $user): bool
     {
         return !empty($user->getPhoto());
     }
 
-    public function getPhotoUrl(User $user): string
+    public function getPhotoUrl(UserEntity $user): string
     {
         return $user->getPhoto() ?? '/assets/images/default-avatar.png';
     }
@@ -131,7 +131,7 @@ class UserService
     // ===========================
     //  Conversion en tableau
     // ===========================
-    public function toArray(User $user, bool $includePassword = false): array
+    public function toArray(UserEntity $user, bool $includePassword = false): array
     {
         $data = [
             'id'          => $user->getId(),

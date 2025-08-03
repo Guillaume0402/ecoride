@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
+use App\Entity\UserEntity;
 
 class AuthController extends Controller
 {
@@ -33,7 +33,7 @@ class AuthController extends Controller
             }
 
             // Création de l’objet User
-            $user = (new User())
+            $user = (new UserEntity())
                 ->setPseudo($data['username'])
                 ->setEmail($data['email']);
 
@@ -127,9 +127,9 @@ class AuthController extends Controller
         redirect('/?logout=1');
     }
 
-    
+
     // Helper pour les réponses JSON avec gestion d’erreurs
-   
+
     private function jsonResponse(callable $callback): void
     {
         header('Content-Type: application/json');
@@ -148,10 +148,10 @@ class AuthController extends Controller
         exit;
     }
 
-    
+
     // Création de session uniforme et sécurisée
-     
-    private function createUserSession(User $user): void
+
+    private function createUserSession(UserEntity $user): void
     {
         session_regenerate_id(true);
         $_SESSION['user'] = [

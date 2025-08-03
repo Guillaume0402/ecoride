@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Entity\User;
+use App\Entity\UserEntity;
 use App\Db\Mysql;
 
 class UserRepository
@@ -15,7 +15,7 @@ class UserRepository
         $this->conn = Mysql::getInstance()->getPDO();
     }
 
-    public function create(User $user): bool
+    public function create(UserEntity $user): bool
     {
         $this->validateTravelRole($user);
 
@@ -43,7 +43,7 @@ class UserRepository
         return $result;
     }
 
-    public function update(User $user): bool
+    public function update(UserEntity $user): bool
     {
         $this->validateTravelRole($user);
 
@@ -68,28 +68,28 @@ class UserRepository
         ]);
     }
 
-    public function findById(int $id): ?User
+    public function findById(int $id): ?UserEntity
     {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE id = :id");
         $stmt->execute([':id' => $id]);
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $data ? new User($data) : null;
+        return $data ? new UserEntity($data) : null;
     }
 
-    public function findByEmail(string $email): ?User
+    public function findByEmail(string $email): ?UserEntity
     {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE email = :email");
         $stmt->execute([':email' => $email]);
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $data ? new User($data) : null;
+        return $data ? new UserEntity($data) : null;
     }
 
-    public function findByPseudo(string $pseudo): ?User
+    public function findByPseudo(string $pseudo): ?UserEntity
     {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE pseudo = :pseudo");
         $stmt->execute([':pseudo' => $pseudo]);
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $data ? new User($data) : null;
+        return $data ? new UserEntity($data) : null;
     }
 
     public function findAllWithRoles(array $roleIds): array
@@ -104,7 +104,7 @@ class UserRepository
         $stmt->execute($roleIds);
         $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        return array_map(fn($data) => new User($data), $results);
+        return array_map(fn($data) => new UserEntity($data), $results);
     }
 
     public function updateCredits(int $userId, int $newCredits): bool
@@ -163,7 +163,7 @@ class UserRepository
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
         $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        return array_map(fn($data) => new User($data), $results);
+        return array_map(fn($data) => new UserEntity($data), $results);
     }
 
     public function findAllUsers(): array
@@ -175,7 +175,7 @@ class UserRepository
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
         $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        return array_map(fn($data) => new User($data), $results);
+        return array_map(fn($data) => new UserEntity($data), $results);
     }
 
     public function toggleActive(int $userId): bool
@@ -202,7 +202,7 @@ class UserRepository
 
 
 
-    private function validateTravelRole(User $user): void
+    private function validateTravelRole(UserEntity $user): void
     {
         $validRoles = ['passager', 'chauffeur', 'les-deux'];
         if (!in_array($user->getTravelRole(), $validRoles)) {

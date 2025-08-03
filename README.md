@@ -54,7 +54,7 @@ $pdo = $db->getPDO();
 
 ```php
 // Objets métier avec validation
-$user = new User('pseudo', 'email@domain.com');
+$user = new UserEntity('pseudo', 'email@domain.com');
 $user->hashPassword('password');
 $user->validate(); // Retourne les erreurs
 ```
@@ -91,19 +91,19 @@ docker-compose ps
 
 ### 3. Accès aux services
 
-| Service       | URL                      | Identifiants              |
-| ------------- | ------------------------ | ------------------------- |
-| **Application** | http://localhost:8080    | -                         |
-| **phpMyAdmin**  | http://localhost:8081    | ecoride_user / ecoride_password |
-| **Base de données** | localhost:3307       | ecoride_user / ecoride_password |
+| Service             | URL                   | Identifiants                    |
+| ------------------- | --------------------- | ------------------------------- |
+| **Application**     | http://localhost:8080 | -                               |
+| **phpMyAdmin**      | http://localhost:8081 | ecoride_user / ecoride_password |
+| **Base de données** | localhost:3307        | ecoride_user / ecoride_password |
 
 ### 4. Services Docker
 
-| Container          | Service | Port | Description                    |
-| ------------------ | ------- | ---- | ------------------------------ |
+| Container          | Service | Port | Description                   |
+| ------------------ | ------- | ---- | ----------------------------- |
 | ecoride_web        | Web     | 8080 | Apache 2.4 + PHP 8.2          |
 | ecoride_db         | MySQL   | 3307 | MySQL 8.0 + données initiales |
-| ecoride_phpmyadmin | Admin   | 8081 | Interface de gestion BDD       |
+| ecoride_phpmyadmin | Admin   | 8081 | Interface de gestion BDD      |
 
 ---
 
@@ -239,29 +239,29 @@ $router->handleRequest($_SERVER['REQUEST_URI']);
 // Exemple : AuthController
 namespace App\Controller;
 
-use App\Entity\User;
+use App\Entity\UserEntity;
 use App\Model\UserModel;
 
-class AuthController extends Controller 
+class AuthController extends Controller
 {
     private UserModel $userModel;
 
-    public function __construct() 
+    public function __construct()
     {
-        $this->userModel = new UserModel();
+        $this->userModel = new UserEntityModel();
     }
 
-    public function register(): void 
+    public function register(): void
     {
         if ($_POST) {
-            $user = new User($_POST['pseudo'], $_POST['email']);
+            $user = new UserEntity($_POST['pseudo'], $_POST['email']);
             $user->hashPassword($_POST['password']);
-            
+
             if ($this->userModel->save($user)) {
                 $this->redirect('/auth/login?success=1');
             }
         }
-        
+
         $this->render('auth/register');
     }
 }
@@ -271,7 +271,7 @@ class AuthController extends Controller
 
 ```php
 // Entité User avec validation et logique métier
-$user = new User('JohnDoe', 'john@example.com');
+$user = new UserEntity('JohnDoe', 'john@example.com');
 $user->hashPassword('secret123');
 $user->addCredits(50);
 $user->updateNote(4.5);
@@ -288,24 +288,28 @@ if (empty($errors)) {
 ## 🎯 Fonctionnalités développées
 
 ### ✅ Authentification complète
+
 -   **Inscription** : Validation côté serveur et client
 -   **Connexion** : Hash sécurisé des mots de passe
 -   **Sessions** : Gestion des utilisateurs connectés
 -   **Rôles** : Visiteur, Utilisateur, Employé, Admin
 
 ### ✅ Gestion des utilisateurs
+
 -   **Profils** : Informations personnelles et préférences
 -   **Crédits** : Système de points pour les réservations
 -   **Notation** : Système d'avis entre utilisateurs
 -   **Avatar** : Upload et gestion des photos de profil
 
 ### ✅ Système de covoiturage
+
 -   **Publication** : Création de trajets avec véhicule
 -   **Recherche** : Filtres par ville, date, prix
 -   **Réservation** : Gestion des places disponibles
 -   **Historique** : Suivi des trajets effectués
 
 ### ✅ Interface utilisateur
+
 -   **Design responsive** : Mobile-first approach
 -   **Modales interactives** : Login/Register seamless
 -   **Notifications** : Feedback utilisateur en temps réel
@@ -424,6 +428,7 @@ docker-compose down -v && docker-compose up -d
 ## 🧪 Qualité & Bonnes pratiques
 
 ### Standards respectés
+
 -   **PSR-4** : Autoloading des classes
 -   **PSR-12** : Style de code PHP
 -   **HTML5 & CSS3** : Validation W3C
@@ -431,6 +436,7 @@ docker-compose down -v && docker-compose up -d
 -   **Sécurité** : Requêtes préparées, validation, échappement
 
 ### Sécurité implémentée
+
 -   **Hash des mots de passe** : password_hash() / password_verify()
 -   **Requêtes préparées** : Protection contre l'injection SQL
 -   **Validation** : Côté serveur et client
@@ -442,6 +448,7 @@ docker-compose down -v && docker-compose up -d
 ## 📌 Roadmap & Améliorations futures
 
 ### Phase 1 - Core Features ✅
+
 -   [x] Architecture Entity/Model/Controller
 -   [x] Système d'authentification
 -   [x] CRUD utilisateurs
@@ -449,6 +456,7 @@ docker-compose down -v && docker-compose up -d
 -   [x] Interface responsive
 
 ### Phase 2 - Business Logic 🚧
+
 -   [x] CRUD covoiturages
 -   [x] Système de réservation
 -   [ ] Notifications en temps réel
@@ -456,6 +464,7 @@ docker-compose down -v && docker-compose up -d
 -   [ ] API REST pour mobile
 
 ### Phase 3 - Advanced Features 📋
+
 -   [ ] Géolocalisation avec cartes
 -   [ ] Chat entre utilisateurs
 -   [ ] Application mobile (PWA)
@@ -463,6 +472,7 @@ docker-compose down -v && docker-compose up -d
 -   [ ] CI/CD avec GitHub Actions
 
 ### Phase 4 - Performance & Scale 🎯
+
 -   [ ] Cache Redis
 -   [ ] CDN pour les assets
 -   [ ] Load balancing
@@ -476,12 +486,14 @@ docker-compose down -v && docker-compose up -d
 **Projet académique** réalisé dans le cadre de l'**ECF TP DWWM – Studi**.
 
 ### Ressources et inspiration
+
 -   [PHP Official Documentation](https://www.php.net/docs.php)
 -   [Docker Documentation](https://docs.docker.com/)
 -   [Bootstrap 5](https://getbootstrap.com/)
 -   [SASS Guidelines](https://sass-guidelin.es/)
 
 ### Usage
+
 🎓 **Usage pédagogique uniquement** - Projet d'évaluation professionnelle
 
 ---
@@ -496,6 +508,6 @@ Pour toute question technique ou suggestion :
 
 ---
 
-**EcoRide** - *Covoiturage responsable pour un futur durable* 🌱
+**EcoRide** - _Covoiturage responsable pour un futur durable_ 🌱
 
 _Dernière mise à jour : Juillet 2025 - Version 2.0_

@@ -25,3 +25,95 @@
     text-align: center;
     vertical-align: middle;
 }
+
+/* Wrapper responsive pour tableau */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    .table {
+        min-width: 400px;
+        background-color: var(--table-bg);
+        color: var(--table-text);
+        border-color: var(--table-border);
+
+        th, td {
+            background-color: var(--table-bg);
+            color: var(--table-text);
+            border-color: var(--table-border);
+        }
+
+        thead {
+            background-color: var(--color-primary);
+            color: var(--text-white);
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .table-responsive .table {
+        min-width: unset !important;
+        width: 100%;
+    }
+
+    .admin-side {
+        position: fixed;
+        top: 0;
+        left: -250px;
+        width: 250px;
+        height: 100%;
+        background: $color-primary;
+        transition: left 0.3s ease;
+        z-index: 1050;
+    }
+
+    .admin-side.open {
+        left: 0;
+    }
+
+    .container.py-5 {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding-top: 80px;
+    }
+
+    table.table thead {
+        display: none;
+    }
+
+    table.table tbody tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid var(--table-border);
+        border-radius: 5px;
+        padding: 0.5rem;
+        background-color: var(--table-bg);
+        color: var(--table-text);
+        box-shadow: var(--shadow-box);
+    }
+
+    table.table tbody td {
+        display: flex;
+        justify-content: flex-start;
+        gap: 8px;
+        padding: 0.5rem;
+        border: none;
+        border-bottom: 1px solid var(--table-border);
+        color: var(--table-text);
+    }
+
+    td.actions-col-user {
+        justify-content: center;
+    }
+
+    table.table tbody td:last-child {
+        border-bottom: none;
+    }
+
+    table.table tbody td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: var(--table-text);
+    }
+}

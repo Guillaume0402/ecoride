@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Db\Mysql;
-use App\Entity\Vehicle;
+use App\Entity\VehicleEntity;
 
 class VehicleRepository
 {
@@ -15,7 +15,7 @@ class VehicleRepository
         $this->conn = Mysql::getInstance()->getPDO();
     }
 
-    public function create(Vehicle $vehicle): bool
+    public function create(VehicleEntity $vehicle): bool
     {
         $sql = "INSERT INTO {$this->table} (
                 user_id, marque, modele, couleur, immatriculation,
@@ -28,7 +28,7 @@ class VehicleRepository
             )";
 
         $stmt = $this->conn->prepare($sql);
-        
+
         $result = $stmt->execute([
             ':user_id'        => $vehicle->getUserId(),
             ':marque'         => $vehicle->getMarque(),
@@ -49,7 +49,7 @@ class VehicleRepository
         return $result;
     }
 
-    public function update(Vehicle $vehicle): bool
+    public function update(VehicleEntity $vehicle): bool
     {
         $sql = "UPDATE {$this->table} SET 
                 marque = :marque,
@@ -91,7 +91,7 @@ class VehicleRepository
         return $stmt->execute([':user_id' => $userId]);
     }
 
-    public function findById(int $id): ?Vehicle
+    public function findById(int $id): ?VehicleEntity
     {
         $sql = "SELECT v.*, f.type_name AS fuel_type_name
         FROM {$this->table} v
@@ -101,11 +101,11 @@ class VehicleRepository
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([':id' => $id]);
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
-       
-        return $data ? new Vehicle($data) : null;
+
+        return $data ? new VehicleEntity($data) : null;
     }
 
-    public function findByUserId(int $userId): ?Vehicle
+    public function findByUserId(int $userId): ?VehicleEntity
     {
         $sql = "SELECT v.*, f.type_name AS fuel_type_name
         FROM {$this->table} v
@@ -117,7 +117,7 @@ class VehicleRepository
         $stmt->execute([':user_id' => $userId]);
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        return $data ? new Vehicle($data) : null;
+        return $data ? new VehicleEntity($data) : null;
     }
 
 
@@ -132,7 +132,7 @@ class VehicleRepository
         $stmt->execute([':user_id' => $userId]);
 
         $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        return array_map(fn($data) => new Vehicle($data), $results);
+        return array_map(fn($data) => new VehicleEntity($data), $results);
     }
 
     public function existsByImmatriculation(string $immatriculation, int $userId, ?int $excludeVehicleId = null): bool
@@ -155,13 +155,13 @@ class VehicleRepository
         return (bool) $stmt->fetch();
     }
 
-    public function findByImmatriculation(string $immatriculation): ?Vehicle
+    public function findByImmatriculation(string $immatriculation): ?VehicleEntity
     {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE immatriculation = :immatriculation LIMIT 1");
         $stmt->execute([':immatriculation' => $immatriculation]);
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        return $data ? new Vehicle($data) : null;
+        return $data ? new VehicleEntity($data) : null;
     }
 
     public function getFuelTypes(): array
