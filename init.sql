@@ -1,213 +1,145 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Hôte : 127.0.0.1:3306
--- Généré le : sam. 28 juin 2025 à 12:33
--- Version du serveur : 9.1.0
 -- Version de PHP : 8.3.14
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+-- Charset / Collation
 /*!40101 SET NAMES utf8mb4 */;
 
---
 -- Base de données : `ecoride_db`
---
 
--- --------------------------------------------------------
-
---
--- Structure de la table `covoiturages`
---
-
-DROP TABLE IF EXISTS `covoiturages`;
-CREATE TABLE IF NOT EXISTS `covoiturages` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `chauffeur_id` int NOT NULL,
-  `vehicle_id` int NOT NULL,
-  `adresse_depart` varchar(255) NOT NULL,
-  `adresse_arrivee` varchar(255) NOT NULL,
-  `depart` datetime NOT NULL,
-  `arrivee` datetime NOT NULL,
-  `prix` decimal(10,2) NOT NULL,
-  `places_reservees` int DEFAULT '0',
-  `status` enum('en_attente','demarre','termine','annule') DEFAULT 'en_attente',
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `fk_covoit_chauffeur` (`chauffeur_id`),
-  KEY `fk_covoit_vehicle` (`vehicle_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Structure de la table `covoiturage_logs`
---
-
-DROP TABLE IF EXISTS `covoiturage_logs`;
-CREATE TABLE IF NOT EXISTS `covoiturage_logs` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `covoiturage_id` int NOT NULL,
-  `event` enum('demarrer','arreter') NOT NULL,
-  `event_time` datetime DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `fk_logs_covoit` (`covoiturage_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Structure de la table `fuel_types`
---
-
-DROP TABLE IF EXISTS `fuel_types`;
-CREATE TABLE IF NOT EXISTS `fuel_types` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `type_name` varchar(50) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `type_name` (`type_name`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Déchargement des données de la table `fuel_types`
---
-
-INSERT INTO `fuel_types` (`id`, `type_name`) VALUES
-(1, 'essence'),
-(2, 'diesel'),
-(3, 'electrique'),
-(4, 'hybride');
-
--- --------------------------------------------------------
-
---
--- Structure de la table `participations`
---
-
-DROP TABLE IF EXISTS `participations`;
-CREATE TABLE IF NOT EXISTS `participations` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `covoiturage_id` int NOT NULL,
-  `passager_id` int NOT NULL,
-  `status` enum('confirmee','annulee','en_attente_validation') DEFAULT 'confirmee',
-  `date_participation` datetime DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `covoiturage_id` (`covoiturage_id`,`passager_id`),
-  KEY `fk_participation_passager` (`passager_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Structure de la table `preferences`
---
-
-DROP TABLE IF EXISTS `preferences`;
-CREATE TABLE IF NOT EXISTS `preferences` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int NOT NULL,
-  `preference` varchar(255) NOT NULL,
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `fk_preferences_user` (`user_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Structure de la table `roles`
---
-
-DROP TABLE IF EXISTS `roles`;
+-- roles
 CREATE TABLE IF NOT EXISTS `roles` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `role_name` varchar(50) NOT NULL,
+  `id`   INT NOT NULL AUTO_INCREMENT,
+  `role_name` VARCHAR(50) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `role_name` (`role_name`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `ux_roles_role_name` (`role_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Déchargement des données de la table `roles`
---
+INSERT IGNORE INTO `roles` (`id`, `role_name`) VALUES
+  (1, 'utilisateur'),
+  (2, 'employe'),
+  (3, 'admin');
 
-INSERT INTO `roles` (`id`, `role_name`) VALUES
-(1, 'visiteur'),
-(2, 'utilisateur'),
-(3, 'employe'),
-(4, 'admin');
-
--- --------------------------------------------------------
-
---
--- Structure de la table `transactions`
---
-
-DROP TABLE IF EXISTS `transactions`;
-CREATE TABLE IF NOT EXISTS `transactions` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int NOT NULL,
-  `montant` decimal(10,2) NOT NULL,
-  `type` enum('debit','credit') NOT NULL,
-  `motif` varchar(255) DEFAULT NULL,
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `fk_transactions_user` (`user_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Structure de la table `users`
---
-
-DROP TABLE IF EXISTS `users`;
+-- users
 CREATE TABLE IF NOT EXISTS `users` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `pseudo` varchar(50) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `role_id` int NOT NULL DEFAULT '1',
-  `credits` int DEFAULT '20',
-  `note` decimal(4,2) DEFAULT '0.00',
-  `photo` varchar(255) DEFAULT NULL,
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `id`           INT NOT NULL AUTO_INCREMENT,
+  `pseudo`       VARCHAR(50)  NOT NULL,
+  `email`        VARCHAR(100) NOT NULL,
+  `password`     VARCHAR(255) NOT NULL,
+  `role_id`      INT          NOT NULL DEFAULT 1,
+  `is_active`    TINYINT(1)   NOT NULL DEFAULT 1,
+  `credits`      INT          NULL    DEFAULT 20,
+  `note`         DECIMAL(4,2) NULL    DEFAULT 0.00,
+  `photo`        VARCHAR(255) NULL,
+  `created_at`   DATETIME     NULL    DEFAULT CURRENT_TIMESTAMP,
+  `travel_role`  ENUM('passager','chauffeur','les-deux')
+                   NOT NULL DEFAULT 'passager',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`),
-  KEY `fk_user_role` (`role_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `ux_users_email` (`email`),
+  KEY `fk_users_role` (`role_id`),
+  CONSTRAINT `fk_users_role` FOREIGN KEY (`role_id`)
+    REFERENCES `roles` (`id`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- --------------------------------------------------------
 
---
--- Structure de la table `vehicles`
---
+-- transactions (optionnel si vous l'utilisez tout de suite)
+CREATE TABLE IF NOT EXISTS `transactions` (
+  `id`         INT NOT NULL AUTO_INCREMENT,
+  `user_id`    INT NOT NULL,
+  `montant`    DECIMAL(10,2) NOT NULL,
+  `type`       ENUM('debit','credit') NOT NULL,
+  `motif`      VARCHAR(255) NULL,
+  `created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_transactions_user` (`user_id`),
+  CONSTRAINT `fk_transactions_user` FOREIGN KEY (`user_id`)
+    REFERENCES `users` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-DROP TABLE IF EXISTS `vehicles`;
+-- fuel_types
+CREATE TABLE IF NOT EXISTS `fuel_types` (
+  `id`         INT NOT NULL AUTO_INCREMENT,
+  `type_name`  VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ux_fuel_types_name` (`type_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT IGNORE INTO `fuel_types` (`id`,`type_name`)
+  VALUES (1,'essence'),(2,'diesel'),(3,'electrique'),(4,'hybride');
+
+-- vehicles
 CREATE TABLE IF NOT EXISTS `vehicles` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int NOT NULL,
-  `marque` varchar(50) NOT NULL,
-  `modele` varchar(50) NOT NULL,
-  `couleur` varchar(50) DEFAULT NULL,
-  `immatriculation` varchar(20) NOT NULL,
-  `date_premiere_immatriculation` date NOT NULL,
-  `fuel_type_id` int NOT NULL,
-  `places_dispo` int NOT NULL,
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `id`                             INT NOT NULL AUTO_INCREMENT,
+  `user_id`                        INT NOT NULL,
+  `marque`                         VARCHAR(50) NOT NULL,
+  `modele`                         VARCHAR(50) NOT NULL,
+  `couleur`                        VARCHAR(50) NULL,
+  `immatriculation`                VARCHAR(20) NOT NULL,
+  `date_premiere_immatriculation`  DATE NOT NULL,
+  `fuel_type_id`                   INT NULL,
+  `places_dispo`                   INT NOT NULL,
+  `preferences`                    TEXT NULL,
+  `custom_preferences`             TEXT NULL,
+  `created_at`                     DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `immatriculation` (`immatriculation`),
-  KEY `fk_vehicle_user` (`user_id`),
-  KEY `fk_vehicle_fuel` (`fuel_type_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-COMMIT;
+  UNIQUE KEY `ux_vehicles_immat` (`immatriculation`),
+  KEY `fk_vehicles_user`      (`user_id`),
+  KEY `fk_vehicles_fuel`      (`fuel_type_id`),
+  CONSTRAINT `fk_vehicles_user` FOREIGN KEY (`user_id`)
+    REFERENCES `users` (`id`)
+    ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_vehicles_fuel` FOREIGN KEY (`fuel_type_id`)
+    REFERENCES `fuel_types` (`id`)
+    ON DELETE SET NULL ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+-- 1) Table covoiturages
+CREATE TABLE IF NOT EXISTS `covoiturages` (
+  `id`                INT NOT NULL AUTO_INCREMENT,
+  `driver_id`         INT NOT NULL,
+  `vehicle_id`        INT NOT NULL,
+  `adresse_depart`    VARCHAR(255) NOT NULL,
+  `adresse_arrivee`   VARCHAR(255) NOT NULL,
+  `depart`            DATETIME NOT NULL,
+  `arrivee`           DATETIME NOT NULL,
+  `prix`              DECIMAL(10,2) NOT NULL,
+  `places_reservees`  INT NOT NULL DEFAULT 0,
+  `status`            ENUM('en_attente','demarre','termine','annule')
+                          NOT NULL DEFAULT 'en_attente',
+  `created_at`        DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_covoit_driver`  (`driver_id`),
+  KEY `fk_covoit_vehicle` (`vehicle_id`),
+  CONSTRAINT `fk_covoit_driver` FOREIGN KEY (`driver_id`)
+    REFERENCES `users` (`id`)
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_covoit_vehicle` FOREIGN KEY (`vehicle_id`)
+    REFERENCES `vehicles` (`id`)
+    ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Table participations
+CREATE TABLE IF NOT EXISTS `participations` (
+  `id`                  INT NOT NULL AUTO_INCREMENT,
+  `covoiturage_id`      INT NOT NULL,
+  `passager_id`         INT NOT NULL,
+  `status`              ENUM('confirmee','annulee','en_attente_validation')
+                           NOT NULL DEFAULT 'en_attente_validation',
+  `date_participation`  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_participations_covoit` (`covoiturage_id`),
+  KEY `fk_participations_user` (`passager_id`),
+  CONSTRAINT `fk_participations_covoit` FOREIGN KEY (`covoiturage_id`)
+    REFERENCES `covoiturages` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_participations_user` FOREIGN KEY (`passager_id`)
+    REFERENCES `users` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+COMMIT;
