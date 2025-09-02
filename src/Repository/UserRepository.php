@@ -15,6 +15,11 @@ class UserRepository
         $this->conn = Mysql::getInstance()->getPDO();
     }
 
+    /**
+     * Crée un nouvel utilisateur en base de données
+     * @param UserEntity $user L'entité utilisateur à créer
+     * @return bool True si la création a réussi, false sinon
+     */
     public function create(UserEntity $user): bool
     {
         $this->validateTravelRole($user);
@@ -43,6 +48,11 @@ class UserRepository
         return $result;
     }
 
+    /**
+     * Met à jour un utilisateur existant en base de données
+     * @param UserEntity $user L'entité utilisateur à mettre à jour
+     * @return bool True si la mise à jour a réussi, false sinon
+     */
     public function update(UserEntity $user): bool
     {
         $this->validateTravelRole($user);
@@ -68,6 +78,11 @@ class UserRepository
         ]);
     }
 
+    /**
+     * Trouve un utilisateur par son ID
+     * @param int $id L'ID de l'utilisateur à rechercher
+     * @return UserEntity|null L'entité utilisateur ou null si non trouvé
+     */
     public function findById(int $id): ?UserEntity
     {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE id = :id");
@@ -76,6 +91,11 @@ class UserRepository
         return $data ? new UserEntity($data) : null;
     }
 
+    /**
+     * Trouve un utilisateur par son email
+     * @param string $email L'email de l'utilisateur à rechercher
+     * @return UserEntity|null L'entité utilisateur ou null si non trouvé
+     */
     public function findByEmail(string $email): ?UserEntity
     {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE email = :email");
@@ -84,6 +104,11 @@ class UserRepository
         return $data ? new UserEntity($data) : null;
     }
 
+    /**
+     * Trouve un utilisateur par son pseudo
+     * @param string $pseudo Le pseudo de l'utilisateur à rechercher
+     * @return UserEntity|null L'entité utilisateur ou null si non trouvé
+     */
     public function findByPseudo(string $pseudo): ?UserEntity
     {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE pseudo = :pseudo");
@@ -92,6 +117,11 @@ class UserRepository
         return $data ? new UserEntity($data) : null;
     }
 
+    /**
+     * Trouve tous les utilisateurs ayant certains rôles avec leurs informations de rôle
+     * @param array $roleIds Tableau des IDs de rôles à rechercher
+     * @return array Tableau d'entités UserEntity
+     */
     public function findAllWithRoles(array $roleIds): array
     {
         $placeholders = implode(',', array_fill(0, count($roleIds), '?'));
@@ -107,18 +137,35 @@ class UserRepository
         return array_map(fn($data) => new UserEntity($data), $results);
     }
 
+    /**
+     * Met à jour le nombre de crédits d'un utilisateur
+     * @param int $userId L'ID de l'utilisateur
+     * @param int $newCredits Le nouveau nombre de crédits
+     * @return bool True si la mise à jour a réussi, false sinon
+     */
     public function updateCredits(int $userId, int $newCredits): bool
     {
         $stmt = $this->conn->prepare("UPDATE {$this->table} SET credits = :credits WHERE id = :id");
         return $stmt->execute([':credits' => $newCredits, ':id' => $userId]);
     }
 
+    /**
+     * Met à jour la note d'un utilisateur
+     * @param int $userId L'ID de l'utilisateur
+     * @param float $newNote La nouvelle note
+     * @return bool True si la mise à jour a réussi, false sinon
+     */
     public function updateNote(int $userId, float $newNote): bool
     {
         $stmt = $this->conn->prepare("UPDATE {$this->table} SET note = :note WHERE id = :id");
         return $stmt->execute([':note' => $newNote, ':id' => $userId]);
     }
 
+    /**
+     * Met à jour le profil d'un utilisateur avec des données partielles
+     * @param array $data Tableau associatif contenant les données à mettre à jour
+     * @return void
+     */
     public function updateProfil(array $data): void
     {
         if (!in_array($data['travel_role'], ['passager', 'chauffeur', 'les-deux'])) {
@@ -154,6 +201,10 @@ class UserRepository
         $stmt->execute($params);
     }
 
+    /**
+     * Récupère tous les employés (utilisateurs avec role_id = 2)
+     * @return array Tableau d'entités UserEntity représentant les employés
+     */
     public function findAllEmployees(): array
     {
         $sql = "SELECT u.*, r.role_name AS role_name 
@@ -166,6 +217,10 @@ class UserRepository
         return array_map(fn($data) => new UserEntity($data), $results);
     }
 
+    /**
+     * Récupère tous les utilisateurs standards (utilisateurs avec role_id = 1)
+     * @return array Tableau d'entités UserEntity représentant les utilisateurs
+     */
     public function findAllUsers(): array
     {
         $sql = "SELECT u.*, r.role_name AS role_name 
@@ -178,6 +233,11 @@ class UserRepository
         return array_map(fn($data) => new UserEntity($data), $results);
     }
 
+    /**
+     * Bascule le statut actif/inactif d'un utilisateur
+     * @param int $userId L'ID de l'utilisateur
+     * @return bool True si la bascule a réussi, false sinon
+     */
     public function toggleActive(int $userId): bool
     {
         $stmt = $this->conn->prepare("SELECT is_active FROM {$this->table} WHERE id = :id");
@@ -194,6 +254,11 @@ class UserRepository
         return $updateStmt->execute([':status' => $newStatus, ':id' => $userId]);
     }
 
+    /**
+     * Supprime un utilisateur de la base de données
+     * @param int $userId L'ID de l'utilisateur à supprimer
+     * @return bool True si la suppression a réussi, false sinon
+     */
     public function delete(int $userId): bool
     {
         $stmt = $this->conn->prepare("DELETE FROM {$this->table} WHERE id = :id");
@@ -201,7 +266,9 @@ class UserRepository
     }
 
 
-
+    /*
+    Valide et corrige le rôle de voyage d'un utilisateur     
+    */
     private function validateTravelRole(UserEntity $user): void
     {
         $validRoles = ['passager', 'chauffeur', 'les-deux'];
