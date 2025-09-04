@@ -2,11 +2,7 @@
 
 namespace App\Controller;
 
-/**
- * Contrôleur dédié aux utilisateurs.
- * - Protège l'accès en vérifiant la session.
- * - Liste les utilisateurs et affiche un profil.
- */
+// Contrôleur utilisateurs: garde d'accès + listing et affichage profil
 class UserController extends Controller
 {
     // Initialise les dépendances et protège les routes en exigeant une session utilisateur active.     
@@ -21,10 +17,7 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Affiche la liste des utilisateurs standard.
-     * Récupère les utilisateurs via le dépôt puis rend la vue correspondante.
-     */
+    // Liste les utilisateurs standard et rend la vue
     public function listUsers(): void
     {
         // Récupération de tous les utilisateurs (role_id = 1)
@@ -36,11 +29,7 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Affiche le profil d'un utilisateur par son identifiant.
-     * 404 si l'utilisateur n'existe pas.     *
-     * @param int $id Identifiant de l'utilisateur
-     */
+    // Affiche un profil utilisateur; 404 si non trouvé
     public function show(int $id): void
     {
         // Récupération de l'utilisateur

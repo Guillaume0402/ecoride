@@ -4,24 +4,26 @@ namespace App\Entity;
 
 class UserEntity
 {
+    // Champs mappés à la table users (valeurs par défaut pour un compte standard)
     private ?int $id = null;
     private string $pseudo;
     private string $email;
     private string $password;
-    private int $roleId = 1;
+    private int $roleId = 1; // 1 = utilisateur
     private int $credits = 20;
     private float $note = 0.00;
     private ?string $photo = null;
-    private ?\DateTimeImmutable $createdAt = null;
-    private string $travelRole = 'passager';
-    private int $isActive = 1;
+    private ?\DateTimeImmutable $createdAt = null; // date de création
+    private string $travelRole = 'passager'; // passager|chauffeur|les-deux
+    private int $isActive = 1; // 1 actif / 0 inactif
 
-    //  Constructeur accepte directement un tableau pour l'hydratation
+    // Constructeur: permet l'hydratation depuis un tableau associatif
     public function __construct(array $data = [])
     {
         if (!empty($data)) {
             $this->hydrate($data);
         }
+        // Valeur par défaut si non fournie
         if (!$this->createdAt) {
             $this->createdAt = new \DateTimeImmutable();
         }
@@ -130,12 +132,13 @@ class UserEntity
         return $this;
     }
 
-    //  Hydratation automatique
+    // Hydratation: convertit les clés snake_case en setters (setPseudo, setCreatedAt, ...)
     private function hydrate(array $data): void
     {
         foreach ($data as $key => $value) {
             $method = 'set' . str_replace('_', '', ucwords($key, '_'));
             if (method_exists($this, $method)) {
+                // created_at (string) -> DateTimeImmutable
                 if ($key === 'created_at' && $value) {
                     $value = new \DateTimeImmutable($value);
                 }

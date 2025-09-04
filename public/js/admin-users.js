@@ -1,10 +1,11 @@
+// Actions de gestion des utilisateurs côté admin: alertes, confirmations, modales
 document.addEventListener("DOMContentLoaded", () => {
-    // Gestion des alertes auto
+    // Masque automatiquement les alertes après un délai
     document.querySelectorAll(".custom-alert").forEach((alert) => {
         setTimeout(() => alert.classList.add("fade-out"), 3000);
     });
 
-    // Confirmation suppression
+    // Demande de confirmation avant suppression
     document.querySelectorAll(".delete-btn").forEach((button) => {
         button.addEventListener("click", (e) => {
             e.preventDefault();
@@ -17,8 +18,9 @@ document.addEventListener("DOMContentLoaded", () => {
             ).textContent = `Voulez-vous vraiment ${action} cet ${type} ?`;
 
             const confirmBtn = document.getElementById("confirmDeleteBtn");
+            // Met à jour le libellé du bouton de confirmation
             confirmBtn.textContent =
-                action.charAt(0).toUpperCase() + action.slice(1); // ✅ Change le texte
+                action.charAt(0).toUpperCase() + action.slice(1);
             confirmBtn.setAttribute("href", url);
 
             const modal = new bootstrap.Modal(
@@ -28,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Confirmation activer/désactiver
+    // Demande de confirmation pour activer/désactiver (soumet le formulaire)
     document.querySelectorAll(".toggle-btn").forEach((button) => {
         button.addEventListener("click", (e) => {
             e.preventDefault();
@@ -41,8 +43,9 @@ document.addEventListener("DOMContentLoaded", () => {
             ).textContent = `Voulez-vous vraiment ${action} cet ${type} ?`;
 
             const confirmBtn = document.getElementById("confirmDeleteBtn");
+            // Met à jour le libellé et associe la soumission du formulaire
             confirmBtn.textContent =
-                action.charAt(0).toUpperCase() + action.slice(1); // ✅ Change le texte
+                action.charAt(0).toUpperCase() + action.slice(1);
             confirmBtn.removeAttribute("href");
             confirmBtn.addEventListener("click", () => form.submit(), {
                 once: true,

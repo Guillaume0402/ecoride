@@ -4,20 +4,15 @@ namespace App\Controller;
 
 use App\Repository\VehicleRepository;
 
-/**
- * Contrôleur des pages publiques et protégées de l'application.
- * - Sert les pages statiques (contact, à propos, etc.).
- * - Gère les pages liées aux covoiturages.
- * - Expose des pages profil nécessitant une session utilisateur.
- */
+// Contrôleur des pages (publiques/protégées): statiques, covoiturages, profil
 class PageController extends Controller
 {
 
-     //Dépôt pour interagir avec les véhicules des utilisateurs.     
+    //Dépôt pour interagir avec les véhicules des utilisateurs.     
     private VehicleRepository $vehicleRepository;
 
-    
-     //Initialise les dépendances nécessaires aux pages.     
+
+    //Initialise les dépendances nécessaires aux pages.     
     public function __construct()
     {
         parent::__construct();
@@ -32,14 +27,14 @@ class PageController extends Controller
     }
 
     //Page de contact.
-     
+
     public function contact(): void
     {
         $this->render("pages/contact");
     }
 
     //Liste des covoiturages (vue listant les annonces).
-     
+
     public function listeCovoiturages(): void
     {
         $this->render("pages/liste-covoiturages");
@@ -51,11 +46,7 @@ class PageController extends Controller
         $this->render("pages/creation-covoiturage");
     }
 
-    /**
-     * Page de création/édition du profil utilisateur.
-     * - Protégée: nécessite un utilisateur connecté.
-     * - Précharge les informations véhicule (par ID fourni ou par utilisateur courant).     
-     */
+    // Page de création/édition du profil (protégée), précharge le véhicule
     public function creationProfil(): void
     {
         // Vérifie que l'utilisateur est connecté
@@ -83,17 +74,13 @@ class PageController extends Controller
     }
 
     // Page listant les covoiturages de l'utilisateur courant.
-     
+
     public function mesCovoiturages(): void
     {
         $this->render("pages/mes-covoiturages");
     }
 
-    /**
-     * Page profil de l'utilisateur connecté.
-     * - Protégée: redirige si non connecté.
-     * - Charge la liste des véhicules de l'utilisateur pour l'affichage.     
-     */
+    // Page profil (protégée), charge les véhicules de l'utilisateur
     public function profil(): void
     {
         if (!isset($_SESSION['user'])) {
@@ -110,28 +97,28 @@ class PageController extends Controller
     }
 
     //Page de connexion.
-    
+
     public function login(): void
     {
         $this->render("pages/login");
     }
 
     //Page "À propos".
-    
+
     public function about(): void
     {
         $this->render("pages/about");
     }
 
     // Page des conditions d'utilisation.
-    
+
     public function terms(): void
     {
         $this->render("pages/terms");
     }
 
     //Page de politique de confidentialité.
-     
+
     public function privacy(): void
     {
         $this->render("pages/privacy");

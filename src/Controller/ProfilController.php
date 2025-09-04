@@ -4,20 +4,15 @@ namespace App\Controller;
 
 use App\Repository\VehicleRepository;
 
-/**
- * Contrôleur de gestion du profil utilisateur.
- * - Protège l'accès (nécessite une session utilisateur).
- * - Affiche le formulaire de profil.
- * - Met à jour les informations du profil (pseudo, rôle de voyage, mot de passe, photo).
- */
+// Contrôleur profil: accès protégé + affichage form + mise à jour du profil
 class ProfilController extends Controller
 {
     //Dépôt véhicules (utile si on expose/associe des véhicules au profil).
-     
+
     private VehicleRepository $vehicleRepository;
 
     //Initialise les dépendances et applique le contrôle d'accès (auth requis).
-     
+
     public function __construct()
     {
         parent::__construct();
@@ -30,10 +25,7 @@ class ProfilController extends Controller
         }
     }
 
-    /**
-     * Affiche le formulaire d'édition du profil.
-     * Charge l'utilisateur courant depuis la base pour disposer des données à jour.    
-     */
+    // Affiche le formulaire d'édition du profil (données fraîches DB)
     public function showForm(): void
     {
         $userId = $_SESSION['user']['id'];
@@ -44,16 +36,7 @@ class ProfilController extends Controller
         ]);
     }
 
-    /**
-     * Traite la mise à jour du profil utilisateur.
-     * Étapes:
-     * - Vérifie la méthode HTTP
-     * - Récupère l'utilisateur courant
-     * - Gère le changement de mot de passe (vérification de l'actuel + hash du nouveau)
-     * - Met à jour pseudo, rôle de voyage, photo
-     * - Persiste en base puis rafraîchit la session
-     * - Redirige vers la page de profil     
-     */
+    // Traite la mise à jour du profil (validation, hash, upload, persistance, session)
     public function update(): void
     {
         // Autorise uniquement POST
@@ -112,11 +95,7 @@ class ProfilController extends Controller
         redirect('/my-profil');
     }
 
-    /**
-     * Déplace le fichier uploadé dans le répertoire public et retourne son chemin relatif.
-     * @param array $file Métadonnées du fichier uploadé (structure $_FILES['...'])
-     * @return string|null Chemin web de la ressource ou null si l'upload a échoué
-     */
+    // Sauvegarde le fichier uploadé dans /public/uploads et retourne le chemin web
     private function handlePhotoUpload(array $file): ?string
     {
         $targetDir = PUBLIC_ROOT . '/uploads/';

@@ -1,24 +1,25 @@
 <?php
 // config/constants.php
 
-// Racine du projet
+// Racine du projet (chemin absolu) – pivot pour les chemins internes
 if (!defined('APP_ROOT')) {
     define('APP_ROOT', dirname(__DIR__));
 }
 
-// Racine publique (utile pour les uploads)
+// Dossier public (documents servis par le webserver)
 if (!defined('PUBLIC_ROOT')) {
     define('PUBLIC_ROOT', APP_ROOT . '/public');
 }
 
-// Dossier d'upload des fichiers
+// Répertoire de stockage des fichiers uploadés
 if (!defined('UPLOAD_DIR')) {
     define('UPLOAD_DIR', PUBLIC_ROOT . '/uploads');
 }
 
-// URL de base
+// URL de base (préfixe utilisé pour générer des liens relatifs)
 if (!defined('BASE_URL')) {
     define('BASE_URL', '/');
 }
 
+// URL complète du site (utile pour générer des URLs absolues)
 define('SITE_URL', 'http://localhost:8080/');

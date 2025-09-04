@@ -2,11 +2,7 @@
 
 namespace App\Controller;
 
-/**
- * Contrôleur des employés (role_id = 2).
- * - Protège l'accès aux routes en exigeant une session active et un rôle employé.
- * - Expose un tableau de bord avec des données mockées pour l'instant.
- */
+// Contrôleur employé (role_id = 2): gardes d'accès + dashboard
 class EmployeeController extends Controller
 {
     // Initialise les dépendances et applique les gardes d'accès (authentification + rôle employé).     
@@ -26,10 +22,7 @@ class EmployeeController extends Controller
         }
     }
 
-    /**
-     * Affiche le tableau de bord employé.
-     * Pour le moment, les données sont mockées et devront être remplacées par des requêtes aux repositories.     
-     */
+    // Dashboard employé (données mockées pour l'instant)
     public function dashboard(): void
     {
         // Données mockées: avis en attente de modération

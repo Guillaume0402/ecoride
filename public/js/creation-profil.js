@@ -1,4 +1,4 @@
-// Gestion de l'aperçu et du nom du fichier lors du téléchargement d'une photo de profil
+// Prévisualisation de la photo de profil et affichage du nom de fichier
 const photoInput = document.getElementById("photo");
 
 if (photoInput) {
@@ -25,7 +25,7 @@ if (photoInput) {
     });
 }
 
-// Affiche ou masque le mot de passe dans les champs concernés
+// Affiche/masque le mot de passe dans les champs concernés
 function togglePassword(inputId, btn) {
     const input = document.getElementById(inputId);
     const icon = btn.querySelector("i");

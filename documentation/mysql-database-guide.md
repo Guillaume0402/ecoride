@@ -546,4 +546,4 @@ CREATE TABLE covoiturages (
 );
 ```
 
-Cette architecture vous offre une base solide pour développer votre application EcoRide avec une connexion à la base de données sécurisée et performante.
+

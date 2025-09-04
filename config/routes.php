@@ -2,14 +2,19 @@
 
 
 return [
-    // Route pour la page d'accueil   
+    // NOTE paramètres de route:
+    // - Les segments entre accolades (ex: {id}) sont interprétés par le Router comme des nombres (regex \d+).
+    // - Si vous souhaitez des slugs alphanumériques, adaptez le Router pour utiliser [^/]+ à la place.
+    //   Exemple: '/article/{slug}' avec slug alphanumérique → requires Router update.
+
+    // Page d'accueil
     '/' => [
         'GET' => [
             'controller' => 'App\\Controller\\PageController',
             'action' => 'home'
         ]
     ],
-    // Routes pour l'authentification    
+    // Authentification (pages et API JSON)
     '/login' => [
         'GET' => [
             'controller' => 'App\\Controller\\AuthController',
@@ -22,7 +27,7 @@ return [
             'action' => 'logout'
         ]
     ],
-    // NOUVELLES ROUTES API pour votre modal   
+    // API Auth (utilisées par la modale)
     '/api/auth/register' => [
         'POST' => [
             'controller' => 'App\\Controller\\AuthController',
@@ -41,7 +46,7 @@ return [
             'action' => 'apiLogout'
         ]
     ],
-    // Routes pour le profil utilisateur   
+    // Profil utilisateur
     '/my-profil' => [
         'GET' => [
             'controller' => 'App\\Controller\\PageController',
@@ -99,7 +104,7 @@ return [
         ]
     ],
 
-    // Routes pour l\'administration
+    // Administration
     '/admin' => [
         'GET' => [
             'controller' => 'App\\Controller\\AdminController',
@@ -131,12 +136,14 @@ return [
         ]
     ],
     '/admin/users/toggle/{id}' => [
+        // {id} = identifiant numérique de l'utilisateur
         'POST' => [
             'controller' => 'App\\Controller\\AdminController',
             'action' => 'toggleEmployeeStatus'
         ]
     ],
     '/admin/users/delete/{id}' => [
+        // {id} = identifiant numérique de l'utilisateur
         'GET' => [
             'controller' => 'App\\Controller\\AdminController',
             'action' => 'deleteEmployee'
@@ -144,7 +151,7 @@ return [
     ],
 
 
-    // Routes employés
+    // Employés
 
     '/employe' => [
         'GET' => [
@@ -155,7 +162,7 @@ return [
 
 
 
-    // Routes statiques  
+    // Pages statiques
     '/about' => [
         'GET' => [
             'controller' => 'App\\Controller\\PageController',

@@ -4,22 +4,24 @@ namespace App\Entity;
 
 class VehicleEntity
 {
+    // Champs mappés à la table vehicles (avec quelques champs dérivés)
     private ?int $id;
-    private int $userId;
+    private int $userId; // propriétaire
     private string $marque;
     private string $modele;
     private string $couleur;
     private string $immatriculation;
-    private string $datePremiereImmatriculation;
+    private string $datePremiereImmatriculation; // format Y-m-d
     private int $fuelTypeId;
-    private ?string $fuelTypeName = null;
+    private ?string $fuelTypeName = null; // jointure optionnelle
     private int $placesDispo;
     private ?\DateTimeImmutable $createdAt;
-    private ?string $preferences = null;
-    private ?string $customPreferences = null;
+    private ?string $preferences = null; // CSV de préférences
+    private ?string $customPreferences = null; // texte libre
 
     public function __construct(array $data = [])
     {
+        // Hydrate l'entité si des données sont fournies
         $this->hydrate($data);
     }
 
@@ -139,6 +141,7 @@ class VehicleEntity
     }
     public function setCreatedAt(string|\DateTimeImmutable|null $createdAt): void
     {
+        // Accepte string date SQL, objet DateTimeImmutable, ou null
         if ($createdAt instanceof \DateTimeImmutable) {
             $this->createdAt = $createdAt;
         } else {
@@ -157,6 +160,7 @@ class VehicleEntity
 
     public function toArray(): array
     {
+        // Exporte l'état interne sous forme de tableau utilisable par les vues
         return [
             'id' => $this->id,
             'user_id' => $this->userId,

@@ -7,21 +7,19 @@ use App\Entity\VehicleEntity;
 
 class VehicleRepository
 {
-    private \PDO $conn;
-    private string $table = 'vehicles';
+    private \PDO $conn; // connexion PDO partagée
+    private string $table = 'vehicles'; // nom de la table véhicules
 
     public function __construct()
     {
+        // Récupère la connexion via le singleton Mysql
         $this->conn = Mysql::getInstance()->getPDO();
     }
 
-    /**
-     * Crée un nouveau véhicule en base de données
-     * @param VehicleEntity $vehicle L'entité véhicule à créer
-     * @return bool True si la création a réussi, false sinon
-     */
+    // Crée un nouveau véhicule en base
     public function create(VehicleEntity $vehicle): bool
     {
+        // Prépare l'INSERT de toutes les colonnes pertinentes
         $sql = "INSERT INTO {$this->table} (
                 user_id, marque, modele, couleur, immatriculation,
                 date_premiere_immatriculation, fuel_type_id, places_dispo,
@@ -34,6 +32,7 @@ class VehicleRepository
 
         $stmt = $this->conn->prepare($sql);
 
+        // Alimente chaque placeholder avec les valeurs de l'entité
         $result = $stmt->execute([
             ':user_id'        => $vehicle->getUserId(),
             ':marque'         => $vehicle->getMarque(),
@@ -48,19 +47,17 @@ class VehicleRepository
         ]);
 
         if ($result) {
+            // Renseigne l'ID créé sur l'entité
             $vehicle->setId((int)$this->conn->lastInsertId());
         }
 
         return $result;
     }
 
-    /**
-     * Met à jour un véhicule existant en base de données
-     * @param VehicleEntity $vehicle L'entité véhicule à mettre à jour
-     * @return bool True si la mise à jour a réussi, false sinon
-     */
+    // Met à jour un véhicule existant
     public function update(VehicleEntity $vehicle): bool
     {
+        // Met à jour toutes les colonnes éditables identifiées par l'ID
         $sql = "UPDATE {$this->table} SET 
                 marque = :marque,
                 modele = :modele,
@@ -74,6 +71,7 @@ class VehicleRepository
             WHERE id = :id";
 
         $stmt = $this->conn->prepare($sql);
+        // Aligne strictement les placeholders et les valeurs
         return $stmt->execute([
             ':marque'          => $vehicle->getMarque(),
             ':modele'          => $vehicle->getModele(),
@@ -89,35 +87,26 @@ class VehicleRepository
     }
 
 
-    /**
-     * Supprime un véhicule par son ID
-     * @param int $vehicleId L'ID du véhicule à supprimer
-     * @return bool True si la suppression a réussi, false sinon
-     */
+    // Supprime un véhicule par ID
     public function deleteById(int $vehicleId): bool
     {
+        // Suppression d'un véhicule par son identifiant
         $stmt = $this->conn->prepare("DELETE FROM {$this->table} WHERE id = :id");
         return $stmt->execute([':id' => $vehicleId]);
     }
 
-    /**
-     * Supprime tous les véhicules d'un utilisateur
-     * @param int $userId L'ID de l'utilisateur dont supprimer les véhicules
-     * @return bool True si la suppression a réussi, false sinon
-     */
+    // Supprime tous les véhicules d'un utilisateur
     public function deleteByUserId(int $userId): bool
     {
+        // Suppression en cascade des véhicules d'un utilisateur
         $stmt = $this->conn->prepare("DELETE FROM {$this->table} WHERE user_id = :user_id");
         return $stmt->execute([':user_id' => $userId]);
     }
 
-    /**
-     * Trouve un véhicule par son ID avec les informations du type de carburant
-     * @param int $id L'ID du véhicule à rechercher
-     * @return VehicleEntity|null L'entité véhicule ou null si non trouvé
-     */
+    // Recherche par ID avec fuel_type_name (LEFT JOIN)
     public function findById(int $id): ?VehicleEntity
     {
+        // Jointure avec fuel_types pour récupérer le nom du carburant
         $sql = "SELECT v.*, f.type_name AS fuel_type_name
         FROM {$this->table} v
         LEFT JOIN fuel_types f ON v.fuel_type_id = f.id
@@ -130,13 +119,10 @@ class VehicleRepository
         return $data ? new VehicleEntity($data) : null;
     }
 
-    /**
-     * Trouve le premier véhicule d'un utilisateur avec les informations du type de carburant
-     * @param int $userId L'ID de l'utilisateur
-     * @return VehicleEntity|null L'entité véhicule ou null si non trouvé
-     */
+    // Premier véhicule pour un utilisateur (avec fuel_type_name)
     public function findByUserId(int $userId): ?VehicleEntity
     {
+        // Récupère le premier véhicule associé à l'utilisateur
         $sql = "SELECT v.*, f.type_name AS fuel_type_name
         FROM {$this->table} v
         LEFT JOIN fuel_types f ON v.fuel_type_id = f.id
@@ -151,13 +137,10 @@ class VehicleRepository
     }
 
 
-    /**
-     * Trouve tous les véhicules d'un utilisateur avec les informations du type de carburant
-     * @param int $userId L'ID de l'utilisateur
-     * @return array Tableau d'entités VehicleEntity
-     */
+    // Tous les véhicules pour un utilisateur (avec fuel_type_name)
     public function findAllByUserId(int $userId): array
     {
+        // Récupère tous les véhicules d'un utilisateur avec libellé carburant
         $sql = "SELECT v.*, f.type_name AS fuel_type_name
         FROM {$this->table} v
         LEFT JOIN fuel_types f ON v.fuel_type_id = f.id
@@ -170,15 +153,10 @@ class VehicleRepository
         return array_map(fn($data) => new VehicleEntity($data), $results);
     }
 
-    /**
-     * Vérifie si une plaque d'immatriculation existe déjà pour un utilisateur
-     * @param string $immatriculation La plaque d'immatriculation à vérifier
-     * @param int $userId L'ID de l'utilisateur
-     * @param int|null $excludeVehicleId ID du véhicule à exclure de la vérification (pour les mises à jour)
-     * @return bool True si la plaque existe déjà, false sinon
-     */
+    // Vérifie l'existence d'une immatriculation pour un utilisateur (avec exclusion optionnelle)
     public function existsByImmatriculation(string $immatriculation, int $userId, ?int $excludeVehicleId = null): bool
     {
+        // Vérifie l'unicité de la plaque pour un utilisateur; exclut un ID si fourni (update)
         $sql = "SELECT id FROM {$this->table} 
                 WHERE immatriculation = :immatriculation 
                 AND user_id = :user_id";
@@ -197,13 +175,10 @@ class VehicleRepository
         return (bool) $stmt->fetch();
     }
 
-    /**
-     * Trouve un véhicule par sa plaque d'immatriculation
-     * @param string $immatriculation La plaque d'immatriculation à rechercher
-     * @return VehicleEntity|null L'entité véhicule ou null si non trouvé
-     */
+    // Recherche par plaque (globale)
     public function findByImmatriculation(string $immatriculation): ?VehicleEntity
     {
+        // Recherche directe par plaque (sans contrainte d'utilisateur)
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE immatriculation = :immatriculation LIMIT 1");
         $stmt->execute([':immatriculation' => $immatriculation]);
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -211,12 +186,10 @@ class VehicleRepository
         return $data ? new VehicleEntity($data) : null;
     }
 
-    /**
-     * Récupère tous les types de carburant disponibles
-     * @return array Tableau associatif contenant les IDs et noms des types de carburant
-     */
+    // Liste des types de carburant disponibles
     public function getFuelTypes(): array
     {
+        // Liste des types de carburant pour alimenter les formulaires
         $stmt = $this->conn->query("SELECT id, type_name FROM fuel_types ORDER BY id ASC");
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }

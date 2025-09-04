@@ -4,16 +4,11 @@ namespace App\Controller;
 
 use App\Entity\UserEntity;
 
-/**
- * Contrôleur d'administration.
- * - Protège l'accès: utilisateur connecté + rôle administrateur (role_id = 3).
- * - Pages: dashboard, statistiques, gestion utilisateurs/employés.
- * - Actions: création d'employé, bascule du statut actif, suppression de compte.
- */
+// Contrôleur admin: gardes d'accès + dashboard, stats, gestion comptes
 class AdminController extends Controller
 {
     // Initialise les dépendances et applique les gardes d'accès (authentification + rôle admin).
-     
+
     public function __construct()
     {
         parent::__construct();
@@ -37,7 +32,7 @@ class AdminController extends Controller
     }
 
     // Page de statistiques (expose un indicateur de page admin à la vue).
-     
+
     public function stats(): void
     {
         $this->render("pages/admin/stats", [
@@ -45,10 +40,7 @@ class AdminController extends Controller
         ]);
     }
 
-    /**
-     * Page de gestion des utilisateurs et des employés.
-     * Récupère les listes et les passe à la vue.     
-     */
+    // Page de gestion des utilisateurs et employés
     public function users(): void
     {
         $employees = $this->userRepository->findAllEmployees();
@@ -60,12 +52,7 @@ class AdminController extends Controller
         ]);
     }
 
-    /**
-     * Création d'un nouvel employé.
-     * - Méthode HTTP requise: POST.
-     * - Valide le formulaire, hash le mot de passe, persiste en base.
-     * - En cas d'erreur, réaffiche la page avec les messages et anciennes valeurs.     
-     */
+    // Crée un employé (POST), validations + hash + persistance
     public function createEmployee(): void
     {
         // Restreint à la méthode POST
@@ -130,11 +117,7 @@ class AdminController extends Controller
         redirect('/admin/users');
     }
 
-    /**
-     * Bascule le statut actif/inactif d'un employé.
-     * - Méthode HTTP requise: POST.
-     * @param int $id Identifiant de l'utilisateur à basculer     
-     */
+    // Bascule le statut actif/inactif (POST)
     public function toggleEmployeeStatus(int $id): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -150,11 +133,7 @@ class AdminController extends Controller
         redirect('/admin/users');
     }
 
-    /**
-     * Supprime un employé ou un utilisateur standard.
-     * Met à jour l'onglet actif selon le type de compte supprimé.
-     * @param int $id Identifiant de l'utilisateur à supprimer    
-     */
+    // Supprime un compte et positionne l'onglet actif selon le rôle
     public function deleteEmployee(int $id): void
     {
         $user = $this->userRepository->findById($id);

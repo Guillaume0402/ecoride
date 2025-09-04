@@ -1,12 +1,12 @@
 
-# 📁 `git-stratégie.md` – Stratégie Git pour EcoRide
+# `git-stratégie.md` – Stratégie Git pour EcoRide
 
-## 🧠 Objectif :
+## Objectif :
 Assurer un développement clair, organisé et conforme aux **bonnes pratiques demandées pour l'ECF**.
 
 ---
 
-## 🚀 Structure des branches
+## Structure des branches
 
 | Nom de branche       | Description                                           |
 |----------------------|-------------------------------------------------------|
@@ -21,7 +21,7 @@ Assurer un développement clair, organisé et conforme aux **bonnes pratiques de
 
 ---
 
-## 🧪 Workflow recommandé
+## Workflow recommandé
 
 ### 1. Se baser sur `develop` à jour :
 ```bash
@@ -34,7 +34,7 @@ git pull origin develop
 git checkout -b feat/nom-clair-fonctionnalité
 ```
 
-📌 *Exemple : `feat/signup-form`, `refactor/routing-system`*
+*Exemple : `feat/signup-form`, `refactor/routing-system`*
 
 ---
 
@@ -44,7 +44,7 @@ git add .
 git commit -m "feat: création du formulaire d'inscription"
 ```
 
-> 🔑 Utilise des messages explicites :  
+>  Utilise des messages explicites :  
 > - `feat:` pour ajout  
 > - `fix:` pour correction  
 > - `refactor:`, `style:`, `doc:`, etc.
@@ -76,12 +76,12 @@ git push origin main
 
 ---
 
-## 🧼 Règles de bonne conduite
+##  Règles de bonne conduite
 
-- ❌ Ne jamais coder directement sur `main` ou `develop`
-- ✅ 1 branche = 1 tâche (même petite)
-- 📚 Rester cohérent avec les préfixes (`feat/`, `fix/`, etc.)
-- 🧾 Supprimer les branches locales une fois mergées
+- Ne jamais coder directement sur `main` ou `develop`
+- 1 branche = 1 tâche (même petite)
+- Rester cohérent avec les préfixes (`feat/`, `fix/`, etc.)
+- Supprimer les branches locales une fois mergées
 
 ```bash
 git branch -d feat/nom-clair
@@ -89,7 +89,7 @@ git branch -d feat/nom-clair
 
 ---
 
-## 🧩 Exemple complet
+## Exemple complet
 
 ```bash
 # Nouvelle fonctionnalité
@@ -113,25 +113,25 @@ git push origin main
 
 ---
 
-## 🌿 Suivi des branches Git
+##  Suivi des branches Git
 
-| Branche                     | Type       | Statut         | Description courte                                 | Merge vers     |
-|----------------------------|------------|----------------|----------------------------------------------------|----------------|
-| main                       | stable     | ✅ à conserver  | Version finale stable (prod)                       | -              |
-| develop                    | intégration| ✅ à conserver  | Version de développement principale                | main           |
-| feat/creation-profil       | feature    | ✅ à conserver  | Formulaire de création de profil                   | develop        |
-| feat/creation-covoiturage  | feature    | ✅ à conserver  | Formulaire de création de covoiturage              | develop        |
-| feat/nav-modale-auth       | feature    | ✅ à conserver  | Navigation + modale connexion/inscription          | develop        |
-| feat/home-page             | feature    | ✅ renommée     | Page d’accueil avec présentation et images         | develop        |
-| feat/search-covoiturages   | feature    | ✅ renommée     | Formulaire et affichage de recherche               | develop        |
-| refactor/routing           | refactor   | ✅ renommée     | Refonte du système de routage                      | develop        |
-| feat/pages-header-update   | feature    | ✅ en cours     | Nouvelles pages vierges + refonte du header        | develop        |
+| Branche                     | Type       | Statut         | Description courte                               | Merge vers     |
+|----------------------------|------------|----------------|---------------------------------------------------|----------------|
+| main                       | stable     |  à conserver  | Version finale stable (prod)                       | -              |
+| develop                    | intégration|  à conserver  | Version de développement principale                | main           |
+| feat/creation-profil       | feature    |  à conserver  | Formulaire de création de profil                   | develop        |
+| feat/creation-covoiturage  | feature    |  à conserver  | Formulaire de création de covoiturage              | develop        |
+| feat/nav-modale-auth       | feature    |  à conserver  | Navigation + modale connexion/inscription          | develop        |
+| feat/home-page             | feature    |  renommée     | Page d’accueil avec présentation et images         | develop        |
+| feat/search-covoiturages   | feature    |  renommée     | Formulaire et affichage de recherche               | develop        |
+| refactor/routing           | refactor   |  renommée     | Refonte du système de routage                      | develop        |
+| feat/pages-header-update   | feature    |  en cours     | Nouvelles pages vierges + refonte du header        | develop        |
 
-> 🗑️ Branches supprimées : `sauvegarde-apres-stash`, `feature/router-refactor` (doublon inutile)
+>  Branches supprimées : `sauvegarde-apres-stash`, `feature/router-refactor` (doublon inutile)
 
 ---
 
-## 📝 Convention de message de commit
+##  Convention de message de commit
 
 ### Format recommandé :
 ```
@@ -146,18 +146,18 @@ git push origin main
 
 | Type        | Description                                      |
 |-------------|--------------------------------------------------|
-| `feat`      | ✨ Nouvelle fonctionnalité                        |
-| `fix`       | 🐛 Correction de bug                             |
-| `refactor`  | ♻️ Refactorisation sans changement fonctionnel   |
-| `style`     | 💅 Modifs visuelles uniquement (CSS, HTML…)     |
-| `doc`       | 📚 Modifications de docs ou README               |
-| `test`      | ✅ Ajout ou modif de tests                       |
-| `chore`     | 🔧 Maintenance ou tâches annexes (npm, config…) |
-| `hotfix`    | 🚨 Correction urgente en prod                    |
+| `feat`      |  Nouvelle fonctionnalité                         |
+| `fix`       |  Correction de bug                               |
+| `refactor`  |  Refactorisation sans changement fonctionnel     |
+| `style`     |  Modifs visuelles uniquement (CSS, HTML…)        |
+| `doc`       |  Modifications de docs ou README                 |
+| `test`      |  Ajout ou modif de tests                         |
+| `chore`     |  Maintenance ou tâches annexes (npm, config…)    |
+| `hotfix`    |  Correction urgente en prod                      |
 
 ---
 
-## ⚙️ Activer un template automatique
+##  Activer un template automatique
 
 1. Créer un fichier `.gitmessage.txt` :
 

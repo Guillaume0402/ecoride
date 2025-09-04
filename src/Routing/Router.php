@@ -4,17 +4,21 @@ namespace App\Routing;
 
 class Router
 {
+    // Table de routage chargée depuis config/routes.php
     private array $routes;
 
     public function __construct()
     {
+        // Charge la configuration des routes (tableau associatif)
         $this->routes = require_once APP_ROOT . "/config/routes.php";
+        // Log de debug: liste des chemins déclarés
         error_log("Routes chargées : " . print_r(array_keys($this->routes), true));
     }
 
-    // Ajoute une route à la configuration
+    // Point d'entrée: fait correspondre l'URI à une route et invoque le contrôleur
     public function handleRequest(string $uri): void
     {
+        // Normalise le chemin et détermine la méthode HTTP courante
         $path = $this->normalizePath($uri);
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
         error_log("Recherche de la route : $path");
@@ -23,14 +27,16 @@ class Router
         $params = [];
 
         foreach ($this->routes as $routePath => $routeConfig) {
-            // Convertir /admin/users/toggle/{id} → regex
+            // Convertit /admin/users/toggle/{id} → regex
+            // NOTE: ici, les paramètres sont limités à des chiffres (\d+). Adapter si besoin (ex: [^/]+).
             $pattern = preg_replace('#\{[a-zA-Z_]+\}#', '(\d+)', $routePath);
 
             if (preg_match("#^$pattern$#", $path, $matches)) {
+                // Sélectionne la config spécifique à la méthode si définie, sinon la config par défaut
                 $matchedRoute = $routeConfig[$method] ?? $routeConfig;
-                // Extraire les paramètres (ex: id = 8)
+                // Extrait les noms des paramètres et associe leurs valeurs capturées (ex: id => 8)
                 preg_match_all('#\{([a-zA-Z_]+)\}#', $routePath, $paramNames);
-                array_shift($matches); // Retirer la correspondance complète
+                array_shift($matches); // Retire la correspondance complète
                 $params = array_combine($paramNames[1], $matches);
                 break;
             }
@@ -53,19 +59,19 @@ class Router
             abort(500, "Méthode $action introuvable dans $controllerPath");
         }
 
-        // Appel du contrôleur avec les paramètres
+        // Appel du contrôleur avec les paramètres (transmet les valeurs dans l'ordre défini par la route)
         call_user_func_array([$controller, $action], $params);
     }
 
 
-    // Normalise le chemin de l'URI pour enlever les slash finaux
+    // Normalise un URI: extrait le path et supprime le slash de fin (sauf pour la racine)
     public static function normalizePath(string $uri): string
     {
         $path = parse_url($uri, PHP_URL_PATH);
         return rtrim($path, '/') ?: '/';
     }
 
-    // Vérifie si le chemin correspond à la route active
+    // Compare une route au chemin courant (normalisé) pour marquage "actif"
     public static function isActiveRoute(string $path): bool
     {
         return self::normalizePath($_SERVER["REQUEST_URI"]) === $path;

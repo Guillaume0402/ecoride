@@ -132,7 +132,7 @@ async function handleAuth(endpoint, formData) {
     }
 }
 
-// 🔥 Les événements restent dans le DOMContentLoaded
+// Les événements de la modale restent dans le DOMContentLoaded
 document.addEventListener("DOMContentLoaded", () => {
     const authModal = document.getElementById("authModal");
     const showLogin = document.getElementById("showLogin");

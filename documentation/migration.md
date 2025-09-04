@@ -1,12 +1,12 @@
 # Migration du projet EcoRide de WAMP vers Docker
 
-## 📋 Prérequis
+##  Prérequis
 
 -   Docker Desktop installé sur Windows
 -   Votre projet EcoRide actuel fonctionnel sous WAMP
 -   Accès à votre base de données via phpMyAdmin
 
-## 🎯 Objectifs de la migration
+##  Objectifs de la migration
 
 -   Environnement de développement reproductible
 -   Facilité de déploiement
@@ -14,7 +14,7 @@
 -   Configuration versionnée avec le projet
 -   Architecture Entity/Model moderne
 
-## 📂 Structure finale du projet
+##  Structure finale du projet
 
 ```
 ecoride/
@@ -59,7 +59,7 @@ ecoride/
 └── vendor/
 ```
 
-## 🔧 Étape 1 : Sauvegarde de votre base de données
+##  Étape 1 : Sauvegarde de votre base de données
 
 ### 1.1 Export depuis phpMyAdmin (WAMP)
 
@@ -73,7 +73,7 @@ ecoride/
 
 Renommez votre fichier exporté en `init.sql` et placez-le à la racine du projet.
 
-## 🔧 Étape 2 : Configuration Docker
+##  Étape 2 : Configuration Docker
 
 ### 2.1 Création du Dockerfile
 
@@ -245,7 +245,7 @@ vendor/
 .vscode/
 ```
 
-## 🔧 Étape 3 : Architecture Entity/Model moderne
+##  Étape 3 : Architecture Entity/Model moderne
 
 ### 3.1 Singleton de connexion base de données
 
@@ -415,7 +415,7 @@ class UserModel
 }
 ```
 
-## 🔧 Étape 4 : Configuration de l'application
+##  Étape 4 : Configuration de l'application
 
 ### 4.1 Fichier de configuration principal
 
@@ -482,7 +482,7 @@ try {
 }
 ```
 
-## 🚀 Étape 5 : Lancement et tests
+##  Étape 5 : Lancement et tests
 
 ### 5.1 Construction et lancement
 
@@ -566,7 +566,7 @@ try {
 }
 ```
 
-## 🛠️ Commandes Docker utiles
+##  Commandes Docker utiles
 
 ```bash
 # Gestion des services
@@ -584,7 +584,7 @@ docker-compose ps                       # État des services
 docker stats                           # Utilisation des ressources
 ```
 
-## 📊 Monitoring et maintenance
+##  Monitoring et maintenance
 
 ### Logs applicatifs
 
@@ -609,7 +609,7 @@ docker-compose exec db mysqldump -u ecoride_user -p ecoride_db > backup.sql
 docker-compose exec -T db mysql -u ecoride_user -p ecoride_db < backup.sql
 ```
 
-## 🎯 Avantages de cette architecture
+##  Avantages de cette architecture
 
 ✅ **Séparation des responsabilités** : Entity/Model/Controller bien définis
 ✅ **Singleton de connexion** : Une seule instance PDO réutilisée
@@ -618,7 +618,7 @@ docker-compose exec -T db mysql -u ecoride_user -p ecoride_db < backup.sql
 ✅ **Sécurité renforcée** : Requêtes préparées, validation
 ✅ **Maintenabilité** : Code modulaire et testable
 
-## 🔄 Migration de données existantes
+##  Migration de données existantes
 
 Si vous avez des données dans votre ancienne base WAMP :
 
@@ -630,7 +630,7 @@ mysqldump -u root -p ecoride > wamp_export.sql
 docker-compose exec -T db mysql -u ecoride_user -p ecoride_db < wamp_export.sql
 ```
 
-## 📝 Prochaines étapes
+##  Prochaines étapes
 
 1. **Compléter les Entities** : Covoiturage, Vehicle, etc.
 2. **Implémenter les Models** : CRUD complet

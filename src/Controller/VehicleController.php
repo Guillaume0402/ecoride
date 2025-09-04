@@ -5,11 +5,7 @@ namespace App\Controller;
 use App\Entity\VehicleEntity;
 use App\Repository\VehicleRepository;
 
-/**
- * Contrôleur de gestion des véhicules.
- * - Protège l'accès: nécessite un utilisateur connecté.
- * - CRUD véhicule: création, lecture (form d'édition), mise à jour, suppression.
- */
+// Contrôleur véhicules: accès protégé + CRUD (create/edit/update/delete)
 class VehicleController extends Controller
 {
     // Dépôt d'accès aux données véhicules.     
@@ -37,14 +33,7 @@ class VehicleController extends Controller
         ]);
     }
 
-    /**
-     * Traite la soumission de création d'un véhicule.
-     * - Autorise uniquement POST
-     * - Valide le nombre de places
-     * - Normalise la date pour la base (Y-m-d)
-     * - Vérifie l'unicité de l'immatriculation
-     * - Persiste en base puis redirige avec message     
-     */
+    // Traite la création d'un véhicule (POST): validations, normalisations, persistance
     public function store(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -96,10 +85,7 @@ class VehicleController extends Controller
         }
     }
 
-    /**
-     * Affiche le formulaire d'édition prérempli pour un véhicule existant.
-     * - Vérifie l'appartenance du véhicule à l'utilisateur courant
-     */
+    // Affiche le formulaire d'édition (vérifie appartenance)
     public function edit(): void
     {
         $vehicleId = (int) ($_GET['id'] ?? 0);
@@ -118,13 +104,7 @@ class VehicleController extends Controller
         ]);
     }
 
-    /**
-     * Traite la mise à jour d'un véhicule.
-     * - Autorise uniquement POST
-     * - Vérifie l'existence et l'appartenance
-     * - Vérifie l'unicité de l'immatriculation (hors véhicule en cours)
-     * - Met à jour en base et redirige
-     */
+    // Traite la mise à jour (POST): existence, appartenance, unicité, persistance
     public function update(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -183,11 +163,7 @@ class VehicleController extends Controller
         redirect('/my-profil');
     }
 
-    /**
-     * Supprime un véhicule appartenant à l'utilisateur courant.
-     * - Autorise uniquement POST
-     * - Vérifie l'appartenance avant suppression
-     */
+    // Supprime un véhicule (POST) après vérification d'appartenance
     public function delete(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

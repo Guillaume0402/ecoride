@@ -1,7 +1,7 @@
 
-# 🧠 RÉCAP COMPLET DU ROUTEUR MVC EN PHP
+#  RÉCAP COMPLET DU ROUTEUR MVC EN PHP
 
-## 🗂️ STRUCTURE MVC SIMPLIFIÉE
+##  STRUCTURE MVC SIMPLIFIÉE
 
 **MVC = Modèle / Vue / Contrôleur**
 
@@ -15,14 +15,14 @@
 
 ---
 
-## 1. 🧭 `Router.php` – Le cœur du système de routage
+## 1.  `Router.php` – Le cœur du système de routage
 
-### ✅ Le `namespace`
+###  Le `namespace`
 
 - `namespace App;` indique que cette classe appartient au groupe logique "App".
 - Cela évite les conflits si d'autres classes avec le même nom existent ailleurs.
 
-### 🧱 Attributs
+###  Attributs
 
 ```php
 public static string $basePath = '';
@@ -37,13 +37,13 @@ protected array $routes = [];
 - `protected` = accessible dans la classe ou ses enfants uniquement
 - `array` = contient toutes les routes classées par méthode (`GET`, `POST`, etc.)
 
-### 📥 Méthodes `get()` et `post()`
+###  Méthodes `get()` et `post()`
 
 Enregistrent une route en appelant `addRoute()` avec la bonne méthode HTTP.
 
 ---
 
-### 🚦 `dispatch()`
+###  `dispatch()`
 
 Traite la requête réelle :
 1. Récupère la méthode HTTP
@@ -54,11 +54,11 @@ Traite la requête réelle :
 
 ---
 
-## 2. 🛠️ Fichier `helpers.php`
+## 2.  Fichier `helpers.php`
 
 Contient les fonctions globales utilisées dans les vues.
 
-### 🔗 `url($path)`
+###  `url($path)`
 
 ```php
 function url(string $path = ''): string {
@@ -66,7 +66,7 @@ function url(string $path = ''): string {
 }
 ```
 
-#### 🔍 Explication détaillée :
+####  Explication détaillée :
 - `Router::$basePath` contient un éventuel sous-dossier comme `/monprojet`
 - `rtrim()` supprime les `/` à droite
 - `ltrim()` supprime les `/` à gauche de `$path`
@@ -81,7 +81,7 @@ function url(string $path = ''): string {
 
 ---
 
-### 🖼️ `asset($path)`
+###  `asset($path)`
 
 ```php
 function asset(string $path): string {
@@ -89,7 +89,7 @@ function asset(string $path): string {
 }
 ```
 
-#### 🔍 Explication détaillée :
+####  Explication détaillée :
 - On ajoute `'assets/'` au chemin demandé
 - `ltrim($path, '/')` évite les doubles slashs
 - On utilise `url()` pour s'assurer que le chemin est correct
@@ -103,7 +103,7 @@ function asset(string $path): string {
 
 ---
 
-### 👁️ `view()`
+###  `view()`
 
 Charge un fichier de vue avec des données :
 1. `extract($data)` ➜ transforme `['title' => 'Bienvenue']` en `$title = 'Bienvenue'`
@@ -112,7 +112,7 @@ Charge un fichier de vue avec des données :
 
 ---
 
-## 3. 🧑‍🏫 `HomeController.php`
+## 3.  `HomeController.php`
 
 ```php
 namespace App\controller;
@@ -128,7 +128,7 @@ Affiche `view/home.php` quand l'utilisateur visite `/`.
 
 ---
 
-## 4. 📄 `view/home.php`
+## 4.  `view/home.php`
 
 HTML affiché à l'utilisateur. Utilise :
 
@@ -139,7 +139,7 @@ HTML affiché à l'utilisateur. Utilise :
 
 ---
 
-## 5. 🚪 `index.php`
+## 5.  `index.php`
 
 Point d'entrée du site.
 
@@ -150,7 +150,7 @@ Point d'entrée du site.
 
 ---
 
-## 🔚 Résumé final
+##  Résumé final
 
 | Élément        | Explication |
 |----------------|-------------|
@@ -167,7 +167,7 @@ Point d'entrée du site.
 
 ---
 
-## 📦 Exemple complet
+##  Exemple complet
 
 ```php
 // index.php

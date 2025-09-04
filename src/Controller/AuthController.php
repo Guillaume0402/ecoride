@@ -4,28 +4,17 @@ namespace App\Controller;
 
 use App\Entity\UserEntity;
 
-/**
- * Contrôleur d'authentification.
- * - Affiche la page de connexion.
- * - Fournit des endpoints API JSON pour l'inscription, la connexion et la déconnexion.
- * - Gère la création de session utilisateur et des réponses JSON standardisées.
- */
+// Contrôleur d'auth: vue login + API JSON (register/login/logout)
 class AuthController extends Controller
 {
     // Affiche la page de connexion (vue HTML classique).
-    
+
     public function showLogin(): void
     {
         $this->render("pages/login");
     }
 
-    /**
-     * Endpoint API d'inscription (JSON).
-     * - Valide les données reçues en JSON
-     * - Vérifie l'unicité email/pseudo
-     * - Crée l'utilisateur, hash le mot de passe et persiste en base
-     * - Crée la session et retourne l'URL de redirection en JSON     
-     */
+    // API inscription JSON: validations, création user, session, redirection
     public function apiRegister(): void
     {
         $this->jsonResponse(function () {
@@ -95,12 +84,7 @@ class AuthController extends Controller
         });
     }
 
-    /**
-     * Endpoint API de connexion (JSON).
-     * - Valide les identifiants
-     * - Vérifie l'état du compte
-     * - Crée la session et retourne l'URL de redirection     
-     */
+    // API login JSON: vérification identifiants + session + redirection
     public function apiLogin(): void
     {
         $this->jsonResponse(function () {
@@ -143,20 +127,14 @@ class AuthController extends Controller
         });
     }
 
-    /**
-     * Endpoint API de déconnexion (JSON).
-     * Détruit la session puis renvoie un statut de succès.     
-     */
+    // API logout JSON: détruit la session et renvoie success
     public function apiLogout(): void
     {
         session_destroy();
         $this->json(['success' => true]);
     }
 
-    /**
-     * Déconnexion (flux classique HTML) puis redirection vers l'accueil.
-     * @return void
-     */
+    // Déconnexion (HTML) + redirection
     public function logout(): void
     {
         session_destroy();
@@ -166,14 +144,7 @@ class AuthController extends Controller
 
     // Helper pour les réponses JSON avec gestion d’erreurs
 
-    /**
-     * Enveloppe utilitaire pour retourner des réponses JSON avec gestion d'exceptions.
-     * - Définit les en-têtes JSON
-     * - Exécute un callback et sérialise son résultat
-     * - Capture les exceptions et renvoie un message d'erreur standardisé
-     * - Termine l'exécution du script
-     * @param callable $callback Fonction exécutée dont le résultat est renvoyé en JSON     
-     */
+    // Helper: exécute un callback et renvoie une réponse JSON (capture exceptions)
     private function jsonResponse(callable $callback): void
     {
         header('Content-Type: application/json');
@@ -185,10 +156,7 @@ class AuthController extends Controller
         exit;
     }
 
-    /**
-     * Renvoie une réponse JSON simple et termine l'exécution.
-     * @param array $data Données à sérialiser en JSON     
-     */
+    // Helper: sérialise un tableau en JSON et termine
     private function json(array $data): void
     {
         header('Content-Type: application/json');
@@ -199,11 +167,7 @@ class AuthController extends Controller
 
     // Création de session uniforme et sécurisée
 
-    /**
-     * Crée/rafraîchit la session utilisateur de manière sécurisée (regeneration ID)
-     * et stocke les informations nécessaires à l'application.
-     * @param UserEntity $user Utilisateur authentifié     
-     */
+    // Crée/rafraîchit la session utilisateur de manière sécurisée
     private function createUserSession(UserEntity $user): void
     {
         // Empêche la fixation de session

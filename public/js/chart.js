@@ -1,3 +1,4 @@
+// Instancie les graphiques si les canvas sont présents dans le DOM
 document.addEventListener("DOMContentLoaded", () => {
     const chartCovoiturages = document.getElementById("chartCovoiturages");
     const chartCredits = document.getElementById("chartCredits");
