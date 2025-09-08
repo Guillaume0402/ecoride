@@ -16,7 +16,7 @@ services:
       - DB_HOST=db
       - DB_NAME=ecoride
       - DB_USER=ecoride_user
-      - DB_PASS=ecoride_password
+      - DB_PASSWORD=ecoride_password
     networks:
       - ecoride_network
 

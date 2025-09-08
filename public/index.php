@@ -9,24 +9,21 @@ error_reporting(E_ALL);
 // Charger les constantes globales
 require_once __DIR__ . '/../config/constants.php';
 
-// Définir l'environnement si nécessaire
-if (!defined('APP_ENV')) {
-    define('APP_ENV', '.env.local');
-}
+// Autoload Composer
+require_once APP_ROOT . '/vendor/autoload.php';
 
-// Inclure la configuration
-require_once APP_ROOT . '/config/app.php';
+// Charger les variables d'environnement (.env + .env.local)
+use Dotenv\Dotenv;
+$dotenv = Dotenv::createMutable(dirname(__DIR__), ['.env', '.env.local']);
+$dotenv->load();
 
 // Inclusion du helper global
 require_once APP_ROOT . '/src/helpers.php';
 
-// Autoload Composer
-require_once APP_ROOT . '/vendor/autoload.php';
-
 // Import du Router
 use App\Routing\Router;
 
-// Initialisation et traitement de la requête
+// Initialisation et traitement de la requête+
 $router = new Router();
 $router->handleRequest($_SERVER["REQUEST_URI"]);
 

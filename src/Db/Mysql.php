@@ -19,17 +19,17 @@ class Mysql
 
     private function __construct()
     {
-        // Charge la configuration depuis le fichier défini par APP_ENV (dans APP_ROOT)
-        // Exemple: APP_ENV = ".env.local" => lecture de APP_ROOT/.env.local
-        $dbConf = parse_ini_file(APP_ROOT . "/" . APP_ENV);
+        // Lis depuis $_ENV, sinon $_SERVER, sinon getenv(), avec valeurs par défaut
+        $env = fn(string $key, ?string $def = null) =>
+        $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key) ?: $def;
 
-        // Hydrate les propriétés de connexion à partir des clés du .env
-        $this->dbHost = $dbConf['DB_HOST'];
-        $this->dbName = $dbConf['DB_NAME'];
-        $this->dbUser = $dbConf['DB_USER'];
-        $this->dbPassword = $dbConf['DB_PASSWORD'];
-        $this->dbPort = $dbConf['DB_PORT'];
+        $this->dbHost     = $env('DB_HOST', '127.0.0.1');
+        $this->dbName     = $env('DB_NAME', 'ecoride');
+        $this->dbUser     = $env('DB_USER', 'root');
+        $this->dbPassword = $env('DB_PASSWORD', '');
+        $this->dbPort     = $env('DB_PORT', '3306');
     }
+
 
     public static function getInstance(): self
     {
@@ -43,18 +43,21 @@ class Mysql
 
     public function getPDO(): \PDO
     {
-        // Ouvre la connexion seulement si elle n'existe pas encore (lazy)
-        if (is_null($this->pdo)) {
-            // DSN MySQL: inclut l'hôte, le charset, la base et le port
-            $dsn = "mysql:host={$this->dbHost};charset=utf8;dbname={$this->dbName};port={$this->dbPort}";
+        if ($this->pdo === null) {
+            $dsn = sprintf(
+                'mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
+                $this->dbHost,
+                $this->dbPort,
+                $this->dbName
+            );
             try {
-                // Création de l'objet PDO avec identifiants du .env
-                // Astuce (optionnel): configurer les attributs PDO (ERRMODE_EXCEPTION, utf8mb4, etc.)
-                $this->pdo = new \PDO($dsn, $this->dbUser, $this->dbPassword);
+                $this->pdo = new \PDO($dsn, $this->dbUser, $this->dbPassword, [
+                    \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
+                    \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+                ]);
             } catch (\PDOException $e) {
-
-                // Remonte l'erreur afin qu'elle soit gérée par le contrôleur/gestionnaire global
-                throw $e; // (optionnel : à commenter si tu veux une erreur contrôlée)
+                // En dev : remonter l'erreur ; en prod tu pourrais afficher un message neutre
+                throw $e;
             }
         }
         return $this->pdo;
