@@ -1,6 +1,3 @@
-#yaml
-version: '3.8'
-
 services:
   # Service Web (Apache + PHP)
   web:

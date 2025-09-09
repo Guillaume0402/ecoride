@@ -12,7 +12,7 @@
 
             <!-- Zone d'alerte pour les messages -->
             <div id="authAlert" class="alert d-none mx-3" role="alert"></div>
-            
+
             <!-- FORM INSCRIPTION -->
             <form id="registerForm" class="auth-form p-0 p-lg-5">
                 <div class="mb-3">
@@ -49,6 +49,7 @@
                     <input type="password" class="form-control" id="passwordLogin" name="password" required>
                 </div>
                 <div class="text-center">
+                    <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
                     <button type="submit" class="btn btn-inscription">
                         <span class="btn-text">Connexion</span>
                         <span class="spinner-border spinner-border-sm d-none" role="status"></span>

@@ -78,11 +78,15 @@ function setActiveTab(tab) {
 // Utilise fetch pour appeler les API correspondantes
 // Renvoie une promesse pour gérer les réponses
 async function handleAuth(endpoint, formData) {
+    // récupère le token si présent (loginForm)
+    const csrf =
+        formData.csrf || document.querySelector('input[name="csrf"]')?.value;
     try {
         const response = await fetch(`/api/auth/${endpoint}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                ...(csrf ? { "X-CSRF-Token": csrf } : {})
             },
             body: JSON.stringify(formData),
         });
