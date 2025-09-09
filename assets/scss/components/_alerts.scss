@@ -78,3 +78,27 @@
     to { opacity: 0; transform: translate(-50%, -20px); }
 }
 
+/* Pile centrée qui empile les bannières */
+#alerts {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  width: min(92vw, 450px);
+}
+
+/* Les alertes rendues dans la pile n'ont PAS besoin d'être fixed */
+#alerts .custom-alert,
+#alerts .alert {
+  position: relative;     // <- annule le fixed
+  top: auto;
+  left: auto;
+  transform: none;
+  width: 100%;
+  margin: 0;
+}

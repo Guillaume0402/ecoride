@@ -12,14 +12,16 @@
 
 </head>
 
-<?php require APP_ROOT . '/src/View/partials/flash.php'; ?>
-
-
 <body class="page-container d-flex flex-column min-vh-100">
     <div id="globalAlert" class="d-none"></div>
 
 
     <?php require_once __DIR__ . '/partials/header.php'; ?>
+
+    <!-- conteneur commun aux notifs -->
+    <div id="alerts" aria-live="polite"></div>
+    <?php require APP_ROOT . '/src/View/partials/flash.php'; ?>
+
 
     <main class="flex-fill">
         <?= $content ?>

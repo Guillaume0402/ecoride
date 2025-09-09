@@ -16,15 +16,20 @@ function showAlert(message, type = "danger") {
 
 // Fonction pour afficher des alertes globales (hors modal)
 function showGlobalAlert(message, type = "success") {
-    const alertDiv = document.getElementById("globalAlert");
-    alertDiv.className = `alert alert-${type} d-block position-fixed top-0 start-50 translate-middle-x mt-3`;
-    alertDiv.textContent = message;
-    alertDiv.style.zIndex = "2000"; // S'assurer qu'il passe au-dessus de tout
+    const stack = document.getElementById("alerts");
+    if (!stack) return;
 
-    setTimeout(() => {
-        alertDiv.classList.add("d-none");
-    }, 5000);
+    const el = document.createElement("div");
+    el.className = `custom-alert alert-${type} auto-dismiss fade-in`;
+    el.textContent = message;
+
+    stack.appendChild(el);
+
+    // Auto fermeture comme tes flash PHP
+    setTimeout(() => el.classList.add("fade-out"), 3500);
+    setTimeout(() => el.remove(), 4300);
 }
+
 
 // Fonction pour masquer les messages
 function hideAlert() {
