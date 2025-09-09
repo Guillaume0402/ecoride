@@ -2,108 +2,131 @@
 
 namespace App\Controller;
 
-use App\Repository\VehicleRepository;
+use App\Service\Flash;
+use App\Security\Csrf;
 
-// Contrôleur profil: accès protégé + affichage form + mise à jour du profil
 class ProfilController extends Controller
 {
-    //Dépôt véhicules (utile si on expose/associe des véhicules au profil).
-
-    private VehicleRepository $vehicleRepository;
-
-    //Initialise les dépendances et applique le contrôle d'accès (auth requis).
-
     public function __construct()
     {
         parent::__construct();
-        $this->vehicleRepository = new VehicleRepository();
 
-        // Vérifie qu'un utilisateur est connecté, sinon redirige vers la connexion
         if (!isset($_SESSION['user'])) {
-            $_SESSION['error'] = "Vous devez être connecté pour accéder à votre profil.";
-            redirect('/login');
+            Flash::add('Vous devez être connecté pour accéder à votre profil.', 'danger');
+            session_write_close();
+            header('Location: /login', true, 302);
+            exit;
         }
     }
 
-    // Affiche le formulaire d'édition du profil (données fraîches DB)
+    // GET /creation-profil
     public function showForm(): void
     {
-        $userId = $_SESSION['user']['id'];
-        $user = $this->userRepository->findById($userId);
+        $userId = (int)($_SESSION['user']['id'] ?? 0);
+        $user   = $this->userRepository->findById($userId);
 
-        $this->render("pages/creation-profil", [
-            'user' => $user ? $this->userService->toArray($user) : null
+        $this->render('pages/creation-profil', [
+            'user' => $user ? $this->userService->toArray($user) : null,
         ]);
     }
 
-    // Traite la mise à jour du profil (validation, hash, upload, persistance, session)
+    // POST /creation-profil
     public function update(): void
     {
-        // Autorise uniquement POST
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             abort(405);
         }
 
-        $userId = $_SESSION['user']['id'];
-        $user = $this->userRepository->findById($userId);
-
-        // Vérifie l'existence de l'utilisateur
-        if (!$user) {
-            $_SESSION['error'] = "Utilisateur introuvable.";
+        if (!Csrf::check($_POST['csrf'] ?? null)) {
+            Flash::add('Requête invalide (CSRF).', 'danger');
             redirect('/creation-profil');
+            return;
         }
 
-        // Détermine le nouveau rôle de voyage (ou conserve l'actuel)
-        $currentTravelRole = $_SESSION['user']['travel_role'] ?? 'passager';
-        $newTravelRole = $_POST['travel_role'] ?? $currentTravelRole;
+        $userId = (int)($_SESSION['user']['id'] ?? 0);
+        $user   = $this->userRepository->findById($userId);
 
-        // Gestion du changement de mot de passe
+        if (!$user) {
+            Flash::add('Utilisateur introuvable.', 'danger');
+            redirect('/creation-profil');
+            return;
+        }
+
+        // Champs requis
+        $pseudo      = trim($_POST['pseudo'] ?? '');
+        $travelRole  = trim($_POST['travel_role'] ?? '');
+
+        if ($pseudo === '' || $travelRole === '') {
+            Flash::add('Champs requis manquants.', 'danger');
+            redirect('/creation-profil');
+            return;
+        }
+
+        // Changement de mot de passe (optionnel)
         $currentPassword = $_POST['current_password'] ?? '';
-        $newPassword = $_POST['new_password'] ?? '';
+        $newPassword     = $_POST['new_password'] ?? '';
 
-        if (!empty($newPassword)) {
-            // Exige le mot de passe actuel et le vérifie avant de changer
-            if (empty($currentPassword) || !$this->userService->verifyPassword($user, $currentPassword)) {
-                $_SESSION['error'] = "Mot de passe actuel incorrect.";
+        if ($newPassword !== '') {
+            if ($currentPassword === '' || !$this->userService->verifyPassword($user, $currentPassword)) {
+                Flash::add('Mot de passe actuel incorrect.', 'danger');
                 redirect('/creation-profil');
+                return;
             }
-            // Hash du nouveau mot de passe dans l'entité
             $this->userService->hashPassword($user, $newPassword);
         }
 
-        // Mise à jour des champs de l'entité User
-        $user->setPseudo(trim($_POST['pseudo'] ?? $user->getPseudo()));
-        $user->setTravelRole($newTravelRole);
-        $user->setRoleId($_SESSION['user']['role_id']);
+        // Maj champs profil
+        $user->setPseudo($pseudo);
+        $user->setTravelRole($travelRole);
+        $user->setRoleId((int)($_SESSION['user']['role_id'] ?? $user->getRoleId()));
 
-        // Gestion de l'upload de photo (si fournie)
+        // Upload photo si fourni
         if (!empty($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
-            $user->setPhoto($this->handlePhotoUpload($_FILES['photo']));
+            $path = $this->handlePhotoUpload($_FILES['photo']);
+            if ($path) {
+                $user->setPhoto($path);
+            }
         }
 
-        // Persistance des modifications
+        // Persistance
         $this->userRepository->update($user);
 
-        // Message de succès
-        $_SESSION['success'] = "Profil mis à jour avec succès.";
+        // Rafraîchir la session UNE SEULE fois
+        $updated = $this->userRepository->findById($userId);
+        $_SESSION['user'] = $this->userService->toArray($updated);
 
-        // Rafraîchit les données en session depuis la base
-        $updatedUser = $this->userRepository->findById($userId);
-        $_SESSION['user'] = $this->userService->toArray($updatedUser);
-
-        // Redirection vers le profil
-        redirect('/my-profil');
+        // Flash + PRG
+        Flash::add('Profil mis à jour avec succès.', 'success');
+        session_write_close();
+        header('Location: /my-profil', true, 303);
+        exit;
     }
 
-    // Sauvegarde le fichier uploadé dans /public/uploads et retourne le chemin web
+    // Sauvegarde l’upload et renvoie le chemin web ou null
     private function handlePhotoUpload(array $file): ?string
     {
-        $targetDir = PUBLIC_ROOT . '/uploads/';
-        $filename = uniqid() . '-' . basename($file['name']);
-        $targetFile = $targetDir . $filename;
+        $dir = PUBLIC_ROOT . '/uploads/';
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
 
-        return move_uploaded_file($file['tmp_name'], $targetFile)
-            ? '/uploads/' . $filename
-            : null;
+        // (Optionnel mais recommandé) contrôle du type MIME
+        if (class_exists(\finfo::class)) {
+            $finfo   = new \finfo(FILEINFO_MIME_TYPE);
+            $mime    = $finfo->file($file['tmp_name']) ?: '';
+            $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+            if (!isset($allowed[$mime])) {
+                return null;
+            }
+            $ext  = $allowed[$mime];
+        } else {
+            // fallback simple
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION) ?: 'jpg';
+        }
+
+        $name = bin2hex(random_bytes(8)) . '.' . strtolower($ext);
+        $ok   = move_uploaded_file($file['tmp_name'], $dir . $name);
+
+        return $ok ? '/uploads/' . $name : null;
     }
 }

@@ -2,7 +2,7 @@
 
 
 <div class="container-fluid text-white">
-    <div id="globalAlert" class="alert d-none"></div>
+    
 
     <!-- H1 PRINCIPAL -->
     <section class="text-center mb-3 mt-5">

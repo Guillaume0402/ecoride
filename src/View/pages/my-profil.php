@@ -13,14 +13,6 @@ if ($user['role_id'] === 3) {
 }
 ?>
 
-<?php if (!empty($_SESSION['success'])): ?>
-    <div class="alert alert-success text-center mx-3 auto-dismiss" role="alert">
-        <?= htmlspecialchars($_SESSION['success']) ?>
-    </div>
-    <?php unset($_SESSION['success']); ?>
-<?php endif; ?>
-
-
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
@@ -36,7 +28,7 @@ if ($user['role_id'] === 3) {
                             </div>
                             <?php if (isset($_SESSION['user'])): ?>
                                 <h2 class="fw-bold text-white mb-2"><?= $_SESSION['user']['pseudo'] ?? '' ?></h2>
-                                <img src="<?= $_SESSION['user']['photo_url'] ?? '/assets/images/logo.svg' ?>" alt="Avatar" class="rounded-circle bg-white mb-2" style="width:70px;height:70px;object-fit:cover;">
+                                <img src="<?= $user['photo'] ?? '/assets/images/logo.svg' ?>" alt="Avatar" class="rounded-circle bg-white mb-2" style="width:70px;height:70px;object-fit:cover;">
                                 <ul class="list-unstyled text-white small mb-3">
                                     <li>Animaux accepté</li>
                                     <li>Sans tabac</li>
@@ -46,14 +38,12 @@ if ($user['role_id'] === 3) {
                                 <div class="d-flex flex-md-row gap-2">
                                     <a href="#" class="btn btn-custom-outline px-4">Historique</a>
                                     <a href="/creation-profil" class="btn btn-custom-outline px-4">Modifier Profil</a>
-
                                 </div>
                                 <div class="text-center">
                                     <a href="/vehicle/create" class="btn btn-inscription px-4 mt-3">
                                         <i class="bi bi-plus-circle"></i> Ajouter un véhicule
                                     </a>
                                 </div>
-
                             <?php endif; ?>
                         </div>
                     </div>
@@ -85,62 +75,55 @@ if ($user['role_id'] === 3) {
                                 </ul>
                                 <!-- Contenu des onglets -->
                                 <div class="tab-content" id="vehicleTabsContent">
-
                                     <?php foreach ($vehicles as $index => $vehicle): ?>
                                         <div class="tab-pane fade <?= $index === 0 ? 'show active' : '' ?>" id="vehicle-<?= $index ?>" role="tabpanel">
                                             <div class="card bg-transparent border rounded-3 p-3 text-white">
                                                 <div class="fw-bold mb-3">
                                                     Modèle : <?= htmlspecialchars($vehicle->getMarque()) . ' ' . htmlspecialchars($vehicle->getModele()) ?>
                                                 </div>
-
                                                 <div class="row small">
                                                     <div class="col-md-4">Couleur : <?= htmlspecialchars($vehicle->getCouleur()) ?></div>
                                                     <div class="col-md-4">Immatriculation : <?= htmlspecialchars($vehicle->getImmatriculation()) ?></div>
                                                     <div class="col-md-4">Date : <?= date('d/m/Y', strtotime($vehicle->getDatePremiereImmatriculation())) ?></div>
                                                     <div class="col-md-4">Énergie : <?= htmlspecialchars($vehicle->getFuelTypeName() ?? 'Non renseigné') ?></div>
                                                     <div class="col-md-4">Places : <?= htmlspecialchars($vehicle->getPlacesDispo()) ?></div>
-
                                                     <div class="col-12 mt-3">
                                                         <strong>Préférences :</strong><br>
                                                         <?php
                                                         $prefs = explode(',', $vehicle->getPreferences() ?? '');
                                                         $allowedPrefs = ['fumeur', 'non-fumeur', 'animaux', 'pas-animaux'];
-
                                                         foreach ($prefs as $pref) {
                                                             $prefClean = strtolower(trim($pref));
                                                             if (in_array($prefClean, $allowedPrefs)) {
                                                                 echo '<span class="badge badge-pref ' . $prefClean . ' me-2">' . htmlspecialchars($prefClean) . '</span>';
                                                             }
                                                         }
-
                                                         if (!empty($vehicle->getCustomPreferences())) {
                                                             echo '<span class="badge badge-pref custom">' . htmlspecialchars(trim($vehicle->getCustomPreferences())) . '</span>';
                                                         }
                                                         ?>
                                                     </div>
                                                 </div>
-
                                                 <div class="d-flex justify-content-end mt-4">
                                                     <a href="/vehicle/edit?id=<?= $vehicle->getId() ?>" class="btn btn-custom-outline px-4">
                                                         <i class="bi bi-pencil-square me-1"></i> Modifier véhicule
                                                     </a>
                                                     <form method="POST" action="/vehicle/delete">
+                                                        <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
                                                         <input type="hidden" name="vehicle_id" value="<?= $vehicle->getId() ?>">
                                                         <button type="submit" class="btn btn-inscription px-4 ms-2">
                                                             <i class="bi bi-trash me-1"></i> Supprimer
                                                         </button>
-
                                                     </form>
                                                 </div>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
-
                                 </div>
-
-
                             <?php else: ?>
-                                <div class="alert alert-warning">Aucun véhicule renseigné</div>
+                                <div class="p-3 border rounded-3 bg-dark bg-opacity-25 text-white-50">
+                                    Aucun véhicule renseigné
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>

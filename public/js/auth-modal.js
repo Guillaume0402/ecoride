@@ -5,7 +5,7 @@ function showAlert(message, type = "danger") {
     const modalAlert = document.querySelector("#authModal #authAlert");
     if (!modalAlert) return;
 
-    modalAlert.className = `alert alert-${type} mx-3`;
+    modalAlert.className = `custom-alert alert-${type} auto-dismiss fade-in`;
     modalAlert.textContent = message;
     modalAlert.classList.remove("d-none");
 

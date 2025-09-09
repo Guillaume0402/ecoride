@@ -10,23 +10,13 @@ if (!empty($vehicle['date_premiere_immatriculation'])) {
 // Préférences
 $prefs = isset($vehicle['preferences']) ? explode(',', $vehicle['preferences']) : [];
 
-
-
-// Gestion de la date formatée
-$dateFormatted = '';
-if (!empty($vehicle['date_premiere_immatriculation'])) {
-    $timestamp = strtotime($vehicle['date_premiere_immatriculation']);
-    $dateFormatted = date('Y-m-d', $timestamp);
-}
-
-// Préférences
-$prefs = isset($vehicle['preferences']) ? explode(',', $vehicle['preferences']) : [];
 ?>
 
 <div class="container py-5">
     <h2 class="mb-4 text-center"><?= !empty($vehicle['id']) ? 'Modifier mon véhicule' : 'Ajouter un véhicule' ?></h2>
 
     <form method="POST" action="<?= !empty($vehicle['id']) ? '/vehicle/update' : '/vehicle/create' ?>" class="p-4">
+        <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
         <?php if (!empty($vehicle['id'])): ?>
             <input type="hidden" name="vehicle_id" value="<?= htmlspecialchars($vehicle['id']) ?>">
         <?php endif; ?>
@@ -81,7 +71,13 @@ $prefs = isset($vehicle['preferences']) ? explode(',', $vehicle['preferences']) 
                 <option value="1" <?= ($vehicle['places_dispo'] ?? '') == '1' ? 'selected' : '' ?>>1</option>
                 <option value="2" <?= ($vehicle['places_dispo'] ?? '') == '2' ? 'selected' : '' ?>>2</option>
                 <option value="3" <?= ($vehicle['places_dispo'] ?? '') == '3' ? 'selected' : '' ?>>3</option>
-                <option value="4+" <?= ($vehicle['places_dispo'] ?? '') == '4+' ? 'selected' : '' ?>>4+</option>
+                <option value="4" <?= ($vehicle['places_dispo'] ?? '') == '4' ? 'selected' : '' ?>>4</option>
+                <option value="5" <?= ($vehicle['places_dispo'] ?? '') == '5' ? 'selected' : '' ?>>5</option>
+                <option value="6" <?= ($vehicle['places_dispo'] ?? '') == '6' ? 'selected' : '' ?>>6</option>
+                <option value="7" <?= ($vehicle['places_dispo'] ?? '') == '7' ? 'selected' : '' ?>>7</option>
+                <option value="8" <?= ($vehicle['places_dispo'] ?? '') == '8' ? 'selected' : '' ?>>8</option>
+
+
             </select>
         </div>
 

@@ -4,6 +4,9 @@ namespace App\Controller;
 
 use App\Entity\VehicleEntity;
 use App\Repository\VehicleRepository;
+use App\Service\Flash;
+use App\Security\Csrf;
+
 
 // Contrôleur véhicules: accès protégé + CRUD (create/edit/update/delete)
 class VehicleController extends Controller
@@ -17,9 +20,8 @@ class VehicleController extends Controller
         parent::__construct();
         $this->vehicleRepository = new VehicleRepository();
 
-        // Si l'utilisateur n'est pas connecté, on redirige vers la page de login
         if (!isset($_SESSION['user'])) {
-            $_SESSION['error'] = "Veuillez vous connecter.";
+            Flash::add('Veuillez vous connecter.', 'danger');
             redirect('/login');
         }
     }
@@ -40,50 +42,72 @@ class VehicleController extends Controller
             abort(405);
         }
 
-        $userId = $_SESSION['user']['id'];
-
-        // Validation simple des places disponibles
-        if (empty($_POST['places_dispo']) || !is_numeric($_POST['places_dispo'])) {
-            $_SESSION['error'] = "Veuillez sélectionner un nombre de places valide.";
+        // CSRF
+        if (!Csrf::check($_POST['csrf'] ?? null)) {
+            Flash::add('Requête invalide (CSRF).', 'danger');
             redirect('/vehicle/create');
         }
 
-        // Conversion de la date en format SQL si fournie
-        $dateFr = $_POST['date_premiere_immatriculation'] ?? '';
-        $dateSql = !empty($dateFr)
+        $userId = (int) ($_SESSION['user']['id'] ?? 0);
+        if ($userId <= 0) {
+            Flash::add('Veuillez vous connecter.', 'danger');
+            redirect('/login');
+        }
+
+        // places_dispo (int entre 1 et 9)
+        $places = filter_input(
+            INPUT_POST,
+            'places_dispo',
+            FILTER_VALIDATE_INT,
+            ['options' => ['min_range' => 1, 'max_range' => 9]]
+        );
+        if ($places === false) {
+            Flash::add('Veuillez sélectionner un nombre de places valide.', 'danger');
+            redirect('/vehicle/create');
+        }
+
+        // Date Y-m-d -> SQL (ou null)
+        $dateFr  = $_POST['date_premiere_immatriculation'] ?? '';
+        $dateSql = $dateFr !== ''
             ? \DateTime::createFromFormat('Y-m-d', $dateFr)?->format('Y-m-d')
             : null;
 
-        // Construction de l'entité Vehicle à partir du POST
+        // Normalisation plaque via le repo (tu l’as ajoutée dans le repo 👍)
+        $immatriculation = VehicleRepository::normalizePlate($_POST['immatriculation'] ?? '');
+
+        // Whitelist des préférences (sécurité)
+        $allowed = ['fumeur', 'non-fumeur', 'animaux', 'pas-animaux'];
+        $prefs   = array_intersect($allowed, (array) ($_POST['preferences'] ?? []));
+        $preferences = implode(',', $prefs);
+
+        // Unicité (par utilisateur)
+        if ($this->vehicleRepository->existsByImmatriculation($immatriculation, $userId)) {
+            Flash::add('Cette immatriculation est déjà utilisée.', 'danger');
+            redirect('/vehicle/create');
+        }
+
         $vehicle = new VehicleEntity([
-            'user_id' => $userId,
-            'marque' => trim($_POST['marque'] ?? ''),
-            'modele' => trim($_POST['modele'] ?? ''),
-            'couleur' => trim($_POST['couleur'] ?? ''),
-            'immatriculation' => trim($_POST['immatriculation'] ?? ''),
+            'user_id'                       => $userId,
+            'marque'                        => trim($_POST['marque'] ?? ''),
+            'modele'                        => trim($_POST['modele'] ?? ''),
+            'couleur'                       => trim($_POST['couleur'] ?? ''),
+            'immatriculation'               => $immatriculation,
             'date_premiere_immatriculation' => $dateSql,
-            'fuel_type_id' => $_POST['fuel_type_id'] ?? null,
-            'places_dispo' => (int) $_POST['places_dispo'],
-            'preferences' => isset($_POST['preferences']) ? implode(',', $_POST['preferences']) : '',
-            'custom_preferences' => trim($_POST['custom_preferences'] ?? '')
+            'fuel_type_id'                  => ($_POST['fuel_type_id'] ?? null) ?: null,
+            'places_dispo'                  => $places,
+            'preferences'                   => $preferences,
+            'custom_preferences'            => trim($_POST['custom_preferences'] ?? ''),
         ]);
 
-        // Vérifie l'unicité de l'immatriculation pour cet utilisateur
-        // Note: on pourrait utiliser $userId ici pour restreindre la vérification à l'utilisateur courant
-        if ($this->vehicleRepository->existsByImmatriculation($vehicle->getImmatriculation(), 0)) {
-            $_SESSION['error'] = "Cette immatriculation est déjà utilisée.";
-            redirect('/vehicle/create');
+        if ($this->vehicleRepository->create($vehicle)) {
+            Flash::add('Véhicule ajouté avec succès.', 'success');
+            redirect('/my-profil');
         }
 
-        // Persistance + retour utilisateur
-        if ($this->vehicleRepository->create($vehicle)) {
-            $_SESSION['success'] = "Véhicule ajouté avec succès.";
-            redirect('/my-profil');
-        } else {
-            $_SESSION['error'] = "Erreur lors de l'ajout du véhicule.";
-            redirect('/vehicle/create');
-        }
+        Flash::add("Erreur lors de l'ajout du véhicule.", 'danger');
+        redirect('/vehicle/create');
     }
+
 
     // Affiche le formulaire d'édition (vérifie appartenance)
     public function edit(): void
@@ -95,9 +119,10 @@ class VehicleController extends Controller
 
         // Protection: existence + autorisation (appartenance)
         if (!$vehicle || $vehicle->getUserId() !== $userId) {
-            $_SESSION['error'] = "Véhicule introuvable ou non autorisé.";
+            Flash::add('Véhicule introuvable ou non autorisé.', 'danger');
             redirect('/my-profil');
         }
+
 
         $this->render("pages/form-vehicule", [
             'vehicle' => $vehicle->toArray()
@@ -111,57 +136,74 @@ class VehicleController extends Controller
             abort(405);
         }
 
-        $vehicleId = (int) ($_POST['vehicle_id'] ?? 0);
-        $userId = $_SESSION['user']['id'];
-
-        $existingVehicle = $this->vehicleRepository->findById($vehicleId);
-
-        // Protection: existence + autorisation
-        if (!$existingVehicle || $existingVehicle->getUserId() !== $userId) {
-            $_SESSION['error'] = "Véhicule introuvable ou non autorisé.";
-            redirect('/vehicle/edit');
+        if (!Csrf::check($_POST['csrf'] ?? null)) {
+            Flash::add('Requête invalide (CSRF).', 'danger');
+            redirect('/my-profil');
         }
 
-        $immatriculation = trim($_POST['immatriculation'] ?? '');
+        $vehicleId = filter_input(INPUT_POST, 'vehicle_id', FILTER_VALIDATE_INT);
+        $userId    = (int) $_SESSION['user']['id'];
 
-        // Unicité de l'immatriculation pour l'utilisateur, hors véhicule en cours d'édition
+        if (!$vehicleId) {
+            Flash::add('ID de véhicule invalide.', 'danger');
+            redirect('/my-profil');
+        }
+
+        $existingVehicle = $this->vehicleRepository->findById($vehicleId);
+        if (!$existingVehicle || $existingVehicle->getUserId() !== $userId) {
+            Flash::add('Véhicule introuvable ou non autorisé.', 'danger');
+            redirect('/my-profil');
+        }
+
+        $immatriculation = VehicleRepository::normalizePlate($_POST['immatriculation'] ?? '');
+
+
+        // ⚠️ Idéalement, une méthode qui exclut l’ID courant:
+        // existsByImmatriculationForUserExcept($immat, $userId, $excludeId)
         if (
             $this->vehicleRepository->existsByImmatriculation($immatriculation, $userId)
             && $existingVehicle->getImmatriculation() !== $immatriculation
         ) {
-            $_SESSION['error'] = "Cette immatriculation est déjà utilisée par un autre véhicule.";
-            redirect('/vehicle/edit');
+            Flash::add("Cette immatriculation est déjà utilisée par un autre véhicule.", 'danger');
+            redirect('/vehicle/edit?id=' . $vehicleId);
         }
 
-        // Conversion de la date en format SQL si fournie
-        $dateFr = $_POST['date_premiere_immatriculation'] ?? '';
-        $dateSql = !empty($dateFr)
+        $dateFr  = $_POST['date_premiere_immatriculation'] ?? '';
+        $dateSql = $dateFr !== ''
             ? \DateTime::createFromFormat('Y-m-d', $dateFr)?->format('Y-m-d')
             : null;
 
-        // Normalisation des préférences multi-choix
-        $preferences = isset($_POST['preferences']) ? implode(',', $_POST['preferences']) : '';
+        $allowed = ['fumeur', 'non-fumeur', 'animaux', 'pas-animaux'];
+        $prefs   = array_intersect($allowed, (array) ($_POST['preferences'] ?? []));
+        $preferences = implode(',', $prefs);
 
-        // Construction d'une nouvelle entité Vehicle avec les valeurs mises à jour
+        $places = filter_input(
+            INPUT_POST,
+            'places_dispo',
+            FILTER_VALIDATE_INT,
+            ['options' => ['min_range' => 1, 'max_range' => 9]]
+        );
+
         $vehicle = new VehicleEntity([
-            'id' => $vehicleId,
-            'user_id' => $userId,
-            'marque' => trim($_POST['marque'] ?? ''),
-            'modele' => trim($_POST['modele'] ?? ''),
-            'couleur' => trim($_POST['couleur'] ?? ''),
-            'immatriculation' => $immatriculation,
+            'id'                          => $vehicleId,
+            'user_id'                     => $userId,
+            'marque'                      => trim($_POST['marque'] ?? ''),
+            'modele'                      => trim($_POST['modele'] ?? ''),
+            'couleur'                     => trim($_POST['couleur'] ?? ''),
+            'immatriculation'             => $immatriculation,
             'date_premiere_immatriculation' => $dateSql,
-            'fuel_type_id' => $_POST['fuel_type_id'] ?? null,
-            'places_dispo' => (int) $_POST['places_dispo'],
-            'preferences' => $preferences,  // valeurs multi sélectionnées sous forme de CSV
-            'custom_preferences' => trim($_POST['custom_preferences'] ?? '')
+            'fuel_type_id'                => ($_POST['fuel_type_id'] ?? null) ?: null,
+            'places_dispo'                => $places ?: (int) $existingVehicle->getPlacesDispo(),
+            'preferences'                 => $preferences,
+            'custom_preferences'          => trim($_POST['custom_preferences'] ?? ''),
         ]);
 
         $this->vehicleRepository->update($vehicle);
 
-        $_SESSION['success'] = "Véhicule mis à jour avec succès.";
+        Flash::add('Véhicule mis à jour avec succès.', 'success');
         redirect('/my-profil');
     }
+
 
     // Supprime un véhicule (POST) après vérification d'appartenance
     public function delete(): void
@@ -170,20 +212,25 @@ class VehicleController extends Controller
             abort(405);
         }
 
-        $vehicleId = (int) ($_POST['vehicle_id'] ?? 0);
-        if ($vehicleId <= 0) {
-            $_SESSION['error'] = "ID de véhicule invalide.";
+        if (!Csrf::check($_POST['csrf'] ?? null)) {
+            Flash::add('Requête invalide (CSRF).', 'danger');
+            redirect('/my-profil');
+        }
+
+        $vehicleId = filter_input(INPUT_POST, 'vehicle_id', FILTER_VALIDATE_INT);
+        if (!$vehicleId) {
+            Flash::add('ID de véhicule invalide.', 'danger');
             redirect('/my-profil');
         }
 
         $vehicle = $this->vehicleRepository->findById($vehicleId);
-        if (!$vehicle || $vehicle->getUserId() !== $_SESSION['user']['id']) {
-            $_SESSION['error'] = "Véhicule introuvable ou non autorisé.";
+        if (!$vehicle || $vehicle->getUserId() !== (int) $_SESSION['user']['id']) {
+            Flash::add('Véhicule introuvable ou non autorisé.', 'danger');
             redirect('/my-profil');
         }
 
         $this->vehicleRepository->deleteById($vehicleId);
-        $_SESSION['success'] = "Véhicule supprimé avec succès.";
+        Flash::add('Véhicule supprimé avec succès.', 'success');
         redirect('/my-profil');
     }
 }

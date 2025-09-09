@@ -156,10 +156,9 @@ class VehicleRepository
     // Vérifie l'existence d'une immatriculation pour un utilisateur (avec exclusion optionnelle)
     public function existsByImmatriculation(string $immatriculation, int $userId, ?int $excludeVehicleId = null): bool
     {
-        // Vérifie l'unicité de la plaque pour un utilisateur; exclut un ID si fourni (update)
-        $sql = "SELECT id FROM {$this->table} 
-                WHERE immatriculation = :immatriculation 
-                AND user_id = :user_id";
+        $sql = "SELECT id FROM {$this->table}
+            WHERE immatriculation = :immatriculation
+              AND user_id = :user_id";
         $params = [
             ':immatriculation' => $immatriculation,
             ':user_id' => $userId
@@ -170,10 +169,13 @@ class VehicleRepository
             $params[':exclude_id'] = $excludeVehicleId;
         }
 
+        $sql .= " LIMIT 1";
+
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
         return (bool) $stmt->fetch();
     }
+
 
     // Recherche par plaque (globale)
     public function findByImmatriculation(string $immatriculation): ?VehicleEntity
@@ -192,5 +194,12 @@ class VehicleRepository
         // Liste des types de carburant pour alimenter les formulaires
         $stmt = $this->conn->query("SELECT id, type_name FROM fuel_types ORDER BY id ASC");
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public static function normalizePlate(?string $plate): string
+    {
+        $plate = strtoupper(trim((string)$plate));
+        // supprime espaces/traits/points selon ton choix:
+        return preg_replace('/[\s\.\-]/', '', $plate);
     }
 }

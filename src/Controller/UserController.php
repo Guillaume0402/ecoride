@@ -2,6 +2,9 @@
 
 namespace App\Controller;
 
+use App\Service\Flash;
+
+
 // Contrôleur utilisateurs: garde d'accès + listing et affichage profil
 class UserController extends Controller
 {
@@ -12,7 +15,7 @@ class UserController extends Controller
 
         // Si aucun utilisateur n'est authentifié, message d'erreur et redirection vers la page de connexion
         if (!isset($_SESSION['user'])) {
-            $_SESSION['error'] = "Veuillez vous connecter.";
+            Flash::add('Veuillez vous connecter.', 'danger');
             redirect('/login');
         }
     }
@@ -45,4 +48,5 @@ class UserController extends Controller
             'user' => $this->userService->toArray($user)
         ]);
     }
+    
 }

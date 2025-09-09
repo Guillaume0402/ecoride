@@ -22,14 +22,14 @@
 
         <!-- ✅ Alertes globales succès/erreur -->
         <?php if (!empty($_SESSION['success'])): ?>
-            <div class="custom-alert alert-success">
+            <div class="custom-alert alert-success auto-dismiss fade-in" role="alert" data-timeout="4000">
                 <?= htmlspecialchars($_SESSION['success']) ?>
             </div>
             <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
 
         <?php if (!empty($_SESSION['error'])): ?>
-            <div class="custom-alert alert-danger">
+            <div class="custom-alert alert-danger auto-dismiss fade-in" role="alert" data-timeout="4000">
                 <?= htmlspecialchars($_SESSION['error']) ?>
             </div>
             <?php unset($_SESSION['error']); ?>
@@ -63,7 +63,7 @@
 
                         <!-- Bloc d'erreur -->
                         <?php if (!empty($formErrors)): ?>
-                            <div class="custom-alert alert-danger">
+                            <div class="custom-alert alert-danger auto-dismiss fade-in" role="alert" data-timeout="4000">
                                 <?= implode('<br>', array_map('htmlspecialchars', $formErrors)) ?>
                             </div>
                         <?php endif; ?>

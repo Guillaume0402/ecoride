@@ -2,30 +2,10 @@
 <?php $user = $user ?? null;
 ?>
 
-<!-- Alertes de succès et d'erreur -->
-<?php if (!empty($_SESSION['success'])): ?>
-    <div class="alert alert-success text-center w-75 mx-auto auto-dismiss">
-        <?= $_SESSION['success']; ?>
-        <?php unset($_SESSION['success']); ?>
-    </div>
-<?php endif; ?>
-
-<?php if (!empty($_SESSION['error'])): ?>
-    <div class="alert alert-danger text-center w-75 mx-auto auto-dismiss">
-        <?= $_SESSION['error']; ?>
-        <?php unset($_SESSION['error']); ?>
-    </div>
-<?php endif; ?>
-
-<?php if (!$user): ?>
-    <div class="alert alert-danger text-center w-75 mx-auto auto-dismiss">
-        Aucun utilisateur connecté.
-    </div>
-<?php endif; ?>
-
 <div class="container mt-5 mb-5">
 
     <form method="POST" action="/creation-profil" enctype="multipart/form-data" class="p-4">
+        <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
         <div class="container mt-2 d-flex align-items-center justify-content-between form-section">
             <h4>Votre Profil</h4>
             <!-- Boutons -->
@@ -84,7 +64,6 @@
             </button>
         </div>
 
-
         <!-- RÔLE -->
         <div class="mb-3 form-section">
             <label for="role" class="form-label">Rôles</label>
@@ -97,10 +76,7 @@
 
         </div>
 
-        <!-- SECTION CHAUFFEUR -->
-
-
-        <!-- Boutons -->
+        <!-- SECTION CHAUFFEUR -->        
         <div class="text-end mt-4">
             <a href="/my-profil" class="btn btn-custom-outline">Annuler</a>
             <button type="submit" class="btn btn-inscription me-2">Sauvegarder</button>

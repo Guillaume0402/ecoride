@@ -12,5 +12,4 @@
 <?php if (isset($isAdminPage) && $isAdminPage): ?>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <?php endif; ?>
-<script type="module" src="/js/main.js"></script>
 
