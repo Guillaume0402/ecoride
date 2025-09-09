@@ -32,6 +32,7 @@
                     <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
                 </div>
                 <div class="text-center">
+                    <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
                     <button type="submit" class="btn btn-inscription">
                         <span class="btn-text">Inscription</span>
                         <span class="spinner-border spinner-border-sm d-none" role="status"></span>
