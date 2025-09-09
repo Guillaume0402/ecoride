@@ -25,7 +25,18 @@ use App\Routing\Router;
 
 // Initialisation et traitement de la requête+
 $router = new Router();
-$router->handleRequest($_SERVER["REQUEST_URI"]);
+
+try {
+    $router->handleRequest($_SERVER["REQUEST_URI"]);
+} catch (\Throwable $e) {
+    // En dev : laisser l'erreur remonter pour debugger
+    if (($_ENV['APP_ENV'] ?? 'prod') === 'dev') {
+        throw $e;
+    }
+    // En prod : page 500 propre
+    (new \App\Controller\ErrorController())->show500();
+}
+
 
 // Gestion des fichiers statiques (serveur PHP intégré)
 if (php_sapi_name() === 'cli-server') {
