@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\UserEntity;
+use App\Security\Csrf;
+
 
 // Contrôleur d'auth: vue login + API JSON (register/login/logout)
 class AuthController extends Controller
@@ -90,6 +92,13 @@ class AuthController extends Controller
         $this->jsonResponse(function () {
             // Récupération du payload JSON
             $data = json_decode(file_get_contents('php://input'), true);
+
+            // --- CSRF check (JSON) ---
+            $token = $data['csrf'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null);
+            if (!Csrf::check($token)) {
+                throw new \Exception('Requête invalide (CSRF)');
+            }
+
 
             // Validation des champs requis
             if (empty($data['email']) || empty($data['password'])) {
