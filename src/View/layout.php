@@ -12,6 +12,9 @@
 
 </head>
 
+<?php require APP_ROOT . '/src/View/partials/flash.php'; ?>
+
+
 <body class="page-container d-flex flex-column min-vh-100">
     <div id="globalAlert" class="d-none"></div>
 

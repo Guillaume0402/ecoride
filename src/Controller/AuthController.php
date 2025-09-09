@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\UserEntity;
 use App\Security\Csrf;
+use App\Service\Flash;
+
 
 
 // Contrôleur d'auth: vue login + API JSON (register/login/logout)
@@ -146,9 +148,13 @@ class AuthController extends Controller
     // Déconnexion (HTML) + redirection
     public function logout(): void
     {
-        session_destroy();
-        redirect('/?logout=1');
+        // Ne PAS détruire la session avant le flash
+        unset($_SESSION['user']);              // on déconnecte l’utilisateur
+        Flash::add('Vous êtes bien déconnecté(e).', 'success');  // on stocke le message
+        session_regenerate_id(true);           // hygiène de session
+        redirect('/');                         // le flash s’affichera sur la page d’arrivée
     }
+
 
 
     // Helper pour les réponses JSON avec gestion d’erreurs
