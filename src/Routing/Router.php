@@ -43,11 +43,20 @@ class Router
         }
 
         if (!$matchedRoute) {
-            abort(404, "Route non trouvée : $path");
+            // Pas de route trouvée → 404
+            (new \App\Controller\ErrorController())->show404("Route non trouvée : $path");
+            return;
+        }
+
+        // Si la route existe mais pas pour cette méthode HTTP → 405
+        if (!isset($matchedRoute['controller']) || !isset($matchedRoute['action'])) {
+            (new \App\Controller\ErrorController())->show405("Méthode $method non autorisée pour $path");
+            return;
         }
 
         $controllerPath = $matchedRoute['controller'];
         $action = $matchedRoute['action'];
+
 
         if (!class_exists($controllerPath)) {
             abort(500, "Controller introuvable : $controllerPath");
