@@ -126,9 +126,7 @@ class UserRepository
 
     public function updatePasswordById(int $userId, string $newHash): bool
     {
-        $sql = "UPDATE {$this->table} 
-            SET password = :hash, updated_at = NOW() 
-            WHERE id = :id";
+        $sql = "UPDATE {$this->table} SET password = :hash WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([
             ':hash' => $newHash,
