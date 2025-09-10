@@ -91,7 +91,7 @@ class UserRepository
     public function findByEmail(string $email): ?UserEntity
     {
         // Index de recherche typique côté authentification
-        $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE email = :email");
+        $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE LOWER(email) = :email");
         $stmt->execute([':email' => $email]);
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $data ? new UserEntity($data) : null;
