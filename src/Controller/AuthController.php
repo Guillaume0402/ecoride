@@ -22,87 +22,87 @@ class AuthController extends Controller
 
     // API inscription JSON: validations, création user, session, redirection
     public function apiRegister(): void
-{
-    $this->jsonResponse(function () {
-        // Payload JSON
-        $data = json_decode(file_get_contents('php://input'), true);
+    {
+        $this->jsonResponse(function () {
+            // Payload JSON
+            $data = json_decode(file_get_contents('php://input'), true);
 
-        // --- CSRF check (JSON) ---
-        $token = $data['csrf'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null);
-        if (!Csrf::check($token)) {
-            throw new \Exception('Requête invalide (CSRF)');
-        }
+            // --- CSRF check (JSON) ---
+            $token = $data['csrf'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null);
+            if (!Csrf::check($token)) {
+                throw new \Exception('Requête invalide (CSRF)');
+            }
 
-        // Champs requis
-        $username = trim($data['username'] ?? '');
-        $email    = trim($data['email'] ?? '');
-        $password = (string)($data['password'] ?? '');
-        $confirm  = (string)($data['confirmPassword'] ?? '');
+            // Champs requis
+            $username = trim($data['username'] ?? '');
+            $email    = trim($data['email'] ?? '');
+            $password = (string)($data['password'] ?? '');
+            $confirm  = (string)($data['confirmPassword'] ?? '');
 
-        if ($username === '' || $email === '' || $password === '') {
-            throw new \Exception('Tous les champs sont obligatoires.');
-        }
-        if ($password !== $confirm) {
-            throw new \Exception('Les mots de passe ne correspondent pas.');
-        }
+            if ($username === '' || $email === '' || $password === '') {
+                throw new \Exception('Tous les champs sont obligatoires.');
+            }
+            if ($password !== $confirm) {
+                throw new \Exception('Les mots de passe ne correspondent pas.');
+            }
 
-        // Unicité
-        if ($this->userRepository->findByEmail($email)) {
-            throw new \Exception('Cet email est déjà utilisé.');
-        }
-        if ($this->userRepository->findByPseudo($username)) {
-            throw new \Exception('Ce pseudo est déjà pris.');
-        }
+            // Unicité
+            if ($this->userRepository->findByEmail($email)) {
+                throw new \Exception('Cet email est déjà utilisé.');
+            }
+            if ($this->userRepository->findByPseudo($username)) {
+                throw new \Exception('Ce pseudo est déjà pris.');
+            }
 
-        // Politique de mot de passe (robustesse)
-        $pwdErrors = PasswordPolicy::validate($password, $username, $email);
-        if (!empty($pwdErrors)) {
-            // On renvoie tous les messages d’un coup pour l’UX
-            throw new \Exception(implode(' ', $pwdErrors));
-        }
+            // Politique de mot de passe (robustesse)
+            $pwdErrors = PasswordPolicy::validate($password, $username, $email);
+            if (!empty($pwdErrors)) {
+                // On renvoie tous les messages d’un coup pour l’UX
+                throw new \Exception(implode(' ', $pwdErrors));
+            }
 
-        // Entité minimale
-        $user = (new UserEntity())
-            ->setPseudo($username)
-            ->setEmail($email);
+            // Entité minimale
+            $user = (new UserEntity())
+                ->setPseudo($username)
+                ->setEmail($email);
 
-        // Validation métier (service existant)
-        $errors = $this->userService->validate($user);
-        if (!empty($errors)) {
-            throw new \Exception(implode(', ', $errors));
-        }
+            // Validation métier (service existant)
+            $errors = $this->userService->validate($user);
+            if (!empty($errors)) {
+                throw new \Exception(implode(', ', $errors));
+            }
 
-        // Hash sécurisé via ton service (qui utilisera Argon2id/bcrypt)
-        $this->userService->hashPassword($user, $password);
+            // Hash sécurisé via ton service (qui utilisera Argon2id/bcrypt)
+            $this->userService->hashPassword($user, $password);
 
-        // Persistance
-        if (!$this->userRepository->create($user)) {
-            throw new \Exception('Erreur lors de l\'inscription.');
-        }
+            // Persistance
+            if (!$this->userRepository->create($user)) {
+                throw new \Exception('Erreur lors de l\'inscription.');
+            }
 
-        // Récup utilisateur complet
-        $newUser = $this->userRepository->findByEmail($email);
+            // Récup utilisateur complet
+            $newUser = $this->userRepository->findByEmail($email);
 
-        if (!$newUser->getIsActive()) {
-            throw new \Exception('Votre compte a été créé mais désactivé. Contactez l\'administrateur.');
-        }
+            if (!$newUser->getIsActive()) {
+                throw new \Exception('Votre compte a été créé mais désactivé. Contactez l\'administrateur.');
+            }
 
-        // Session + redirection
-        $this->createUserSession($newUser);
-        $redirectUrl = match ((int) $newUser->getRoleId()) {
-            3 => '/admin',
-            2 => '/employe',
-            default => '/',
-        };
+            // Session + redirection
+            $this->createUserSession($newUser);
+            $redirectUrl = match ((int) $newUser->getRoleId()) {
+                3 => '/admin',
+                2 => '/employe',
+                default => '/',
+            };
 
-        return [
-            'success'  => true,
-            'message'  => 'Inscription réussie et connexion automatique !',
-            'user'     => ['pseudo' => $newUser->getPseudo()],
-            'redirect' => $redirectUrl
-        ];
-    });
-}
+            return [
+                'success'  => true,
+                'message'  => 'Inscription réussie et connexion automatique !',
+                'user'     => ['pseudo' => $newUser->getPseudo()],
+                'redirect' => $redirectUrl
+            ];
+        });
+    }
 
 
     // API login JSON: vérification identifiants + session + redirection
@@ -130,6 +130,15 @@ class AuthController extends Controller
                 throw new \Exception('Email ou mot de passe incorrect');
             }
 
+            /** ─── Rehash automatique si nécessaire ─── */
+            if ($this->userService->needsRehash($user)) {
+                $newHash = $this->userService->rehash($user, $data['password']);
+                if (!$this->userRepository->updatePasswordById($user->getId(), $newHash)) {
+                    // Ici on pourrait logger l'erreur serveur, mais on ne bloque pas l'utilisateur
+                }
+                $user->setPassword($newHash); // synchronise l’objet en mémoire
+            }
+            
             // Vérification du statut actif
             if (!$user->getIsActive()) {
                 throw new \Exception('Votre compte a été désactivé. Contactez l\'administrateur.');
