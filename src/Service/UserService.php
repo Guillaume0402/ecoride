@@ -3,23 +3,41 @@
 namespace App\Service;
 
 use App\Entity\UserEntity;
+use App\Security\PasswordPolicy;
+
 
 class UserService
 {
     // Service métier côté utilisateur: sécurité, rôles, crédits, conversions
     // ===========================
     //  Sécurité
-    // ===========================
+    // ===========================   
+
     public function hashPassword(UserEntity $user, string $plainPassword): void
     {
-        // Hash sécurisé avec l'algorithme par défaut de PHP
-        $user->setPassword(password_hash($plainPassword, PASSWORD_DEFAULT));
+        // Hash via la politique centralisée (Argon2id si dispo, sinon bcrypt cost 12)
+        $user->setPassword(PasswordPolicy::hash($plainPassword));
     }
+
 
     public function verifyPassword(UserEntity $user, string $plainPassword): bool
     {
         // Compare un mot de passe en clair avec le hash stocké
         return password_verify($plainPassword, $user->getPassword());
+    }
+
+    public function needsRehash(UserEntity $user): bool
+    {
+        return PasswordPolicy::needsRehash($user->getPassword());
+    }
+
+    /**
+     * Retourne un NOUVEAU hash conforme à la politique actuelle
+     * (la sauvegarde en base sera faite à l’étape suivante).
+     */
+    public function rehash(UserEntity $user, string $plainPassword): string
+    {
+        return PasswordPolicy::hash($plainPassword);
     }
 
     public function isValidEmail(UserEntity $user): bool
