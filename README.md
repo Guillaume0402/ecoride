@@ -1,501 +1,152 @@
-# 🌱 EcoRide – Plateforme de covoiturage écologique
+# EcoRide — Plateforme de covoiturage éco-responsable
 
-**EcoRide** est une application web fullstack en PHP (Vanilla) avec architecture MVC moderne, conçue pour promouvoir le covoiturage responsable via une interface moderne et responsive.
-
----
-
-## 🔧 Stack technique
-
-| Front-end     | Back-end          | Base de données | DevOps & Outils           |
-| ------------- | ----------------- | --------------- | ------------------------- |
-| HTML5 / CSS3  | PHP 8.2 (Vanilla) | MySQL 8.0       | Docker + Docker Compose   |
-| Bootstrap 5.3 | PDO / SQL         | phpMyAdmin      | Git + GitHub              |
-| SASS          | Sessions PHP      |                 | npm (gestion dépendances) |
-| JavaScript    | Architecture MVC  |                 | Sass (compilation CSS)    |
+Projet réalisé dans le cadre de la certification **Développeur Web et Web Mobile (DWWM)** — ECF final.  
+EcoRide est une application web de covoiturage éco-responsable permettant aux utilisateurs de proposer ou de réserver des trajets en toute sécurité.
 
 ---
 
-## ✅ Fonctionnalités principales
+## Fonctionnalités principales
 
--   🔍 **Recherche avancée** : Covoiturages par ville, date et critères
--   🧭 **Affichage intelligent** : Trajets avec filtres et tri dynamique
--   👤 **Authentification sécurisée** : Connexion/inscription avec validation
--   🚗 **Gestion véhicules** : Publication et gestion des trajets
--   📋 **Profils utilisateurs** : Système de crédits et notation
--   💳 **Système de réservation** : Gestion des participations
--   📱 **Interface responsive** : Design adaptatif tous écrans
--   🎨 **UX moderne** : Animations CSS et interactions fluides
+- Inscription et connexion sécurisées (CSRF, sessions, hashage)
+- **Politique de mot de passe robuste** (≥12, maj/min/chiffre/spécial, sans espace, pas de pseudo/e-mail)
+- **Rehash automatique** des anciens mots de passe au login (mise à niveau transparente)
+- Rôles utilisateurs (passager, chauffeur, employé, admin)
+- Gestion des véhicules pour les chauffeurs
+- Réservation de covoiturage
+- Pages d’erreurs personnalisées (404, 405, 500)
+- Interface responsive avec **Bootstrap 5 + SCSS**
+- API JSON pour login/register (AJAX avec fetch)
+---
+
+## Stack technique
+
+- **Backend :** PHP 8.2 (MVC maison, PDO MySQL, Composer autoload)  
+- **Frontend :** HTML5, Bootstrap 5, SCSS, JavaScript (vanilla, fetch API)  
+- **Base de données :**
+  - MySQL 8 (données relationnelles : users, véhicules, covoiturages…)  
+  - MongoDB (optionnel, pour stocker les avis utilisateurs flexibles)  
+- **Outils :**
+  - phpMyAdmin (gestion MySQL)  
+  - Mongo Express (gestion MongoDB)  
+  - Docker + Docker Compose (environnement reproductible)  
+  - phpdotenv (gestion des variables d’environnement)  
 
 ---
 
-## 🏗️ Architecture moderne
-
-### Pattern Entity-Model-Controller
+## Architecture du projet
 
 ```
 src/
-├── Entity/              # Objets métier (User, Covoiturage, Vehicle)
-├── Model/               # Couche d'accès aux données (UserModel, etc.)
-├── Controller/          # Logique applicative (AuthController, etc.)
-├── Db/                  # Singleton de connexion base de données
-├── Routing/             # Router MVC custom
-└── View/                # Templates et vues
-```
-
-### Singleton de base de données
-
-```php
-// Connexion unique et sécurisée
-$db = Mysql::getInstance();
-$pdo = $db->getPDO();
-```
-
-### Entities typées
-
-```php
-// Objets métier avec validation
-$user = new User('pseudo', 'email@domain.com');
-$user->hashPassword('password');
-$user->validate(); // Retourne les erreurs
+ ├─ Controller/     # Logique applicative (AuthController, PageController, …)
+ ├─ Entity/         # Entités PHP (UserEntity, VehicleEntity, …)
+ ├─ Repository/     # Accès aux données (UserRepository, VehicleRepository, …)
+ ├─ Db/             # Connexion PDO (Mysql)
+ ├─ Routing/        # Router + config des routes
+ ├─ Security/       # Helpers de sécurité (CSRF, PasswordPolicy)
+ └─ View/           # Vues PHP (pages, layouts, erreurs)
+public/             # index.php, assets, JS/CSS compilés
+config/             # routes.php, constants.php, env
 ```
 
 ---
 
-## 🐳 Installation rapide (Docker recommandé)
+## ▶Installation locale avec Docker
 
-### 1. Prérequis
-
--   **Docker Desktop** (Recommandé)
--   **Git**
--   **Node.js & npm** (pour SASS)
-
-### 2. Installation complète
-
+### 1. Cloner le projet
 ```bash
-# Clonage du projet
-git clone https://github.com/votre-username/ecoride.git
+git clone https://github.com/Guillaume0402/ecoride.git
 cd ecoride
-
-# Installation des dépendances frontend
-npm install
-
-# Compilation SASS
-npm run sass:build
-
-# Lancement de l'environnement Docker
-docker-compose up -d
-
-# Vérification des services
-docker-compose ps
 ```
 
-### 3. Accès aux services
-
-| Service       | URL                      | Identifiants              |
-| ------------- | ------------------------ | ------------------------- |
-| **Application** | http://localhost:8080    | -                         |
-| **phpMyAdmin**  | http://localhost:8081    | ecoride_user / ecoride_password |
-| **Base de données** | localhost:3307       | ecoride_user / ecoride_password |
-
-### 4. Services Docker
-
-| Container          | Service | Port | Description                    |
-| ------------------ | ------- | ---- | ------------------------------ |
-| ecoride_web        | Web     | 8080 | Apache 2.4 + PHP 8.2          |
-| ecoride_db         | MySQL   | 3307 | MySQL 8.0 + données initiales |
-| ecoride_phpmyadmin | Admin   | 8081 | Interface de gestion BDD       |
-
----
-
-## 🎨 Développement CSS/SASS
-
-### Scripts de développement
-
+### 2. Installer les dépendances PHP
 ```bash
-# Développement
-npm run sass:watch         # Watch SASS en temps réel
-npm run dev                # Mode développement complet
-
-# Production
-npm run sass:build         # Compilation optimisée
-npm run build              # Build complet
-
-# Docker
-docker-compose up -d       # Démarrer les services
-docker-compose down        # Stopper les services
-docker-compose logs web    # Voir les logs
+composer install
 ```
 
-### Structure SASS organisée
-
-```
-assets/scss/
-├── abstracts/
-│   ├── _variables.scss    # Variables globales
-│   ├── _mixins.scss       # Mixins réutilisables
-│   └── _functions.scss    # Fonctions SASS
-├── base/
-│   ├── _reset.scss        # Reset CSS
-│   ├── _typography.scss   # Polices et texte
-│   └── _globals.scss      # Styles globaux
-├── components/
-│   ├── _buttons.scss      # Boutons
-│   ├── _forms.scss        # Formulaires
-│   ├── _modals.scss       # Modales
-│   └── _cards.scss        # Cartes de contenu
-├── layout/
-│   ├── _header.scss       # En-tête
-│   ├── _footer.scss       # Pied de page
-│   ├── _navigation.scss   # Navigation
-│   └── _grid.scss         # Système de grille
-├── pages/
-│   ├── _home.scss         # Page d'accueil
-│   ├── _auth.scss         # Pages de connexion
-│   └── _dashboard.scss    # Tableau de bord
-└── main.scss              # Point d'entrée principal
-```
-
----
-
-## 📁 Architecture complète du projet
-
-```
-ecoride/
-├── 📂 assets/
-│   └── 📂 scss/              # Sources SASS
-├── 📂 config/
-│   └── app.php               # Configuration principale
-├── 📂 documentation/
-│   ├── mysql-database-guide.md
-│   └── migration.md
-├── 📂 public/                # Point d'entrée web
-│   ├── index.php             # Router principal
-│   ├── 📂 assets/
-│   │   ├── 📂 css/           # CSS compilé
-│   │   ├── 📂 js/            # JavaScript
-│   │   └── 📂 images/        # Ressources images
-├── 📂 src/
-│   ├── 📂 Controller/        # Contrôleurs MVC
-│   │   ├── Controller.php    # Contrôleur de base
-│   │   ├── AuthController.php
-│   │   ├── UserController.php
-│   │   ├── CovoiturageController.php
-│   │   └── ErrorController.php
-│   ├── 📂 Entity/            # Entités métier
-│   │   ├── User.php
-│   │   ├── Covoiturage.php
-│   │   ├── Vehicle.php
-│   │   └── Participation.php
-│   ├── 📂 Model/             # Couche d'accès données
-│   │   ├── UserModel.php
-│   │   ├── CovoiturageModel.php
-│   │   └── VehicleModel.php
-│   ├── 📂 Db/
-│   │   └── Mysql.php         # Singleton PDO
-│   ├── 📂 Routing/
-│   │   └── Router.php        # Router MVC custom
-│   └── 📂 View/              # Templates et vues
-│       ├── layout.php        # Layout principal
-│       ├── 📂 partials/
-│       │   ├── header.php
-│       │   ├── footer.php
-│       │   └── navigation.php
-│       └── 📂 pages/
-│           ├── home.php
-│           ├── auth/
-│           ├── user/
-│           └── covoiturage/
-├── 📂 docker/                # Configuration Docker
-├── 📄 docker-compose.yml     # Services Docker
-├── 📄 Dockerfile            # Image web custom
-├── 📄 init.sql              # Structure BDD
-├── 📄 package.json          # Dépendances npm
-└── 📄 .env                  # Variables d'environnement
-```
-
----
-
-## 🚀 Architecture MVC moderne & Router
-
-### Routing intelligent
-
-Le système de routing analyse automatiquement les URLs et charge les contrôleurs appropriés :
-
-```php
-// src/Routing/Router.php
-$router = new App\Routing\Router();
-$router->handleRequest($_SERVER['REQUEST_URI']);
-
-// Exemples d'URLs gérées :
-// /                     → PageController::home()
-// /auth/login          → AuthController::login()
-// /user/profile        → UserController::profile()
-// /covoiturage/create  → CovoiturageController::create()
-```
-
-### Contrôleurs avec injection de dépendances
-
-```php
-// Exemple : AuthController
-namespace App\Controller;
-
-use App\Entity\User;
-use App\Model\UserModel;
-
-class AuthController extends Controller 
-{
-    private UserModel $userModel;
-
-    public function __construct() 
-    {
-        $this->userModel = new UserModel();
-    }
-
-    public function register(): void 
-    {
-        if ($_POST) {
-            $user = new User($_POST['pseudo'], $_POST['email']);
-            $user->hashPassword($_POST['password']);
-            
-            if ($this->userModel->save($user)) {
-                $this->redirect('/auth/login?success=1');
-            }
-        }
-        
-        $this->render('auth/register');
-    }
-}
-```
-
-### Entities avec logique métier
-
-```php
-// Entité User avec validation et logique métier
-$user = new User('JohnDoe', 'john@example.com');
-$user->hashPassword('secret123');
-$user->addCredits(50);
-$user->updateNote(4.5);
-
-// Validation avant sauvegarde
-$errors = $user->validate();
-if (empty($errors)) {
-    $userModel->save($user);
-}
-```
-
----
-
-## 🎯 Fonctionnalités développées
-
-### ✅ Authentification complète
--   **Inscription** : Validation côté serveur et client
--   **Connexion** : Hash sécurisé des mots de passe
--   **Sessions** : Gestion des utilisateurs connectés
--   **Rôles** : Visiteur, Utilisateur, Employé, Admin
-
-### ✅ Gestion des utilisateurs
--   **Profils** : Informations personnelles et préférences
--   **Crédits** : Système de points pour les réservations
--   **Notation** : Système d'avis entre utilisateurs
--   **Avatar** : Upload et gestion des photos de profil
-
-### ✅ Système de covoiturage
--   **Publication** : Création de trajets avec véhicule
--   **Recherche** : Filtres par ville, date, prix
--   **Réservation** : Gestion des places disponibles
--   **Historique** : Suivi des trajets effectués
-
-### ✅ Interface utilisateur
--   **Design responsive** : Mobile-first approach
--   **Modales interactives** : Login/Register seamless
--   **Notifications** : Feedback utilisateur en temps réel
--   **Animations** : Transitions CSS fluides
-
----
-
-## 🎯 Base de données optimisée
-
-### Tables principales
-
-```sql
--- Utilisateurs avec système de crédits et notation
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    pseudo VARCHAR(50) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    role_id INT DEFAULT 1,
-    credits INT DEFAULT 20,
-    note DECIMAL(4,2) DEFAULT 0.00,
-    photo VARCHAR(255) NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
--- Covoiturages avec gestion des places
-CREATE TABLE covoiturages (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    chauffeur_id INT NOT NULL,
-    vehicle_id INT NOT NULL,
-    adresse_depart VARCHAR(255) NOT NULL,
-    adresse_arrivee VARCHAR(255) NOT NULL,
-    depart DATETIME NOT NULL,
-    arrivee DATETIME NOT NULL,
-    prix DECIMAL(10,2) NOT NULL,
-    places_reservees INT DEFAULT 0,
-    status ENUM('en_attente','demarre','termine','annule') DEFAULT 'en_attente',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (chauffeur_id) REFERENCES users(id),
-    FOREIGN KEY (vehicle_id) REFERENCES vehicles(id)
-);
-
--- Participations avec système de validation
-CREATE TABLE participations (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    covoiturage_id INT NOT NULL,
-    passager_id INT NOT NULL,
-    status ENUM('confirmee','annulee','en_attente_validation') DEFAULT 'confirmee',
-    date_participation DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY unique_participation (covoiturage_id, passager_id),
-    FOREIGN KEY (covoiturage_id) REFERENCES covoiturages(id),
-    FOREIGN KEY (passager_id) REFERENCES users(id)
-);
-```
-
----
-
-## 👨‍💻 Workflow de développement
-
-### Branches Git organisées
-
+### 3. Lancer les conteneurs
 ```bash
-main                    # 🚀 Production stable
-develop                 # 🧪 Intégration continue
-feat/user-system       # ✨ Nouvelles fonctionnalités
-feat/covoiturage-crud  # ✨ CRUD covoiturages
-fix/auth-validation    # 🐛 Corrections de bugs
-refactor/entity-model  # 🔧 Refactoring architecture
+docker compose up -d --build
 ```
 
-### Commits conventionnels
+### 4. Accès aux services
+- Application : [http://localhost:8080](http://localhost:8080)  
+- phpMyAdmin : [http://localhost:8081](http://localhost:8081)  
+  - **host** : `db`  
+  - **user** : `ecoride_user`  
+  - **password** : `ecoride_password`  
+- Mongo Express (optionnel) : [http://localhost:8082](http://localhost:8082)  
 
-```bash
-feat(auth): add user registration with validation
-fix(db): resolve connection timeout in production
-style(ui): improve responsive design for mobile
-refactor(model): separate Entity from Model layer
-docs(readme): update installation instructions
+---
+
+## Variables d’environnement
+
+Exemple de fichier `.env.local` :
+
+```
+DB_HOST=db
+DB_NAME=ecoride
+DB_USER=ecoride_user
+DB_PASSWORD=ecoride_password
+DB_PORT=3306
+
+APP_ENV=dev
+```
+
+Ne pas versionner vos vrais identifiants de production.  
+
+---
+
+## Sécurité mise en place
+
+### Politique de mot de passe (PasswordPolicy)
+- Longueur **≥ 12** et **≤ 72** (compat. bcrypt)
+- Au moins **1 minuscule**, **1 majuscule**, **1 chiffre**, **1 caractère spécial**
+- **Aucun espace**
+- Interdiction de contenir le **pseudo** ou la **partie locale** de l’**e-mail**
+- Validation **côté serveur** (source de vérité) + *hint* HTML côté **inscription** / **changement de mot de passe** (`pattern`/`minlength`)  
+  ↳ Le **formulaire de connexion** n’impose **aucun pattern** pour laisser passer les anciens comptes ; la vérification est faite **au serveur**.
+
+### Hashage
+- `password_hash()` avec **Argon2id** si disponible, sinon **bcrypt** (cost 12)
+- **Rehash automatique** au login si l’algo/le coût/la config changent (mise à niveau transparente)
+
+### E-mail
+- **Normalisé en minuscule** à l’inscription et au login (recherche cohérente)
+- *(Optionnel recommandé)* **Index unique** en BDD :
+    ```sql
+  ALTER TABLE users ADD UNIQUE INDEX uniq_users_email (email);
+    ```
+ 
+
+### Autres protections
+- CSRF sur les endpoints JSON `register` et `login`
+- Sessions sécurisées : `session_regenerate_id(true)` à la connexion/déconnexion
+- PDO + requêtes préparées (anti-injection)
+- Codes d’erreur et pages 404/405/500 personnalisées
+ 
+---
+
+## Accès de test (exemple)
+
+À créer en BDD pour tester :  
+```
+Admin : admin@example.com / Admin!234
+Employé : employe@example.com / Employe!234
+User : user@example.com / User!234
 ```
 
 ---
 
-## 🛠️ Commandes utiles
+## Checklist ECF
 
-### Développement quotidien
-
-```bash
-# Démarrage rapide
-docker-compose up -d && npm run sass:watch
-
-# Tests et debugging
-docker-compose logs -f web              # Logs en temps réel
-docker-compose exec web bash            # Shell dans le container
-docker-compose exec db mysql -u root -p # Accès direct à MySQL
-
-# Maintenance
-docker-compose down && docker-compose up -d  # Redémarrage complet
-docker system prune                          # Nettoyage Docker
-```
-
-### Base de données
-
-```bash
-# Backup
-docker-compose exec db mysqldump -u ecoride_user -p ecoride_db > backup.sql
-
-# Restore
-docker-compose exec -T db mysql -u ecoride_user -p ecoride_db < backup.sql
-
-# Reset complet
-docker-compose down -v && docker-compose up -d
-```
+- [x] Projet versionné sur GitHub (branche `dev`)  
+- [x] Gestion de projet (branches par fonctionnalités)  
+- [x] Déploiement local reproductible avec Docker  
+- [x] Sécurité mots de passe robuste + hash + rehash auto + CSRF + PDO  
+- [x] Documentation d’installation (README)  
+- [x] Pages d’erreurs personnalisées  
 
 ---
 
-## 🧪 Qualité & Bonnes pratiques
-
-### Standards respectés
--   **PSR-4** : Autoloading des classes
--   **PSR-12** : Style de code PHP
--   **HTML5 & CSS3** : Validation W3C
--   **Responsive Design** : Mobile-first
--   **Sécurité** : Requêtes préparées, validation, échappement
-
-### Sécurité implémentée
--   **Hash des mots de passe** : password_hash() / password_verify()
--   **Requêtes préparées** : Protection contre l'injection SQL
--   **Validation** : Côté serveur et client
--   **Sessions sécurisées** : Configuration hardened
--   **Variables d'environnement** : Pas de données sensibles en dur
-
----
-
-## 📌 Roadmap & Améliorations futures
-
-### Phase 1 - Core Features ✅
--   [x] Architecture Entity/Model/Controller
--   [x] Système d'authentification
--   [x] CRUD utilisateurs
--   [x] Base de données optimisée
--   [x] Interface responsive
-
-### Phase 2 - Business Logic 🚧
--   [x] CRUD covoiturages
--   [x] Système de réservation
--   [ ] Notifications en temps réel
--   [ ] Système de paiement
--   [ ] API REST pour mobile
-
-### Phase 3 - Advanced Features 📋
--   [ ] Géolocalisation avec cartes
--   [ ] Chat entre utilisateurs
--   [ ] Application mobile (PWA)
--   [ ] Tests automatisés (PHPUnit)
--   [ ] CI/CD avec GitHub Actions
-
-### Phase 4 - Performance & Scale 🎯
--   [ ] Cache Redis
--   [ ] CDN pour les assets
--   [ ] Load balancing
--   [ ] Monitoring avancé
--   [ ] Analytics utilisateurs
-
----
-
-## 🤝 Contribution & Crédits
-
-**Projet académique** réalisé dans le cadre de l'**ECF TP DWWM – Studi**.
-
-### Ressources et inspiration
--   [PHP Official Documentation](https://www.php.net/docs.php)
--   [Docker Documentation](https://docs.docker.com/)
--   [Bootstrap 5](https://getbootstrap.com/)
--   [SASS Guidelines](https://sass-guidelin.es/)
-
-### Usage
-🎓 **Usage pédagogique uniquement** - Projet d'évaluation professionnelle
-
----
-
-## 📞 Support & Contact
-
-Pour toute question technique ou suggestion :
-
--   📧 **Email** : votre.email@domain.com
--   🐙 **GitHub** : [Issues](https://github.com/votre-username/ecoride/issues)
--   📝 **Documentation** : [Wiki](https://github.com/votre-username/ecoride/wiki)
-
----
-
-**EcoRide** - *Covoiturage responsable pour un futur durable* 🌱
-
-_Dernière mise à jour : Juillet 2025 - Version 2.0_
+## Licence
+Projet pédagogique — libre pour l’ECF **DWWM Studi**.
