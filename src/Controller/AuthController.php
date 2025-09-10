@@ -36,6 +36,7 @@ class AuthController extends Controller
             // Champs requis
             $username = trim($data['username'] ?? '');
             $email    = trim($data['email'] ?? '');
+            $email = mb_strtolower($email);
             $password = (string)($data['password'] ?? '');
             $confirm  = (string)($data['confirmPassword'] ?? '');
 
@@ -123,6 +124,9 @@ class AuthController extends Controller
             if (empty($data['email']) || empty($data['password'])) {
                 throw new \Exception('Email et mot de passe requis');
             }
+                        
+            $email = trim($data['email'] ?? '');
+            $email = mb_strtolower($email);
 
             // Recherche de l'utilisateur puis vérification du mot de passe
             $user = $this->userRepository->findByEmail($data['email']);
@@ -138,7 +142,7 @@ class AuthController extends Controller
                 }
                 $user->setPassword($newHash); // synchronise l’objet en mémoire
             }
-            
+
             // Vérification du statut actif
             if (!$user->getIsActive()) {
                 throw new \Exception('Votre compte a été désactivé. Contactez l\'administrateur.');

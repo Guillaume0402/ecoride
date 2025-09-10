@@ -25,11 +25,15 @@
                 </div>
                 <div class="mb-3">
                     <label for="passwordRegister" class="form-label">Mot de passe*</label>
-                    <input type="password" class="form-control" id="passwordRegister" name="password" required>
+                    <input type="password" class="form-control" id="passwordRegister" name="password" required minlength="12"
+                        pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])(?!.*\s).+$"
+                        title="Min. 12 caractères, 1 minuscule, 1 majuscule, 1 chiffre, 1 spécial, sans espace.">
                 </div>
                 <div class="mb-3">
                     <label for="confirmPassword" class="form-label">Confirmer mot de passe*</label>
-                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required minlength="12"
+                        pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])(?!.*\s).+$"
+                        title="Min. 12 caractères, 1 minuscule, 1 majuscule, 1 chiffre, 1 spécial, sans espace.">
                 </div>
                 <div class="text-center">
                     <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
@@ -43,11 +47,11 @@
             <form id="loginForm" class="auth-form d-none p-0 p-lg-5">
                 <div class="mb-3">
                     <label for="emailLogin" class="form-label">Email*</label>
-                    <input type="email" class="form-control" id="emailLogin" name="email" required>
+                    <input type="email" class="form-control" id="emailLogin" name="email" required inputmode="email" autocomplete="username">
                 </div>
                 <div class="mb-3">
                     <label for="passwordLogin" class="form-label">Mot de passe*</label>
-                    <input type="password" class="form-control" id="passwordLogin" name="password" required>
+                    <input type="password" class="form-control" id="passwordLogin" name="password" required autocomplete="current-password">
                 </div>
                 <div class="text-center">
                     <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">

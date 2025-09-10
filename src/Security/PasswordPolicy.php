@@ -1,10 +1,11 @@
 <?php
+
 namespace App\Security;
 
 final class PasswordPolicy
 {
     // Vérifie la robustesse du mot de passe.
-     
+
     public static function validate(string $password, ?string $username = null, ?string $email = null): array
     {
         $errors = [];
@@ -41,12 +42,12 @@ final class PasswordPolicy
     }
 
     // Hash sécurisé (Argon2id si dispo, sinon bcrypt).
-     
+
     public static function hash(string $password): string
     {
         if (defined('PASSWORD_ARGON2ID')) {
             return password_hash($password, PASSWORD_ARGON2ID, [
-                'memory_cost' => 1<<17, // 131072
+                'memory_cost' => 1 << 17, // 131072
                 'time_cost'   => 3,
                 'threads'     => 2,
             ]);
@@ -56,16 +57,17 @@ final class PasswordPolicy
     }
 
     //Vérifie si un rehash est nécessaire.
-     
+
     public static function needsRehash(string $hash): bool
     {
         if (defined('PASSWORD_ARGON2ID')) {
             return password_needs_rehash($hash, PASSWORD_ARGON2ID, [
-                'memory_cost' => 1<<17,
+                'memory_cost' => 1 << 17,
                 'time_cost'   => 3,
                 'threads'     => 2,
             ]);
         }
         return password_needs_rehash($hash, PASSWORD_BCRYPT, ['cost' => 12]);
     }
+
 }
