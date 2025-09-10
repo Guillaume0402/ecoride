@@ -72,8 +72,8 @@ docker compose up -d --build
 - Application : [http://localhost:8080](http://localhost:8080)  
 - phpMyAdmin : [http://localhost:8081](http://localhost:8081)  
   - **host** : `db`  
-  - **user** : `ecoride_user`  
-  - **password** : `ecoride_password`  
+  - **user** : valeur définie dans `.env.local` (`DB_USER`)
+  - **password** : valeur définie dans `.env.local` (`DB_PASSWORD`)  
 - Mongo Express (optionnel) : [http://localhost:8082](http://localhost:8082)  
 
 ---
