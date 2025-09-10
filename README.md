@@ -7,14 +7,15 @@ EcoRide est une application web de covoiturage éco-responsable permettant aux u
 
 ## Fonctionnalités principales
 
-- ✅ Inscription et connexion sécurisées (sessions, hash mot de passe, CSRF)  
-- ✅ Rôles utilisateurs (passager, chauffeur, employé, admin)  
-- ✅ Gestion des véhicules pour les chauffeurs  
-- ✅ Réservation de covoiturage  
-- ✅ Pages d’erreurs personnalisées (404, 405, 500)  
-- ✅ Interface responsive avec **Bootstrap 5 + SCSS**  
-- ✅ API JSON pour login/register (AJAX avec fetch)  
-
+- Inscription et connexion sécurisées (CSRF, sessions, hashage)
+- **Politique de mot de passe robuste** (≥12, maj/min/chiffre/spécial, sans espace, pas de pseudo/e-mail)
+- **Rehash automatique** des anciens mots de passe au login (mise à niveau transparente)
+- Rôles utilisateurs (passager, chauffeur, employé, admin)
+- Gestion des véhicules pour les chauffeurs
+- Réservation de covoiturage
+- Pages d’erreurs personnalisées (404, 405, 500)
+- Interface responsive avec **Bootstrap 5 + SCSS**
+- API JSON pour login/register (AJAX avec fetch)
 ---
 
 ## Stack technique
@@ -41,7 +42,7 @@ src/
  ├─ Repository/     # Accès aux données (UserRepository, VehicleRepository, …)
  ├─ Db/             # Connexion PDO (Mysql)
  ├─ Routing/        # Router + config des routes
- ├─ Security/       # Helpers de sécurité (CSRF)
+ ├─ Security/       # Helpers de sécurité (CSRF, PasswordPolicy)
  └─ View/           # Vues PHP (pages, layouts, erreurs)
 public/             # index.php, assets, JS/CSS compilés
 config/             # routes.php, constants.php, env
@@ -97,13 +98,32 @@ Ne pas versionner vos vrais identifiants de production.
 
 ## Sécurité mise en place
 
-- Hashage des mots de passe avec `password_hash()`  
-- Vérification avec `password_verify()`  
-- Protection **CSRF** sur les formulaires `login` et `register`  
-- Sessions sécurisées : `session_regenerate_id(true)`  
-- PDO avec requêtes préparées (anti-SQL injection)  
-- Gestion centralisée des erreurs (404, 405, 500)  
+### Politique de mot de passe (PasswordPolicy)
+- Longueur **≥ 12** et **≤ 72** (compat. bcrypt)
+- Au moins **1 minuscule**, **1 majuscule**, **1 chiffre**, **1 caractère spécial**
+- **Aucun espace**
+- Interdiction de contenir le **pseudo** ou la **partie locale** de l’**e-mail**
+- Validation **côté serveur** (source de vérité) + *hint* HTML côté **inscription** / **changement de mot de passe** (`pattern`/`minlength`)  
+  ↳ Le **formulaire de connexion** n’impose **aucun pattern** pour laisser passer les anciens comptes ; la vérification est faite **au serveur**.
 
+### Hashage
+- `password_hash()` avec **Argon2id** si disponible, sinon **bcrypt** (cost 12)
+- **Rehash automatique** au login si l’algo/le coût/la config changent (mise à niveau transparente)
+
+### E-mail
+- **Normalisé en minuscule** à l’inscription et au login (recherche cohérente)
+- *(Optionnel recommandé)* **Index unique** en BDD :
+    ```sql
+  ALTER TABLE users ADD UNIQUE INDEX uniq_users_email (email);
+    ```
+ 
+
+### Autres protections
+- CSRF sur les endpoints JSON `register` et `login`
+- Sessions sécurisées : `session_regenerate_id(true)` à la connexion/déconnexion
+- PDO + requêtes préparées (anti-injection)
+- Codes d’erreur et pages 404/405/500 personnalisées
+ 
 ---
 
 ## Accès de test (exemple)
@@ -122,7 +142,7 @@ User : user@example.com / User!234
 - [x] Projet versionné sur GitHub (branche `dev`)  
 - [x] Gestion de projet (branches par fonctionnalités)  
 - [x] Déploiement local reproductible avec Docker  
-- [x] Sécurité (hash, PDO, CSRF, sessions)  
+- [x] Sécurité mots de passe robuste + hash + rehash auto + CSRF + PDO  
 - [x] Documentation d’installation (README)  
 - [x] Pages d’erreurs personnalisées  
 
