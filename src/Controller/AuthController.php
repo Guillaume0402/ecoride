@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\UserEntity;
 use App\Security\Csrf;
 use App\Service\Flash;
+use App\Security\PasswordPolicy;
+
 
 
 
@@ -20,73 +22,88 @@ class AuthController extends Controller
 
     // API inscription JSON: validations, création user, session, redirection
     public function apiRegister(): void
-    {
-        $this->jsonResponse(function () {
-            // Récupération du payload JSON
-            $data = json_decode(file_get_contents('php://input'), true);
+{
+    $this->jsonResponse(function () {
+        // Payload JSON
+        $data = json_decode(file_get_contents('php://input'), true);
 
-            // Validation basique des champs requis
-            if (empty($data['username']) || empty($data['email']) || empty($data['password'])) {
-                throw new \Exception('Tous les champs sont obligatoires');
-            }
-            if ($data['password'] !== ($data['confirmPassword'] ?? '')) {
-                throw new \Exception('Les mots de passe ne correspondent pas');
-            }
+        // --- CSRF check (JSON) ---
+        $token = $data['csrf'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null);
+        if (!Csrf::check($token)) {
+            throw new \Exception('Requête invalide (CSRF)');
+        }
 
-            // Vérifications d'unicité (email et pseudo)
-            if ($this->userRepository->findByEmail($data['email'])) {
-                throw new \Exception('Cet email est déjà utilisé');
-            }
-            if ($this->userRepository->findByPseudo($data['username'])) {
-                throw new \Exception('Ce pseudo est déjà pris');
-            }
+        // Champs requis
+        $username = trim($data['username'] ?? '');
+        $email    = trim($data['email'] ?? '');
+        $password = (string)($data['password'] ?? '');
+        $confirm  = (string)($data['confirmPassword'] ?? '');
 
-            // Construction de l'entité utilisateur minimale
-            $user = (new UserEntity())
-                ->setPseudo($data['username'])
-                ->setEmail($data['email']);
+        if ($username === '' || $email === '' || $password === '') {
+            throw new \Exception('Tous les champs sont obligatoires.');
+        }
+        if ($password !== $confirm) {
+            throw new \Exception('Les mots de passe ne correspondent pas.');
+        }
 
-            // Validation métier via le service
-            $errors = $this->userService->validate($user);
-            if (!empty($errors)) {
-                throw new \Exception(implode(', ', $errors));
-            }
+        // Unicité
+        if ($this->userRepository->findByEmail($email)) {
+            throw new \Exception('Cet email est déjà utilisé.');
+        }
+        if ($this->userRepository->findByPseudo($username)) {
+            throw new \Exception('Ce pseudo est déjà pris.');
+        }
 
-            // Hash sécurisé du mot de passe
-            $this->userService->hashPassword($user, $data['password']);
+        // Politique de mot de passe (robustesse)
+        $pwdErrors = PasswordPolicy::validate($password, $username, $email);
+        if (!empty($pwdErrors)) {
+            // On renvoie tous les messages d’un coup pour l’UX
+            throw new \Exception(implode(' ', $pwdErrors));
+        }
 
-            // Persistance en base de données
-            if (!$this->userRepository->create($user)) {
-                throw new \Exception('Erreur lors de l\'inscription');
-            }
+        // Entité minimale
+        $user = (new UserEntity())
+            ->setPseudo($username)
+            ->setEmail($email);
 
-            // Récupération de l'utilisateur complet (avec champs par défaut DB)
-            $newUser = $this->userRepository->findByEmail($data['email']);
+        // Validation métier (service existant)
+        $errors = $this->userService->validate($user);
+        if (!empty($errors)) {
+            throw new \Exception(implode(', ', $errors));
+        }
 
-            // Refus de connexion si le compte est désactivé
-            if (!$newUser->getIsActive()) {
-                throw new \Exception('Votre compte a été créé mais désactivé. Contactez l\'administrateur.');
-            }
+        // Hash sécurisé via ton service (qui utilisera Argon2id/bcrypt)
+        $this->userService->hashPassword($user, $password);
 
-            // Création de la session sécurisée
-            $this->createUserSession($newUser);
+        // Persistance
+        if (!$this->userRepository->create($user)) {
+            throw new \Exception('Erreur lors de l\'inscription.');
+        }
 
-            // Détermination de l'URL de redirection selon le rôle
-            $redirectUrl = match ((int) $newUser->getRoleId()) {
-                3 => '/admin',
-                2 => '/employe',
-                default => '/',
-            };
+        // Récup utilisateur complet
+        $newUser = $this->userRepository->findByEmail($email);
 
-            // Réponse JSON standardisée
-            return [
-                'success' => true,
-                'message' => 'Inscription réussie et connexion automatique !',
-                'user'    => ['pseudo' => $newUser->getPseudo()],
-                'redirect' => $redirectUrl
-            ];
-        });
-    }
+        if (!$newUser->getIsActive()) {
+            throw new \Exception('Votre compte a été créé mais désactivé. Contactez l\'administrateur.');
+        }
+
+        // Session + redirection
+        $this->createUserSession($newUser);
+        $redirectUrl = match ((int) $newUser->getRoleId()) {
+            3 => '/admin',
+            2 => '/employe',
+            default => '/',
+        };
+
+        return [
+            'success'  => true,
+            'message'  => 'Inscription réussie et connexion automatique !',
+            'user'     => ['pseudo' => $newUser->getPseudo()],
+            'redirect' => $redirectUrl
+        ];
+    });
+}
+
 
     // API login JSON: vérification identifiants + session + redirection
     public function apiLogin(): void
@@ -151,14 +168,13 @@ class AuthController extends Controller
         // Ne PAS détruire la session avant le flash
         unset($_SESSION['user']);              // on déconnecte l’utilisateur
         Flash::add('Vous êtes bien déconnecté(e).', 'success');  // on stocke le message
-        session_regenerate_id(true);           // hygiène de session
-        redirect('/');                         // le flash s’affichera sur la page d’arrivée
+        session_regenerate_id(true);                        // hygiène de session
+        redirect('/');                                                     // le flash s’affichera sur la page d’arrivée
     }
 
 
 
     // Helper pour les réponses JSON avec gestion d’erreurs
-
     // Helper: exécute un callback et renvoie une réponse JSON (capture exceptions)
     private function jsonResponse(callable $callback): void
     {
