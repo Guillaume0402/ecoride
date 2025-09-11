@@ -41,12 +41,14 @@ class CovoiturageController extends Controller
         $vehicleId = (int) ($_POST['vehicle_id'] ?? 0);
         $villeDepart = trim($_POST['ville_depart'] ?? '');
         $villeArrivee = trim($_POST['ville_arrivee'] ?? '');
-        $date = trim($_POST['date'] ?? '');
-        $time = trim($_POST['time'] ?? '');
-        $prixRaw = $_POST['prix'] ?? '';
+    $date = trim($_POST['date'] ?? '');
+    $time = trim($_POST['time'] ?? '');
+    $timeArrivee = trim($_POST['time_arrivee'] ?? '');
+    $prixRaw = $_POST['prix'] ?? '';
+    $places = filter_input(INPUT_POST, 'places', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 9]]);
         $prix = is_numeric($prixRaw) ? (float) $prixRaw : -1;
 
-        if ($vehicleId <= 0 || $villeDepart === '' || $villeArrivee === '' || $date === '' || $time === '' || $prix < 0) {
+    if ($vehicleId <= 0 || $villeDepart === '' || $villeArrivee === '' || $date === '' || $time === '' || $timeArrivee === '' || $prix < 0 || $places === false) {
             Flash::add('Champs requis manquants ou invalides.', 'danger');
             redirect('/');
         }
@@ -56,13 +58,28 @@ class CovoiturageController extends Controller
             Flash::add('Véhicule introuvable ou non autorisé.', 'danger');
             redirect('/');
         }
+        if ($places > $vehicle->getPlacesDispo()) {
+            Flash::add("Le nombre de places demandées dépasse la capacité du véhicule.", 'danger');
+            redirect('/');
+        }
 
         $departDt = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time);
         if (!$departDt) {
             Flash::add('Date/heure invalides.', 'danger');
             redirect('/');
         }
-        $arriveeDt = (clone $departDt)->modify('+1 hour');
+        // Interdit une date de départ passée (tolère la minute courante)
+        $now = new \DateTime('now');
+        if ($departDt < $now) {
+            Flash::add('La date/heure de départ ne peut pas être dans le passé.', 'danger');
+            redirect('/');
+        }
+
+        $arriveeDt = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $timeArrivee);
+        if (!$arriveeDt || $arriveeDt <= $departDt) {
+            Flash::add("L'heure d'arrivée doit être postérieure à l'heure de départ.", 'danger');
+            redirect('/');
+        }
 
         $c = new CovoiturageEntity([
             'driver_id' => $userId,
@@ -112,10 +129,12 @@ class CovoiturageController extends Controller
         $villeArrivee = trim($_POST['ville_arrivee'] ?? '');
         $date = trim($_POST['date'] ?? '');
         $time = trim($_POST['time'] ?? '');
-        $prix = (float) ($_POST['prix'] ?? 0);
+    $prix = (float) ($_POST['prix'] ?? 0);
+    $timeArrivee = trim($_POST['time_arrivee'] ?? '');
+    $places = filter_input(INPUT_POST, 'places', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 9]]);
 
         // Validations simples
-        if ($vehicleId <= 0 || $villeDepart === '' || $villeArrivee === '' || $date === '' || $time === '' || $prix < 0) {
+    if ($vehicleId <= 0 || $villeDepart === '' || $villeArrivee === '' || $date === '' || $time === '' || $timeArrivee === '' || $prix < 0 || $places === false) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Champs requis manquants ou invalides.']);
             return;
@@ -127,6 +146,11 @@ class CovoiturageController extends Controller
             echo json_encode(['success' => false, 'message' => 'Véhicule introuvable ou non autorisé.']);
             return;
         }
+        if ($places > $vehicle->getPlacesDispo()) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => "Le nombre de places demandées dépasse la capacité du véhicule."]);
+            return;
+        }
 
         // Assemble date/heure
         $departDt = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time);
@@ -135,9 +159,19 @@ class CovoiturageController extends Controller
             echo json_encode(['success' => false, 'message' => 'Date/heure invalides.']);
             return;
         }
+        $now = new \DateTime('now');
+        if ($departDt < $now) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => "La date/heure de départ ne peut pas être dans le passé."]);
+            return;
+        }
 
-        // Pas d’heure d’arrivée côté UI pour le moment, on fixe +1h simple
-        $arriveeDt = (clone $departDt)->modify('+1 hour');
+        $arriveeDt = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $timeArrivee);
+        if (!$arriveeDt || $arriveeDt <= $departDt) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => "L'heure d'arrivée doit être postérieure à l'heure de départ."]);
+            return;
+        }
 
         $c = new CovoiturageEntity([
             'driver_id' => $userId,
