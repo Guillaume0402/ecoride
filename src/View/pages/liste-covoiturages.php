@@ -5,18 +5,18 @@
     <section class="container mt-5 ">
         <div class="col-lg-6 col-12 d-flex justify-content-center mb-4  m-auto">
             <div class="form-box rounded p-4 w-100 ">
-                <form>
+        <form method="get" action="/liste-covoiturages">
                     <div class="mb-3">
                         <label class="form-label">Ville de départ :</label>
-                        <input type="text" class="form-control" placeholder="Ex : Fleurance">
+            <input type="text" name="depart" class="form-control" placeholder="Ex : Fleurance" value="<?= htmlspecialchars($criteria['depart'] ?? '') ?>">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Ville d’arrivée :</label>
-                        <input type="text" class="form-control" placeholder="Ex : Auch">
+            <input type="text" name="arrivee" class="form-control" placeholder="Ex : Auch" value="<?= htmlspecialchars($criteria['arrivee'] ?? '') ?>">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Date de départ :</label>
-                        <input type="date" class="form-control" placeholder="05-11-2026">
+            <input type="date" name="date" class="form-control" value="<?= htmlspecialchars($criteria['date'] ?? '') ?>">
                     </div>
                     <button type="submit" class="btn btn-inscription fw-semibold d-block m-auto">Rechercher</button>
                 </form>
@@ -54,189 +54,47 @@
     <section class="rides-section pb-5">
         <div class="container">
             <div class="row row-cols-1 row-cols-md-2 g-4">
-
-                <!-- Card -->
-                <div class="col">
-                    <div class="carpool-card d-flex flex-column justify-content-between">
-                        <!-- Header : date • prix • badge  /  horloge -->
-                        <div class="card-header d-flex justify-content-between mb-3">
-                            <div class="card-info">
-                                <span class="date">15 juin</span>
-                                <span class="sep">•</span>
-                                <span class="price">20 €</span>
-                                <span class="sep">•</span>
-                                <span class="badge-eco ms-2">éco-énergie</span>
-                            </div>
-                            <div class="card-time">
-                                <i class="bi bi-clock-fill"></i>
-                                <span>12h45</span>
-                            </div>
-                        </div>
-                        <!-- Body : avatar / détails / bouton -->
-                        <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                            <img src="assets/images/logo.svg" alt="Avatar" class="avatar rounded-circle">
-                            <div class="details flex-grow-1 px-3 m-auto">
-                                <h5>Mel gang</h5>
-                                <ul>
-                                    <li>Animaux accepté</li>
-                                    <li>Sans tabac</li>
-                                    <li>Sans nourriture</li>
-                                    <li>Sans les mains</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <!-- Footer : étoiles -->
-                        <div class="card-footer">
-                            <div class="stars">
-                                <span class="star">☆</span>
-                                <span class="star">☆</span>
-                                <span class="star">☆</span>
-                                <span class="star">☆</span>
-                                <span class="star">☆</span>
-                            </div>
-                            <div>
-                                <button class="btn btn-inscription">Participer</button>
+                <?php if (!empty($results)): ?>
+                    <?php foreach ($results as $ride): ?>
+                        <div class="col">
+                            <div class="carpool-card d-flex flex-column justify-content-between">
+                                <div class="card-header d-flex justify-content-between mb-3">
+                                    <div class="card-info">
+                                        <?php
+                                        $d = new DateTime($ride['depart']);
+                                        $price = number_format((float)$ride['prix'], 2, ',', ' ');
+                                        ?>
+                                        <span class="date"><?= $d->format('d/m/Y') ?></span>
+                                        <span class="sep">•</span>
+                                        <span class="price"><?= $price ?> €</span>
+                                    </div>
+                                    <div class="card-time">
+                                        <i class="bi bi-clock-fill"></i>
+                                        <span><?= $d->format('H\hi') ?></span>
+                                    </div>
+                                </div>
+                                <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
+                                    <div class="details flex-grow-1 px-3 m-auto">
+                                        <h5><?= htmlspecialchars($ride['adresse_depart']) ?> → <?= htmlspecialchars($ride['adresse_arrivee']) ?></h5>
+                                        <ul class="mb-0">
+                                            <li>Conducteur #<?= (int)$ride['driver_id'] ?></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="card-footer d-flex justify-content-between">
+                                    <small class="text-muted">Annonce #<?= (int)$ride['id'] ?></small>
+                                    <div>
+                                        <button class="btn btn-inscription" disabled>Participer</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="col">
+                        <div class="alert alert-info">Aucun covoiturage trouvé. Essayez d'élargir votre recherche.</div>
                     </div>
-                </div>
-                <!-- Card -->
-                <div class="col">
-                    <div class="carpool-card d-flex flex-column justify-content-between">
-                        <!-- Header : date • prix • badge  /  horloge -->
-                        <div class="card-header d-flex justify-content-between mb-3">
-                            <div class="card-info">
-                                <span class="date">15 juin</span>
-                                <span class="sep">•</span>
-                                <span class="price">20 €</span>
-                                <span class="sep">•</span>
-                                <span class="badge-eco">éco-énergie</span>
-                            </div>
-                            <div class="card-time">
-                                <i class="bi bi-clock-fill"></i>
-                                <span>12h45</span>
-                            </div>
-                        </div>
-                        <!-- Body : avatar / détails / bouton -->
-                        <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                            <img src="assets/images/logo.svg" alt="Avatar" class="avatar rounded-circle">
-                            <div class="details flex-grow-1 px-3 m-auto">
-                                <h5>Mel gang</h5>
-                                <ul>
-                                    <li>Animaux accepté</li>
-                                    <li>Sans tabac</li>
-                                    <li>Sans nourriture</li>
-                                    <li>Sans les mains</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <!-- Footer : étoiles -->
-                        <div class="card-footer">
-                            <div class="stars">
-                                <span class="star">☆</span>
-                                <span class="star">☆</span>
-                                <span class="star">☆</span>
-                                <span class="star">☆</span>
-                                <span class="star">☆</span>
-                            </div>
-                            <div>
-                                <button class="btn btn-inscription">Participer</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Card -->
-                <div class="col">
-                    <div class="carpool-card d-flex flex-column justify-content-between">
-                        <!-- Header : date • prix • badge  /  horloge -->
-                        <div class="card-header d-flex justify-content-between mb-3">
-                            <div class="card-info">
-                                <span class="date">15 juin</span>
-                                <span class="sep">•</span>
-                                <span class="price">20 €</span>
-                                <span class="sep">•</span>
-                                <span class="badge-eco">éco-énergie</span>
-                            </div>
-                            <div class="card-time">
-                                <i class="bi bi-clock-fill"></i>
-                                <span>12h45</span>
-                            </div>
-                        </div>
-                        <!-- Body : avatar / détails / bouton -->
-                        <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                            <img src="assets/images/logo.svg" alt="Avatar" class="avatar rounded-circle">
-                            <div class="details flex-grow-1 px-3 m-auto">
-                                <h5>Mel gang</h5>
-                                <ul>
-                                    <li>Animaux accepté</li>
-                                    <li>Sans tabac</li>
-                                    <li>Sans nourriture</li>
-                                    <li>Sans les mains</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <!-- Footer : étoiles -->
-                        <div class="card-footer">
-                            <div class="stars">
-                                <span class="star">☆</span>
-                                <span class="star">☆</span>
-                                <span class="star">☆</span>
-                                <span class="star">☆</span>
-                                <span class="star">☆</span>
-                            </div>
-                            <div>
-                                <button class="btn btn-inscription">Participer</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Card -->
-                <div class="col">
-                    <div class="carpool-card d-flex flex-column justify-content-between">
-                        <!-- Header : date • prix • badge  /  horloge -->
-                        <div class="card-header d-flex justify-content-between mb-3">
-                            <div class="card-info">
-                                <span class="date">15 juin</span>
-                                <span class="sep">•</span>
-                                <span class="price">20 €</span>
-                                <span class="sep">•</span>
-                                <span class="badge-eco">éco-énergie</span>
-                            </div>
-                            <div class="card-time">
-                                <i class="bi bi-clock-fill"></i>
-                                <span>12h45</span>
-                            </div>
-                        </div>
-                        <!-- Body : avatar / détails / bouton -->
-                        <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                            <img src="assets/images/logo.svg" alt="Avatar" class="avatar rounded-circle">
-                            <div class="details flex-grow-1 px-3 m-auto">
-                                <h5>Mel gang</h5>
-                                <ul>
-                                    <li>Animaux accepté</li>
-                                    <li>Sans tabac</li>
-                                    <li>Sans nourriture</li>
-                                    <li>Sans les mains</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <!-- Footer : étoiles -->
-                        <div class="card-footer">
-                            <div class="stars">
-                                <span class="star">☆</span>
-                                <span class="star">☆</span>
-                                <span class="star">☆</span>
-                                <span class="star">☆</span>
-                                <span class="star">☆</span>
-                            </div>
-                            <div>
-                                <button class="btn btn-inscription">Participer</button>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
+                <?php endif; ?>
             </div>
         </div>
     </section>

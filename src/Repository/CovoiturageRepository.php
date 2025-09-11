@@ -37,4 +37,30 @@ class CovoiturageRepository
         }
         return $ok;
     }
+
+    /**
+     * Recherche simple par villes (LIKE) et date exacte (DATE(depart) = :date)
+     */
+    public function search(?string $depart = null, ?string $arrivee = null, ?string $date = null): array
+    {
+        $sql = "SELECT c.* FROM {$this->table} c WHERE 1=1";
+        $params = [];
+        if ($depart !== null && $depart !== '') {
+            $sql .= " AND c.adresse_depart LIKE :depart";
+            $params[':depart'] = '%' . $depart . '%';
+        }
+        if ($arrivee !== null && $arrivee !== '') {
+            $sql .= " AND c.adresse_arrivee LIKE :arrivee";
+            $params[':arrivee'] = '%' . $arrivee . '%';
+        }
+        if ($date !== null && $date !== '') {
+            $sql .= " AND DATE(c.depart) = :date";
+            $params[':date'] = $date;
+        }
+        $sql .= " ORDER BY c.depart ASC LIMIT 100";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\VehicleRepository;
+use App\Repository\CovoiturageRepository;
 
 // Contrôleur des pages (publiques/protégées): statiques, covoiturages, profil
 class PageController extends Controller
@@ -37,7 +38,30 @@ class PageController extends Controller
 
     public function listeCovoiturages(): void
     {
-        $this->render("pages/liste-covoiturages");
+        // Lecture des critères GET (simples)
+        $depart = isset($_GET['depart']) ? trim((string)$_GET['depart']) : null;
+        $arrivee = isset($_GET['arrivee']) ? trim((string)$_GET['arrivee']) : null;
+        $date = isset($_GET['date']) ? trim((string)$_GET['date']) : null; // format YYYY-MM-DD
+
+        $results = [];
+        try {
+            $repo = new CovoiturageRepository();
+            // Recherche uniquement si au moins un critère est fourni
+            if (($depart && $depart !== '') || ($arrivee && $arrivee !== '') || ($date && $date !== '')) {
+                $results = $repo->search($depart, $arrivee, $date);
+            }
+        } catch (\Throwable $e) {
+            error_log('Search error: ' . $e->getMessage());
+        }
+
+        $this->render("pages/liste-covoiturages", [
+            'criteria' => [
+                'depart' => $depart,
+                'arrivee' => $arrivee,
+                'date' => $date,
+            ],
+            'results' => $results
+        ]);
     }
 
     // Page de création d'un covoiturage.    
