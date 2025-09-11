@@ -20,11 +20,23 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Choix du véhicule</label>
-                    <select class="form-select" required>
-                        <option value="">Sélectionner</option>
-                        <option value="Nissan Micra">Nissan Micra</option>
-                        <option value="Renault Zoé">Renault Zoé</option>
-                    </select>
+                    <?php if (!empty($userVehicles)): ?>
+                        <select class="form-select" name="vehicle_id" required>
+                            <option value="">Sélectionner</option>
+                            <?php foreach ($userVehicles as $veh): ?>
+                                <option value="<?= htmlspecialchars((string)$veh->getId(), ENT_QUOTES, 'UTF-8') ?>">
+                                    <?= htmlspecialchars($veh->getMarque() . ' ' . $veh->getModele() . ' — ' . $veh->getImmatriculation(), ENT_QUOTES, 'UTF-8') ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    <?php else: ?>
+                        <div class="alert alert-warning" role="alert">
+                            Vous n'avez pas encore ajouté de véhicule. <a class="alert-link" href="/vehicle/create">Ajouter un véhicule</a>
+                        </div>
+                        <select class="form-select" disabled>
+                            <option value="">Aucun véhicule disponible</option>
+                        </select>
+                    <?php endif; ?>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Date du départ</label>
@@ -35,7 +47,7 @@
                     <input type="time" class="form-control" required>
                 </div>
                 <div class="text-center">
-                    <button type="submit" class="btn btn-inscription">Créer le voyage</button>
+                    <button type="submit" class="btn btn-inscription" <?= empty($userVehicles) ? 'disabled' : '' ?>>Créer le voyage</button>
                 </div>
             </form>
         </div>
