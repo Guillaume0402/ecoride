@@ -15,11 +15,11 @@
 </head>
 
 <body class="page-container d-flex flex-column min-vh-100" data-has-vehicle="<?= !empty($hasVehicle) ? '1' : '0' ?>">
-    
-    
-    <?php require_once __DIR__ . '/partials/header.php'; ?>  
-    
-    
+
+
+    <?php require_once __DIR__ . '/partials/header.php'; ?>
+
+
     <div id="alerts">
         <?php include __DIR__ . '/partials/flash.php'; ?>
     </div>
