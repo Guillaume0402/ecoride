@@ -192,5 +192,13 @@ return [
             'controller' => 'App\\Controller\\PageController',
             'action' => 'privacy'
         ]
+    ],
+
+    // API covoiturages (création minimale)
+    '/api/covoiturages/create' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\CovoiturageController',
+            'action' => 'apiCreate'
+        ]
     ]
 ];
