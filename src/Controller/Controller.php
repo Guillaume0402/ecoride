@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\UserRepository;
 use App\Service\UserService;
+use App\Repository\VehicleRepository;
 
 // Contrôleur de base: session, services communs et rendu des vues avec layout
 class Controller
@@ -35,6 +36,21 @@ class Controller
         // Expose les clés de $data comme variables accessibles dans la vue
         extract($data);
 
+        // Variables globales utiles aux vues/partials
+        $hasVehicle = false;
+        $userVehicles = [];
+        if (isset($_SESSION['user']) && !empty($_SESSION['user']['id'])) {
+            try {
+                $vehicleRepo = new VehicleRepository();
+                // On peut retourner des entités; les vues existantes manipulent déjà des entités côté profil
+                $userVehicles = $vehicleRepo->findAllByUserId((int) $_SESSION['user']['id']);
+                $hasVehicle = !empty($userVehicles);
+            } catch (\Throwable $e) {
+                // N'écrase pas l'affichage si la DB est indisponible; expose juste false
+                error_log('[render] Vehicle preload failed: ' . $e->getMessage());
+            }
+        }
+
         // Construit le chemin absolu de la vue et vérifie son existence
         $viewPath = APP_ROOT . '/src/View/' . ltrim($view, '/') . '.php';
         if (!file_exists($viewPath)) {
@@ -46,7 +62,7 @@ class Controller
         require $viewPath;
         $content = ob_get_clean();
 
-        // Inclut le layout qui utilise $content pour afficher la page complète
+    // Inclut le layout qui utilise $content pour afficher la page complète
         require APP_ROOT . '/src/View/layout.php';
     }
 }
