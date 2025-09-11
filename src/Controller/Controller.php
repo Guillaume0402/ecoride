@@ -62,7 +62,7 @@ class Controller
         require $viewPath;
         $content = ob_get_clean();
 
-    // Inclut le layout qui utilise $content pour afficher la page complète
+        // Inclut le layout qui utilise $content pour afficher la page complète
         require APP_ROOT . '/src/View/layout.php';
     }
 }

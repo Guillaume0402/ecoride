@@ -49,9 +49,19 @@
                                     </li>
                                 <?php else: ?>
                                     <li><a class="dropdown-item" href="/my-profil"><i class="bi bi-person me-2"></i> Mon profil</a></li>
-                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createCovoitModal">
-                                            <i class="bi bi-plus-circle me-2"></i> Créer un trajet
-                                        </a></li>
+                                    <?php if (!empty($hasVehicle)): ?>
+                                        <li>
+                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createCovoitModal">
+                                                <i class="bi bi-plus-circle me-2"></i> Créer un trajet
+                                            </a>
+                                        </li>
+                                    <?php else: ?>
+                                        <li>
+                                            <a class="dropdown-item" href="/vehicle/create" title="Ajoutez un véhicule pour pouvoir créer un covoiturage">
+                                                <i class="bi bi-car-front me-2"></i> Ajouter un véhicule
+                                            </a>
+                                        </li>
+                                    <?php endif; ?>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
