@@ -41,14 +41,14 @@ class CovoiturageController extends Controller
         $vehicleId = (int) ($_POST['vehicle_id'] ?? 0);
         $villeDepart = trim($_POST['ville_depart'] ?? '');
         $villeArrivee = trim($_POST['ville_arrivee'] ?? '');
-    $date = trim($_POST['date'] ?? '');
-    $time = trim($_POST['time'] ?? '');
-    $timeArrivee = trim($_POST['time_arrivee'] ?? '');
-    $prixRaw = $_POST['prix'] ?? '';
-    $places = filter_input(INPUT_POST, 'places', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 9]]);
+        $date = trim($_POST['date'] ?? '');
+        $time = trim($_POST['time'] ?? '');
+        $timeArrivee = trim($_POST['time_arrivee'] ?? '');
+        $prixRaw = $_POST['prix'] ?? '';
+        $places = filter_input(INPUT_POST, 'places', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 9]]);
         $prix = is_numeric($prixRaw) ? (float) $prixRaw : -1;
 
-    if ($vehicleId <= 0 || $villeDepart === '' || $villeArrivee === '' || $date === '' || $time === '' || $timeArrivee === '' || $prix < 0 || $places === false) {
+        if ($vehicleId <= 0 || $villeDepart === '' || $villeArrivee === '' || $date === '' || $time === '' || $timeArrivee === '' || $prix < 0 || $places === false) {
             Flash::add('Champs requis manquants ou invalides.', 'danger');
             redirect('/');
         }
@@ -129,12 +129,12 @@ class CovoiturageController extends Controller
         $villeArrivee = trim($_POST['ville_arrivee'] ?? '');
         $date = trim($_POST['date'] ?? '');
         $time = trim($_POST['time'] ?? '');
-    $prix = (float) ($_POST['prix'] ?? 0);
-    $timeArrivee = trim($_POST['time_arrivee'] ?? '');
-    $places = filter_input(INPUT_POST, 'places', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 9]]);
+        $prix = (float) ($_POST['prix'] ?? 0);
+        $timeArrivee = trim($_POST['time_arrivee'] ?? '');
+        $places = filter_input(INPUT_POST, 'places', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 9]]);
 
         // Validations simples
-    if ($vehicleId <= 0 || $villeDepart === '' || $villeArrivee === '' || $date === '' || $time === '' || $timeArrivee === '' || $prix < 0 || $places === false) {
+        if ($vehicleId <= 0 || $villeDepart === '' || $villeArrivee === '' || $date === '' || $time === '' || $timeArrivee === '' || $prix < 0 || $places === false) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Champs requis manquants ou invalides.']);
             return;

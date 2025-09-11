@@ -40,11 +40,11 @@
                     <?php endif; ?>
                 </div>
                 <?php if (!empty($userVehicles)): ?>
-                <div class="mb-3">
-                    <label class="form-label">Places disponibles pour ce trajet</label>
-                    <input type="number" class="form-control" name="places" id="placesInput" min="1" step="1" placeholder="Ex : 3" required>
-                    <small class="form-text">Limité au nombre de places du véhicule sélectionné.</small>
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">Places disponibles pour ce trajet</label>
+                        <input type="number" class="form-control" name="places" id="placesInput" min="1" step="1" placeholder="Ex : 3" required>
+                        <small class="form-text">Limité au nombre de places du véhicule sélectionné.</small>
+                    </div>
                 <?php endif; ?>
                 <div class="mb-3">
                     <label class="form-label">Date du départ</label>
@@ -63,57 +63,63 @@
                 </div>
             </form>
             <?php if (!empty($userVehicles)): ?>
-            <script>
-            (function(){
-                const sel = document.getElementById('vehicleSelect');
-                const places = document.getElementById('placesInput');
-                const dateInput = document.querySelector('#createCovoitModal input[name="date"]');
-                const timeInput = document.querySelector('#createCovoitModal input[name="time"]');
-                const timeArrInput = document.querySelector('#createCovoitModal input[name="time_arrivee"]');
-                function syncMax(){
-                    const opt = sel?.selectedOptions?.[0];
-                    if (!opt || !places) return;
-                    const max = parseInt(opt.dataset.places || '1', 10) || 1;
-                    places.max = String(max);
-                    if (places.value) {
-                        const v = parseInt(places.value, 10) || 1;
-                        if (v > max) places.value = String(max);
-                    }
-                }
-                function pad(n){ return String(n).padStart(2,'0'); }
-                function syncTimeMin(){
-                    if (!dateInput || !timeInput) return;
-                    const today = new Date();
-                    const selDate = new Date(dateInput.value + 'T00:00:00');
-                    if (isNaN(selDate.getTime())) return;
-                    // Si la date sélectionnée est aujourd’hui, min = heure courante; sinon pas de min
-                    const isToday = dateInput.value === today.toISOString().slice(0,10);
-                    if (isToday) {
-                        const hh = pad(today.getHours());
-                        const mm = pad(today.getMinutes());
-                        timeInput.min = `${hh}:${mm}`;
-                    } else {
-                        timeInput.removeAttribute('min');
-                    }
-                    // Arrivée doit être > départ
-                    if (timeInput.value && timeArrInput) {
-                        // fixe min de l’arrivée à l’heure de départ (ou +1 minute pour être >)
-                        const [h,m] = timeInput.value.split(':').map(Number);
-                        const d = new Date(); d.setHours(h||0,m||0,0,0);
-                        d.setMinutes(d.getMinutes()+1);
-                        timeArrInput.min = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-                        if (timeArrInput.value && timeArrInput.value < timeArrInput.min) {
-                            timeArrInput.value = timeArrInput.min;
+                <script>
+                    (function() {
+                        const sel = document.getElementById('vehicleSelect');
+                        const places = document.getElementById('placesInput');
+                        const dateInput = document.querySelector('#createCovoitModal input[name="date"]');
+                        const timeInput = document.querySelector('#createCovoitModal input[name="time"]');
+                        const timeArrInput = document.querySelector('#createCovoitModal input[name="time_arrivee"]');
+
+                        function syncMax() {
+                            const opt = sel?.selectedOptions?.[0];
+                            if (!opt || !places) return;
+                            const max = parseInt(opt.dataset.places || '1', 10) || 1;
+                            places.max = String(max);
+                            if (places.value) {
+                                const v = parseInt(places.value, 10) || 1;
+                                if (v > max) places.value = String(max);
+                            }
                         }
-                    }
-                }
-                sel?.addEventListener('change', syncMax);
-                syncMax();
-                dateInput?.addEventListener('change', syncTimeMin);
-                timeInput?.addEventListener('change', syncTimeMin);
-                syncTimeMin();
-            })();
-            </script>
+
+                        function pad(n) {
+                            return String(n).padStart(2, '0');
+                        }
+
+                        function syncTimeMin() {
+                            if (!dateInput || !timeInput) return;
+                            const today = new Date();
+                            const selDate = new Date(dateInput.value + 'T00:00:00');
+                            if (isNaN(selDate.getTime())) return;
+                            // Si la date sélectionnée est aujourd’hui, min = heure courante; sinon pas de min
+                            const isToday = dateInput.value === today.toISOString().slice(0, 10);
+                            if (isToday) {
+                                const hh = pad(today.getHours());
+                                const mm = pad(today.getMinutes());
+                                timeInput.min = `${hh}:${mm}`;
+                            } else {
+                                timeInput.removeAttribute('min');
+                            }
+                            // Arrivée doit être > départ
+                            if (timeInput.value && timeArrInput) {
+                                // fixe min de l’arrivée à l’heure de départ (ou +1 minute pour être >)
+                                const [h, m] = timeInput.value.split(':').map(Number);
+                                const d = new Date();
+                                d.setHours(h || 0, m || 0, 0, 0);
+                                d.setMinutes(d.getMinutes() + 1);
+                                timeArrInput.min = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                                if (timeArrInput.value && timeArrInput.value < timeArrInput.min) {
+                                    timeArrInput.value = timeArrInput.min;
+                                }
+                            }
+                        }
+                        sel?.addEventListener('change', syncMax);
+                        syncMax();
+                        dateInput?.addEventListener('change', syncTimeMin);
+                        timeInput?.addEventListener('change', syncTimeMin);
+                        syncTimeMin();
+                    })();
+                </script>
             <?php endif; ?>
         </div>
     </div>
