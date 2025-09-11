@@ -5,18 +5,19 @@
                 <h3 class="modal-title text-center fw-bold fs-2 mb-0 w-100">Créer un covoiturage</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
-            <form class="auth-form p-0 p-lg-5">
+            <form class="auth-form p-0 p-lg-5" action="/covoiturages/create" method="POST">
+                <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
                 <div class="mb-3">
                     <label class="form-label">Ville de départ</label>
-                    <input type="text" class="form-control" placeholder="Ex : Paris" required>
+                    <input type="text" class="form-control" name="ville_depart" placeholder="Ex : Paris" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Ville d'arrivée</label>
-                    <input type="text" class="form-control" placeholder="Ex : Lyon" required>
+                    <input type="text" class="form-control" name="ville_arrivee" placeholder="Ex : Lyon" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Prix du trajet</label>
-                    <input type="number" class="form-control" placeholder="Ex : 25" min="0" required>
+                    <input type="number" class="form-control" name="prix" placeholder="Ex : 25" min="0" step="0.01" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Choix du véhicule</label>
@@ -40,11 +41,11 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Date du départ</label>
-                    <input type="date" class="form-control" required>
+                    <input type="date" class="form-control" name="date" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Heure du départ</label>
-                    <input type="time" class="form-control" required>
+                    <input type="time" class="form-control" name="time" required>
                 </div>
                 <div class="text-center">
                     <button type="submit" class="btn btn-inscription" <?= empty($userVehicles) ? 'disabled' : '' ?>>Créer le voyage</button>

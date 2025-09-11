@@ -194,6 +194,14 @@ return [
         ]
     ],
 
+    // Formulaire classique (non-API) de création de covoiturage
+    '/covoiturages/create' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\CovoiturageController',
+            'action' => 'create'
+        ]
+    ],
+
     // API covoiturages (création minimale)
     '/api/covoiturages/create' => [
         'POST' => [
