@@ -40,18 +40,22 @@ class CovoiturageRepository
 
     /**
      * Recherche simple par villes (LIKE) et date exacte (DATE(depart) = :date)
+     * $prefs: tableau de préférences exactes (ex: ['fumeur','pas-animaux'])
      */
-    public function search(?string $depart = null, ?string $arrivee = null, ?string $date = null): array
+    public function search(?string $depart = null, ?string $arrivee = null, ?string $date = null, array $prefs = [], ?string $sort = null, ?string $dir = null): array
     {
-    $sql = "SELECT c.*,
-               u.pseudo AS driver_pseudo, u.photo AS driver_photo, u.note AS driver_note,
-               v.marque AS vehicle_marque, v.modele AS vehicle_modele, v.couleur AS vehicle_couleur,
-               v.places_dispo AS vehicle_places,
-               v.preferences AS vehicle_preferences, v.custom_preferences AS vehicle_prefs_custom
-        FROM {$this->table} c
-        LEFT JOIN users u ON u.id = c.driver_id
-        LEFT JOIN vehicles v ON v.id = c.vehicle_id
-        WHERE 1=1";
+        $sql = "SELECT c.*,
+                       u.pseudo AS driver_pseudo, u.photo AS driver_photo, u.note AS driver_note,
+                       v.marque AS vehicle_marque, v.modele AS vehicle_modele, v.couleur AS vehicle_couleur,
+                       v.places_dispo AS vehicle_places,
+                       v.preferences AS vehicle_preferences, v.custom_preferences AS vehicle_prefs_custom,
+                       COALESCE(v.places_dispo, 0) - COALESCE(COUNT(p.id), 0) AS places_restantes,
+                       COALESCE(COUNT(p.id), 0) AS reservations_count
+                FROM {$this->table} c
+                LEFT JOIN users u ON u.id = c.driver_id
+                LEFT JOIN vehicles v ON v.id = c.vehicle_id
+                LEFT JOIN participations p ON p.covoiturage_id = c.id AND p.status = 'confirmee'
+                WHERE 1=1";
         $params = [];
         if ($depart !== null && $depart !== '') {
             $sql .= " AND c.adresse_depart LIKE :depart";
@@ -65,7 +69,29 @@ class CovoiturageRepository
             $sql .= " AND DATE(c.depart) = :date";
             $params[':date'] = $date;
         }
-        $sql .= " ORDER BY c.depart ASC LIMIT 100";
+        if (!empty($prefs)) {
+            // Whitelist simple
+            $allowed = ['fumeur', 'non-fumeur', 'animaux', 'pas-animaux'];
+            $prefs = array_values(array_intersect($allowed, array_map('strval', (array) $prefs)));
+            foreach ($prefs as $idx => $p) {
+                $ph = ":pref$idx";
+                $sql .= " AND FIND_IN_SET($ph, v.preferences) > 0";
+                $params[$ph] = $p;
+            }
+        }
+        $sql .= " GROUP BY c.id";
+
+        // Tri sécurisé
+        $allowedSort = [
+            'date'  => 'c.depart',
+            'price' => 'c.prix'
+        ];
+        $orderBy = $allowedSort[$sort ?? 'date'] ?? 'c.depart';
+        $direction = strtoupper($dir ?? 'ASC');
+        if (!in_array($direction, ['ASC', 'DESC'], true)) {
+            $direction = 'ASC';
+        }
+        $sql .= " ORDER BY $orderBy $direction LIMIT 100";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);

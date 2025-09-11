@@ -42,14 +42,22 @@ class PageController extends Controller
         $depart = isset($_GET['depart']) ? trim((string)$_GET['depart']) : null;
         $arrivee = isset($_GET['arrivee']) ? trim((string)$_GET['arrivee']) : null;
         $date = isset($_GET['date']) ? trim((string)$_GET['date']) : null; // format YYYY-MM-DD
+        // Pref peut être string (ancienne UI) ou tableau (multi sélection)
+        $prefParam = $_GET['pref'] ?? null;
+        $prefs = [];
+        if (is_array($prefParam)) {
+            $prefs = array_values(array_filter(array_map('strval', $prefParam)));
+        } elseif (is_string($prefParam) && $prefParam !== '') {
+            $prefs = [$prefParam];
+        }
+        $sort = isset($_GET['sort']) ? trim((string)$_GET['sort']) : null; // 'date' | 'price'
+        $dir  = isset($_GET['dir'])  ? trim((string)$_GET['dir'])  : null; // 'asc' | 'desc'
 
         $results = [];
         try {
             $repo = new CovoiturageRepository();
-            // Recherche uniquement si au moins un critère est fourni
-            if (($depart && $depart !== '') || ($arrivee && $arrivee !== '') || ($date && $date !== '')) {
-                $results = $repo->search($depart, $arrivee, $date);
-            }
+            // Toujours effectuer la recherche pour permettre le tri même sans filtres
+            $results = $repo->search($depart, $arrivee, $date, $prefs, $sort, $dir);
         } catch (\Throwable $e) {
             error_log('Search error: ' . $e->getMessage());
         }
@@ -59,6 +67,9 @@ class PageController extends Controller
                 'depart' => $depart,
                 'arrivee' => $arrivee,
                 'date' => $date,
+                'pref' => $prefs,
+                'sort' => $sort,
+                'dir' => $dir,
             ],
             'results' => $results
         ]);
