@@ -43,7 +43,15 @@ class CovoiturageRepository
      */
     public function search(?string $depart = null, ?string $arrivee = null, ?string $date = null): array
     {
-        $sql = "SELECT c.* FROM {$this->table} c WHERE 1=1";
+    $sql = "SELECT c.*,
+               u.pseudo AS driver_pseudo, u.photo AS driver_photo, u.note AS driver_note,
+               v.marque AS vehicle_marque, v.modele AS vehicle_modele, v.couleur AS vehicle_couleur,
+               v.places_dispo AS vehicle_places,
+               v.preferences AS vehicle_preferences, v.custom_preferences AS vehicle_prefs_custom
+        FROM {$this->table} c
+        LEFT JOIN users u ON u.id = c.driver_id
+        LEFT JOIN vehicles v ON v.id = c.vehicle_id
+        WHERE 1=1";
         $params = [];
         if ($depart !== null && $depart !== '') {
             $sql .= " AND c.adresse_depart LIKE :depart";

@@ -5,18 +5,18 @@
     <section class="container mt-5 ">
         <div class="col-lg-6 col-12 d-flex justify-content-center mb-4  m-auto">
             <div class="form-box rounded p-4 w-100 ">
-        <form method="get" action="/liste-covoiturages">
+                <form method="get" action="/liste-covoiturages">
                     <div class="mb-3">
                         <label class="form-label">Ville de départ :</label>
-            <input type="text" name="depart" class="form-control" placeholder="Ex : Fleurance" value="<?= htmlspecialchars($criteria['depart'] ?? '') ?>">
+                        <input type="text" name="depart" class="form-control" placeholder="Ex : Fleurance" value="<?= htmlspecialchars($criteria['depart'] ?? '') ?>">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Ville d’arrivée :</label>
-            <input type="text" name="arrivee" class="form-control" placeholder="Ex : Auch" value="<?= htmlspecialchars($criteria['arrivee'] ?? '') ?>">
+                        <input type="text" name="arrivee" class="form-control" placeholder="Ex : Auch" value="<?= htmlspecialchars($criteria['arrivee'] ?? '') ?>">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Date de départ :</label>
-            <input type="date" name="date" class="form-control" value="<?= htmlspecialchars($criteria['date'] ?? '') ?>">
+                        <input type="date" name="date" class="form-control" value="<?= htmlspecialchars($criteria['date'] ?? '') ?>">
                     </div>
                     <button type="submit" class="btn btn-inscription fw-semibold d-block m-auto">Rechercher</button>
                 </form>
@@ -74,10 +74,33 @@
                                     </div>
                                 </div>
                                 <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
+                                    <?php $avatar = !empty($ride['driver_photo']) ? $ride['driver_photo'] : '/assets/images/logo.svg'; ?>
+                                    <img src="<?= htmlspecialchars($avatar) ?>" alt="Avatar conducteur" class="avatar rounded-circle" style="width:48px;height:48px;object-fit:cover;">
                                     <div class="details flex-grow-1 px-3 m-auto">
                                         <h5><?= htmlspecialchars($ride['adresse_depart']) ?> → <?= htmlspecialchars($ride['adresse_arrivee']) ?></h5>
                                         <ul class="mb-0">
-                                            <li>Conducteur #<?= (int)$ride['driver_id'] ?></li>
+                                            <li>Conducteur : <strong><?= htmlspecialchars($ride['driver_pseudo'] ?? ('#' . (int)$ride['driver_id'])) ?></strong></li>
+                                            <?php if (isset($ride['driver_note'])): ?>
+                                                <li>Note : <?= number_format((float)$ride['driver_note'], 1, ',', ' ') ?>/5</li>
+                                            <?php endif; ?>
+                                            <?php if (!empty($ride['vehicle_marque']) || !empty($ride['vehicle_modele'])): ?>
+                                                <li>Véhicule : <?= htmlspecialchars(trim(($ride['vehicle_marque'] ?? '') . ' ' . ($ride['vehicle_modele'] ?? ''))) ?><?php if (!empty($ride['vehicle_couleur'])): ?>, <span style="text-transform:capitalize;"><?= htmlspecialchars($ride['vehicle_couleur']) ?></span><?php endif; ?></li>
+                                            <?php endif; ?>
+                                            <?php if (isset($ride['vehicle_places'])): ?>
+                                                <li>Places dispo : <?= (int)$ride['vehicle_places'] ?></li>
+                                            <?php endif; ?>
+                                            <?php
+                                            $prefs = [];
+                                            if (!empty($ride['vehicle_preferences'])) {
+                                                $prefs = array_filter(array_map('trim', explode(',', (string)$ride['vehicle_preferences'])));
+                                            }
+                                            if (!empty($ride['vehicle_prefs_custom'])) {
+                                                $prefs[] = trim((string)$ride['vehicle_prefs_custom']);
+                                            }
+                                            if (!empty($prefs)):
+                                            ?>
+                                                <li>Préférences : <?= htmlspecialchars(implode(' • ', $prefs)) ?></li>
+                                            <?php endif; ?>
                                         </ul>
                                     </div>
                                 </div>
