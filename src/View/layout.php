@@ -14,7 +14,7 @@
 
 </head>
 
-<body class="page-container d-flex flex-column min-vh-100">
+<body class="page-container d-flex flex-column min-vh-100" data-has-vehicle="<?= !empty($hasVehicle) ? '1' : '0' ?>">
     
     
     <?php require_once __DIR__ . '/partials/header.php'; ?>  
