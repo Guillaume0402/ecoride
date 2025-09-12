@@ -38,13 +38,13 @@
         color: $text-white !important; // ✅ couleur blanche pour le texte
         text-shadow: $shadow-text; // ✅ ombre de texte
         border: none;
-        background: none;        
+        background: none;
         font-size: clamp(0.7rem, 2vw, 1rem);
         transition: border-color 0.3s, color 0.3s;
         padding: 0;
         text-decoration: none; // 🔥 désactive le underline arrondi
         border-bottom: 1px solid transparent; // ligne invisible de base
-        border-radius: 0; // ✅ supprime l’arrondi        
+        border-radius: 0; // ✅ supprime l’arrondi
 
         &.active-tab {
             border-color: $text-white; // ✅ ligne noire, droite
@@ -81,6 +81,88 @@
         @extend .btn-inscription; // utilise ton style global
         width: auto;
         margin-top: 1rem;
+    }
+}
+
+// Lisibilité jauge de mot de passe et toggle
+.auth-form {
+    .input-group .toggle-password {
+        border-color: rgba(255, 255, 255, 0.3);
+        color: $text-white;
+        background: transparent;
+        &:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+    }
+
+    .input-group .toggle-criteria {
+        border-color: rgba(255, 255, 255, 0.3);
+        color: $text-white;
+        background: transparent;
+        &:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+    }
+
+    #passwordStrengthBar {
+        height: 10px !important; // plus lisible
+        transition: width 0.25s ease;
+    }
+
+    #passwordStrengthText {
+        display: inline-block;
+        margin-top: 0.35rem;
+        color: $text-white;
+        text-shadow: $shadow-text;
+    }
+
+    // Espace entre aide et jauge
+    #passwordHelp + .mt-2 {
+        margin-top: 0.5rem !important;
+    }
+}
+
+// Checklist des critères de mot de passe
+.password-criteria {
+    margin: 0.35rem 0 0.25rem;
+    padding-left: 1.2rem;
+    list-style: none;
+    color: $text-white;
+    text-shadow: $shadow-text;
+    font-size: 0.9rem;
+
+    li {
+        position: relative;
+        padding-left: 1.2rem;
+        margin: 0.25rem 0;
+        opacity: 0.85;
+
+        &::before {
+            content: "\F62A"; // bootstrap-icons: circle
+            font-family: "bootstrap-icons";
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        &.ok {
+            opacity: 1;
+            color: #b6f7c1; // vert lisible sur fond
+            &::before {
+                content: "\F26E"; // check-circle
+                color: #2ecc71;
+            }
+        }
+
+        &.bad {
+            opacity: 1;
+            color: #ffb3b3; // rouge doux lisible
+            &::before {
+                content: "\F62E"; // x-circle
+                color: #ff6b6b;
+            }
+        }
     }
 }
 

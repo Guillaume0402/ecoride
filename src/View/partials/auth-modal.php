@@ -34,10 +34,19 @@
                         <button class="btn btn-outline-secondary toggle-password" type="button" data-target="passwordRegister" aria-label="Afficher/Masquer le mot de passe">
                             <i class="bi bi-eye"></i>
                         </button>
+                        <button class="btn btn-outline-secondary toggle-criteria" type="button" aria-label="Afficher l'aide sur le mot de passe" aria-controls="passwordCriteriaList" aria-expanded="false">
+                            <i class="bi bi-info-circle"></i>
+                        </button>
                     </div>
-                    <div id="passwordHelp" class="form-text">
-                        Min. 12 caractères, incluant 1 minuscule, 1 majuscule, 1 chiffre, 1 caractère spécial, sans espace.
-                    </div>
+                    <div id="passwordHelp" class="form-text visually-hidden">Règles de sécurité du mot de passe.</div>
+                    <ul id="passwordCriteriaList" class="password-criteria d-none" aria-live="polite" aria-describedby="passwordHelp">
+                        <li data-crit="len">Au moins 12 caractères</li>
+                        <li data-crit="lower">Contient une minuscule</li>
+                        <li data-crit="upper">Contient une majuscule</li>
+                        <li data-crit="digit">Contient un chiffre</li>
+                        <li data-crit="special">Contient un caractère spécial</li>
+                        <li data-crit="space">Ne contient aucun espace</li>
+                    </ul>
                     <div class="invalid-feedback">Votre mot de passe ne respecte pas les règles de sécurité.</div>
                     <div class="mt-2" aria-live="polite">
                         <div class="progress" style="height: 6px;">

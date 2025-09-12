@@ -1,5 +1,3 @@
-// SOLUTION : Déplacer les fonctions utilitaires en dehors du DOMContentLoaded
-
 // Fonction pour afficher les messages
 function showAlert(message, type = "danger") {
     const modalAlert = document.querySelector("#authModal #authAlert");
@@ -29,7 +27,6 @@ function showGlobalAlert(message, type = "success") {
     setTimeout(() => el.classList.add("fade-out"), 3500);
     setTimeout(() => el.remove(), 4300);
 }
-
 
 // Fonction pour masquer les messages
 function hideAlert() {
@@ -91,7 +88,7 @@ async function handleAuth(endpoint, formData) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                ...(csrf ? { "X-CSRF-Token": csrf } : {})
+                ...(csrf ? { "X-CSRF-Token": csrf } : {}),
             },
             body: JSON.stringify(formData),
         });
@@ -164,25 +161,54 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // Règles de validation registration
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])(?!.*\s).+$/;
+    const passwordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])(?!.*\s).+$/;
     const validateRegisterField = (input) => {
         const id = input.id;
         const val = input.value.trim();
         if (id === "username") {
-            if (val.length < 3) return setInvalid(input, "Veuillez renseigner un pseudo (3 caractères minimum)."), false;
+            if (val.length < 3)
+                return (
+                    setInvalid(
+                        input,
+                        "Veuillez renseigner un pseudo (3 caractères minimum)."
+                    ),
+                    false
+                );
             return setValid(input), true;
         }
         if (id === "emailRegister") {
-            if (!input.checkValidity()) return setInvalid(input, "Veuillez entrer une adresse email valide."), false;
+            if (!input.checkValidity())
+                return (
+                    setInvalid(
+                        input,
+                        "Veuillez entrer une adresse email valide."
+                    ),
+                    false
+                );
             return setValid(input), true;
         }
         if (id === "passwordRegister") {
-            if (val.length < 12 || !passwordRegex.test(val)) return setInvalid(input, "Votre mot de passe ne respecte pas les règles de sécurité."), false;
+            if (val.length < 12 || !passwordRegex.test(val))
+                return (
+                    setInvalid(
+                        input,
+                        "Votre mot de passe ne respecte pas les règles de sécurité."
+                    ),
+                    false
+                );
             return setValid(input), true;
         }
         if (id === "confirmPassword") {
             const pwd = document.getElementById("passwordRegister").value;
-            if (val !== pwd) return setInvalid(input, "Les mots de passe ne correspondent pas."), false;
+            if (val !== pwd)
+                return (
+                    setInvalid(
+                        input,
+                        "Les mots de passe ne correspondent pas."
+                    ),
+                    false
+                );
             return setValid(input), true;
         }
         return true;
@@ -191,11 +217,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const validateLoginField = (input) => {
         const id = input.id;
         if (id === "emailLogin") {
-            if (!input.checkValidity()) return setInvalid(input, "Veuillez entrer une adresse email valide."), false;
+            if (!input.checkValidity())
+                return (
+                    setInvalid(
+                        input,
+                        "Veuillez entrer une adresse email valide."
+                    ),
+                    false
+                );
             return setValid(input), true;
         }
         if (id === "passwordLogin") {
-            if (!input.value) return setInvalid(input, "Veuillez saisir votre mot de passe."), false;
+            if (!input.value)
+                return (
+                    setInvalid(input, "Veuillez saisir votre mot de passe."),
+                    false
+                );
             return setValid(input), true;
         }
         return true;
@@ -230,36 +267,93 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!strengthBar || !strengthText) return;
         strengthBar.style.width = `${score}%`;
         strengthBar.setAttribute("aria-valuenow", String(score));
-        let label = "très faible", cls = "bg-danger";
-        if (score >= 25) label = "faible", cls = "bg-danger";
-        if (score >= 50) label = "moyenne", cls = "bg-warning";
-        if (score >= 75) label = "bonne", cls = "bg-success";
-        if (score >= 90) label = "excellente", cls = "bg-success";
+        let label = "très faible",
+            cls = "bg-danger";
+        if (score >= 25) (label = "faible"), (cls = "bg-danger");
+        if (score >= 50) (label = "moyenne"), (cls = "bg-warning");
+        if (score >= 75) (label = "bonne"), (cls = "bg-success");
+        if (score >= 90) (label = "excellente"), (cls = "bg-success");
         strengthBar.className = `progress-bar ${cls}`;
         strengthText.textContent = `Robustesse : ${label}`;
     };
 
     if (pwdInput) {
         updateStrengthUI(0);
+        const criteriaEls = {
+            len: document.querySelector('.password-criteria [data-crit="len"]'),
+            lower: document.querySelector(
+                '.password-criteria [data-crit="lower"]'
+            ),
+            upper: document.querySelector(
+                '.password-criteria [data-crit="upper"]'
+            ),
+            digit: document.querySelector(
+                '.password-criteria [data-crit="digit"]'
+            ),
+            special: document.querySelector(
+                '.password-criteria [data-crit="special"]'
+            ),
+            space: document.querySelector(
+                '.password-criteria [data-crit="space"]'
+            ),
+        };
+        const criteriaList = document.querySelector(".password-criteria");
+
+        const updateCriteria = (pwd) => {
+            const hasLower = /[a-z]/.test(pwd);
+            const hasUpper = /[A-Z]/.test(pwd);
+            const hasDigit = /\d/.test(pwd);
+            const hasSpecial = /[^\w\s]/.test(pwd);
+            const hasLen = pwd.length >= 12;
+            const hasNoSpace = !/\s/.test(pwd);
+
+            criteriaEls.lower &&
+                criteriaEls.lower.classList.toggle("ok", hasLower);
+            criteriaEls.upper &&
+                criteriaEls.upper.classList.toggle("ok", hasUpper);
+            criteriaEls.digit &&
+                criteriaEls.digit.classList.toggle("ok", hasDigit);
+            criteriaEls.special &&
+                criteriaEls.special.classList.toggle("ok", hasSpecial);
+            criteriaEls.len && criteriaEls.len.classList.toggle("ok", hasLen);
+            if (criteriaEls.space) {
+                criteriaEls.space.classList.toggle("ok", hasNoSpace);
+                criteriaEls.space.classList.toggle("bad", !hasNoSpace);
+            }
+        };
+
         pwdInput.addEventListener("input", () => {
-            updateStrengthUI(computeStrength(pwdInput.value));
+            const pwd = pwdInput.value;
+            updateStrengthUI(computeStrength(pwd));
+            updateCriteria(pwd);
+            // ne pas auto-afficher/masquer: contrôlé via .toggle-criteria
         });
     }
 
     // Toggle show/hide password for all .toggle-password buttons
-    document.querySelectorAll('.toggle-password').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            const targetId = btn.getAttribute('data-target');
+    document.querySelectorAll(".toggle-password").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const targetId = btn.getAttribute("data-target");
             const input = document.getElementById(targetId);
             if (!input) return;
-            const isPwd = input.getAttribute('type') === 'password';
-            input.setAttribute('type', isPwd ? 'text' : 'password');
+            const isPwd = input.getAttribute("type") === "password";
+            input.setAttribute("type", isPwd ? "text" : "password");
             // swap icon if using Bootstrap Icons
-            const icon = btn.querySelector('i');
+            const icon = btn.querySelector("i");
             if (icon) {
-                icon.classList.toggle('bi-eye');
-                icon.classList.toggle('bi-eye-slash');
+                icon.classList.toggle("bi-eye");
+                icon.classList.toggle("bi-eye-slash");
             }
+        });
+    });
+
+    // Toggle criteria info visibility
+    document.querySelectorAll(".toggle-criteria").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const list = document.getElementById("passwordCriteriaList");
+            if (!list) return;
+            const hidden = list.classList.toggle("d-none");
+            btn.setAttribute("aria-expanded", String(!hidden));
         });
     });
 
@@ -268,7 +362,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let ok = true;
         form.querySelectorAll("input").forEach((input) => {
             const valid = validator(input);
-            if (!valid && !firstInvalid) firstInvalid = input, ok = false;
+            if (!valid && !firstInvalid) (firstInvalid = input), (ok = false);
         });
         if (!ok && firstInvalid) firstInvalid.focus();
         return ok;
@@ -334,10 +428,21 @@ document.addEventListener("DOMContentLoaded", () => {
     authModal.addEventListener("hidden.bs.modal", () => {
         registerForm.reset();
         loginForm.reset();
-        registerForm.querySelectorAll(".is-invalid").forEach((el)=>el.classList.remove("is-invalid"));
-        loginForm.querySelectorAll(".is-invalid").forEach((el)=>el.classList.remove("is-invalid"));
+        registerForm
+            .querySelectorAll(".is-invalid")
+            .forEach((el) => el.classList.remove("is-invalid"));
+        loginForm
+            .querySelectorAll(".is-invalid")
+            .forEach((el) => el.classList.remove("is-invalid"));
         // reset strength meter
         updateStrengthUI(0);
+        const list = document.querySelector(".password-criteria");
+        if (list) {
+            list.classList.add("d-none");
+            list.querySelectorAll("li").forEach((li) => {
+                li.classList.remove("ok", "bad");
+            });
+        }
         hideAlert();
         setLoading(registerForm, false);
         setLoading(loginForm, false);
