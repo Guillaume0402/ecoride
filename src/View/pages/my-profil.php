@@ -13,7 +13,7 @@ if ($user['role_id'] === 3) {
 }
 ?>
 
-<div class="container py-5">
+<div class="container py-5 my-profil-page">
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <div class="card shadow-lg border-0 rounded-4 p-4 mb-5" style="background:rgba(0,0,0,0.10);backdrop-filter:blur(2px);">
@@ -21,15 +21,15 @@ if ($user['role_id'] === 3) {
                     <div class="col-md-4 text-center text-md-start mb-4 mb-md-0">
                         <div class="d-flex flex-column align-items-center align-items-md-start gap-2">
                             <div class="d-flex align-items-center gap-2 mb-2">
-                                <span class="text-white fs-5">
+                                <span class="fs-5">
                                     <?php for ($i = 0; $i < 5; $i++): ?><i class="bi bi-star-fill text-warning"></i><?php endfor; ?>
                                 </span>
-                                <span class="text-white ms-2">(24)</span>
+                                <span class="ms-2">(24)</span>
                             </div>
                             <?php if (isset($_SESSION['user'])): ?>
-                                <h2 class="fw-bold text-white mb-2"><?= $_SESSION['user']['pseudo'] ?? '' ?></h2>
+                                <h2 class="fw-bold mb-2"><?= $_SESSION['user']['pseudo'] ?? '' ?></h2>
                                 <img src="<?= $user['photo'] ?? '/assets/images/logo.svg' ?>" alt="Avatar" class="rounded-circle bg-white mb-2" style="width:70px;height:70px;object-fit:cover;">
-                                <ul class="list-unstyled text-white small mb-3">
+                                <ul class="list-unstyled small mb-3">
                                     <li>Animaux accepté</li>
                                     <li>Sans tabac</li>
                                     <li>Sans nourriture</li>
@@ -48,7 +48,7 @@ if ($user['role_id'] === 3) {
                         </div>
                     </div>
                     <div class="col-md-8">
-                        <div class="row g-3 text-white">
+                        <div class="row g-3">
                             <div class="col-6 col-lg-4">
                                 <div class="fw-semibold">Date d'inscription</div>
                                 <div class="small"><?= !empty($user['created_at']) ? date('d-m-Y', strtotime($user['created_at'])) : 'Non renseignée' ?></div>
@@ -66,7 +66,7 @@ if ($user['role_id'] === 3) {
                                 <ul class="nav nav-tabs mb-4" id="vehicleTabs" role="tablist">
                                     <?php foreach ($vehicles as $index => $vehicle): ?>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link text-white <?= $index === 0 ? 'active' : '' ?>" id="vehicle-tab-<?= $index ?>"
+                                            <button class="nav-link <?= $index === 0 ? 'active' : '' ?>" id="vehicle-tab-<?= $index ?>"
                                                 data-bs-toggle="tab" data-bs-target="#vehicle-<?= $index ?>" type="button" role="tab">
                                                 Véhicule <?= $index + 1 ?>
                                             </button>
@@ -77,7 +77,7 @@ if ($user['role_id'] === 3) {
                                 <div class="tab-content" id="vehicleTabsContent">
                                     <?php foreach ($vehicles as $index => $vehicle): ?>
                                         <div class="tab-pane fade <?= $index === 0 ? 'show active' : '' ?>" id="vehicle-<?= $index ?>" role="tabpanel">
-                                            <div class="card bg-transparent border rounded-3 p-3 text-white">
+                                            <div class="card bg-transparent border rounded-3 p-3">
                                                 <div class="fw-bold mb-3">
                                                     Modèle : <?= htmlspecialchars($vehicle->getMarque()) . ' ' . htmlspecialchars($vehicle->getModele()) ?>
                                                 </div>
@@ -121,7 +121,7 @@ if ($user['role_id'] === 3) {
                                     <?php endforeach; ?>
                                 </div>
                             <?php else: ?>
-                                <div class="p-3 border rounded-3 bg-dark bg-opacity-25 text-white-50">
+                                <div class="p-3 border rounded-3 bg-dark bg-opacity-25">
                                     Aucun véhicule renseigné
                                 </div>
                             <?php endif; ?>
@@ -131,7 +131,7 @@ if ($user['role_id'] === 3) {
             </div>
         </div>
     </div>
-    <h2 class="text-center text-white mb-5">Les avis des voyageurs</h2>
+    <h2 class="text-center mb-5">Les avis des voyageurs</h2>
     <div class="row justify-content-center g-4">
         <?php for ($i = 0; $i < 3; $i++): ?>
             <div class="col-md-4">
@@ -139,14 +139,14 @@ if ($user['role_id'] === 3) {
                     <div class="mb-2">
                         <?php for ($j = 0; $j < 5; $j++): ?><i class="bi bi-star-fill text-warning"></i><?php endfor; ?>
                     </div>
-                    <blockquote class="blockquote text-white mb-3">
+                    <blockquote class="blockquote mb-3">
                         <p class="mb-0">"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique."</p>
                     </blockquote>
                     <div class="d-flex align-items-center gap-2 mt-3">
                         <img src="/assets/images/404.png" alt="Avatar" class="rounded-circle bg-white" style="width:40px;height:40px;object-fit:cover;">
                         <div>
-                            <div class="fw-semibold text-white">Name Surname</div>
-                            <div class="small text-white-50">Position, Company name</div>
+                            <div class="fw-semibold">Name Surname</div>
+                            <div class="small">Position, Company name</div>
                         </div>
                     </div>
                 </div>
