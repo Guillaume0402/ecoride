@@ -61,13 +61,21 @@
 
 .auth-form {
     input.form-control {
-        color: var(--text-black);
+        // Texte/caret/placeholder s'adaptent au thème via list-text
+        color: var(--list-text);
+        caret-color: currentColor;
+        background-color: var(--list-bg);
         border-radius: 0.5rem;
         padding: 0.2rem 0.5rem;
         font-size: 1rem;
         font-family: $font-primary;
         border: 2px solid var(--color-secondary);
         transition: border-color 0.3s ease;
+
+        &::placeholder {
+            color: color-mix(in srgb, currentColor 60%, transparent);
+            opacity: 1; // Safari
+        }
 
         &:focus {
             border-color: var(--color-primary);
