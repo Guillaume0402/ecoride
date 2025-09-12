@@ -210,6 +210,58 @@ document.addEventListener("DOMContentLoaded", () => {
 
     attachLiveValidation(registerForm, validateRegisterField);
     attachLiveValidation(loginForm, validateLoginField);
+    // Strength meter for registration password
+    const pwdInput = document.getElementById("passwordRegister");
+    const strengthBar = document.getElementById("passwordStrengthBar");
+    const strengthText = document.getElementById("passwordStrengthText");
+
+    const computeStrength = (pwd) => {
+        let score = 0;
+        if (pwd.length >= 12) score += 25;
+        if (/[a-z]/.test(pwd)) score += 15;
+        if (/[A-Z]/.test(pwd)) score += 15;
+        if (/\d/.test(pwd)) score += 15;
+        if (/[^\w\s]/.test(pwd)) score += 20;
+        if (pwd.length >= 16) score += 10;
+        return Math.min(score, 100);
+    };
+
+    const updateStrengthUI = (score) => {
+        if (!strengthBar || !strengthText) return;
+        strengthBar.style.width = `${score}%`;
+        strengthBar.setAttribute("aria-valuenow", String(score));
+        let label = "très faible", cls = "bg-danger";
+        if (score >= 25) label = "faible", cls = "bg-danger";
+        if (score >= 50) label = "moyenne", cls = "bg-warning";
+        if (score >= 75) label = "bonne", cls = "bg-success";
+        if (score >= 90) label = "excellente", cls = "bg-success";
+        strengthBar.className = `progress-bar ${cls}`;
+        strengthText.textContent = `Robustesse : ${label}`;
+    };
+
+    if (pwdInput) {
+        updateStrengthUI(0);
+        pwdInput.addEventListener("input", () => {
+            updateStrengthUI(computeStrength(pwdInput.value));
+        });
+    }
+
+    // Toggle show/hide password for all .toggle-password buttons
+    document.querySelectorAll('.toggle-password').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            if (!input) return;
+            const isPwd = input.getAttribute('type') === 'password';
+            input.setAttribute('type', isPwd ? 'text' : 'password');
+            // swap icon if using Bootstrap Icons
+            const icon = btn.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('bi-eye');
+                icon.classList.toggle('bi-eye-slash');
+            }
+        });
+    });
 
     const validateForm = (form, validator) => {
         let firstInvalid = null;
@@ -284,6 +336,8 @@ document.addEventListener("DOMContentLoaded", () => {
         loginForm.reset();
         registerForm.querySelectorAll(".is-invalid").forEach((el)=>el.classList.remove("is-invalid"));
         loginForm.querySelectorAll(".is-invalid").forEach((el)=>el.classList.remove("is-invalid"));
+        // reset strength meter
+        updateStrengthUI(0);
         hideAlert();
         setLoading(registerForm, false);
         setLoading(loginForm, false);

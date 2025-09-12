@@ -27,17 +27,33 @@
                 </div>
                 <div class="mb-3">
                     <label for="passwordRegister" class="form-label">Mot de passe*</label>
-                    <input type="password" class="form-control" id="passwordRegister" name="password" required minlength="12"
-                        pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])(?!.*\s).+$"
-                        autocomplete="new-password" aria-describedby="passwordHelp">
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="passwordRegister" name="password" required minlength="12"
+                            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])(?!.*\s).+$"
+                            autocomplete="new-password" aria-describedby="passwordHelp passwordStrengthText">
+                        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="passwordRegister" aria-label="Afficher/Masquer le mot de passe">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
                     <div id="passwordHelp" class="form-text">
                         Min. 12 caractères, incluant 1 minuscule, 1 majuscule, 1 chiffre, 1 caractère spécial, sans espace.
                     </div>
                     <div class="invalid-feedback">Votre mot de passe ne respecte pas les règles de sécurité.</div>
+                    <div class="mt-2" aria-live="polite">
+                        <div class="progress" style="height: 6px;">
+                            <div id="passwordStrengthBar" class="progress-bar bg-danger" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <small id="passwordStrengthText" class="text-muted">Robustesse : très faible</small>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label for="confirmPassword" class="form-label">Confirmer mot de passe*</label>
-                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required autocomplete="new-password">
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required autocomplete="new-password">
+                        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="confirmPassword" aria-label="Afficher/Masquer le mot de passe">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
                     <div class="invalid-feedback">Les mots de passe ne correspondent pas.</div>
                 </div>
                 <div class="text-center">
@@ -57,7 +73,12 @@
                 </div>
                 <div class="mb-3">
                     <label for="passwordLogin" class="form-label">Mot de passe*</label>
-                    <input type="password" class="form-control" id="passwordLogin" name="password" required autocomplete="current-password">
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="passwordLogin" name="password" required autocomplete="current-password">
+                        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="passwordLogin" aria-label="Afficher/Masquer le mot de passe">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
                     <div class="invalid-feedback">Veuillez saisir votre mot de passe.</div>
                 </div>
                 <div class="text-center">
