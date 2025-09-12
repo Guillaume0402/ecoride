@@ -36,7 +36,9 @@
 
 .form-switcher {
     .btn-link {
-        color: var(--text-black) !important; // ✅ texte sombre en thème clair / clair en alt (via var)
+        color: var(
+            --text-black
+        ) !important; // ✅ texte sombre en thème clair / clair en alt (via var)
         text-shadow: var(--shadow-text); // ✅ ombre suivant thème
         border: none;
         background: none;
@@ -70,7 +72,8 @@
         &:focus {
             border-color: var(--color-primary);
             // Utilise color-mix pour une ombre adaptée au thème (fallback si non supporté)
-            box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--color-primary) 25%, transparent);
+            box-shadow: 0 0 0 0.2rem
+                color-mix(in srgb, var(--color-primary) 25%, transparent);
         }
     }
 
@@ -119,7 +122,11 @@
         // léger fond translucide pour lisibilité sur le gradient
         padding: 0.1rem 0.25rem;
         border-radius: 0.25rem;
-        background-color: color-mix(in srgb, var(--color-white) 30%, transparent);
+        background-color: color-mix(
+            in srgb,
+            var(--color-white) 30%,
+            transparent
+        );
     }
 
     // Espace entre aide et jauge
