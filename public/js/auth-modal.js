@@ -153,21 +153,89 @@ document.addEventListener("DOMContentLoaded", () => {
     showLogin.addEventListener("click", () => setActiveTab("login"));
     showRegister.addEventListener("click", () => setActiveTab("register"));
 
+    // Helpers validation visuelle
+    const setInvalid = (input, message) => {
+        input.classList.add("is-invalid");
+        const fb = input.parentElement.querySelector(".invalid-feedback");
+        if (fb && message) fb.textContent = message;
+    };
+    const setValid = (input) => {
+        input.classList.remove("is-invalid");
+    };
+
+    // Règles de validation registration
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])(?!.*\s).+$/;
+    const validateRegisterField = (input) => {
+        const id = input.id;
+        const val = input.value.trim();
+        if (id === "username") {
+            if (val.length < 3) return setInvalid(input, "Veuillez renseigner un pseudo (3 caractères minimum)."), false;
+            return setValid(input), true;
+        }
+        if (id === "emailRegister") {
+            if (!input.checkValidity()) return setInvalid(input, "Veuillez entrer une adresse email valide."), false;
+            return setValid(input), true;
+        }
+        if (id === "passwordRegister") {
+            if (val.length < 12 || !passwordRegex.test(val)) return setInvalid(input, "Votre mot de passe ne respecte pas les règles de sécurité."), false;
+            return setValid(input), true;
+        }
+        if (id === "confirmPassword") {
+            const pwd = document.getElementById("passwordRegister").value;
+            if (val !== pwd) return setInvalid(input, "Les mots de passe ne correspondent pas."), false;
+            return setValid(input), true;
+        }
+        return true;
+    };
+
+    const validateLoginField = (input) => {
+        const id = input.id;
+        if (id === "emailLogin") {
+            if (!input.checkValidity()) return setInvalid(input, "Veuillez entrer une adresse email valide."), false;
+            return setValid(input), true;
+        }
+        if (id === "passwordLogin") {
+            if (!input.value) return setInvalid(input, "Veuillez saisir votre mot de passe."), false;
+            return setValid(input), true;
+        }
+        return true;
+    };
+
+    const attachLiveValidation = (form, validator) => {
+        form.querySelectorAll("input").forEach((input) => {
+            input.addEventListener("input", () => validator(input));
+            input.addEventListener("blur", () => validator(input));
+        });
+    };
+
+    attachLiveValidation(registerForm, validateRegisterField);
+    attachLiveValidation(loginForm, validateLoginField);
+
+    const validateForm = (form, validator) => {
+        let firstInvalid = null;
+        let ok = true;
+        form.querySelectorAll("input").forEach((input) => {
+            const valid = validator(input);
+            if (!valid && !firstInvalid) firstInvalid = input, ok = false;
+        });
+        if (!ok && firstInvalid) firstInvalid.focus();
+        return ok;
+    };
+
     // Gestionnaires pour les formulaires
     registerForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         hideAlert();
+        // Validation custom au submit
+        if (!validateForm(registerForm, validateRegisterField)) {
+            return; // messages affichés via invalid-feedback
+        }
         setLoading(registerForm, true);
 
         const formData = new FormData(registerForm);
         const data = Object.fromEntries(formData);
 
-        // Validation côté client
-        if (data.password !== data.confirmPassword) {
-            showAlert("Les mots de passe ne correspondent pas", "danger");
-            setLoading(registerForm, false);
-            return;
-        }
+        // pas besoin du check ici, déjà fait via validateForm
 
         const result = await handleAuth("register", data);
 
@@ -180,6 +248,9 @@ document.addEventListener("DOMContentLoaded", () => {
     loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         hideAlert();
+        if (!validateForm(loginForm, validateLoginField)) {
+            return;
+        }
         setLoading(loginForm, true);
 
         const formData = new FormData(loginForm);
@@ -211,6 +282,8 @@ document.addEventListener("DOMContentLoaded", () => {
     authModal.addEventListener("hidden.bs.modal", () => {
         registerForm.reset();
         loginForm.reset();
+        registerForm.querySelectorAll(".is-invalid").forEach((el)=>el.classList.remove("is-invalid"));
+        loginForm.querySelectorAll(".is-invalid").forEach((el)=>el.classList.remove("is-invalid"));
         hideAlert();
         setLoading(registerForm, false);
         setLoading(loginForm, false);

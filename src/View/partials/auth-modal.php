@@ -14,26 +14,31 @@
             <div id="authAlert" class="alert d-none mx-3" role="alert"></div>
 
             <!-- FORM INSCRIPTION -->
-            <form id="registerForm" class="auth-form p-0 p-lg-5">
+            <form id="registerForm" class="auth-form p-0 p-lg-5" novalidate>
                 <div class="mb-3">
                     <label for="username" class="form-label">Pseudo*</label>
-                    <input type="text" class="form-control" id="username" name="username" required>
+                    <input type="text" class="form-control" id="username" name="username" required minlength="3" autocomplete="username">
+                    <div class="invalid-feedback">Veuillez renseigner un pseudo (3 caractères minimum).</div>
                 </div>
                 <div class="mb-3">
                     <label for="emailRegister" class="form-label">Email*</label>
-                    <input type="email" class="form-control" id="emailRegister" name="email" required>
+                    <input type="email" class="form-control" id="emailRegister" name="email" required inputmode="email" autocomplete="email">
+                    <div class="invalid-feedback">Veuillez entrer une adresse email valide.</div>
                 </div>
                 <div class="mb-3">
                     <label for="passwordRegister" class="form-label">Mot de passe*</label>
                     <input type="password" class="form-control" id="passwordRegister" name="password" required minlength="12"
                         pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])(?!.*\s).+$"
-                        title="Min. 12 caractères, 1 minuscule, 1 majuscule, 1 chiffre, 1 spécial, sans espace.">
+                        autocomplete="new-password" aria-describedby="passwordHelp">
+                    <div id="passwordHelp" class="form-text">
+                        Min. 12 caractères, incluant 1 minuscule, 1 majuscule, 1 chiffre, 1 caractère spécial, sans espace.
+                    </div>
+                    <div class="invalid-feedback">Votre mot de passe ne respecte pas les règles de sécurité.</div>
                 </div>
                 <div class="mb-3">
                     <label for="confirmPassword" class="form-label">Confirmer mot de passe*</label>
-                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required minlength="12"
-                        pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])(?!.*\s).+$"
-                        title="Min. 12 caractères, 1 minuscule, 1 majuscule, 1 chiffre, 1 spécial, sans espace.">
+                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required autocomplete="new-password">
+                    <div class="invalid-feedback">Les mots de passe ne correspondent pas.</div>
                 </div>
                 <div class="text-center">
                     <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
@@ -44,14 +49,16 @@
                 </div>
             </form>
             <!-- FORM CONNEXION -->
-            <form id="loginForm" class="auth-form d-none p-0 p-lg-5">
+            <form id="loginForm" class="auth-form d-none p-0 p-lg-5" novalidate>
                 <div class="mb-3">
                     <label for="emailLogin" class="form-label">Email*</label>
                     <input type="email" class="form-control" id="emailLogin" name="email" required inputmode="email" autocomplete="username">
+                    <div class="invalid-feedback">Veuillez entrer une adresse email valide.</div>
                 </div>
                 <div class="mb-3">
                     <label for="passwordLogin" class="form-label">Mot de passe*</label>
                     <input type="password" class="form-control" id="passwordLogin" name="password" required autocomplete="current-password">
+                    <div class="invalid-feedback">Veuillez saisir votre mot de passe.</div>
                 </div>
                 <div class="text-center">
                     <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
