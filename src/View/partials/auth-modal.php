@@ -52,7 +52,7 @@
                         <div class="progress" style="height: 6px;">
                             <div id="passwordStrengthBar" class="progress-bar bg-danger" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-                        <small id="passwordStrengthText" class="text-muted">Robustesse : très faible</small>
+                        <small id="passwordStrengthText">Robustesse : très faible</small>
                     </div>
                 </div>
                 <div class="mb-3">
