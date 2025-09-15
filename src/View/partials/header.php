@@ -58,7 +58,7 @@
                                         <a class="dropdown-item d-flex align-items-center justify-content-between" href="/mes-demandes">
                                             <span><i class="bi bi-inbox me-2"></i> Mes demandes</span>
                                             <?php if ($pendingCount !== null): ?>
-                                                <span class="badge bg-danger rounded-pill ms-3"><?= $pendingCount ?></span>
+                                                <span class="badge bg-danger rounded-pill ms-3 text-black"><?= $pendingCount ?></span>
                                             <?php endif; ?>
                                         </a>
                                     </li>

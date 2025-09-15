@@ -68,8 +68,8 @@ class Controller
                     $stmt->execute([':u' => $userId]);
                     $asPassengerCount = (int) $stmt->fetchColumn();
 
-                    // Trajets à venir en tant que conducteur (status non annulé/terminé)
-                    $stmt2 = $pdo->prepare("SELECT COUNT(*) FROM covoiturages WHERE driver_id = :u AND depart >= NOW() AND status IN ('en_attente','demarre')");
+                    // Trajets à venir en tant que conducteur (non annulés/terminés)
+                    $stmt2 = $pdo->prepare("SELECT COUNT(*) FROM covoiturages WHERE driver_id = :u AND depart >= NOW() AND status NOT IN ('annule','termine')");
                     $stmt2->execute([':u' => $userId]);
                     $asDriverUpcomingCount = (int) $stmt2->fetchColumn();
 
