@@ -1,40 +1,5 @@
 @use "../abstracts" as *;
 
-.alert {
-    position: fixed; // ✅ fixé par rapport à la fenêtre
-    top: 20px;
-    left: 50%; // ✅ centré horizontalement
-    transform: translateX(-50%);
-    padding: 1rem 1.5rem;
-    border-radius: 8px;
-    font-size: clamp(1rem, 1vw + 0.5rem, 1.5rem);
-    font-weight: 500;
-    width: auto;
-    max-width: 400px;
-    min-width: 200px;
-    text-align: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    opacity: 1;
-    z-index: 9999;
-    text-shadow: $shadow-text;
-    transition: opacity 1s ease-in-out, transform 1s ease-in-out;
-    &.fade-in {
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
-
-    &.fade-out {
-        opacity: 0;
-        transform: translate(-50%, -10px);
-    }
-}
-
-.alert-success {
-    background: $color-primary;
-    color: white;
-    border: 1px solid $color-secondary;
-}
-
 .custom-alert {
     // La position et le centrage sont gérés par le conteneur #alerts
     padding: 1rem 1.5rem;
@@ -61,6 +26,16 @@
 
     &.alert-danger {
         background: linear-gradient(135deg, #ff4b5c, #b71c1c);
+        color: #fff;
+    }
+
+    &.alert-warning {
+        background: linear-gradient(135deg, #ffd166, #e09f3e);
+        color: #1b1b1b;
+    }
+
+    &.alert-info {
+        background: linear-gradient(135deg, #56ccf2, #2f80ed);
         color: #fff;
     }
 }
@@ -102,8 +77,7 @@
 }
 
 /* Les alertes rendues dans la pile n'ont PAS besoin d'être fixed */
-#alerts .custom-alert,
-#alerts .alert {
+#alerts .custom-alert {
     position: relative; // pas de fixed dans la pile
     width: 100%;
     margin: 0;
