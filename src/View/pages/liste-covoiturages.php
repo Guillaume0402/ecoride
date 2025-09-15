@@ -189,7 +189,43 @@
                                 <div class="card-footer d-flex justify-content-between">
                                     <small class="text-muted">Annonce #<?= (int)$ride['id'] ?></small>
                                     <div>
-                                        <button class="btn btn-inscription" disabled>Participer</button>
+                                        <?php
+                                        $isLogged = isset($_SESSION['user']);
+                                        $isDriver = $isLogged && ((int)$ride['driver_id'] === (int)$_SESSION['user']['id']);
+                                        $placesRestantes = isset($ride['places_restantes'])
+                                            ? max(0, (int)$ride['places_restantes'])
+                                            : (isset($ride['vehicle_places']) ? (int)$ride['vehicle_places'] : 0);
+                                        $isPast = false;
+                                        try {
+                                            $isPast = (new DateTime($ride['depart'])) < new DateTime();
+                                        } catch (Throwable $e) {
+                                        }
+                                        ?>
+
+                                        <?php if (!$isLogged): ?>
+                                            <button type="button" class="btn btn-inscription" data-bs-toggle="modal" data-bs-target="#authModal">Se connecter pour participer</button>
+                                        <?php elseif ($isDriver): ?>
+                                            <button class="btn btn-secondary" disabled>Vous êtes le conducteur</button>
+                                        <?php elseif ($isPast): ?>
+                                            <button class="btn btn-secondary" disabled>Trajet passé</button>
+                                        <?php elseif ($placesRestantes <= 0): ?>
+                                            <button class="btn btn-secondary" disabled>Complet</button>
+                                        <?php elseif (!empty($ride['has_my_participation']) && (int)$ride['has_my_participation'] === 1): ?>
+                                            <?php $status = (string)($ride['my_participation_status'] ?? ''); ?>
+                                            <?php if ($status === 'confirmee'): ?>
+                                                <button class="btn btn-secondary" disabled>Participation confirmée</button>
+                                            <?php elseif ($status === 'en_attente_validation' || $status === ''): ?>
+                                                <button class="btn btn-secondary" disabled>Demande envoyée</button>
+                                            <?php else: ?>
+                                                <button class="btn btn-secondary" disabled>Participation en cours</button>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            <form action="/participations/create" method="POST" class="d-inline">
+                                                <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+                                                <input type="hidden" name="covoiturage_id" value="<?= (int)$ride['id'] ?>">
+                                                <button type="submit" class="btn btn-inscription">Participer</button>
+                                            </form>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>

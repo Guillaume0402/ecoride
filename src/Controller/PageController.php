@@ -57,7 +57,8 @@ class PageController extends Controller
         try {
             $repo = new CovoiturageRepository();
             // Toujours effectuer la recherche pour permettre le tri même sans filtres
-            $results = $repo->search($depart, $arrivee, $date, $prefs, $sort, $dir);
+            $currentUserId = isset($_SESSION['user']) ? (int) $_SESSION['user']['id'] : null;
+            $results = $repo->search($depart, $arrivee, $date, $prefs, $sort, $dir, $currentUserId);
         } catch (\Throwable $e) {
             error_log('Search error: ' . $e->getMessage());
         }

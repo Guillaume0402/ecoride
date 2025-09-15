@@ -42,7 +42,7 @@ class CovoiturageRepository
      * Recherche simple par villes (LIKE) et date exacte (DATE(depart) = :date)
      * $prefs: tableau de préférences exactes (ex: ['fumeur','pas-animaux'])
      */
-    public function search(?string $depart = null, ?string $arrivee = null, ?string $date = null, array $prefs = [], ?string $sort = null, ?string $dir = null): array
+    public function search(?string $depart = null, ?string $arrivee = null, ?string $date = null, array $prefs = [], ?string $sort = null, ?string $dir = null, ?int $currentUserId = null): array
     {
         $sql = "SELECT c.*,
                        u.pseudo AS driver_pseudo, u.photo AS driver_photo, u.note AS driver_note,
@@ -50,12 +50,27 @@ class CovoiturageRepository
                        v.places_dispo AS vehicle_places,
                        v.preferences AS vehicle_preferences, v.custom_preferences AS vehicle_prefs_custom,
                        COALESCE(v.places_dispo, 0) - COALESCE(COUNT(p.id), 0) AS places_restantes,
-                       COALESCE(COUNT(p.id), 0) AS reservations_count
+                       COALESCE(COUNT(p.id), 0) AS reservations_count";
+
+        // Participation personnelle (optionnelle)
+        if ($currentUserId !== null) {
+            $sql .= ",
+                       SUBSTRING_INDEX(GROUP_CONCAT(p_self.status ORDER BY p_self.date_participation DESC), ',', 1) AS my_participation_status,
+                       MAX(CASE WHEN p_self.status IS NOT NULL AND p_self.status <> 'annulee' THEN 1 ELSE 0 END) AS has_my_participation";
+        }
+
+        $sql .= "
                 FROM {$this->table} c
                 LEFT JOIN users u ON u.id = c.driver_id
                 LEFT JOIN vehicles v ON v.id = c.vehicle_id
                 LEFT JOIN participations p ON p.covoiturage_id = c.id AND p.status = 'confirmee'
-                WHERE 1=1";
+        ";
+
+        if ($currentUserId !== null) {
+            $sql .= " LEFT JOIN participations p_self ON p_self.covoiturage_id = c.id AND p_self.passager_id = :me ";
+        }
+
+        $sql .= " WHERE 1=1";
         $params = [];
         if ($depart !== null && $depart !== '') {
             $sql .= " AND c.adresse_depart LIKE :depart";
@@ -93,8 +108,31 @@ class CovoiturageRepository
         }
         $sql .= " ORDER BY $orderBy $direction LIMIT 100";
 
+        if ($currentUserId !== null) {
+            $params[':me'] = $currentUserId;
+        }
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère un covoiturage par id avec info véhicule (places_dispo) et conducteur.
+     */
+    public function findOneWithVehicleById(int $id): ?array
+    {
+        $sql = "SELECT c.*, 
+                       v.places_dispo AS vehicle_places,
+                       v.marque AS vehicle_marque, v.modele AS vehicle_modele, v.couleur AS vehicle_couleur,
+                       u.pseudo AS driver_pseudo, u.photo AS driver_photo
+                FROM {$this->table} c
+                LEFT JOIN vehicles v ON v.id = c.vehicle_id
+                LEFT JOIN users u ON u.id = c.driver_id
+                WHERE c.id = :id
+                LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ?: null;
     }
 }

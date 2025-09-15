@@ -208,5 +208,13 @@ return [
             'controller' => 'App\\Controller\\CovoiturageController',
             'action' => 'apiCreate'
         ]
+    ],
+
+    // Participations
+    '/participations/create' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\ParticipationController',
+            'action' => 'create'
+        ]
     ]
 ];
