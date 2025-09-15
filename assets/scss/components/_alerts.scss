@@ -16,7 +16,7 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     opacity: 1;
     z-index: 9999;
-    text-shadow: $shadow-text;   
+    text-shadow: $shadow-text;
     transition: opacity 1s ease-in-out, transform 1s ease-in-out;
     &.fade-in {
         opacity: 1;
@@ -36,10 +36,7 @@
 }
 
 .custom-alert {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    // La position et le centrage sont gérés par le conteneur #alerts
     padding: 1rem 1.5rem;
     border-radius: 10px;
     font-size: clamp(1rem, 1vw + 0.5rem, 1.2rem);
@@ -49,7 +46,7 @@
     text-align: center;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
     opacity: 1;
-    z-index: 9999;
+    // Le z-index est géré par #alerts
     text-shadow: $shadow-text;
     animation: fadeIn 0.4s ease-in-out;
 
@@ -69,36 +66,45 @@
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translate(-50%, -10px); }
-    to { opacity: 1; transform: translate(-50%, 0); }
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes fadeOut {
-    from { opacity: 1; transform: translate(-50%, 0); }
-    to { opacity: 0; transform: translate(-50%, -20px); }
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
 }
 
 /* Pile centrée qui empile les bannières */
 #alerts {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-  width: min(92vw, 450px);
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    width: min(92vw, 450px);
 }
 
 /* Les alertes rendues dans la pile n'ont PAS besoin d'être fixed */
 #alerts .custom-alert,
 #alerts .alert {
-  position: relative;     // <- annule le fixed
-  top: auto;
-  left: auto;
-  transform: none;
-  width: 100%;
-  margin: 0;
+    position: relative; // pas de fixed dans la pile
+    width: 100%;
+    margin: 0;
 }

@@ -41,4 +41,55 @@ class ParticipationRepository
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $row ?: null;
     }
+
+    public function updateStatus(int $participationId, string $status): bool
+    {
+        $allowed = ['en_attente_validation', 'confirmee', 'annulee'];
+        if (!in_array($status, $allowed, true)) return false;
+        $sql = "UPDATE {$this->table} SET status = :s WHERE id = :id";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([':s' => $status, ':id' => $participationId]);
+    }
+
+    /**
+     * Récupère une participation avec son covoiturage et infos véhicule/driver.
+     */
+    public function findWithCovoiturageById(int $participationId): ?array
+    {
+        $sql = "SELECT p.*, c.*, 
+                       c.id AS covoiturage_id,
+                       v.places_dispo AS vehicle_places,
+                       v.marque AS vehicle_marque, v.modele AS vehicle_modele,
+                       u_driver.id AS driver_user_id, u_driver.pseudo AS driver_pseudo,
+                       u_pass.pseudo AS passager_pseudo
+                FROM {$this->table} p
+                JOIN covoiturages c ON c.id = p.covoiturage_id
+                JOIN users u_driver ON u_driver.id = c.driver_id
+                JOIN users u_pass ON u_pass.id = p.passager_id
+                LEFT JOIN vehicles v ON v.id = c.vehicle_id
+                WHERE p.id = :id
+                LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':id' => $participationId]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    /**
+     * Liste les demandes en attente pour tous les trajets d'un conducteur.
+     */
+    public function findPendingByDriverId(int $driverId): array
+    {
+        $sql = "SELECT p.*, p.id AS participation_id,
+                       c.id AS covoiturage_id, c.adresse_depart, c.adresse_arrivee, c.depart,
+                       u_pass.pseudo AS passager_pseudo
+                FROM {$this->table} p
+                JOIN covoiturages c ON c.id = p.covoiturage_id
+                JOIN users u_pass ON u_pass.id = p.passager_id
+                WHERE c.driver_id = :driver AND p.status = 'en_attente_validation'
+                ORDER BY c.depart ASC, p.date_participation ASC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':driver' => $driverId]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }

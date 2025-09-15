@@ -216,5 +216,23 @@ return [
             'controller' => 'App\\Controller\\ParticipationController',
             'action' => 'create'
         ]
+    ],
+    '/mes-demandes' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\ParticipationController',
+            'action' => 'driverRequests'
+        ]
+    ],
+    '/participations/accept/{id}' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\ParticipationController',
+            'action' => 'accept'
+        ]
+    ],
+    '/participations/reject/{id}' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\ParticipationController',
+            'action' => 'reject'
+        ]
     ]
 ];

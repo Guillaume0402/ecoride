@@ -45,30 +45,36 @@ class CovoiturageRepository
     public function search(?string $depart = null, ?string $arrivee = null, ?string $date = null, array $prefs = [], ?string $sort = null, ?string $dir = null, ?int $currentUserId = null): array
     {
         $sql = "SELECT c.*,
-                       u.pseudo AS driver_pseudo, u.photo AS driver_photo, u.note AS driver_note,
-                       v.marque AS vehicle_marque, v.modele AS vehicle_modele, v.couleur AS vehicle_couleur,
-                       v.places_dispo AS vehicle_places,
-                       v.preferences AS vehicle_preferences, v.custom_preferences AS vehicle_prefs_custom,
-                       COALESCE(v.places_dispo, 0) - COALESCE(COUNT(p.id), 0) AS places_restantes,
-                       COALESCE(COUNT(p.id), 0) AS reservations_count";
+               u.pseudo AS driver_pseudo, u.photo AS driver_photo, u.note AS driver_note,
+               v.marque AS vehicle_marque, v.modele AS vehicle_modele, v.couleur AS vehicle_couleur,
+               v.places_dispo AS vehicle_places,
+               v.preferences AS vehicle_preferences, v.custom_preferences AS vehicle_prefs_custom,
+               COALESCE(v.places_dispo, 0) - COALESCE(COUNT(p.id), 0) AS places_restantes,
+               COALESCE(COUNT(p.id), 0) AS reservations_count";
 
         // Participation personnelle (optionnelle)
         if ($currentUserId !== null) {
             $sql .= ",
-                       SUBSTRING_INDEX(GROUP_CONCAT(p_self.status ORDER BY p_self.date_participation DESC), ',', 1) AS my_participation_status,
-                       MAX(CASE WHEN p_self.status IS NOT NULL AND p_self.status <> 'annulee' THEN 1 ELSE 0 END) AS has_my_participation";
+                                             (
+                                                 SELECT ps.status
+                                                 FROM participations ps
+                                                 WHERE ps.covoiturage_id = c.id AND ps.passager_id = :me
+                                                 ORDER BY ps.date_participation DESC
+                                                 LIMIT 1
+                                             ) AS my_participation_status,
+                                             EXISTS (
+                                                 SELECT 1
+                                                 FROM participations ps2
+                                                 WHERE ps2.covoiturage_id = c.id AND ps2.passager_id = :me AND ps2.status <> 'annulee'
+                                             ) AS has_my_participation";
         }
 
         $sql .= "
                 FROM {$this->table} c
                 LEFT JOIN users u ON u.id = c.driver_id
                 LEFT JOIN vehicles v ON v.id = c.vehicle_id
-                LEFT JOIN participations p ON p.covoiturage_id = c.id AND p.status = 'confirmee'
-        ";
-
-        if ($currentUserId !== null) {
-            $sql .= " LEFT JOIN participations p_self ON p_self.covoiturage_id = c.id AND p_self.passager_id = :me ";
-        }
+        LEFT JOIN participations p ON p.covoiturage_id = c.id AND p.status = 'confirmee'
+    ";
 
         $sql .= " WHERE 1=1";
         $params = [];

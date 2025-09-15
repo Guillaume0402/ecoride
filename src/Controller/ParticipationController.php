@@ -93,4 +93,73 @@ class ParticipationController extends Controller
         Flash::add('Erreur lors de la demande de participation.', 'danger');
         redirect('/liste-covoiturages');
     }
+
+    // GET /mes-demandes : liste des demandes en attente pour les trajets du conducteur
+    public function driverRequests(): void
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        $userId = (int) $_SESSION['user']['id'];
+        $pending = $this->participationRepository->findPendingByDriverId($userId);
+        $this->render('pages/mes-demandes', [
+            'pending' => $pending
+        ]);
+    }
+
+    // POST /participations/accept/{id}
+    public function accept(int $id): void
+    {
+        $this->handleStatusChange($id, 'confirmee');
+    }
+
+    // POST /participations/reject/{id}
+    public function reject(int $id): void
+    {
+        $this->handleStatusChange($id, 'annulee');
+    }
+
+    private function handleStatusChange(int $participationId, string $newStatus): void
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            abort(405);
+        }
+        if (!Csrf::check($_POST['csrf'] ?? null)) {
+            Flash::add('Requête invalide (CSRF).', 'danger');
+            redirect('/mes-demandes');
+        }
+
+        $userId = (int) $_SESSION['user']['id'];
+        $p = $this->participationRepository->findWithCovoiturageById($participationId);
+        if (!$p) {
+            Flash::add('Participation introuvable.', 'danger');
+            redirect('/mes-demandes');
+        }
+        // Autorisation: uniquement le conducteur du covoiturage
+        if ((int)($p['driver_user_id'] ?? 0) !== $userId) {
+            Flash::add('Action non autorisée.', 'danger');
+            redirect('/mes-demandes');
+        }
+        // Si on confirme, vérifier la capacité
+        if ($newStatus === 'confirmee') {
+            $placesVehicule = (int)($p['vehicle_places'] ?? 0);
+            $confirmes = $this->participationRepository->countConfirmedByCovoiturageId((int)$p['covoiturage_id']);
+            $restantes = max(0, $placesVehicule - $confirmes);
+            if ($restantes <= 0) {
+                Flash::add('Plus de place disponible pour confirmer.', 'warning');
+                redirect('/mes-demandes');
+            }
+        }
+
+        if ($this->participationRepository->updateStatus($participationId, $newStatus)) {
+            $msg = $newStatus === 'confirmee' ? 'Participation confirmée.' : 'Demande refusée.';
+            Flash::add($msg, 'success');
+        } else {
+            Flash::add('Mise à jour impossible.', 'danger');
+        }
+        redirect('/mes-demandes');
+    }
 }

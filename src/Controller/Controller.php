@@ -49,6 +49,26 @@ class Controller
                 // N'écrase pas l'affichage si la DB est indisponible; expose juste false
                 error_log('[render] Vehicle preload failed: ' . $e->getMessage());
             }
+            // Compteurs basiques pour le header (optionnels)
+            try {
+                // Demandes en attente pour ce conducteur
+                $pendingCount = null;
+                $myTripsCount = null;
+                if (!empty($_SESSION['user']['id'])) {
+                    $driverId = (int) $_SESSION['user']['id'];
+                    // Lazy import pour éviter dépendance forte ici
+                    $partRepo = new \App\Repository\ParticipationRepository();
+                    $pending = $partRepo->findPendingByDriverId($driverId);
+                    $pendingCount = is_array($pending) ? count($pending) : 0;
+                    // Nb de trajets du passager (participations confirmées)
+                    $pdo = \App\Db\Mysql::getInstance()->getPDO();
+                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM participations WHERE passager_id = :u AND status = 'confirmee'");
+                    $stmt->execute([':u' => $driverId]);
+                    $myTripsCount = (int) $stmt->fetchColumn();
+                }
+            } catch (\Throwable $e) {
+                error_log('[render] Counters preload failed: ' . $e->getMessage());
+            }
         }
 
         // Construit le chemin absolu de la vue et vérifie son existence
