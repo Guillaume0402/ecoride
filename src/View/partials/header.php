@@ -66,7 +66,7 @@
                                         <a class="dropdown-item d-flex align-items-center justify-content-between" href="/mes-covoiturages">
                                             <span><i class="bi bi-list-check me-2"></i> Mes trajets</span>
                                             <?php if ($myTripsCount !== null): ?>
-                                                <span class="badge bg-secondary rounded-pill ms-3"><?= $myTripsCount ?></span>
+                                                <span class="badge bg-secondary rounded-pill ms-3 text-black"><?= $myTripsCount ?></span>
                                             <?php endif; ?>
                                         </a>
                                     </li>

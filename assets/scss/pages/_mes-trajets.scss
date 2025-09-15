@@ -47,15 +47,15 @@
         border-radius: 16px;
     }
 
-        // Texte méta à côté des badges de statut
-        .text-status-meta {
-            color: var(--list-text); // lisible en light
-            opacity: .9;
-        }
+    // Texte méta à côté des badges de statut
+    .text-status-meta {
+        color: var(--list-text); // lisible en light
+        opacity: 0.9;
+    }
 
-        // Thème alterné (dark)
-        .theme-alt & .text-status-meta {
-            color: var(--text-white);
-            opacity: .8;
-        }
+    // Thème alterné (dark)
+    .theme-alt & .text-status-meta {
+        color: var(--text-white);
+        opacity: 0.8;
+    }
 }
