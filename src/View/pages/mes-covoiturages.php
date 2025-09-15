@@ -52,9 +52,9 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                 $cls = ['en_attente' => 'warning text-dark', 'demarre' => 'info', 'termine' => 'success', 'annule' => 'danger'];
                                                 ?>
                                                 <span class="badge bg-<?= $cls[$st] ?? 'secondary' ?>"><?= $labels[$st] ?? $st ?></span>
-                                                <small class="text-muted ms-2">(Conf: <?= (int)($c['confirmed_count'] ?? 0) ?>, Att: <?= (int)($c['pending_count'] ?? 0) ?>)</small>
+                                                <small class="ms-2 text-status-meta">(Conf: <?= (int)($c['confirmed_count'] ?? 0) ?>, Att: <?= (int)($c['pending_count'] ?? 0) ?>)</small>
                                                 <?php if (!empty($c['confirmed_passengers'])): ?>
-                                                    <div class="small text-muted mt-1">Passagers: <?= htmlspecialchars($c['confirmed_passengers']) ?></div>
+                                                    <div class="small text-status-meta mt-1">Passagers: <?= htmlspecialchars($c['confirmed_passengers']) ?></div>
                                                 <?php endif; ?>
                                             </td>
                                             <td><?= (new DateTime($c['depart']))->format('d/m/Y H\hi') ?></td>
@@ -140,6 +140,6 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
     </div>
 
     <div class="mt-3">
-        <a href="/liste-covoiturages" class="btn btn-outline-primary">Rechercher un trajet</a>
+        <a href="/liste-covoiturages" class="btn btn-inscription">Rechercher un trajet</a>
     </div>
 </div>

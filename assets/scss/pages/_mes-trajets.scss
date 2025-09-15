@@ -1,46 +1,61 @@
 @use "../abstracts" as *;
 
 .page-mes-trajets {
-  // Badges de statut lisibles
-  .badge {
-    font-weight: 700;
-    padding: 0.3rem 0.55rem;
-    border-radius: 999px;
-  }
-  .badge.bg-warning.text-dark { color: #1b1b1b !important; }
+    // Badges de statut lisibles
+    .badge {
+        font-weight: 700;
+        padding: 0.3rem 0.55rem;
+        border-radius: 999px;
+    }
+    .badge.bg-warning.text-dark {
+        color: #1b1b1b !important;
+    }
 
-  // Onglets
-  .nav-tabs {
-    border-bottom: 1px solid var(--table-border, rgba(255,255,255,0.1));
-  }
-  .nav-tabs .nav-link {
-    color: var(--text-white, #fff);
-    border: 1px solid transparent;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    margin-right: .4rem;
-    background: rgba(255,255,255,0.03);
-    transition: background .2s ease, color .2s ease, border-color .2s ease, transform .06s ease;
-  }
-  .nav-tabs .nav-link:hover {
-    background: rgba(255,255,255,0.08);
-    color: #fff;
-  }
-  .nav-tabs .nav-link.active {
-    background: rgba(0,0,0,0.2);
-    border-color: $color-secondary;
-    color: #fff;
-    font-weight: 800;
-    transform: translateY(-1px);
-  }
-  .nav-tabs .badge {
-    background: $color-secondary;
-    color: #111;
-    font-weight: 800;
-    border: 1px solid rgba(0,0,0,.2);
-  }
+    // Onglets
+    .nav-tabs {
+        border-bottom: 1px solid var(--table-border, rgba(255, 255, 255, 0.1));
+    }
+    .nav-tabs .nav-link {
+        color: var(--text-white, #fff);
+        border: 1px solid transparent;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        margin-right: 0.4rem;
+        background: rgba(255, 255, 255, 0.03);
+        transition: background 0.2s ease, color 0.2s ease,
+            border-color 0.2s ease, transform 0.06s ease;
+    }
+    .nav-tabs .nav-link:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+    }
+    .nav-tabs .nav-link.active {
+        background: rgba(0, 0, 0, 0.2);
+        border-color: $color-secondary;
+        color: #fff;
+        font-weight: 800;
+        transform: translateY(-1px);
+    }
+    .nav-tabs .badge {
+        background: $color-secondary;
+        color: #111;
+        font-weight: 800;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+    }
 
-  .card {
-    border-radius: 16px;
-  }
+    .card {
+        border-radius: 16px;
+    }
+
+        // Texte méta à côté des badges de statut
+        .text-status-meta {
+            color: var(--list-text); // lisible en light
+            opacity: .9;
+        }
+
+        // Thème alterné (dark)
+        .theme-alt & .text-status-meta {
+            color: var(--text-white);
+            opacity: .8;
+        }
 }
