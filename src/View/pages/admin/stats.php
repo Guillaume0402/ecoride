@@ -34,7 +34,7 @@
             <div class="col-md-6">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title">Crédits générés (€/jour)</h5>
+                        <h5 class="card-title">Crédits générés (par jour)</h5>
                         <canvas id="chartCredits" height="200"></canvas>
                     </div>
                 </div>
@@ -46,7 +46,7 @@
             <ul>
                 <li>Total covoiturages : <strong>137</strong></li>
                 <li>Total utilisateurs : <strong>58</strong></li>
-                <li>Crédits générés ce mois-ci : <strong>846 €</strong></li>
+                <li>Crédits générés ce mois-ci : <strong>846</strong></li>
                 <li>Moyenne de trajets par jour : <strong>5</strong></li>
             </ul>
         </div>

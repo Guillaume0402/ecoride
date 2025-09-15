@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 labels: ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
                 datasets: [
                     {
-                        label: "Crédits (€/jour)",
+                        label: "Crédits / jour",
                         data: [40, 55, 60, 38, 80, 20, 15],
                         borderColor: "rgba(255, 99, 132, 0.8)",
                         fill: false,

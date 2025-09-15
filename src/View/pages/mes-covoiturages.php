@@ -52,7 +52,7 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                         <tr>
                                             <td><?= (int)$c['id'] ?></td>
                                             <td><?= htmlspecialchars($c['adresse_depart']) ?> → <?= htmlspecialchars($c['adresse_arrivee']) ?></td>
-                                            <td><?= number_format((float)($c['prix'] ?? 0), 2, ',', ' ') ?> €</td>
+                                            <td><?= number_format((float)($c['prix'] ?? 0), 2, ',', ' ') ?></td>
                                             <td>
                                                 <?php $st = (string)($c['status'] ?? 'en_attente');
                                                 $labels = ['en_attente' => 'En attente', 'demarre' => 'Démarré', 'termine' => 'Terminé', 'annule' => 'Annulé'];
@@ -117,7 +117,7 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                             <td><?= htmlspecialchars($p['adresse_depart']) ?> → <?= htmlspecialchars($p['adresse_arrivee']) ?></td>
                                             <td><?= (new DateTime($p['depart']))->format('d/m/Y H\hi') ?></td>
                                             <td><?= htmlspecialchars(trim(($p['vehicle_marque'] ?? '') . ' ' . ($p['vehicle_modele'] ?? ''))) ?></td>
-                                            <td><?= number_format((float)($p['prix'] ?? 0), 2, ',', ' ') ?> €</td>
+                                            <td><?= number_format((float)($p['prix'] ?? 0), 2, ',', ' ') ?></td>
                                             <td><?= htmlspecialchars($p['driver_pseudo']) ?></td>
                                             <td>
                                                 <?php if ($p['status'] === 'confirmee'): ?>
@@ -164,7 +164,7 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                             <tr>
                                                 <td><?= (int)$c['id'] ?></td>
                                                 <td><?= htmlspecialchars($c['adresse_depart']) ?> → <?= htmlspecialchars($c['adresse_arrivee']) ?></td>
-                                                <td><?= number_format((float)($c['prix'] ?? 0), 2, ',', ' ') ?> €</td>
+                                                <td><?= number_format((float)($c['prix'] ?? 0), 2, ',', ' ') ?></td>
                                                 <td>
                                                     <?php $st = (string)($c['status'] ?? 'en_attente');
                                                     $labels = ['en_attente' => 'En attente', 'demarre' => 'Démarré', 'termine' => 'Terminé', 'annule' => 'Annulé'];
@@ -207,7 +207,7 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                 <td><?= htmlspecialchars($p['adresse_depart']) ?> → <?= htmlspecialchars($p['adresse_arrivee']) ?></td>
                                                 <td><?= (new DateTime($p['depart']))->format('d/m/Y H\hi') ?></td>
                                                 <td><?= htmlspecialchars(trim(($p['vehicle_marque'] ?? '') . ' ' . ($p['vehicle_modele'] ?? ''))) ?></td>
-                                                <td><?= number_format((float)($p['prix'] ?? 0), 2, ',', ' ') ?> €</td>
+                                                <td><?= number_format((float)($p['prix'] ?? 0), 2, ',', ' ') ?></td>
                                                 <td><?= htmlspecialchars($p['driver_pseudo']) ?></td>
                                                 <td>
                                                     <?php if ($p['status'] === 'confirmee'): ?>
