@@ -180,10 +180,19 @@ class PageController extends Controller
 
         $user = $_SESSION['user'];
         $vehicles = $this->vehicleRepository->findAllByUserId($user['id']);
+        // Transactions récentes
+        $transactions = [];
+        try {
+            $txRepo = new \App\Repository\TransactionRepository();
+            $transactions = $txRepo->findByUserId((int)$user['id'], 20);
+        } catch (\Throwable $e) {
+            error_log('[profil] transactions load failed: ' . $e->getMessage());
+        }
 
         $this->render("pages/my-profil", [
             'user' => $user,
-            'vehicles' => $vehicles
+            'vehicles' => $vehicles,
+            'transactions' => $transactions
         ]);
     }
 

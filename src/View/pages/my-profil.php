@@ -65,6 +65,35 @@ if ($user['role_id'] === 3) {
                                 <div class="fw-semibold">Crédits</div>
                                 <div class="small"><?= isset($user['credits']) ? (int)$user['credits'] : 0 ?></div>
                             </div>
+                            <?php if (!empty($transactions)): ?>
+                                <div class="col-12 mt-3">
+                                    <div class="fw-semibold mb-2">Historique des transactions</div>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-dark table-striped align-middle mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Type</th>
+                                                    <th>Montant</th>
+                                                    <th>Motif</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($transactions as $tx): ?>
+                                                    <tr>
+                                                        <td class="small text-nowrap"><?= htmlspecialchars(date('d/m/Y H:i', strtotime($tx['created_at'] ?? 'now'))) ?></td>
+                                                        <td><span class="badge <?= ($tx['type'] ?? '') === 'credit' ? 'bg-success' : 'bg-danger' ?>"><?= htmlspecialchars($tx['type'] ?? '') ?></span></td>
+                                                        <td><?= (int)($tx['montant'] ?? 0) ?></td>
+                                                        <td class="small text-truncate" style="max-width:320px;" title="<?= htmlspecialchars($tx['motif'] ?? '') ?>">
+                                                            <?= htmlspecialchars($tx['motif'] ?? '') ?>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                             <?php if (!empty($vehicles)): ?>
                                 <!-- Onglets -->
                                 <ul class="nav nav-tabs mb-4" id="vehicleTabs" role="tablist">
