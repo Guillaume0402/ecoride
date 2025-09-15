@@ -140,9 +140,27 @@ class PageController extends Controller
             return ($p['status'] ?? null) === 'confirmee';
         }));
 
+        // Historique
+        $historyDriver = array_values(array_filter($asDriverAll, function ($c) use ($now) {
+            try { $depart = new \DateTime($c['depart']); } catch (\Throwable $e) { return false; }
+            $status = (string)($c['status'] ?? 'en_attente');
+            return $depart < $now || in_array($status, ['annule', 'termine'], true);
+        }));
+        $historyPassenger = array_values(array_filter($asPassengerAll, function ($p) use ($now) {
+            // Historique passager: participations non confirmées (annulée, en attente) OU trajet passé/terminé/annulé
+            $isConfirmed = ($p['status'] ?? null) === 'confirmee';
+            $cStatus = (string)($p['covoit_status'] ?? 'en_attente');
+            $isCovoitEnded = in_array($cStatus, ['annule', 'termine'], true);
+            $isPast = false;
+            try { $isPast = (new \DateTime($p['depart'])) < $now; } catch (\Throwable $e) {}
+            return !$isConfirmed || $isCovoitEnded || $isPast;
+        }));
+
         $this->render("pages/mes-covoiturages", [
             'asDriver' => $asDriver,
-            'asPassenger' => $asPassenger
+            'asPassenger' => $asPassenger,
+            'historyDriver' => $historyDriver,
+            'historyPassenger' => $historyPassenger,
         ]);
     }
 
