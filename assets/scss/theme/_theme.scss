@@ -39,7 +39,8 @@
     --color-white: #f8f9f3;
     --color-fade-white: #333;
     --text-black: #fff;
-    --text-white: #000000;
+    /* Le texte 'blanc' doit rester clair en mode sombre pour le contraste */
+    --text-white: #ffffff;
     --list-bg: #2e612e;
     --list-hover: #283928;
     --list-text: #e0ffe7;

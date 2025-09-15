@@ -142,7 +142,11 @@ class PageController extends Controller
 
         // Historique
         $historyDriver = array_values(array_filter($asDriverAll, function ($c) use ($now) {
-            try { $depart = new \DateTime($c['depart']); } catch (\Throwable $e) { return false; }
+            try {
+                $depart = new \DateTime($c['depart']);
+            } catch (\Throwable $e) {
+                return false;
+            }
             $status = (string)($c['status'] ?? 'en_attente');
             return $depart < $now || in_array($status, ['annule', 'termine'], true);
         }));
@@ -152,7 +156,10 @@ class PageController extends Controller
             $cStatus = (string)($p['covoit_status'] ?? 'en_attente');
             $isCovoitEnded = in_array($cStatus, ['annule', 'termine'], true);
             $isPast = false;
-            try { $isPast = (new \DateTime($p['depart'])) < $now; } catch (\Throwable $e) {}
+            try {
+                $isPast = (new \DateTime($p['depart'])) < $now;
+            } catch (\Throwable $e) {
+            }
             return !$isConfirmed || $isCovoitEnded || $isPast;
         }));
 

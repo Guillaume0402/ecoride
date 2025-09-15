@@ -1,10 +1,10 @@
 <?php
-    $driverCount = isset($asDriver) && is_array($asDriver) ? count($asDriver) : 0;
-    $passengerCount = isset($asPassenger) && is_array($asPassenger) ? count($asPassenger) : 0;
-    $historyDriverCount = isset($historyDriver) && is_array($historyDriver) ? count($historyDriver) : 0;
-    $historyPassengerCount = isset($historyPassenger) && is_array($historyPassenger) ? count($historyPassenger) : 0;
-    $historyTotal = $historyDriverCount + $historyPassengerCount;
-    $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : ($historyTotal > 0 ? 'history' : 'driver'));
+$driverCount = isset($asDriver) && is_array($asDriver) ? count($asDriver) : 0;
+$passengerCount = isset($asPassenger) && is_array($asPassenger) ? count($asPassenger) : 0;
+$historyDriverCount = isset($historyDriver) && is_array($historyDriver) ? count($historyDriver) : 0;
+$historyPassengerCount = isset($historyPassenger) && is_array($historyPassenger) ? count($historyPassenger) : 0;
+$historyTotal = $historyDriverCount + $historyPassengerCount;
+$activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : ($historyTotal > 0 ? 'history' : 'driver'));
 ?>
 
 <div class="container py-4 page-mes-trajets">
