@@ -40,6 +40,14 @@
                                 <span class="d-none d-lg-inline"><?= $_SESSION['user']['pseudo'] ?? '' ?></span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end animate__animated animate__fadeIn">
+                                <?php $__credits = isset($_SESSION['user']['credits']) ? (int)$_SESSION['user']['credits'] : 0; ?>
+                                <li>
+                                    <span class="dropdown-item-text d-flex align-items-center justify-content-between">
+                                        <span><i class="bi bi-coin me-2"></i> Crédits</span>
+                                        <span class="badge bg-secondary rounded-pill text-black ms-2"><?= $__credits ?></span>
+                                    </span>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
                                 <?php if ((int) $_SESSION['user']['role_id'] === 3): ?>
                                     <li><a class="dropdown-item" href="/admin/dashboard"><i class="bi bi-speedometer2 me-2"></i> Dashboard admin</a></li>
                                     <li><a class="dropdown-item" href="/admin/users"><i class="bi bi-people me-2"></i> Gérer les utilisateurs</a></li>
