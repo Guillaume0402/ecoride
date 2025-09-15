@@ -47,7 +47,9 @@
                                         <span class="badge bg-secondary rounded-pill text-black ms-2"><?= $__credits ?></span>
                                     </span>
                                 </li>
-                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
                                 <?php if ((int) $_SESSION['user']['role_id'] === 3): ?>
                                     <li><a class="dropdown-item" href="/admin/dashboard"><i class="bi bi-speedometer2 me-2"></i> Dashboard admin</a></li>
                                     <li><a class="dropdown-item" href="/admin/users"><i class="bi bi-people me-2"></i> Gérer les utilisateurs</a></li>
