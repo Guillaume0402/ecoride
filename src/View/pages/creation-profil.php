@@ -20,7 +20,7 @@
             <div class="d-flex align-items-center gap-4 flex-wrap">
                 <!-- Image preview -->
                 <img id="avatarPreview"
-                    src="<?= !empty($user['photo']) ? htmlspecialchars($user['photo']) : '/assets/images/logo.svg' ?>"
+                    src="<?= !empty($user['photo']) ? htmlspecialchars($user['photo']) : (defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg') ?>"
                     alt="Avatar"
                     class="rounded-circle shadow-sm border"
                     style="width: 100px; height: 100px; object-fit: cover;">
@@ -76,11 +76,10 @@
 
         </div>
 
-        <!-- SECTION CHAUFFEUR -->        
+        <!-- SECTION CHAUFFEUR -->
         <div class="text-end mt-4">
             <a href="/my-profil" class="btn btn-custom-outline">Annuler</a>
             <button type="submit" class="btn btn-inscription me-2">Sauvegarder</button>
         </div>
     </form>
 </div>
-

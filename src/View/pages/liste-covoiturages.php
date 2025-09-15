@@ -154,8 +154,8 @@
                                     </div>
                                 </div>
                                 <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                                    <?php $avatar = !empty($ride['driver_photo']) ? $ride['driver_photo'] : '/assets/images/logo.svg'; ?>
-                                    <img src="<?= htmlspecialchars($avatar) ?>" alt="Avatar conducteur" class="avatar rounded-circle" style="width:48px;height:48px;object-fit:cover;">
+                                    <?php $avatar = !empty($ride['driver_photo']) ? $ride['driver_photo'] : (defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg'); ?>
+                                    <img src="<?= htmlspecialchars($avatar) ?>" alt="Avatar conducteur" class="avatar rounded-circle" style="width:48px;height:48px;object-fit:cover;" onerror="this.onerror=null;this.src='<?= defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg' ?>';">
                                     <div class="details flex-grow-1 px-3 m-auto">
                                         <h5><?= htmlspecialchars($ride['adresse_depart']) ?> → <?= htmlspecialchars($ride['adresse_arrivee']) ?></h5>
                                         <ul class="mb-0">
@@ -186,8 +186,7 @@
                                         </ul>
                                     </div>
                                 </div>
-                                <div class="card-footer d-flex justify-content-between">
-                                    <small class="text-muted">Annonce #<?= (int)$ride['id'] ?></small>
+                                <div class="card-footer d-flex justify-content-end">
                                     <div>
                                         <?php
                                         $isLogged = isset($_SESSION['user']);

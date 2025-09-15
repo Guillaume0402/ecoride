@@ -23,3 +23,8 @@ if (!defined('BASE_URL')) {
 
 // URL complète du site (utile pour générer des URLs absolues)
 define('SITE_URL', 'http://localhost:8080/');
+
+// Avatar par défaut (utilisé si l'utilisateur n'a pas de photo)
+if (!defined('DEFAULT_AVATAR_URL')) {
+    define('DEFAULT_AVATAR_URL', '/assets/images/logo.svg');
+}

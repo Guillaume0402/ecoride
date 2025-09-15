@@ -28,7 +28,8 @@ if ($user['role_id'] === 3) {
                             </div>
                             <?php if (isset($_SESSION['user'])): ?>
                                 <h2 class="fw-bold mb-2"><?= $_SESSION['user']['pseudo'] ?? '' ?></h2>
-                                <img src="<?= $user['photo'] ?? '/assets/images/logo.svg' ?>" alt="Avatar" class="rounded-circle bg-white mb-2" style="width:70px;height:70px;object-fit:cover;">
+                                <?php $__avatar = !empty($user['photo']) ? $user['photo'] : (defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg'); ?>
+                                <img src="<?= htmlspecialchars($__avatar) ?>" alt="Avatar" class="rounded-circle bg-white mb-2" style="width:70px;height:70px;object-fit:cover;" onerror="this.onerror=null;this.src='<?= defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg' ?>';">
                                 <ul class="list-unstyled small mb-3">
                                     <li>Animaux accepté</li>
                                     <li>Sans tabac</li>

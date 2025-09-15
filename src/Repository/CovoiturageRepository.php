@@ -77,6 +77,10 @@ class CovoiturageRepository
     ";
 
         $sql .= " WHERE 1=1";
+        // N'afficher que les trajets actifs (exclut les trajets annulés/terminés)
+        $sql .= " AND c.status NOT IN ('annule','termine')";
+        // Cacher les trajets passés (uniquement les départs futurs ou en cours)
+        $sql .= " AND c.depart >= NOW()";
         $params = [];
         if ($depart !== null && $depart !== '') {
             $sql .= " AND c.adresse_depart LIKE :depart";

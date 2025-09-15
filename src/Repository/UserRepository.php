@@ -36,7 +36,7 @@ class UserRepository
             ':role_id'     => $user->getRoleId(),
             ':credits'     => $user->getCredits(),
             ':note'        => $user->getNote(),
-            ':photo'       => $user->getPhoto() ?? '/images/default-avatar.png',
+            ':photo'       => $user->getPhoto() ?? (defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg'),
             ':created_at'  => $user->getCreatedAt()?->format('Y-m-d H:i:s') ?? date('Y-m-d H:i:s'),
             ':travel_role' => $user->getTravelRole(),
             ':is_active'   => $user->getIsActive()

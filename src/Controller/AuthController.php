@@ -125,6 +125,7 @@ class AuthController extends Controller
                 throw new \Exception('Email et mot de passe requis');
             }
 
+
             $email = trim($data['email'] ?? '');
             $email = mb_strtolower($email);
 
@@ -224,9 +225,7 @@ class AuthController extends Controller
             'email'     => $user->getEmail(),
             'role_id'   => $user->getRoleId(),
             'role_name' => $this->userService->getRoleName($user),
-            'photo'     => $user->getPhoto() ?: '/assets/images/logo.svg',
-            // Ajoute les crédits pour affichage immédiat dans le header
-            'credits'   => $user->getCredits(),
+            'photo'     => $user->getPhoto() ?: '/assets/images/logo.svg'
         ];
     }
 }
