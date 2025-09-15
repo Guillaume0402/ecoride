@@ -40,6 +40,20 @@ class Controller
         $hasVehicle = false;
         $userVehicles = [];
         if (isset($_SESSION['user']) && !empty($_SESSION['user']['id'])) {
+            // Rafraîchit des infos légères pour le header (ex: crédits)
+            try {
+                $currentUser = $this->userRepository->findById((int) $_SESSION['user']['id']);
+                if ($currentUser) {
+                    // Met à jour le solde de crédits en session pour un affichage fiable
+                    $_SESSION['user']['credits'] = $currentUser->getCredits();
+                    // Sécurise l'avatar en session si manquant
+                    if (empty($_SESSION['user']['photo'])) {
+                        $_SESSION['user']['photo'] = defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg';
+                    }
+                }
+            } catch (\Throwable $e) {
+                error_log('[render] User refresh failed: ' . $e->getMessage());
+            }
             try {
                 $vehicleRepo = new VehicleRepository();
                 // On peut retourner des entités; les vues existantes manipulent déjà des entités côté profil
