@@ -61,6 +61,10 @@ if ($user['role_id'] === 3) {
                                 <div class="fw-semibold">Passager</div>
                                 <div class="small"><?= (!empty($user['travel_role']) && in_array($user['travel_role'], ['passager', 'les-deux'])) ? 'Oui' : 'Non' ?></div>
                             </div>
+                            <div class="col-6 col-lg-4">
+                                <div class="fw-semibold">Crédits</div>
+                                <div class="small"><?= isset($user['credits']) ? (int)$user['credits'] : 0 ?></div>
+                            </div>
                             <?php if (!empty($vehicles)): ?>
                                 <!-- Onglets -->
                                 <ul class="nav nav-tabs mb-4" id="vehicleTabs" role="tablist">

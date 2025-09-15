@@ -5,7 +5,7 @@
             <img src="" alt="Logo EcoRide" style="width: 40px; height: 40px;">
             <span class="logo-title ms-2 text-white fs-4 fw-bold">Ecoride</span>
         </div>
-        <h3 class="text-white fw-bold text-center mb-4">Voyage</h3>        
+        <h3 class="text-white fw-bold text-center mb-4">Voyage</h3>
         <form method="post">
             <div class="mb-3">
                 <label class="form-label text-white">Ville de départ</label>
@@ -41,4 +41,3 @@
         </form>
     </div>
 </div>
-
