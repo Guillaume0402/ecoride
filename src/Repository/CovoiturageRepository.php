@@ -147,18 +147,25 @@ class CovoiturageRepository
      */
     public function findByDriverId(int $driverId): array
     {
-        $sql = "SELECT c.*, 
-                       u.pseudo AS driver_pseudo,
-                       v.marque AS vehicle_marque, v.modele AS vehicle_modele, v.couleur AS vehicle_couleur,
-                       v.places_dispo AS vehicle_places,
-                       COALESCE(v.places_dispo, 0) - COALESCE(
-                          (SELECT COUNT(*) FROM participations p WHERE p.covoiturage_id = c.id AND p.status = 'confirmee')
-                       , 0) AS places_restantes
-                FROM {$this->table} c
-                LEFT JOIN users u ON u.id = c.driver_id
-                LEFT JOIN vehicles v ON v.id = c.vehicle_id
-                WHERE c.driver_id = :d
-                ORDER BY c.depart DESC";
+        $sql = "SELECT c.*,
+                              u.pseudo AS driver_pseudo,
+                              v.marque AS vehicle_marque, v.modele AS vehicle_modele, v.couleur AS vehicle_couleur,
+                              v.places_dispo AS vehicle_places,
+                              COALESCE(v.places_dispo, 0) - COALESCE((
+                                 SELECT COUNT(*) FROM participations p WHERE p.covoiturage_id = c.id AND p.status = 'confirmee'
+                              ), 0) AS places_restantes,
+                              -- Détails additionnels
+                              (SELECT COUNT(*) FROM participations p WHERE p.covoiturage_id = c.id AND p.status = 'confirmee') AS confirmed_count,
+                              (SELECT COUNT(*) FROM participations p WHERE p.covoiturage_id = c.id AND p.status = 'en_attente_validation') AS pending_count,
+                              (SELECT GROUP_CONCAT(u2.pseudo SEPARATOR ', ')
+                                  FROM participations p2
+                                  JOIN users u2 ON u2.id = p2.passager_id
+                                 WHERE p2.covoiturage_id = c.id AND p2.status = 'confirmee') AS confirmed_passengers
+                     FROM {$this->table} c
+                     LEFT JOIN users u ON u.id = c.driver_id
+                     LEFT JOIN vehicles v ON v.id = c.vehicle_id
+                     WHERE c.driver_id = :d
+                     ORDER BY c.depart DESC";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([':d' => $driverId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);

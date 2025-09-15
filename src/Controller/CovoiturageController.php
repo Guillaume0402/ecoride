@@ -219,7 +219,7 @@ class CovoiturageController extends Controller
             redirect('/mes-covoiturages');
         }
         // Interdire si déjà terminé/annulé
-        if (in_array(($ride['status'] ?? ''), ['annule','termine'], true)) {
+        if (in_array(($ride['status'] ?? ''), ['annule', 'termine'], true)) {
             Flash::add('Trajet déjà clôturé.', 'warning');
             redirect('/mes-covoiturages');
         }
@@ -237,7 +237,9 @@ class CovoiturageController extends Controller
             $pdo->commit();
             Flash::add('Trajet annulé. Les passagers ont été prévenus.', 'success');
         } catch (\Throwable $e) {
-            if ($pdo->inTransaction()) { $pdo->rollBack(); }
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             error_log('[cancel covoit] ' . $e->getMessage());
             Flash::add('Erreur lors de l\'annulation.', 'danger');
         }

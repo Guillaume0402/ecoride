@@ -1,11 +1,30 @@
+<?php
+$driverCount = isset($asDriver) && is_array($asDriver) ? count($asDriver) : 0;
+$passengerCount = isset($asPassenger) && is_array($asPassenger) ? count($asPassenger) : 0;
+$activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 'driver');
+?>
+
 <div class="container py-4">
     <h1>Mes trajets</h1>
 
-    <div class="row g-4 mt-2">
-        <div class="col-12 col-lg-6">
-            <div class="card h-100">
-                <div class="card-header fw-semibold">En tant que conducteur</div>
-                <div class="card-body">
+    <div class="card mt-2">
+        <div class="card-header pb-0">
+            <ul class="nav nav-tabs card-header-tabs" id="mesTrajetsTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link <?= $activeTab === 'driver' ? 'active' : '' ?>" id="driver-tab" data-bs-toggle="tab" data-bs-target="#driver-pane" type="button" role="tab" aria-controls="driver-pane" aria-selected="<?= $activeTab === 'driver' ? 'true' : 'false' ?>">
+                        Conducteur <span class="badge bg-secondary ms-1"><?= (int)$driverCount ?></span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link <?= $activeTab === 'passenger' ? 'active' : '' ?>" id="passenger-tab" data-bs-toggle="tab" data-bs-target="#passenger-pane" type="button" role="tab" aria-controls="passenger-pane" aria-selected="<?= $activeTab === 'passenger' ? 'true' : 'false' ?>">
+                        Passager <span class="badge bg-secondary ms-1"><?= (int)$passengerCount ?></span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="mesTrajetsContent">
+                <div class="tab-pane fade <?= $activeTab === 'driver' ? 'show active' : '' ?>" id="driver-pane" role="tabpanel" aria-labelledby="driver-tab" tabindex="0">
                     <?php if (!empty($asDriver)): ?>
                         <div class="table-responsive">
                             <table class="table align-middle">
@@ -13,33 +32,50 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Trajet</th>
+                                        <th>Prix</th>
+                                        <th>Statut</th>
                                         <th>Départ</th>
                                         <th>Places restantes</th>
-                                                            <th>Actions</th>
-                                                        </tr>
+                                        <th>Actions</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($asDriver as $c): ?>
                                         <tr>
                                             <td><?= (int)$c['id'] ?></td>
                                             <td><?= htmlspecialchars($c['adresse_depart']) ?> → <?= htmlspecialchars($c['adresse_arrivee']) ?></td>
+                                            <td><?= number_format((float)($c['prix'] ?? 0), 2, ',', ' ') ?> €</td>
+                                            <td>
+                                                <?php $st = (string)($c['status'] ?? 'en_attente');
+                                                $labels = ['en_attente' => 'En attente', 'demarre' => 'Démarré', 'termine' => 'Terminé', 'annule' => 'Annulé'];
+                                                $cls = ['en_attente' => 'secondary', 'demarre' => 'info', 'termine' => 'success', 'annule' => 'danger'];
+                                                ?>
+                                                <span class="badge bg-<?= $cls[$st] ?? 'secondary' ?>"><?= $labels[$st] ?? $st ?></span>
+                                                <small class="text-muted ms-2">(Conf: <?= (int)($c['confirmed_count'] ?? 0) ?>, Att: <?= (int)($c['pending_count'] ?? 0) ?>)</small>
+                                                <?php if (!empty($c['confirmed_passengers'])): ?>
+                                                    <div class="small text-muted mt-1">Passagers: <?= htmlspecialchars($c['confirmed_passengers']) ?></div>
+                                                <?php endif; ?>
+                                            </td>
                                             <td><?= (new DateTime($c['depart']))->format('d/m/Y H\hi') ?></td>
                                             <td><?= isset($c['places_restantes']) ? (int)$c['places_restantes'] : (int)($c['vehicle_places'] ?? 0) ?></td>
-                                                                <td>
-                                                                    <?php
-                                                                        $isPast = false;
-                                                                        try { $isPast = (new DateTime($c['depart'])) < new DateTime(); } catch (Throwable $e) { }
-                                                                        $isClosable = !$isPast && !in_array(($c['status'] ?? 'en_attente'), ['annule','termine'], true);
-                                                                    ?>
-                                                                    <?php if ($isClosable): ?>
-                                                                        <form action="/covoiturages/cancel/<?= (int)$c['id'] ?>" method="POST" onsubmit="return confirm('Annuler ce trajet ? Les passagers seront informés.');" class="d-inline">
-                                                                            <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
-                                                                            <button type="submit" class="btn btn-outline-danger btn-sm">Annuler</button>
-                                                                        </form>
-                                                                    <?php else: ?>
-                                                                        <button class="btn btn-secondary btn-sm" disabled>Non modifiable</button>
-                                                                    <?php endif; ?>
-                                                                </td>
+                                            <td>
+                                                <?php
+                                                $isPast = false;
+                                                try {
+                                                    $isPast = (new DateTime($c['depart'])) < new DateTime();
+                                                } catch (Throwable $e) {
+                                                }
+                                                $isClosable = !$isPast && !in_array(($c['status'] ?? 'en_attente'), ['annule', 'termine'], true);
+                                                ?>
+                                                <?php if ($isClosable): ?>
+                                                    <form action="/covoiturages/cancel/<?= (int)$c['id'] ?>" method="POST" onsubmit="return confirm('Annuler ce trajet ? Les passagers seront informés.');" class="d-inline">
+                                                        <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm">Annuler</button>
+                                                    </form>
+                                                <?php else: ?>
+                                                    <button class="btn btn-secondary btn-sm" disabled>Non modifiable</button>
+                                                <?php endif; ?>
+                                            </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
@@ -49,13 +85,8 @@
                         <div class="alert alert-info mb-0">Vous n'avez pas encore créé de trajets.</div>
                     <?php endif; ?>
                 </div>
-            </div>
-        </div>
 
-        <div class="col-12 col-lg-6">
-            <div class="card h-100">
-                <div class="card-header fw-semibold">En tant que passager</div>
-                <div class="card-body">
+                <div class="tab-pane fade <?= $activeTab === 'passenger' ? 'show active' : '' ?>" id="passenger-pane" role="tabpanel" aria-labelledby="passenger-tab" tabindex="0">
                     <?php if (!empty($asPassenger)): ?>
                         <div class="table-responsive">
                             <table class="table align-middle">
@@ -64,6 +95,8 @@
                                         <th>#</th>
                                         <th>Trajet</th>
                                         <th>Départ</th>
+                                        <th>Véhicule</th>
+                                        <th>Prix</th>
                                         <th>Conducteur</th>
                                         <th>Statut</th>
                                     </tr>
@@ -74,6 +107,8 @@
                                             <td><?= (int)$p['covoiturage_id'] ?></td>
                                             <td><?= htmlspecialchars($p['adresse_depart']) ?> → <?= htmlspecialchars($p['adresse_arrivee']) ?></td>
                                             <td><?= (new DateTime($p['depart']))->format('d/m/Y H\hi') ?></td>
+                                            <td><?= htmlspecialchars(trim(($p['vehicle_marque'] ?? '') . ' ' . ($p['vehicle_modele'] ?? ''))) ?></td>
+                                            <td><?= number_format((float)($p['prix'] ?? 0), 2, ',', ' ') ?> €</td>
                                             <td><?= htmlspecialchars($p['driver_pseudo']) ?></td>
                                             <td>
                                                 <?php if ($p['status'] === 'confirmee'): ?>
@@ -82,6 +117,9 @@
                                                     <span class="badge bg-warning text-dark">En attente</span>
                                                 <?php else: ?>
                                                     <span class="badge bg-secondary">Annulée</span>
+                                                <?php endif; ?>
+                                                <?php if (!empty($p['covoit_status'])): ?>
+                                                    <small class="text-muted ms-2">Trajet: <?= htmlspecialchars($p['covoit_status']) ?></small>
                                                 <?php endif; ?>
                                             </td>
                                         </tr>
@@ -96,6 +134,7 @@
             </div>
         </div>
     </div>
+
     <div class="mt-3">
         <a href="/liste-covoiturages" class="btn btn-outline-primary">Rechercher un trajet</a>
     </div>
