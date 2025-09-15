@@ -25,6 +25,19 @@ class ParticipationRepository
         ]);
     }
 
+    /**
+     * Retourne les participations confirmées pour un covoiturage donné.
+     * Utilisé notamment pour rembourser lors d'une annulation par le conducteur.
+     * @return array<int, array{participation_id:int, passager_id:int}>
+     */
+    public function findConfirmedByCovoiturageId(int $covoiturageId): array
+    {
+        $sql = "SELECT id AS participation_id, passager_id FROM {$this->table} WHERE covoiturage_id = :id AND status = 'confirmee'";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':id' => $covoiturageId]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+    }
+
     public function countConfirmedByCovoiturageId(int $covoiturageId): int
     {
         $sql = "SELECT COUNT(*) FROM {$this->table} WHERE covoiturage_id = :id AND status = 'confirmee'";

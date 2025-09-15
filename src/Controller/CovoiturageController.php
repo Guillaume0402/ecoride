@@ -4,6 +4,9 @@ namespace App\Controller;
 
 use App\Repository\VehicleRepository;
 use App\Repository\CovoiturageRepository;
+use App\Repository\ParticipationRepository;
+use App\Repository\TransactionRepository;
+use App\Repository\UserRepository;
 use App\Entity\CovoiturageEntity;
 use App\Security\Csrf;
 use App\Service\Flash;
@@ -12,12 +15,20 @@ class CovoiturageController extends Controller
 {
     private VehicleRepository $vehicleRepository;
     private CovoiturageRepository $covoiturageRepository;
+    private ParticipationRepository $participationRepository;
+    private TransactionRepository $transactionRepository;
+    private UserRepository $localUserRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->vehicleRepository = new VehicleRepository();
         $this->covoiturageRepository = new CovoiturageRepository();
+        $this->participationRepository = new ParticipationRepository();
+        $this->transactionRepository = new TransactionRepository();
+        // Attention: CovoiturageController hérite déjà d'un userRepository via Controller.
+        // On garde une référence locale si besoin pour clarté.
+        $this->localUserRepository = $this->userRepository;
     }
 
     // POST /covoiturages/create (soumission classique)
@@ -224,16 +235,42 @@ class CovoiturageController extends Controller
             redirect('/mes-covoiturages');
         }
 
-        // Annule le covoiturage et les participations associées
+        // Annule le covoiturage et les participations associées + remboursements
         try {
             $pdo = \App\Db\Mysql::getInstance()->getPDO();
             $pdo->beginTransaction();
             // annuler le covoiturage
             $stmt = $pdo->prepare("UPDATE covoiturages SET status='annule' WHERE id=:id");
             $stmt->execute([':id' => $id]);
+
+            // Récupère les participations confirmées à rembourser avant de changer leur statut
+            $stmtSel = $pdo->prepare("SELECT id AS participation_id, passager_id FROM participations WHERE covoiturage_id = :id AND status = 'confirmee'");
+            $stmtSel->execute([':id' => $id]);
+            $confirmed = $stmtSel->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+
             // marquer toutes les participations comme annulées
             $stmt2 = $pdo->prepare("UPDATE participations SET status='annulee' WHERE covoiturage_id=:id AND status <> 'annulee'");
             $stmt2->execute([':id' => $id]);
+
+            // Remboursement: créditer 2 crédits par passager confirmé et journaliser
+            $refund = 2;
+            foreach ($confirmed as $row) {
+                $passagerId = (int) ($row['passager_id'] ?? 0);
+                if ($passagerId > 0) {
+                    // Créditer directement via SQL pour rester dans la même transaction PDO
+                    $stmtCred = $pdo->prepare("UPDATE users SET credits = credits + :amt WHERE id = :uid");
+                    $stmtCred->execute([':amt' => $refund, ':uid' => $passagerId]);
+
+                    // Journaliser la transaction de crédit
+                    $stmtTx = $pdo->prepare("INSERT INTO transactions (user_id, montant, type, motif) VALUES (:uid, :m, 'credit', :motif)");
+                    $stmtTx->execute([
+                        ':uid' => $passagerId,
+                        ':m' => $refund,
+                        ':motif' => 'Remboursement annulation trajet #' . $id,
+                    ]);
+                }
+            }
+
             $pdo->commit();
             Flash::add('Trajet annulé. Les passagers ont été prévenus.', 'success');
         } catch (\Throwable $e) {
