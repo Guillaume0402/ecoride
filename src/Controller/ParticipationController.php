@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Repository\CovoiturageRepository;
 use App\Repository\ParticipationRepository;
+use App\Repository\TransactionRepository;
+use App\Repository\UserRepository;
 use App\Security\Csrf;
 use App\Service\Flash;
 
@@ -11,12 +13,14 @@ class ParticipationController extends Controller
 {
     private ParticipationRepository $participationRepository;
     private CovoiturageRepository $covoiturageRepository;
+    private TransactionRepository $transactionRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->participationRepository = new ParticipationRepository();
         $this->covoiturageRepository = new CovoiturageRepository();
+        $this->transactionRepository = new TransactionRepository();
     }
 
     // POST /participations/create
@@ -151,6 +155,23 @@ class ParticipationController extends Controller
             if ($restantes <= 0) {
                 Flash::add('Plus de place disponible pour confirmer.', 'warning');
                 redirect('/mes-demandes');
+            }
+
+            // Débiter 2 crédits au passager avant de confirmer
+            $passagerId = (int)($p['passager_id'] ?? 0);
+            $cost = 2; // coût fixe par trajet
+            if (!$this->userRepository->debitIfEnough($passagerId, $cost)) {
+                Flash::add('Crédits insuffisants pour confirmer (2 crédits requis).', 'warning');
+                redirect('/mes-demandes');
+            }
+            // Journaliser la transaction
+            $this->transactionRepository->create($passagerId, $cost, 'debit', 'Participation trajet #' . (int)$p['covoiturage_id']);
+            // Rafraîchir le solde éventuel en session si c'est l'utilisateur courant
+            if (!empty($_SESSION['user']) && (int)$_SESSION['user']['id'] === $passagerId) {
+                $u = $this->userRepository->findById($passagerId);
+                if ($u) {
+                    $_SESSION['user']['credits'] = $u->getCredits();
+                }
             }
         }
 

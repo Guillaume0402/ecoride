@@ -151,6 +151,49 @@ class UserRepository
         return $stmt->execute([':note' => $newNote, ':id' => $userId]);
     }
 
+    // ===========================
+    //  Gestion des crédits (débit/credit)
+    // ===========================
+    /**
+     * Débite le compte de l'utilisateur si le solde est suffisant.
+     * Retourne true si succès, false si solde insuffisant ou erreur.
+     */
+    public function debitIfEnough(int $userId, int $amount): bool
+    {
+        if ($amount <= 0) return true; // rien à débiter
+        try {
+            $this->conn->beginTransaction();
+            // Verrouillage pessimiste de la ligne
+            $stmt = $this->conn->prepare("SELECT credits FROM {$this->table} WHERE id = :id FOR UPDATE");
+            $stmt->execute([':id' => $userId]);
+            $credits = (int) ($stmt->fetchColumn() ?? 0);
+            if ($credits < $amount) {
+                $this->conn->rollBack();
+                return false;
+            }
+            $upd = $this->conn->prepare("UPDATE {$this->table} SET credits = credits - :amt WHERE id = :id");
+            $upd->execute([':amt' => $amount, ':id' => $userId]);
+            $this->conn->commit();
+            return true;
+        } catch (\Throwable $e) {
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollBack();
+            }
+            error_log('[UserRepository::debitIfEnough] ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Crédite le compte de l'utilisateur du montant donné (opération simple).
+     */
+    public function credit(int $userId, int $amount): bool
+    {
+        if ($amount <= 0) return true;
+        $stmt = $this->conn->prepare("UPDATE {$this->table} SET credits = credits + :amt WHERE id = :id");
+        return $stmt->execute([':amt' => $amount, ':id' => $userId]);
+    }
+
     // Met à jour le profil avec données partielles
     public function updateProfil(array $data): void
     {
