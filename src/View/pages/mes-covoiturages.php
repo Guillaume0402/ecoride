@@ -131,7 +131,7 @@
                                                     <?php $cv = (string)$p['covoit_status'];
                                                     $cvLabel = ['en_attente' => 'En attente', 'demarre' => 'Démarré', 'termine' => 'Terminé', 'annule' => 'Annulé'][$cv] ?? $cv;
                                                     ?>
-                                                    <small class="text-muted ms-2">Trajet: <?= htmlspecialchars($cvLabel) ?></small>
+                                                    <small class="text-status-meta ms-2">Trajet: <?= htmlspecialchars($cvLabel) ?></small>
                                                 <?php endif; ?>
                                             </td>
                                         </tr>
