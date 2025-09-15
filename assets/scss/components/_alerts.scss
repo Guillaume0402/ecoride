@@ -32,16 +32,31 @@
         font-size: 0.95rem;
         line-height: 1.1;
         cursor: pointer;
-        transition: transform .08s ease, opacity .2s ease, background-color .2s ease, color .2s ease;
+        transition: transform 0.08s ease, opacity 0.2s ease,
+            background-color 0.2s ease, color 0.2s ease;
     }
     .btn-cancel:active,
-    .btn-ok:active { transform: translateY(1px) scale(0.995); }
+    .btn-ok:active {
+        transform: translateY(1px) scale(0.995);
+    }
 
     // Par défaut: fond de la bannière contrasté avec boutons lisibles
-    .btn-cancel { background: transparent; border: 2px solid rgba(255,255,255,.9); color: #fff; }
-    .btn-cancel:hover { background: rgba(255,255,255,.12); }
-    .btn-ok { background: #fff; border: 2px solid #fff; color: #b71c1c; }
-    .btn-ok:hover { opacity: .95; }
+    .btn-cancel {
+        background: transparent;
+        border: 2px solid rgba(255, 255, 255, 0.9);
+        color: #fff;
+    }
+    .btn-cancel:hover {
+        background: rgba(255, 255, 255, 0.12);
+    }
+    .btn-ok {
+        background: #fff;
+        border: 2px solid #fff;
+        color: #b71c1c;
+    }
+    .btn-ok:hover {
+        opacity: 0.95;
+    }
 
     &.fade-out {
         animation: fadeOut 0.6s forwards;

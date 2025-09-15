@@ -4,7 +4,7 @@ $passengerCount = isset($asPassenger) && is_array($asPassenger) ? count($asPasse
 $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 'driver');
 ?>
 
-<div class="container py-4">
+<div class="container py-4 page-mes-trajets">
     <h1>Mes trajets</h1>
 
     <div class="card mt-2">
@@ -48,7 +48,8 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                             <td>
                                                 <?php $st = (string)($c['status'] ?? 'en_attente');
                                                 $labels = ['en_attente' => 'En attente', 'demarre' => 'Démarré', 'termine' => 'Terminé', 'annule' => 'Annulé'];
-                                                $cls = ['en_attente' => 'secondary', 'demarre' => 'info', 'termine' => 'success', 'annule' => 'danger'];
+                                                // Couleurs plus lisibles sur fond sombre
+                                                $cls = ['en_attente' => 'warning text-dark', 'demarre' => 'info', 'termine' => 'success', 'annule' => 'danger'];
                                                 ?>
                                                 <span class="badge bg-<?= $cls[$st] ?? 'secondary' ?>"><?= $labels[$st] ?? $st ?></span>
                                                 <small class="text-muted ms-2">(Conf: <?= (int)($c['confirmed_count'] ?? 0) ?>, Att: <?= (int)($c['pending_count'] ?? 0) ?>)</small>
@@ -116,10 +117,13 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                 <?php elseif ($p['status'] === 'en_attente_validation'): ?>
                                                     <span class="badge bg-warning text-dark">En attente</span>
                                                 <?php else: ?>
-                                                    <span class="badge bg-secondary">Annulée</span>
+                                                    <span class="badge bg-danger">Annulée</span>
                                                 <?php endif; ?>
                                                 <?php if (!empty($p['covoit_status'])): ?>
-                                                    <small class="text-muted ms-2">Trajet: <?= htmlspecialchars($p['covoit_status']) ?></small>
+                                                    <?php $cv = (string)$p['covoit_status'];
+                                                    $cvLabel = ['en_attente' => 'En attente', 'demarre' => 'Démarré', 'termine' => 'Terminé', 'annule' => 'Annulé'][$cv] ?? $cv;
+                                                    ?>
+                                                    <small class="text-muted ms-2">Trajet: <?= htmlspecialchars($cvLabel) ?></small>
                                                 <?php endif; ?>
                                             </td>
                                         </tr>

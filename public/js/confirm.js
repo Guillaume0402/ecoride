@@ -3,7 +3,7 @@
 (function () {
     const STACK_ID = "alerts";
 
-        function createAlert(message, variant = "warning") {
+    function createAlert(message, variant = "warning") {
         const div = document.createElement("div");
         div.className = `custom-alert alert-${variant}`;
         div.innerHTML = `
