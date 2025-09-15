@@ -225,7 +225,8 @@ class AuthController extends Controller
             'email'     => $user->getEmail(),
             'role_id'   => $user->getRoleId(),
             'role_name' => $this->userService->getRoleName($user),
-            'photo'     => $user->getPhoto() ?: '/assets/images/logo.svg'
+                'credits'   => $user->getCredits(),
+            'photo'     => $user->getPhoto() ?: (defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg')
         ];
     }
 }
