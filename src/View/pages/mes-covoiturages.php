@@ -68,7 +68,7 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                 $isClosable = !$isPast && !in_array(($c['status'] ?? 'en_attente'), ['annule', 'termine'], true);
                                                 ?>
                                                 <?php if ($isClosable): ?>
-                                                    <form action="/covoiturages/cancel/<?= (int)$c['id'] ?>" method="POST" onsubmit="return confirm('Annuler ce trajet ? Les passagers seront informés.');" class="d-inline">
+                                                    <form action="/covoiturages/cancel/<?= (int)$c['id'] ?>" method="POST" class="d-inline js-confirm" data-confirm-text="Annuler ce trajet ? Les passagers seront informés." data-confirm-variant="danger">
                                                         <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
                                                         <button type="submit" class="btn btn-outline-danger btn-sm">Annuler</button>
                                                     </form>

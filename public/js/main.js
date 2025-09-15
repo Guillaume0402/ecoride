@@ -6,3 +6,4 @@ import "./toggle-theme.js";
 import "./creation-profil.js";
 import "./admin-users.js";
 import "./covoit-guard.js";
+import "./confirm.js";
