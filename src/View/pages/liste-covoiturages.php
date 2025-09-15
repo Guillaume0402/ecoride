@@ -89,8 +89,8 @@
                             'pref' => $criteria['pref'] ?? []
                         ];
                         ?>
-                        <li><a class="dropdown-item" href="/liste-covoiturages?<?= http_build_query($baseParams + ['sort' => 'price', 'dir' => 'asc']) ?>">Prix croissant</a></li>
-                        <li><a class="dropdown-item" href="/liste-covoiturages?<?= http_build_query($baseParams + ['sort' => 'price', 'dir' => 'desc']) ?>">Prix décroissant</a></li>
+                        <li><a class="dropdown-item" href="/liste-covoiturages?<?= http_build_query($baseParams + ['sort' => 'price', 'dir' => 'asc']) ?>">Crédits croissants</a></li>
+                        <li><a class="dropdown-item" href="/liste-covoiturages?<?= http_build_query($baseParams + ['sort' => 'price', 'dir' => 'desc']) ?>">Crédits décroissants</a></li>
                         <li><a class="dropdown-item" href="/liste-covoiturages?<?= http_build_query($baseParams + ['sort' => 'date', 'dir' => 'asc']) ?>">Date la plus proche</a></li>
                         <li><a class="dropdown-item" href="/liste-covoiturages?<?= http_build_query($baseParams + ['sort' => 'date', 'dir' => 'desc']) ?>">Date la plus lointaine</a></li>
                     </ul>

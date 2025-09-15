@@ -16,7 +16,7 @@
                 <input type="text" class="form-control" name="ville_arrivee" required>
             </div>
             <div class="mb-3">
-                <label class="form-label text-white">Prix du trajet</label>
+                <label class="form-label text-white">Crédits du trajet</label>
                 <input type="number" class="form-control" name="prix" min="0" required>
             </div>
             <div class="mb-3">

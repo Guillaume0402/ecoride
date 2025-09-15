@@ -40,7 +40,7 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                     <tr>
                                         <th>#</th>
                                         <th>Trajet</th>
-                                        <th>Prix</th>
+                                        <th>Crédits</th>
                                         <th>Statut</th>
                                         <th>Départ</th>
                                         <th>Places restantes</th>
@@ -105,7 +105,7 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                         <th>Trajet</th>
                                         <th>Départ</th>
                                         <th>Véhicule</th>
-                                        <th>Prix</th>
+                                        <th>Crédits</th>
                                         <th>Conducteur</th>
                                         <th>Statut</th>
                                     </tr>
@@ -153,7 +153,7 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                         <tr>
                                             <th>#</th>
                                             <th>Trajet</th>
-                                            <th>Prix</th>
+                                            <th>Crédits</th>
                                             <th>Statut</th>
                                             <th>Départ</th>
                                             <th>Places restantes</th>
@@ -195,7 +195,7 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                             <th>Trajet</th>
                                             <th>Départ</th>
                                             <th>Véhicule</th>
-                                            <th>Prix</th>
+                                            <th>Crédits</th>
                                             <th>Conducteur</th>
                                             <th>Statut</th>
                                         </tr>
