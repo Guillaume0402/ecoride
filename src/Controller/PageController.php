@@ -120,8 +120,25 @@ class PageController extends Controller
         $covoitRepo = new CovoiturageRepository();
         $partRepo = new \App\Repository\ParticipationRepository();
 
-        $asDriver = $covoitRepo->findByDriverId($userId);
-        $asPassenger = $partRepo->findByPassagerId($userId);
+        $asDriverAll = $covoitRepo->findByDriverId($userId);
+        $asPassengerAll = $partRepo->findByPassagerId($userId);
+
+        // Filtrage (Option B): aligner avec le header
+        // - Conducteur: uniquement trajets à venir, non annulés/terminés
+        // - Passager: uniquement participations confirmées
+        $now = new \DateTime();
+        $asDriver = array_values(array_filter($asDriverAll, function ($c) use ($now) {
+            try {
+                $depart = new \DateTime($c['depart']);
+            } catch (\Throwable $e) {
+                return false;
+            }
+            $status = (string)($c['status'] ?? 'en_attente');
+            return $depart >= $now && !in_array($status, ['annule', 'termine'], true);
+        }));
+        $asPassenger = array_values(array_filter($asPassengerAll, function ($p) {
+            return ($p['status'] ?? null) === 'confirmee';
+        }));
 
         $this->render("pages/mes-covoiturages", [
             'asDriver' => $asDriver,
