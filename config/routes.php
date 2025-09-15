@@ -181,6 +181,12 @@ return [
             'action' => 'contact'
         ]
     ],
+    '/mes-covoiturages' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'mesCovoiturages'
+        ]
+    ],
     '/terms' => [
         'GET' => [
             'controller' => 'App\\Controller\\PageController',

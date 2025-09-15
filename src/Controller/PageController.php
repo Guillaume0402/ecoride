@@ -113,7 +113,20 @@ class PageController extends Controller
 
     public function mesCovoiturages(): void
     {
-        $this->render("pages/mes-covoiturages");
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        $userId = (int) $_SESSION['user']['id'];
+        $covoitRepo = new CovoiturageRepository();
+        $partRepo = new \App\Repository\ParticipationRepository();
+
+        $asDriver = $covoitRepo->findByDriverId($userId);
+        $asPassenger = $partRepo->findByPassagerId($userId);
+
+        $this->render("pages/mes-covoiturages", [
+            'asDriver' => $asDriver,
+            'asPassenger' => $asPassenger
+        ]);
     }
 
     // Page profil (protégée), charge les véhicules de l'utilisateur

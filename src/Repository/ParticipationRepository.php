@@ -92,4 +92,22 @@ class ParticipationRepository
         $stmt->execute([':driver' => $driverId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Liste toutes les participations d'un passager avec info trajet et conducteur.
+     */
+    public function findByPassagerId(int $passagerId): array
+    {
+        $sql = "SELECT p.*, p.id AS participation_id,
+                       c.id AS covoiturage_id, c.adresse_depart, c.adresse_arrivee, c.depart,
+                       u_driver.pseudo AS driver_pseudo
+                FROM {$this->table} p
+                JOIN covoiturages c ON c.id = p.covoiturage_id
+                JOIN users u_driver ON u_driver.id = c.driver_id
+                WHERE p.passager_id = :pid
+                ORDER BY c.depart DESC, p.date_participation DESC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':pid' => $passagerId]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }
