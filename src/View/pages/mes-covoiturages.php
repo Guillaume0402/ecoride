@@ -15,7 +15,8 @@
                                         <th>Trajet</th>
                                         <th>Départ</th>
                                         <th>Places restantes</th>
-                                    </tr>
+                                                            <th>Actions</th>
+                                                        </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($asDriver as $c): ?>
@@ -24,6 +25,21 @@
                                             <td><?= htmlspecialchars($c['adresse_depart']) ?> → <?= htmlspecialchars($c['adresse_arrivee']) ?></td>
                                             <td><?= (new DateTime($c['depart']))->format('d/m/Y H\hi') ?></td>
                                             <td><?= isset($c['places_restantes']) ? (int)$c['places_restantes'] : (int)($c['vehicle_places'] ?? 0) ?></td>
+                                                                <td>
+                                                                    <?php
+                                                                        $isPast = false;
+                                                                        try { $isPast = (new DateTime($c['depart'])) < new DateTime(); } catch (Throwable $e) { }
+                                                                        $isClosable = !$isPast && !in_array(($c['status'] ?? 'en_attente'), ['annule','termine'], true);
+                                                                    ?>
+                                                                    <?php if ($isClosable): ?>
+                                                                        <form action="/covoiturages/cancel/<?= (int)$c['id'] ?>" method="POST" onsubmit="return confirm('Annuler ce trajet ? Les passagers seront informés.');" class="d-inline">
+                                                                            <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+                                                                            <button type="submit" class="btn btn-outline-danger btn-sm">Annuler</button>
+                                                                        </form>
+                                                                    <?php else: ?>
+                                                                        <button class="btn btn-secondary btn-sm" disabled>Non modifiable</button>
+                                                                    <?php endif; ?>
+                                                                </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>

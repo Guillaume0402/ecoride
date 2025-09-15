@@ -192,4 +192,56 @@ class CovoiturageController extends Controller
         http_response_code(500);
         echo json_encode(['success' => false, 'message' => "Erreur lors de la création."]);
     }
+
+    // POST /covoiturages/cancel/{id}
+    public function cancel(int $id): void
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            abort(405);
+        }
+        if (!Csrf::check($_POST['csrf'] ?? null)) {
+            Flash::add('Requête invalide (CSRF).', 'danger');
+            redirect('/mes-covoiturages');
+        }
+
+        $userId = (int) $_SESSION['user']['id'];
+        $ride = $this->covoiturageRepository->findOneWithVehicleById($id);
+        if (!$ride) {
+            Flash::add('Trajet introuvable.', 'danger');
+            redirect('/mes-covoiturages');
+        }
+        // Autorisation: seul le conducteur peut annuler
+        if ((int)$ride['driver_id'] !== $userId) {
+            Flash::add('Action non autorisée.', 'danger');
+            redirect('/mes-covoiturages');
+        }
+        // Interdire si déjà terminé/annulé
+        if (in_array(($ride['status'] ?? ''), ['annule','termine'], true)) {
+            Flash::add('Trajet déjà clôturé.', 'warning');
+            redirect('/mes-covoiturages');
+        }
+
+        // Annule le covoiturage et les participations associées
+        try {
+            $pdo = \App\Db\Mysql::getInstance()->getPDO();
+            $pdo->beginTransaction();
+            // annuler le covoiturage
+            $stmt = $pdo->prepare("UPDATE covoiturages SET status='annule' WHERE id=:id");
+            $stmt->execute([':id' => $id]);
+            // marquer toutes les participations comme annulées
+            $stmt2 = $pdo->prepare("UPDATE participations SET status='annulee' WHERE covoiturage_id=:id AND status <> 'annulee'");
+            $stmt2->execute([':id' => $id]);
+            $pdo->commit();
+            Flash::add('Trajet annulé. Les passagers ont été prévenus.', 'success');
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) { $pdo->rollBack(); }
+            error_log('[cancel covoit] ' . $e->getMessage());
+            Flash::add('Erreur lors de l\'annulation.', 'danger');
+        }
+
+        redirect('/mes-covoiturages');
+    }
 }

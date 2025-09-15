@@ -55,16 +55,25 @@ class Controller
                 $pendingCount = null;
                 $myTripsCount = null;
                 if (!empty($_SESSION['user']['id'])) {
-                    $driverId = (int) $_SESSION['user']['id'];
+                    $userId = (int) $_SESSION['user']['id'];
                     // Lazy import pour éviter dépendance forte ici
                     $partRepo = new \App\Repository\ParticipationRepository();
-                    $pending = $partRepo->findPendingByDriverId($driverId);
+                    $pending = $partRepo->findPendingByDriverId($userId);
                     $pendingCount = is_array($pending) ? count($pending) : 0;
-                    // Nb de trajets du passager (participations confirmées)
+
+                    // Compte "Mes trajets" = trajets à venir comme conducteur + participations confirmées comme passager
                     $pdo = \App\Db\Mysql::getInstance()->getPDO();
+                    // Participations confirmées en tant que passager
                     $stmt = $pdo->prepare("SELECT COUNT(*) FROM participations WHERE passager_id = :u AND status = 'confirmee'");
-                    $stmt->execute([':u' => $driverId]);
-                    $myTripsCount = (int) $stmt->fetchColumn();
+                    $stmt->execute([':u' => $userId]);
+                    $asPassengerCount = (int) $stmt->fetchColumn();
+
+                    // Trajets à venir en tant que conducteur (status non annulé/terminé)
+                    $stmt2 = $pdo->prepare("SELECT COUNT(*) FROM covoiturages WHERE driver_id = :u AND depart >= NOW() AND status IN ('en_attente','demarre')");
+                    $stmt2->execute([':u' => $userId]);
+                    $asDriverUpcomingCount = (int) $stmt2->fetchColumn();
+
+                    $myTripsCount = $asPassengerCount + $asDriverUpcomingCount;
                 }
             } catch (\Throwable $e) {
                 error_log('[render] Counters preload failed: ' . $e->getMessage());

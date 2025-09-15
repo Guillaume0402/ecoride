@@ -216,6 +216,14 @@ return [
         ]
     ],
 
+    // Annulation d'un covoiturage (conducteur)
+    '/covoiturages/cancel/{id}' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\CovoiturageController',
+            'action' => 'cancel'
+        ]
+    ],
+
     // Participations
     '/participations/create' => [
         'POST' => [
