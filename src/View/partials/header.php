@@ -42,10 +42,10 @@
                             <ul class="dropdown-menu dropdown-menu-end animate__animated animate__fadeIn">
                                 <?php $__credits = isset($_SESSION['user']['credits']) ? (int)$_SESSION['user']['credits'] : 0; ?>
                                 <li>
-                                    <span class="dropdown-item-text d-flex align-items-center justify-content-between">
+                                    <a class="dropdown-item d-flex align-items-center justify-content-between" href="/mes-credits">
                                         <span><i class="bi bi-coin me-2"></i> Crédits</span>
                                         <span class="badge bg-secondary rounded-pill text-black ms-2"><?= $__credits ?></span>
-                                    </span>
+                                    </a>
                                 </li>
                                 <li>
                                     <hr class="dropdown-divider">

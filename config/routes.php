@@ -187,6 +187,12 @@ return [
             'action' => 'mesCovoiturages'
         ]
     ],
+    '/mes-credits' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'mesCredits'
+        ]
+    ],
     '/terms' => [
         'GET' => [
             'controller' => 'App\\Controller\\PageController',

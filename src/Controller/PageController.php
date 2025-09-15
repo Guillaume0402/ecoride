@@ -8,34 +8,29 @@ use App\Repository\CovoiturageRepository;
 // Contrôleur des pages (publiques/protégées): statiques, covoiturages, profil
 class PageController extends Controller
 {
-
-    //Dépôt pour interagir avec les véhicules des utilisateurs.     
+    // Dépôt pour interagir avec les véhicules des utilisateurs.
     private VehicleRepository $vehicleRepository;
 
-
-    //Initialise les dépendances nécessaires aux pages.     
+    // Initialisation des dépendances nécessaires aux pages.
     public function __construct()
     {
         parent::__construct();
-        // Instanciation du repository véhicule (accès DB véhicules)
         $this->vehicleRepository = new VehicleRepository();
     }
 
-    // Page d'accueil.     
+    // Page d'accueil.
     public function home(): void
     {
-        $this->render("home");
+        $this->render('home');
     }
 
-    //Page de contact.
-
+    // Page de contact.
     public function contact(): void
     {
-        $this->render("pages/contact");
+        $this->render('pages/contact');
     }
 
-    //Liste des covoiturages (vue listant les annonces).
-
+    // Liste des covoiturages (vue listant les annonces).
     public function listeCovoiturages(): void
     {
         // Lecture des critères GET (simples)
@@ -63,7 +58,7 @@ class PageController extends Controller
             error_log('Search error: ' . $e->getMessage());
         }
 
-        $this->render("pages/liste-covoiturages", [
+        $this->render('pages/liste-covoiturages', [
             'criteria' => [
                 'depart' => $depart,
                 'arrivee' => $arrivee,
@@ -72,45 +67,39 @@ class PageController extends Controller
                 'sort' => $sort,
                 'dir' => $dir,
             ],
-            'results' => $results
+            'results' => $results,
         ]);
     }
 
-    // Page de création d'un covoiturage.    
+    // Page de création d'un covoiturage.
     public function creationCovoiturage(): void
     {
-        $this->render("pages/creation-covoiturage");
+        $this->render('pages/creation-covoiturage');
     }
 
     // Page de création/édition du profil (protégée), précharge le véhicule
     public function creationProfil(): void
     {
-        // Vérifie que l'utilisateur est connecté
         if (!isset($_SESSION['user'])) {
-            $_SESSION['error'] = "Vous devez être connecté pour accéder à cette page.";
+            $_SESSION['error'] = 'Vous devez être connecté pour accéder à cette page.';
             redirect('/login');
         }
 
-        // Récupère l'utilisateur de la session
         $user = $_SESSION['user'];
 
-        // Si un id de véhicule est fourni, on charge ce véhicule, sinon le véhicule associé au user (s'il existe)
         $vehicleEntity = !empty($_GET['id'])
             ? $this->vehicleRepository->findById((int) $_GET['id'])
             : $this->vehicleRepository->findByUserId($user['id']);
 
-        // Normalise en tableau pour la vue
         $vehicle = $vehicleEntity ? $vehicleEntity->toArray() : null;
 
-        // Rend la page avec les données utilisateur + véhicule
-        $this->render("pages/creation-profil", [
+        $this->render('pages/creation-profil', [
             'user' => $user,
-            'vehicle' => $vehicle
+            'vehicle' => $vehicle,
         ]);
     }
 
     // Page listant les covoiturages de l'utilisateur courant.
-
     public function mesCovoiturages(): void
     {
         if (!isset($_SESSION['user'])) {
@@ -124,8 +113,6 @@ class PageController extends Controller
         $asPassengerAll = $partRepo->findByPassagerId($userId);
 
         // Filtrage (Option B): aligner avec le header
-        // - Conducteur: uniquement trajets à venir, non annulés/terminés
-        // - Passager: uniquement participations confirmées
         $now = new \DateTime();
         $asDriver = array_values(array_filter($asDriverAll, function ($c) use ($now) {
             try {
@@ -151,7 +138,6 @@ class PageController extends Controller
             return $depart < $now || in_array($status, ['annule', 'termine'], true);
         }));
         $historyPassenger = array_values(array_filter($asPassengerAll, function ($p) use ($now) {
-            // Historique passager: participations non confirmées (annulée, en attente) OU trajet passé/terminé/annulé
             $isConfirmed = ($p['status'] ?? null) === 'confirmee';
             $cStatus = (string)($p['covoit_status'] ?? 'en_attente');
             $isCovoitEnded = in_array($cStatus, ['annule', 'termine'], true);
@@ -163,7 +149,7 @@ class PageController extends Controller
             return !$isConfirmed || $isCovoitEnded || $isPast;
         }));
 
-        $this->render("pages/mes-covoiturages", [
+        $this->render('pages/mes-covoiturages', [
             'asDriver' => $asDriver,
             'asPassenger' => $asPassenger,
             'historyDriver' => $historyDriver,
@@ -180,47 +166,56 @@ class PageController extends Controller
 
         $user = $_SESSION['user'];
         $vehicles = $this->vehicleRepository->findAllByUserId($user['id']);
-        // Transactions récentes
-        $transactions = [];
-        try {
-            $txRepo = new \App\Repository\TransactionRepository();
-            $transactions = $txRepo->findByUserId((int)$user['id'], 20);
-        } catch (\Throwable $e) {
-            error_log('[profil] transactions load failed: ' . $e->getMessage());
-        }
 
-        $this->render("pages/my-profil", [
+        $this->render('pages/my-profil', [
             'user' => $user,
             'vehicles' => $vehicles,
-            'transactions' => $transactions
         ]);
     }
 
-    //Page de connexion.
-
-    public function login(): void
+    // Page dédiée aux crédits: liste des transactions récentes
+    public function mesCredits(): void
     {
-        $this->render("pages/login");
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+
+        $user = $_SESSION['user'];
+        $transactions = [];
+        try {
+            $txRepo = new \App\Repository\TransactionRepository();
+            $transactions = $txRepo->findByUserId((int)$user['id'], 50);
+        } catch (\Throwable $e) {
+            error_log('[mesCredits] transactions load failed: ' . $e->getMessage());
+        }
+
+        $this->render('pages/mes-credits', [
+            'user' => $user,
+            'transactions' => $transactions,
+        ]);
     }
 
-    //Page "À propos".
+    // Page de connexion.
+    public function login(): void
+    {
+        $this->render('pages/login');
+    }
 
+    // Page "À propos".
     public function about(): void
     {
-        $this->render("pages/about");
+        $this->render('pages/about');
     }
 
     // Page des conditions d'utilisation.
-
     public function terms(): void
     {
-        $this->render("pages/terms");
+        $this->render('pages/terms');
     }
 
-    //Page de politique de confidentialité.
-
+    // Page de politique de confidentialité.
     public function privacy(): void
     {
-        $this->render("pages/privacy");
+        $this->render('pages/privacy');
     }
 }
