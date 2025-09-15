@@ -124,7 +124,7 @@ class AuthController extends Controller
             if (empty($data['email']) || empty($data['password'])) {
                 throw new \Exception('Email et mot de passe requis');
             }
-                        
+
             $email = trim($data['email'] ?? '');
             $email = mb_strtolower($email);
 
@@ -224,7 +224,7 @@ class AuthController extends Controller
             'email'     => $user->getEmail(),
             'role_id'   => $user->getRoleId(),
             'role_name' => $this->userService->getRoleName($user),
-            'photo'     => $user->getPhoto() ?: '/assets/images/logo.svg'
+            'photo'     => $user->getPhoto() ?: (defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg')
         ];
     }
 }

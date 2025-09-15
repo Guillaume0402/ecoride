@@ -32,8 +32,9 @@
                     <li class="nav-item dropdown d-flex flex-column align-items-center">
                         <?php if (isset($_SESSION['user'])): ?>
                             <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
-                                <img src="<?= htmlspecialchars($_SESSION['user']['photo']) ?>"
-                                    onerror="this.src='/assets/images/logo.svg';"
+                                <?php $__avatar = !empty($_SESSION['user']['photo']) ? $_SESSION['user']['photo'] : (defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg'); ?>
+                                <img src="<?= htmlspecialchars($__avatar) ?>"
+                                    onerror="this.onerror=null;this.src='<?= defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg' ?>';"
                                     alt="Avatar"
                                     class="rounded-circle"
                                     style="width: 40px; height: 40px; object-fit: cover;">
