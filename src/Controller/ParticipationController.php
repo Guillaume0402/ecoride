@@ -201,7 +201,7 @@ class ParticipationController extends Controller
             $prix = (float)($p['prix'] ?? 0);
             $cost = max(1, (int) ceil($prix));
             if (!$this->userRepository->debitIfEnough($passagerId, $cost)) {
-                Flash::add('Crédits insuffisants pour confirmer.', 'warning');
+                Flash::add('Crédits insuffisants pour confirmer. Demandez au passager de recharger son solde.', 'warning');
                 redirect('/mes-demandes');
             }
             // Journaliser la transaction

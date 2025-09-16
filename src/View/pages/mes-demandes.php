@@ -9,6 +9,7 @@
                         <th>Trajet</th>
                         <th>Départ</th>
                         <th>Passager</th>
+                        <th>Crédits/Coût</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -19,9 +20,23 @@
                             <td><?= (new DateTime($row['depart']))->format('d/m/Y H\hi') ?></td>
                             <td><?= htmlspecialchars($row['passager_pseudo']) ?></td>
                             <td>
+                                <?php 
+                                $prix = (float)($row['prix'] ?? 0);
+                                $cost = max(1, (int) ceil($prix));
+                                $credits = (int)($row['passager_credits'] ?? 0);
+                                $enough = $credits >= $cost;
+                                ?>
+                                <span class="badge bg-<?= $enough ? 'success' : 'warning text-dark' ?>">
+                                    <?= $credits ?> / <?= $cost ?>
+                                </span>
+                                <?php if (!$enough): ?>
+                                    <small class="text-muted d-block">Solde insuffisant</small>
+                                <?php endif; ?>
+                            </td>
+                            <td>
                                 <form action="/participations/accept/<?= (int)$row['participation_id'] ?>" method="POST" class="d-inline">
                                     <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
-                                    <button class="btn btn-success btn-sm" type="submit">Accepter</button>
+                                    <button class="btn btn-success btn-sm" type="submit" <?= !$enough ? 'disabled' : '' ?>>Accepter</button>
                                 </form>
                                 <form action="/participations/reject/<?= (int)$row['participation_id'] ?>" method="POST" class="d-inline ms-2">
                                     <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
