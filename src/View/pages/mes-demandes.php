@@ -20,7 +20,7 @@
                             <td><?= (new DateTime($row['depart']))->format('d/m/Y H\hi') ?></td>
                             <td><?= htmlspecialchars($row['passager_pseudo']) ?></td>
                             <td>
-                                <?php 
+                                <?php
                                 $prix = (float)($row['prix'] ?? 0);
                                 $cost = max(1, (int) ceil($prix));
                                 $credits = (int)($row['passager_credits'] ?? 0);

@@ -129,7 +129,8 @@ class PageController extends Controller
             $isUpcoming = false;
             try {
                 $isUpcoming = (new \DateTime($p['depart'])) >= $now;
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+            }
             // Montrer dans l'onglet Passager:
             // - demandes en attente de validation
             // - participations confirmées
@@ -153,7 +154,10 @@ class PageController extends Controller
             $status = (string)($p['status'] ?? '');
             $cStatus = (string)($p['covoit_status'] ?? 'en_attente');
             $isPast = false;
-            try { $isPast = (new \DateTime($p['depart'])) < $now; } catch (\Throwable $e) {}
+            try {
+                $isPast = (new \DateTime($p['depart'])) < $now;
+            } catch (\Throwable $e) {
+            }
             // Classer en historique si:
             // - participation annulée ou autre statut non actif
             // - trajet annulé/terminé
