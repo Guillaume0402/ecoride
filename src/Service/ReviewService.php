@@ -25,6 +25,7 @@ class ReviewService
     public function addReview(array $data): string
     {
         $payload = [
+            'doc_id' => bin2hex(random_bytes(12)),
             'kind' => 'review',
             'status' => 'pending', // à valider par un employé
             'covoiturage_id' => (int)($data['covoiturage_id'] ?? 0),
@@ -35,8 +36,8 @@ class ReviewService
             // Stocke un timestamp milliseconde simple pour éviter toute dépendance de type
             'created_at_ms' => (int) round(microtime(true) * 1000),
         ];
-        $res = $this->client->selectCollection($this->dbName, $this->collection)->insertOne($payload);
-        return (string) $res->getInsertedId();
+        $this->client->selectCollection($this->dbName, $this->collection)->insertOne($payload);
+        return (string) $payload['doc_id'];
     }
 
     /**
@@ -46,6 +47,7 @@ class ReviewService
     public function addReport(array $data): string
     {
         $payload = [
+            'doc_id' => bin2hex(random_bytes(12)),
             'kind' => 'report',
             'status' => 'pending',
             'covoiturage_id' => (int)($data['covoiturage_id'] ?? 0),
@@ -55,7 +57,7 @@ class ReviewService
             'comment' => isset($data['comment']) ? (string) $data['comment'] : null,
             'created_at_ms' => (int) round(microtime(true) * 1000),
         ];
-        $res = $this->client->selectCollection($this->dbName, $this->collection)->insertOne($payload);
-        return (string) $res->getInsertedId();
+        $this->client->selectCollection($this->dbName, $this->collection)->insertOne($payload);
+        return (string) $payload['doc_id'];
     }
 }

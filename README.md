@@ -1,5 +1,56 @@
 # EcoRide — Plateforme de covoiturage éco-responsable
 
+## Démo modération (Mongo)
+
+Cette démo montre la modération d’avis/signalements (stockés dans MongoDB) côté Employé.
+
+1. Seed Mongo (avis + signalements)
+
+Exécuter le script:
+
+```
+php scripts/seed_mongo.php
+```
+
+Le script insère 4 documents pending dans la collection `reviews` (DB `ecoride`):
+
+-   2 avis (`kind: review`),
+-   2 signalements (`kind: report`).
+
+2. Parcours Employé
+
+-   Connectez-vous avec un compte employé (role_id = 2), puis ouvrez `/employe`.
+-   Vous voyez:
+    -   “Avis en attente”: liste des reviews (commentaire + note) avec boutons Valider/Refuser (CSRF inclus).
+    -   “Trajets signalés”: liste des reports (raison + commentaire + date).
+-   En validant un “report”, des emails sont envoyés au conducteur et au passager concernés (Mailer SMTP si configuré, sinon fallback).
+
+3. Parcours Passager (optionnel)
+
+-   Quand un conducteur termine un trajet, chaque passager reçoit un email l’invitant à “Valider” ou “Signaler”.
+-   “Valider” crédite le conducteur (idempotent par motif), “Signaler” crée un document Mongo pending.
+
+## Seed SQL rapide (trajet terminé + participation confirmée)
+
+Pour rejouer facilement la validation passager, insérez un trajet terminé et une participation confirmée:
+
+```
+-- À exécuter dans MySQL (par ex. via phpMyAdmin)
+-- Supposons que vous avez déjà un driver (id=11) et un passager (id=21) existants et un véhicule id=1 appartenant au driver.
+
+INSERT INTO covoiturages (driver_id, vehicle_id, adresse_depart, adresse_arrivee, depart, arrivee, prix, status)
+VALUES (11, 1, 'Paris', 'Lyon', NOW() - INTERVAL 3 HOUR, NOW() - INTERVAL 1 HOUR, 5.00, 'termine');
+
+SET @covoit_id = LAST_INSERT_ID();
+
+INSERT INTO participations (covoiturage_id, passager_id, status)
+VALUES (@covoit_id, 21, 'confirmee');
+```
+
+Ensuite, connectez-vous en tant que passager (id=21), allez sur “Mes trajets” et utilisez “Valider” pour déclencher le crédit du conducteur.
+
+Un script prêt à l’emploi est disponible: `scripts/seed_finished_trip.sql` (éditez les IDs au besoin puis exécutez-le dans MySQL).
+
 Projet réalisé dans le cadre de la certification **Développeur Web et Web Mobile (DWWM)** — ECF final.  
 EcoRide est une application web de covoiturage éco-responsable permettant aux utilisateurs de proposer ou de réserver des trajets en toute sécurité.
 
