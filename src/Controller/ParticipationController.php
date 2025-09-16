@@ -47,6 +47,17 @@ class ParticipationController extends Controller
             Flash::add('Cette action est réservée aux utilisateurs.', 'warning');
             redirect('/liste-covoiturages');
         }
+        // Exiger un profil apte à voyager en tant que passager
+        try {
+            $currentUser = $this->userRepository->findById($userId);
+            $travelRole = $currentUser?->getTravelRole() ?? 'passager';
+            if (!in_array($travelRole, ['passager', 'les-deux'], true)) {
+                Flash::add("Votre profil n'est pas configuré comme passager. Mettez à jour votre rôle de voyage dans votre profil.", 'warning');
+                redirect('/profil/edit');
+            }
+        } catch (\Throwable $e) {
+            error_log('[participations.create] Travel role check failed: ' . $e->getMessage());
+        }
         $covoiturageId = (int) ($_POST['covoiturage_id'] ?? 0);
         if ($covoiturageId <= 0) {
             Flash::add('Covoiturage invalide.', 'danger');
@@ -93,34 +104,36 @@ class ParticipationController extends Controller
             Flash::add('Plus aucune place disponible.', 'warning');
             redirect('/liste-covoiturages');
         }
-        // Coût en crédits: arrondi du prix (au moins 1 si prix>0)
-        $prix = (float) ($ride['prix'] ?? 0);
-        $cost = max(1, (int) ceil($prix));
-
-        // Débit serveur (atomicité approximative)
-        if (!$this->userRepository->debitIfEnough($userId, $cost)) {
-            Flash::add('Crédits insuffisants pour participer.', 'warning');
-            redirect('/mes-credits');
-        }
-        // Journalise la transaction de débit
-        $this->transactionRepository->create($userId, $cost, 'debit', 'Participation trajet #' . $covoiturageId);
-
-        // Tente de créer la participation confirmée
-        $created = $this->participationRepository->create($covoiturageId, $userId, 'confirmee');
+        // Tente de créer la participation en attente de validation par le conducteur
+        $created = $this->participationRepository->create($covoiturageId, $userId, 'en_attente_validation');
         if ($created) {
-            // Rafraîchit crédits en session
-            $u = $this->userRepository->findById($userId);
-            if ($u) {
-                $_SESSION['user']['credits'] = $u->getCredits();
+            // Notifier le conducteur par e-mail
+            try {
+                $driver = $this->userRepository->findById((int)$ride['driver_id']);
+                if ($driver) {
+                    $passengerName = htmlspecialchars((string)($_SESSION['user']['pseudo'] ?? 'Un passager'));
+                    $when = htmlspecialchars(date('d/m/Y H:i', strtotime((string)$ride['depart'])));
+                    $trajet = htmlspecialchars((string)$ride['adresse_depart'] . ' → ' . (string)$ride['adresse_arrivee']);
+                    $link = SITE_URL . 'mes-demandes';
+                    $subject = 'Nouvelle demande de participation pour votre trajet #' . $covoiturageId;
+                    $body = '<p>Bonjour ' . htmlspecialchars($driver->getPseudo()) . ',</p>'
+                        . '<p><strong>' . $passengerName . '</strong> souhaite participer à votre trajet :</p>'
+                        . '<ul>'
+                        . '<li>Trajet : ' . $trajet . '</li>'
+                        . '<li>Départ : ' . $when . '</li>'
+                        . '</ul>'
+                        . '<p>Vous pouvez accepter ou refuser la demande depuis votre tableau de bord : <a href="' . htmlspecialchars($link) . '">Mes demandes</a>.</p>'
+                        . '<p>— L’équipe EcoRide</p>';
+                    (new \App\Service\Mailer())->send($driver->getEmail(), $subject, $body);
+                }
+            } catch (\Throwable $e) {
+                error_log('[participations.create] Mail to driver failed: ' . $e->getMessage());
             }
-            Flash::add('Participation confirmée. Bonne route !', 'success');
+            Flash::add('Votre demande a été envoyée au conducteur. Vous serez notifié(e) après sa réponse.', 'success');
             redirect('/mes-covoiturages');
         }
 
-        // Échec après débit → remboursement simple
-        $this->userRepository->credit($userId, $cost);
-        $this->transactionRepository->create($userId, $cost, 'credit', 'Remboursement: échec participation');
-        Flash::add('Une erreur est survenue. Aucun crédit n’a été débité.', 'danger');
+        Flash::add('Une erreur est survenue lors de la création de la demande.', 'danger');
         redirect('/liste-covoiturages');
     }
 
@@ -173,7 +186,7 @@ class ParticipationController extends Controller
             Flash::add('Action non autorisée.', 'danger');
             redirect('/mes-demandes');
         }
-        // Si on confirme, vérifier la capacité
+        // Si on confirme, vérifier la capacité et débiter maintenant le passager
         if ($newStatus === 'confirmee') {
             $placesVehicule = (int)($p['vehicle_places'] ?? 0);
             $confirmes = $this->participationRepository->countConfirmedByCovoiturageId((int)$p['covoiturage_id']);
@@ -188,7 +201,7 @@ class ParticipationController extends Controller
             $prix = (float)($p['prix'] ?? 0);
             $cost = max(1, (int) ceil($prix));
             if (!$this->userRepository->debitIfEnough($passagerId, $cost)) {
-                Flash::add('Crédits insuffisants pour confirmer.', 'warning');
+                Flash::add('Crédits insuffisants pour confirmer. Demandez au passager de recharger son solde.', 'warning');
                 redirect('/mes-demandes');
             }
             // Journaliser la transaction
@@ -205,6 +218,34 @@ class ParticipationController extends Controller
         if ($this->participationRepository->updateStatus($participationId, $newStatus)) {
             $msg = $newStatus === 'confirmee' ? 'Participation confirmée.' : 'Demande refusée.';
             Flash::add($msg, 'success');
+            // Notification e-mail côté passager selon la décision
+            try {
+                $passenger = $this->userRepository->findById((int)$p['passager_id']);
+                if ($passenger) {
+                    $driverName = htmlspecialchars((string)($_SESSION['user']['pseudo'] ?? 'Le conducteur'));
+                    $trajet = htmlspecialchars((string)$p['adresse_depart'] . ' → ' . (string)$p['adresse_arrivee']);
+                    $when = htmlspecialchars(date('d/m/Y H:i', strtotime((string)$p['depart'])));
+                    $link = SITE_URL . 'mes-covoiturages';
+                    if ($newStatus === 'confirmee') {
+                        $subject = 'Votre participation a été acceptée';
+                        $body = '<p>Bonjour ' . htmlspecialchars($passenger->getPseudo()) . ',</p>'
+                            . '<p>Votre demande de participation a été <strong>acceptée</strong> par ' . $driverName . '.</p>'
+                            . '<ul><li>Trajet : ' . $trajet . '</li><li>Départ : ' . $when . '</li></ul>'
+                            . '<p>Consultez vos trajets : <a href="' . htmlspecialchars($link) . '">Mes covoiturages</a>.</p>'
+                            . '<p>— L’équipe EcoRide</p>';
+                    } else {
+                        $subject = 'Votre participation a été refusée';
+                        $body = '<p>Bonjour ' . htmlspecialchars($passenger->getPseudo()) . ',</p>'
+                            . '<p>Votre demande de participation a été <strong>refusée</strong> par ' . $driverName . '.</p>'
+                            . '<ul><li>Trajet : ' . $trajet . '</li><li>Départ : ' . $when . '</li></ul>'
+                            . '<p>Vous pouvez rechercher un autre trajet sur EcoRide.</p>'
+                            . '<p>— L’équipe EcoRide</p>';
+                    }
+                    (new \App\Service\Mailer())->send($passenger->getEmail(), $subject, $body);
+                }
+            } catch (\Throwable $e) {
+                error_log('[participations.statusChange] Mail to passenger failed: ' . $e->getMessage());
+            }
         } else {
             Flash::add('Mise à jour impossible.', 'danger');
         }

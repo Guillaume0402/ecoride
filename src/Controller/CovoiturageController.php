@@ -252,8 +252,9 @@ class CovoiturageController extends Controller
             $stmt2 = $pdo->prepare("UPDATE participations SET status='annulee' WHERE covoiturage_id=:id AND status <> 'annulee'");
             $stmt2->execute([':id' => $id]);
 
-            // Remboursement: créditer 2 crédits par passager confirmé et journaliser
-            $refund = 2;
+            // Remboursement: créditer le montant effectivement débité (ceil(prix), min 1)
+            $ridePrice = (float)($ride['prix'] ?? 0);
+            $refund = max(1, (int) ceil($ridePrice));
             foreach ($confirmed as $row) {
                 $passagerId = (int) ($row['passager_id'] ?? 0);
                 if ($passagerId > 0) {
@@ -268,6 +269,26 @@ class CovoiturageController extends Controller
                         ':m' => $refund,
                         ':motif' => 'Remboursement annulation trajet #' . $id,
                     ]);
+
+                    // Notifier le passager par e-mail (hors transaction DB)
+                    try {
+                        $passenger = $this->localUserRepository->findById($passagerId);
+                        if ($passenger) {
+                            $mailer = new \App\Service\Mailer();
+                            $to = $passenger->getEmail();
+                            $subject = 'Votre participation a été remboursée';
+                            $trajet = htmlspecialchars((string)$ride['adresse_depart'] . ' → ' . (string)$ride['adresse_arrivee']);
+                            $when = htmlspecialchars(date('d/m/Y H:i', strtotime((string)$ride['depart'])));
+                            $body = '<p>Bonjour ' . htmlspecialchars($passenger->getPseudo()) . ',</p>'
+                                . '<p>Le conducteur a annulé le trajet ' . $trajet . ' (départ ' . $when . ').</p>'
+                                . '<p>Nous avons crédité votre compte de <strong>' . number_format($refund, 0, ',', ' ') . ' crédit(s)</strong>.</p>'
+                                . '<p>Vous pouvez consulter vos crédits ici : <a href="' . (defined('SITE_URL') ? SITE_URL : '/') . 'mes-credits">Mes crédits</a>.</p>'
+                                . '<p>— L’équipe EcoRide</p>';
+                            $mailer->send($to, $subject, $body);
+                        }
+                    } catch (\Throwable $e) {
+                        error_log('[cancel notify refund] ' . $e->getMessage());
+                    }
                 }
             }
 

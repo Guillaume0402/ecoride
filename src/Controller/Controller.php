@@ -50,6 +50,8 @@ class Controller
                     if (empty($_SESSION['user']['photo'])) {
                         $_SESSION['user']['photo'] = defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg';
                     }
+                    // Synchronise le travel_role depuis la base si manquant/obsolète
+                    $_SESSION['user']['travel_role'] = $currentUser->getTravelRole();
                 }
             } catch (\Throwable $e) {
                 error_log('[render] User refresh failed: ' . $e->getMessage());

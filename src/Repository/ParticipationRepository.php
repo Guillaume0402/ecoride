@@ -95,8 +95,8 @@ class ParticipationRepository
     public function findPendingByDriverId(int $driverId): array
     {
         $sql = "SELECT p.*, p.id AS participation_id,
-                       c.id AS covoiturage_id, c.adresse_depart, c.adresse_arrivee, c.depart,
-                       u_pass.pseudo AS passager_pseudo
+                       c.id AS covoiturage_id, c.adresse_depart, c.adresse_arrivee, c.depart, c.prix,
+                       u_pass.pseudo AS passager_pseudo, u_pass.credits AS passager_credits
                 FROM {$this->table} p
                 JOIN covoiturages c ON c.id = p.covoiturage_id
                 JOIN users u_pass ON u_pass.id = p.passager_id
