@@ -152,8 +152,11 @@ class AuthController extends Controller
             // Création de la session sécurisée
             $this->createUserSession($user);
 
-            // Détermination de l'URL de redirection selon le rôle
-            $redirectUrl = match ((int) $user->getRoleId()) {
+            // Détermination de l'URL de redirection
+            // 1) si payload fournit un redirect (retour sur la page courante de l'utilisateur)
+            // 2) sinon fallback selon le rôle
+            $payloadRedirect = isset($data['redirect']) ? (string)$data['redirect'] : null;
+            $redirectUrl = $payloadRedirect ?: match ((int) $user->getRoleId()) {
                 3 => '/admin',
                 2 => '/employe',
                 default => '/',

@@ -92,6 +92,7 @@
                 </div>
                 <div class="text-center">
                     <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+                    <input type="hidden" name="redirect" value="">
                     <button type="submit" class="btn btn-inscription">
                         <span class="btn-text">Connexion</span>
                         <span class="spinner-border spinner-border-sm d-none" role="status"></span>

@@ -202,7 +202,7 @@
                                         ?>
 
                                         <?php if (!$isLogged): ?>
-                                            <button type="button" class="btn btn-inscription" data-bs-toggle="modal" data-bs-target="#authModal">Se connecter pour participer</button>
+                                            <button type="button" class="btn btn-inscription" data-bs-toggle="modal" data-bs-target="#authModal" data-start="login">Se connecter pour participer</button>
                                         <?php elseif ($isDriver): ?>
                                             <button class="btn btn-secondary" disabled>Vous êtes le conducteur</button>
                                         <?php elseif ($isPast): ?>
