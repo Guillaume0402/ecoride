@@ -237,6 +237,20 @@ return [
         ]
     ],
 
+    // Démarrer/Terminer un covoiturage (conducteur)
+    '/covoiturages/start/{id}' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\CovoiturageController',
+            'action' => 'start'
+        ]
+    ],
+    '/covoiturages/finish/{id}' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\CovoiturageController',
+            'action' => 'finish'
+        ]
+    ],
+
     // Participations
     '/participations/create' => [
         'POST' => [
@@ -260,6 +274,19 @@ return [
         'POST' => [
             'controller' => 'App\\Controller\\ParticipationController',
             'action' => 'reject'
+        ]
+    ],
+    // Validation/Signalement par le passager après fin de trajet
+    '/participations/validate/{id}' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\ParticipationController',
+            'action' => 'validateTrip'
+        ]
+    ],
+    '/participations/report/{id}' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\ParticipationController',
+            'action' => 'reportIssue'
         ]
     ]
 ];

@@ -283,4 +283,105 @@ class CovoiturageController extends Controller
 
         redirect('/mes-covoiturages');
     }
+
+    // POST /covoiturages/start/{id}
+    public function start(int $id): void
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            abort(405);
+        }
+        if (!Csrf::check($_POST['csrf'] ?? null)) {
+            Flash::add('Requête invalide (CSRF).', 'danger');
+            redirect('/mes-covoiturages');
+        }
+        $userId = (int) $_SESSION['user']['id'];
+        $ride = $this->covoiturageRepository->findOneWithVehicleById($id);
+        if (!$ride) {
+            Flash::add('Trajet introuvable.', 'danger');
+            redirect('/mes-covoiturages');
+        }
+        if ((int)$ride['driver_id'] !== $userId) {
+            Flash::add('Action non autorisée.', 'danger');
+            redirect('/mes-covoiturages');
+        }
+        if (in_array(($ride['status'] ?? ''), ['annule', 'termine'], true)) {
+            Flash::add('Trajet déjà clôturé.', 'warning');
+            redirect('/mes-covoiturages');
+        }
+        if (($ride['status'] ?? 'en_attente') === 'demarre') {
+            Flash::add('Trajet déjà démarré.', 'info');
+            redirect('/mes-covoiturages');
+        }
+        if ($this->covoiturageRepository->updateStatus($id, 'demarre')) {
+            Flash::add('Trajet démarré.', 'success');
+        } else {
+            Flash::add('Impossible de démarrer le trajet.', 'danger');
+        }
+        redirect('/mes-covoiturages');
+    }
+
+    // POST /covoiturages/finish/{id}
+    public function finish(int $id): void
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            abort(405);
+        }
+        if (!Csrf::check($_POST['csrf'] ?? null)) {
+            Flash::add('Requête invalide (CSRF).', 'danger');
+            redirect('/mes-covoiturages');
+        }
+        $userId = (int) $_SESSION['user']['id'];
+        $ride = $this->covoiturageRepository->findOneWithVehicleById($id);
+        if (!$ride) {
+            Flash::add('Trajet introuvable.', 'danger');
+            redirect('/mes-covoiturages');
+        }
+        if ((int)$ride['driver_id'] !== $userId) {
+            Flash::add('Action non autorisée.', 'danger');
+            redirect('/mes-covoiturages');
+        }
+        if (($ride['status'] ?? '') === 'termine') {
+            Flash::add('Trajet déjà terminé.', 'info');
+            redirect('/mes-covoiturages');
+        }
+        if (($ride['status'] ?? '') === 'annule') {
+            Flash::add('Trajet annulé.', 'warning');
+            redirect('/mes-covoiturages');
+        }
+
+        // Passage à terminé
+        if ($this->covoiturageRepository->updateStatus($id, 'termine')) {
+            Flash::add('Trajet terminé. Les passagers vont recevoir un e-mail de validation.', 'success');
+            // TODO: envoyer un email à chaque passager confirmé avec un lien vers /mes-covoiturages
+            // On peut trouver les passagers via ParticipationRepository::findConfirmedByCovoiturageId
+            try {
+                $confirmed = $this->participationRepository->findConfirmedByCovoiturageId($id);
+                $mailer = new \App\Service\Mailer();
+                foreach ($confirmed as $row) {
+                    $passagerId = (int)$row['passager_id'];
+                    $u = $this->localUserRepository->findById($passagerId);
+                    if ($u) {
+                        $to = $u->getEmail();
+                        $subject = 'Validez votre trajet EcoRide';
+                        $body = '<p>Bonjour ' . htmlspecialchars($u->getPseudo()) . ',</p>'
+                            . '<p>Votre trajet vient de se terminer. Merci de vous rendre dans votre espace pour confirmer que tout s\'est bien passé ou signaler un souci.</p>'
+                            . '<p><a href="' . (defined('SITE_URL') ? SITE_URL : '/') . 'mes-covoiturages">Accéder à mon espace</a></p>'
+                            . '<p>— L\'équipe EcoRide</p>';
+                        $mailer->send($to, $subject, $body);
+                    }
+                }
+            } catch (\Throwable $e) {
+                error_log('[finish covoit mail] ' . $e->getMessage());
+            }
+        } else {
+            Flash::add('Impossible de terminer le trajet.', 'danger');
+        }
+        redirect('/mes-covoiturages');
+    }
 }
