@@ -35,6 +35,9 @@ CREATE TABLE IF NOT EXISTS `users` (
   `created_at`   DATETIME     NULL    DEFAULT CURRENT_TIMESTAMP,
   `travel_role`  ENUM('passager','chauffeur','les-deux')
                    NOT NULL DEFAULT 'passager',
+  `email_verified` TINYINT(1) NOT NULL DEFAULT 0,
+  `email_verification_token` VARCHAR(64) NULL,
+  `email_verification_expires` DATETIME NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `ux_users_email` (`email`),
   KEY `fk_users_role` (`role_id`),
@@ -143,3 +146,9 @@ CREATE TABLE IF NOT EXISTS `participations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 COMMIT;
+
+-- Migrations légères pour bases existantes (MySQL 8 prend en charge IF NOT EXISTS)
+ALTER TABLE `users`
+  ADD COLUMN IF NOT EXISTS `email_verified` TINYINT(1) NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS `email_verification_token` VARCHAR(64) NULL,
+  ADD COLUMN IF NOT EXISTS `email_verification_expires` DATETIME NULL;

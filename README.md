@@ -21,6 +21,8 @@ EcoRide est une application web de covoiturage éco-responsable permettant aux u
 -   Pages d’erreurs personnalisées (404, 405, 500)
 -   Interface responsive avec **Bootstrap 5 + SCSS**
 -   API JSON pour login/register (AJAX avec fetch)
+    -   Confirmation e-mail à l’inscription (lien valable 24h)
+    -   En dev, si l’envoi e-mail échoue, un fallback est écrit dans `mail.log`
 
 ---
 
