@@ -449,6 +449,21 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
+    // Si on est précisément sur /login, ouvrir automatiquement la modale
+    // sur l'onglet Connexion et forcer la redirection post-login vers '/'
+    try {
+        const isLoginPage = window.location.pathname === "/login";
+        if (isLoginPage) {
+            setActiveTab("login");
+            const lf = document.getElementById("loginForm");
+            const red = lf?.querySelector('input[name="redirect"]');
+            if (red) {
+                red.value = "/"; // éviter de rester bloqué sur /login après connexion
+            }
+            modal.show();
+        }
+    } catch (_) {}
+
     // Réinitialiser les formulaires à la fermeture
     authModal.addEventListener("hidden.bs.modal", () => {
         registerForm.reset();
