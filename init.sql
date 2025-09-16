@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS `users` (
     `email_verification_token` VARCHAR(64) NULL,
     `email_verification_expires` DATETIME NULL,
     PRIMARY KEY (`id`),
+    UNIQUE KEY `ux_users_pseudo` (`pseudo`),
     UNIQUE KEY `ux_users_email` (`email`),
     KEY `fk_users_role` (`role_id`),
     CONSTRAINT `fk_users_role` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
@@ -122,6 +123,7 @@ CREATE TABLE IF NOT EXISTS `covoiturages` (
     PRIMARY KEY (`id`),
     KEY `fk_covoit_driver` (`driver_id`),
     KEY `fk_covoit_vehicle` (`vehicle_id`),
+    KEY `idx_covoit_depart` (`depart`),
     CONSTRAINT `fk_covoit_driver` FOREIGN KEY (`driver_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
     CONSTRAINT `fk_covoit_vehicle` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
@@ -140,9 +142,10 @@ CREATE TABLE IF NOT EXISTS `participations` (
     PRIMARY KEY (`id`),
     KEY `fk_participations_covoit` (`covoiturage_id`),
     KEY `fk_participations_user` (`passager_id`),
+    KEY `idx_participations_covoit_status` (`covoiturage_id`, `status`),
+    KEY `idx_participations_passager_status` (`passager_id`, `status`),
     CONSTRAINT `fk_participations_covoit` FOREIGN KEY (`covoiturage_id`) REFERENCES `covoiturages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `fk_participations_user` FOREIGN KEY (`passager_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 COMMIT;
-
