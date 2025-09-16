@@ -84,7 +84,50 @@ class EmployeeController extends Controller
         $action = (string)($_POST['action'] ?? 'reject');
         try {
             $mod = new \App\Service\ReviewModerationService();
-            $ok = $mod->updateStatus($id, $action === 'approve' ? 'approved' : 'rejected');
+            // Charger le document pour connaître son type et les acteurs
+            $doc = $mod->getById($id);
+            $decision = $action === 'approve' ? 'approved' : 'rejected';
+            $ok = $mod->updateStatus($id, $decision);
+
+            // Si un report est approuvé → notifier conducteur et passager par email
+            if ($ok && $decision === 'approved' && ($doc['kind'] ?? '') === 'report') {
+                try {
+                    $driverId = (int)($doc['driver_id'] ?? 0);
+                    $passagerId = (int)($doc['passager_id'] ?? 0);
+                    $covoiturageId = (int)($doc['covoiturage_id'] ?? 0);
+                    $mailer = new \App\Service\Mailer();
+
+                    if ($driverId > 0) {
+                        $driver = $this->userRepository->findById($driverId);
+                        if ($driver) {
+                            $subject = 'Signalement approuvé — trajet #' . $covoiturageId;
+                            $body = '<p>Bonjour ' . htmlspecialchars($driver->getPseudo()) . ',</p>'
+                                . '<p>Un signalement concernant votre trajet #' . $covoiturageId . ' a été approuvé par nos équipes.</p>'
+                                . '<p>Motif: ' . htmlspecialchars((string)($doc['reason'] ?? '')) . '</p>'
+                                . '<p>Commentaire: ' . htmlspecialchars((string)($doc['comment'] ?? '')) . '</p>'
+                                . '<p>Notre support peut revenir vers vous si nécessaire.</p>'
+                                . '<p>— L\'équipe EcoRide</p>';
+                            $mailer->send($driver->getEmail(), $subject, $body);
+                        }
+                    }
+                    if ($passagerId > 0) {
+                        $passager = $this->userRepository->findById($passagerId);
+                        if ($passager) {
+                            $subject = 'Votre signalement a été approuvé — trajet #' . $covoiturageId;
+                            $body = '<p>Bonjour ' . htmlspecialchars($passager->getPseudo()) . ',</p>'
+                                . '<p>Votre signalement concernant le trajet #' . $covoiturageId . ' a été approuvé.</p>'
+                                . '<p>Motif: ' . htmlspecialchars((string)($doc['reason'] ?? '')) . '</p>'
+                                . '<p>Commentaire: ' . htmlspecialchars((string)($doc['comment'] ?? '')) . '</p>'
+                                . '<p>Notre support peut revenir vers vous si nécessaire.</p>'
+                                . '<p>— L\'équipe EcoRide</p>';
+                            $mailer->send($passager->getEmail(), $subject, $body);
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    error_log('[EmployeeController::validateReview notify] ' . $e->getMessage());
+                }
+            }
+
             Flash::add($ok ? 'Décision enregistrée.' : 'Aucune mise à jour.', $ok ? 'success' : 'warning');
         } catch (\Throwable $e) {
             error_log('[EmployeeController::validateReview] ' . $e->getMessage());

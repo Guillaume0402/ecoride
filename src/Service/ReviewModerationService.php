@@ -33,7 +33,7 @@ class ReviewModerationService
 
     public function updateStatus(string $id, string $decision): bool
     {
-        $decision = in_array($decision, ['approved','rejected'], true) ? $decision : 'rejected';
+        $decision = in_array($decision, ['approved', 'rejected'], true) ? $decision : 'rejected';
         $coll = $this->client->selectCollection($this->dbName, $this->collection);
         // On utilise doc_id (champ custom) pour cibler le document
         $res = $coll->updateOne(
@@ -41,5 +41,14 @@ class ReviewModerationService
             ['$set' => ['status' => $decision, 'moderated_at_ms' => (int) round(microtime(true) * 1000)]]
         );
         return $res->getModifiedCount() > 0;
+    }
+
+    public function getById(string $id): ?array
+    {
+        $coll = $this->client->selectCollection($this->dbName, $this->collection);
+        $doc = $coll->findOne(['doc_id' => $id]);
+        if (!$doc) return null;
+        $doc['id'] = isset($doc['doc_id']) ? (string) $doc['doc_id'] : (string) ($doc['_id'] ?? '');
+        return $doc;
     }
 }

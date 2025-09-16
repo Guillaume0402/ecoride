@@ -36,8 +36,8 @@ class ReviewService
             // Stocke un timestamp milliseconde simple pour éviter toute dépendance de type
             'created_at_ms' => (int) round(microtime(true) * 1000),
         ];
-    $this->client->selectCollection($this->dbName, $this->collection)->insertOne($payload);
-    return (string) $payload['doc_id'];
+        $this->client->selectCollection($this->dbName, $this->collection)->insertOne($payload);
+        return (string) $payload['doc_id'];
     }
 
     /**
@@ -57,7 +57,7 @@ class ReviewService
             'comment' => isset($data['comment']) ? (string) $data['comment'] : null,
             'created_at_ms' => (int) round(microtime(true) * 1000),
         ];
-    $this->client->selectCollection($this->dbName, $this->collection)->insertOne($payload);
-    return (string) $payload['doc_id'];
+        $this->client->selectCollection($this->dbName, $this->collection)->insertOne($payload);
+        return (string) $payload['doc_id'];
     }
 }

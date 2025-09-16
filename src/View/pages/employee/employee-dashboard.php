@@ -73,7 +73,10 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role_id'] !== 2) { // 2 = Em
                                 <td>#<?= (int)($rep['covoiturage_id'] ?? 0) ?></td>
                                 <td><?= htmlspecialchars($rep['reason'] ?? '') ?></td>
                                 <td><?= htmlspecialchars($rep['comment'] ?? '') ?></td>
-                                <td><?php if (!empty($rep['created_at_ms'])) { $d = (int)$rep['created_at_ms']/1000; echo date('d/m/Y H:i', $d); } ?></td>
+                                <td><?php if (!empty($rep['created_at_ms'])) {
+                                        $d = (int)$rep['created_at_ms'] / 1000;
+                                        echo date('d/m/Y H:i', $d);
+                                    } ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
