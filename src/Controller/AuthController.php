@@ -80,8 +80,8 @@ class AuthController extends Controller
             $token = bin2hex(random_bytes(16));
             $expires = (new \DateTimeImmutable('+24 hours'))->format('Y-m-d H:i:s');
             $user->setEmailVerified(0)
-                 ->setEmailVerificationToken($token)
-                 ->setEmailVerificationExpires(new \DateTimeImmutable($expires));
+                ->setEmailVerificationToken($token)
+                ->setEmailVerificationExpires(new \DateTimeImmutable($expires));
 
             // Persistance
             if (!$this->userRepository->create($user)) {
@@ -92,10 +92,10 @@ class AuthController extends Controller
             $verifyUrl = SITE_URL . 'verify-email?token=' . urlencode($token) . '&email=' . urlencode($email);
             $subject = 'Confirmez votre adresse email';
             $body = '<p>Bonjour ' . htmlspecialchars($username) . ',</p>' .
-                    '<p>Merci pour votre inscription sur EcoRide. Veuillez confirmer votre adresse email en cliquant sur le lien ci-dessous&nbsp;:</p>' .
-                    '<p><a href="' . htmlspecialchars($verifyUrl) . '">Confirmer mon email</a></p>' .
-                    '<p>Ce lien expirera dans 24 heures.</p>' .
-                    '<p>— L\'équipe EcoRide</p>';
+                '<p>Merci pour votre inscription sur EcoRide. Veuillez confirmer votre adresse email en cliquant sur le lien ci-dessous&nbsp;:</p>' .
+                '<p><a href="' . htmlspecialchars($verifyUrl) . '">Confirmer mon email</a></p>' .
+                '<p>Ce lien expirera dans 24 heures.</p>' .
+                '<p>— L\'équipe EcoRide</p>';
             (new \App\Service\Mailer())->send($email, $subject, $body);
 
             // Récup utilisateur complet
