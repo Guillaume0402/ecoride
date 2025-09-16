@@ -174,4 +174,16 @@ class CovoiturageRepository
         $stmt->execute([':d' => $driverId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Met à jour le statut d'un covoiturage: en_attente|demarre|termine|annule
+     */
+    public function updateStatus(int $id, string $status): bool
+    {
+        $allowed = ['en_attente', 'demarre', 'termine', 'annule'];
+        if (!in_array($status, $allowed, true)) return false;
+        $sql = "UPDATE {$this->table} SET status = :s WHERE id = :id";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([':s' => $status, ':id' => $id]);
+    }
 }

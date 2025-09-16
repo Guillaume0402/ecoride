@@ -71,6 +71,7 @@ class ParticipationRepository
     {
         $sql = "SELECT p.*, c.*, 
                        c.id AS covoiturage_id,
+                       c.status AS covoit_status,
                        v.places_dispo AS vehicle_places,
                        v.marque AS vehicle_marque, v.modele AS vehicle_modele,
                        u_driver.id AS driver_user_id, u_driver.pseudo AS driver_pseudo,

@@ -47,4 +47,15 @@ class TransactionRepository
         $stmt->execute([':uid' => $userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
+
+    /**
+     * Vérifie s'il existe déjà une transaction pour un utilisateur et un motif donné.
+     */
+    public function existsForMotif(int $userId, string $motif): bool
+    {
+        $sql = "SELECT 1 FROM transactions WHERE user_id = :uid AND motif = :motif LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':uid' => $userId, ':motif' => $motif]);
+        return (bool) $stmt->fetchColumn();
+    }
 }

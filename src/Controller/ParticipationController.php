@@ -210,4 +210,125 @@ class ParticipationController extends Controller
         }
         redirect('/mes-demandes');
     }
+
+    // POST /participations/validate/{id}
+    public function validateTrip(int $id): void
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            abort(405);
+        }
+        if (!\App\Security\Csrf::check($_POST['csrf'] ?? null)) {
+            Flash::add('Requête invalide (CSRF).', 'danger');
+            redirect('/mes-covoiturages');
+        }
+
+        $userId = (int) $_SESSION['user']['id'];
+        $p = $this->participationRepository->findWithCovoiturageById($id);
+        if (!$p) {
+            Flash::add('Participation introuvable.', 'danger');
+            redirect('/mes-covoiturages');
+        }
+        if ((int)$p['passager_id'] !== $userId) {
+            Flash::add('Action non autorisée.', 'danger');
+            redirect('/mes-covoiturages');
+        }
+        // Exiger que le covoiturage soit terminé
+        $covoitStatus = (string)($p['covoit_status'] ?? '');
+        if ($covoitStatus !== 'termine') {
+            Flash::add('Ce trajet n\'est pas encore terminé.', 'warning');
+            redirect('/mes-covoiturages');
+        }
+
+        $driverId = (int)($p['driver_user_id'] ?? 0);
+        $covoiturageId = (int)($p['covoiturage_id'] ?? 0);
+        $prix = (float)($p['prix'] ?? 0);
+        $amount = max(1, (int) ceil($prix));
+
+        // Idempotence via motif unique (conducteur + trajet + passager)
+        $motif = 'Crédit conducteur trajet #' . $covoiturageId . ' - passager #' . $userId;
+        $txRepo = $this->transactionRepository;
+        if (!$txRepo->existsForMotif($driverId, $motif)) {
+            // Créditer le conducteur
+            if ($this->userRepository->credit($driverId, $amount)) {
+                $txRepo->create($driverId, $amount, 'credit', $motif);
+            } else {
+                error_log('[validateTrip] Echec crédit conducteur ' . $driverId);
+            }
+        }
+
+        // Stocker un éventuel avis dans Mongo
+        $rating = isset($_POST['rating']) ? (int) $_POST['rating'] : null;
+        $comment = trim((string)($_POST['comment'] ?? ''));
+        if (($rating !== null && $rating >= 1 && $rating <= 5) || $comment !== '') {
+            try {
+                $reviewSvc = new \App\Service\ReviewService();
+                $reviewSvc->addReview([
+                    'covoiturage_id' => $covoiturageId,
+                    'driver_id' => $driverId,
+                    'passager_id' => $userId,
+                    'rating' => $rating,
+                    'comment' => $comment,
+                ]);
+            } catch (\Throwable $e) {
+                error_log('[validateTrip] Mongo review failed: ' . $e->getMessage());
+            }
+        }
+
+        Flash::add('Merci pour votre validation. Le conducteur a été crédité.', 'success');
+        redirect('/mes-covoiturages');
+    }
+
+    // POST /participations/report/{id}
+    public function reportIssue(int $id): void
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            abort(405);
+        }
+        if (!\App\Security\Csrf::check($_POST['csrf'] ?? null)) {
+            Flash::add('Requête invalide (CSRF).', 'danger');
+            redirect('/mes-covoiturages');
+        }
+
+        $userId = (int) $_SESSION['user']['id'];
+        $p = $this->participationRepository->findWithCovoiturageById($id);
+        if (!$p) {
+            Flash::add('Participation introuvable.', 'danger');
+            redirect('/mes-covoiturages');
+        }
+        if ((int)$p['passager_id'] !== $userId) {
+            Flash::add('Action non autorisée.', 'danger');
+            redirect('/mes-covoiturages');
+        }
+        $covoitStatus = (string)($p['covoit_status'] ?? '');
+        if ($covoitStatus !== 'termine') {
+            Flash::add('Vous pourrez signaler un problème quand le trajet sera terminé.', 'warning');
+            redirect('/mes-covoiturages');
+        }
+
+        $driverId = (int)($p['driver_user_id'] ?? 0);
+        $covoiturageId = (int)($p['covoiturage_id'] ?? 0);
+        $reason = trim((string)($_POST['reason'] ?? ''));
+        $comment = trim((string)($_POST['comment'] ?? ''));
+        try {
+            $reviewSvc = new \App\Service\ReviewService();
+            $reviewSvc->addReport([
+                'covoiturage_id' => $covoiturageId,
+                'driver_id' => $driverId,
+                'passager_id' => $userId,
+                'reason' => $reason,
+                'comment' => $comment,
+            ]);
+        } catch (\Throwable $e) {
+            error_log('[reportIssue] Mongo report failed: ' . $e->getMessage());
+        }
+
+        Flash::add('Merci, votre signalement a été transmis à nos équipes.', 'success');
+        redirect('/mes-covoiturages');
+    }
 }
