@@ -22,7 +22,7 @@ EcoRide est une application web de covoiturage éco-responsable permettant aux u
 -   Interface responsive avec **Bootstrap 5 + SCSS**
 -   API JSON pour login/register (AJAX avec fetch)
     -   Confirmation e-mail à l’inscription (lien valable 24h)
-    -   En dev, si l’envoi e-mail échoue, un fallback est écrit dans `mail.log`
+    -   En dev, si l’envoi e-mail échoue, un fallback est écrit dans `/tmp/ecoride-mail.log` (dans le conteneur)
 
 ---
 
@@ -102,6 +102,16 @@ DB_PASSWORD=ecoride_password
 DB_PORT=3306
 
 APP_ENV=dev
+
+# E-mail / SMTP (optionnel mais recommandé en prod)
+MAIL_FROM=no-reply@localhost
+MAIL_FROM_NAME=EcoRide
+# Active l'envoi SMTP si défini
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+SMTP_SECURE=tls
 ```
 
 Ne pas versionner vos vrais identifiants de production.
