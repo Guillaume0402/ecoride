@@ -123,8 +123,20 @@ class PageController extends Controller
             $status = (string)($c['status'] ?? 'en_attente');
             return $depart >= $now && !in_array($status, ['annule', 'termine'], true);
         }));
-        $asPassenger = array_values(array_filter($asPassengerAll, function ($p) {
-            return ($p['status'] ?? null) === 'confirmee';
+        $asPassenger = array_values(array_filter($asPassengerAll, function ($p) use ($now) {
+            $status = (string)($p['status'] ?? '');
+            $cStatus = (string)($p['covoit_status'] ?? 'en_attente');
+            $isUpcoming = false;
+            try {
+                $isUpcoming = (new \DateTime($p['depart'])) >= $now;
+            } catch (\Throwable $e) {}
+            // Montrer dans l'onglet Passager:
+            // - demandes en attente de validation
+            // - participations confirmées
+            // uniquement pour des trajets à venir et non annulés/terminés
+            return in_array($status, ['en_attente_validation', 'confirmee'], true)
+                && $isUpcoming
+                && !in_array($cStatus, ['annule', 'termine'], true);
         }));
 
         // Historique
@@ -138,15 +150,17 @@ class PageController extends Controller
             return $depart < $now || in_array($status, ['annule', 'termine'], true);
         }));
         $historyPassenger = array_values(array_filter($asPassengerAll, function ($p) use ($now) {
-            $isConfirmed = ($p['status'] ?? null) === 'confirmee';
+            $status = (string)($p['status'] ?? '');
             $cStatus = (string)($p['covoit_status'] ?? 'en_attente');
-            $isCovoitEnded = in_array($cStatus, ['annule', 'termine'], true);
             $isPast = false;
-            try {
-                $isPast = (new \DateTime($p['depart'])) < $now;
-            } catch (\Throwable $e) {
-            }
-            return !$isConfirmed || $isCovoitEnded || $isPast;
+            try { $isPast = (new \DateTime($p['depart'])) < $now; } catch (\Throwable $e) {}
+            // Classer en historique si:
+            // - participation annulée ou autre statut non actif
+            // - trajet annulé/terminé
+            // - trajet passé (même si la participation était en attente ou confirmée)
+            $isActiveParticipation = in_array($status, ['en_attente_validation', 'confirmee'], true);
+            $isActiveRide = !in_array($cStatus, ['annule', 'termine'], true);
+            return !$isActiveParticipation || !$isActiveRide || $isPast;
         }));
 
         $this->render('pages/mes-covoiturages', [
