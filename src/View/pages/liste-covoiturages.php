@@ -219,11 +219,27 @@
                                                 <button class="btn btn-secondary" disabled>Participation en cours</button>
                                             <?php endif; ?>
                                         <?php else: ?>
-                                            <form action="/participations/create" method="POST" class="d-inline">
-                                                <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
-                                                <input type="hidden" name="covoiturage_id" value="<?= (int)$ride['id'] ?>">
-                                                <button type="submit" class="btn btn-inscription">Participer</button>
-                                            </form>
+                                            <?php
+                                            $roleId = (int)($_SESSION['user']['role_id'] ?? 0);
+                                            $myCredits = (int)($_SESSION['user']['credits'] ?? 0);
+                                            $prix = (float)($ride['prix'] ?? 0);
+                                            $cost = max(1, (int) ceil($prix));
+                                            ?>
+                                            <?php if ($roleId !== 1): ?>
+                                                <button class="btn btn-secondary" disabled>Réservé aux Utilisateurs</button>
+                                            <?php elseif ($myCredits < $cost): ?>
+                                                <a class="btn btn-secondary" href="/mes-credits" title="Solde: <?= (int)$myCredits ?>">Crédits insuffisants (<?= (int)$cost ?>)</a>
+                                            <?php else: ?>
+                                                <form action="/participations/create" method="POST" class="d-inline js-confirm"
+                                                    data-confirm-steps="2"
+                                                    data-confirm-text="Confirmer la participation ?"
+                                                    data-confirm-text2="Cette action débitera <?= (int)$cost ?> crédits. Confirmez-vous ?"
+                                                    data-confirm-variant="warning">
+                                                    <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+                                                    <input type="hidden" name="covoiturage_id" value="<?= (int)$ride['id'] ?>">
+                                                    <button type="submit" class="btn btn-inscription">Participer</button>
+                                                </form>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                     </div>
                                 </div>

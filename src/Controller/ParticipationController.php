@@ -41,6 +41,12 @@ class ParticipationController extends Controller
         }
 
         $userId = (int) $_SESSION['user']['id'];
+        // Rôle autorisé: uniquement "Utilisateur" (role_id = 1)
+        $roleId = (int) ($_SESSION['user']['role_id'] ?? 0);
+        if ($roleId !== 1) {
+            Flash::add('Cette action est réservée aux utilisateurs.', 'warning');
+            redirect('/liste-covoiturages');
+        }
         $covoiturageId = (int) ($_POST['covoiturage_id'] ?? 0);
         if ($covoiturageId <= 0) {
             Flash::add('Covoiturage invalide.', 'danger');
@@ -87,14 +93,34 @@ class ParticipationController extends Controller
             Flash::add('Plus aucune place disponible.', 'warning');
             redirect('/liste-covoiturages');
         }
+        // Coût en crédits: arrondi du prix (au moins 1 si prix>0)
+        $prix = (float) ($ride['prix'] ?? 0);
+        $cost = max(1, (int) ceil($prix));
 
-        // Créer participation en attente de validation (flux simple pour l’instant)
-        if ($this->participationRepository->create($covoiturageId, $userId, 'en_attente_validation')) {
-            Flash::add('Demande de participation envoyée.', 'success');
-            redirect('/liste-covoiturages');
+        // Débit serveur (atomicité approximative)
+        if (!$this->userRepository->debitIfEnough($userId, $cost)) {
+            Flash::add('Crédits insuffisants pour participer.', 'warning');
+            redirect('/mes-credits');
+        }
+        // Journalise la transaction de débit
+        $this->transactionRepository->create($userId, $cost, 'debit', 'Participation trajet #' . $covoiturageId);
+
+        // Tente de créer la participation confirmée
+        $created = $this->participationRepository->create($covoiturageId, $userId, 'confirmee');
+        if ($created) {
+            // Rafraîchit crédits en session
+            $u = $this->userRepository->findById($userId);
+            if ($u) {
+                $_SESSION['user']['credits'] = $u->getCredits();
+            }
+            Flash::add('Participation confirmée. Bonne route !', 'success');
+            redirect('/mes-covoiturages');
         }
 
-        Flash::add('Erreur lors de la demande de participation.', 'danger');
+        // Échec après débit → remboursement simple
+        $this->userRepository->credit($userId, $cost);
+        $this->transactionRepository->create($userId, $cost, 'credit', 'Remboursement: échec participation');
+        Flash::add('Une erreur est survenue. Aucun crédit n’a été débité.', 'danger');
         redirect('/liste-covoiturages');
     }
 
@@ -157,11 +183,12 @@ class ParticipationController extends Controller
                 redirect('/mes-demandes');
             }
 
-            // Débiter 2 crédits au passager avant de confirmer
+            // Débiter le prix (arrondi) au passager avant de confirmer
             $passagerId = (int)($p['passager_id'] ?? 0);
-            $cost = 2; // coût fixe par trajet
+            $prix = (float)($p['prix'] ?? 0);
+            $cost = max(1, (int) ceil($prix));
             if (!$this->userRepository->debitIfEnough($passagerId, $cost)) {
-                Flash::add('Crédits insuffisants pour confirmer (2 crédits requis).', 'warning');
+                Flash::add('Crédits insuffisants pour confirmer.', 'warning');
                 redirect('/mes-demandes');
             }
             // Journaliser la transaction
