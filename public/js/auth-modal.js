@@ -83,6 +83,17 @@ async function handleAuth(endpoint, formData) {
     // récupère le token si présent (loginForm)
     const csrf =
         formData.csrf || document.querySelector('input[name="csrf"]')?.value;
+    const fallbackRedirect = (() => {
+        try {
+            return window.location.pathname + window.location.search;
+        } catch (_) {
+            return "/";
+        }
+    })();
+    // Inclure une cible de redirection si fournie par le formulaire, sinon l’URL courante
+    if (!formData.redirect) {
+        formData.redirect = fallbackRedirect;
+    }
     try {
         const response = await fetch(`/api/auth/${endpoint}`, {
             method: "POST",
@@ -112,8 +123,13 @@ async function handleAuth(endpoint, formData) {
 
             if (endpoint === "login") {
                 setTimeout(() => {
-                    if (data.redirect) {
-                        window.location.href = data.redirect;
+                    const to =
+                        data.redirect ||
+                        formData.redirect ||
+                        fallbackRedirect ||
+                        "/";
+                    if (to) {
+                        window.location.href = to;
                     } else {
                         window.location.reload();
                     }
@@ -420,6 +436,15 @@ document.addEventListener("DOMContentLoaded", () => {
             button.addEventListener("click", () => {
                 const start = button.getAttribute("data-start") || "register";
                 setActiveTab(start);
+                // Pré-remplir le champ hidden redirect avec l'URL courante
+                try {
+                    const lf = document.getElementById("loginForm");
+                    const red = lf?.querySelector('input[name="redirect"]');
+                    if (red) {
+                        red.value =
+                            window.location.pathname + window.location.search;
+                    }
+                } catch (_) {}
                 modal.show();
             });
         });

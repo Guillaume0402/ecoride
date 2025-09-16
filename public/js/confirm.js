@@ -51,6 +51,9 @@
         const msg =
             form.getAttribute("data-confirm-text") ||
             "Confirmer cette action ?";
+        const msg2 = form.getAttribute("data-confirm-text2");
+        const steps =
+            parseInt(form.getAttribute("data-confirm-steps") || "1", 10) || 1;
         const variant = form.getAttribute("data-confirm-variant") || "warning";
 
         // empêcher submit par défaut et demander confirmation
@@ -58,8 +61,12 @@
         e.stopPropagation();
 
         showConfirm(msg, variant).then((ok) => {
-            if (ok) {
-                // soumettre réellement
+            if (!ok) return;
+            if (steps >= 2 && msg2) {
+                showConfirm(msg2, variant).then((ok2) => {
+                    if (ok2) form.submit();
+                });
+            } else {
                 form.submit();
             }
         });
