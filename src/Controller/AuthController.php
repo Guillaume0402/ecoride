@@ -270,7 +270,9 @@ class AuthController extends Controller
             'role_id'   => $user->getRoleId(),
             'role_name' => $this->userService->getRoleName($user),
             'credits'   => $user->getCredits(),
-            'photo'     => $user->getPhoto() ?: (defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg')
+            'photo'     => $user->getPhoto() ?: (defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg'),
+            // Important: conserver le rôle de voyage (passager|chauffeur|les-deux) en session
+            'travel_role' => $user->getTravelRole(),
         ];
     }
 }
