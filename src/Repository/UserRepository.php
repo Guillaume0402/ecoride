@@ -24,8 +24,10 @@ class UserRepository
 
         // Prépare l'INSERT avec tous les champs persistés
         $sql = "INSERT INTO {$this->table} 
-            (pseudo, email, password, role_id, credits, note, photo, created_at, travel_role, is_active)
-            VALUES (:pseudo, :email, :password, :role_id, :credits, :note, :photo, :created_at, :travel_role, :is_active)";
+            (pseudo, email, password, role_id, credits, note, photo, created_at, travel_role, is_active,
+             email_verified, email_verification_token, email_verification_expires)
+            VALUES (:pseudo, :email, :password, :role_id, :credits, :note, :photo, :created_at, :travel_role, :is_active,
+                    :email_verified, :email_verification_token, :email_verification_expires)";
 
         $stmt = $this->conn->prepare($sql);
         // Lie chaque placeholder à la valeur de l'entité
@@ -39,7 +41,10 @@ class UserRepository
             ':photo'       => $user->getPhoto() ?? (defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg'),
             ':created_at'  => $user->getCreatedAt()?->format('Y-m-d H:i:s') ?? date('Y-m-d H:i:s'),
             ':travel_role' => $user->getTravelRole(),
-            ':is_active'   => $user->getIsActive()
+            ':is_active'   => $user->getIsActive(),
+            ':email_verified' => method_exists($user, 'getEmailVerified') ? $user->getEmailVerified() : 0,
+            ':email_verification_token' => method_exists($user, 'getEmailVerificationToken') ? $user->getEmailVerificationToken() : null,
+            ':email_verification_expires' => method_exists($user, 'getEmailVerificationExpires') ? ($user->getEmailVerificationExpires()?->format('Y-m-d H:i:s')) : null,
         ]);
 
         if ($result) {
@@ -58,7 +63,10 @@ class UserRepository
         $sql = "UPDATE {$this->table} 
                 SET pseudo = :pseudo, email = :email, password = :password, role_id = :role_id, 
                     credits = :credits, note = :note, photo = :photo, travel_role = :travel_role, 
-                    is_active = :is_active 
+                    is_active = :is_active,
+                    email_verified = COALESCE(:email_verified, email_verified),
+                    email_verification_token = COALESCE(:email_verification_token, email_verification_token),
+                    email_verification_expires = COALESCE(:email_verification_expires, email_verification_expires)
                 WHERE id = :id";
 
         $stmt = $this->conn->prepare($sql);
@@ -73,8 +81,20 @@ class UserRepository
             ':photo'       => $user->getPhoto(),
             ':travel_role' => $user->getTravelRole(),
             ':is_active'   => $user->getIsActive(),
+            ':email_verified' => method_exists($user, 'getEmailVerified') ? $user->getEmailVerified() : null,
+            ':email_verification_token' => method_exists($user, 'getEmailVerificationToken') ? $user->getEmailVerificationToken() : null,
+            ':email_verification_expires' => method_exists($user, 'getEmailVerificationExpires') ? ($user->getEmailVerificationExpires()?->format('Y-m-d H:i:s')) : null,
             ':id'          => $user->getId()
         ]);
+    }
+
+    public function verifyEmailByToken(string $email, string $token): bool
+    {
+        $sql = "UPDATE {$this->table}
+                SET email_verified = 1, email_verification_token = NULL, email_verification_expires = NULL
+                WHERE LOWER(email) = :email AND email_verification_token = :t AND (email_verification_expires IS NULL OR email_verification_expires >= NOW())";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([':email' => mb_strtolower($email), ':t' => $token]);
     }
 
     // Recherche par identifiant

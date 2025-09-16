@@ -16,6 +16,9 @@ class UserEntity
     private ?\DateTimeImmutable $createdAt = null; // date de création
     private string $travelRole = 'passager'; // passager|chauffeur|les-deux
     private int $isActive = 1; // 1 actif / 0 inactif
+    private int $emailVerified = 0; // 0 non-verifié, 1 vérifié
+    private ?string $emailVerificationToken = null;
+    private ?\DateTimeImmutable $emailVerificationExpires = null;
 
     // Constructeur: permet l'hydratation depuis un tableau associatif
     public function __construct(array $data = [])
@@ -74,6 +77,18 @@ class UserEntity
     {
         return $this->isActive;
     }
+    public function getEmailVerified(): int
+    {
+        return $this->emailVerified;
+    }
+    public function getEmailVerificationToken(): ?string
+    {
+        return $this->emailVerificationToken;
+    }
+    public function getEmailVerificationExpires(): ?\DateTimeImmutable
+    {
+        return $this->emailVerificationExpires;
+    }
 
     // ========== SETTERS ==========
     public function setId(int $id): self
@@ -131,6 +146,24 @@ class UserEntity
         $this->isActive = $isActive;
         return $this;
     }
+    public function setEmailVerified(int $verified): self
+    {
+        $this->emailVerified = $verified;
+        return $this;
+    }
+    public function setEmailVerificationToken(?string $token): self
+    {
+        $this->emailVerificationToken = $token;
+        return $this;
+    }
+    public function setEmailVerificationExpires($expires): self
+    {
+        if ($expires && !$expires instanceof \DateTimeImmutable) {
+            $expires = new \DateTimeImmutable(is_string($expires) ? $expires : 'now');
+        }
+        $this->emailVerificationExpires = $expires;
+        return $this;
+    }
 
     // Hydratation: convertit les clés snake_case en setters (setPseudo, setCreatedAt, ...)
     private function hydrate(array $data): void
@@ -140,6 +173,9 @@ class UserEntity
             if (method_exists($this, $method)) {
                 // created_at (string) -> DateTimeImmutable
                 if ($key === 'created_at' && $value) {
+                    $value = new \DateTimeImmutable($value);
+                }
+                if ($key === 'email_verification_expires' && $value) {
                     $value = new \DateTimeImmutable($value);
                 }
                 $this->$method($value);

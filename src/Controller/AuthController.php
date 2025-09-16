@@ -76,10 +76,27 @@ class AuthController extends Controller
             // Hash sécurisé via ton service (qui utilisera Argon2id/bcrypt)
             $this->userService->hashPassword($user, $password);
 
+            // Génération d'un token de vérification email
+            $token = bin2hex(random_bytes(16));
+            $expires = (new \DateTimeImmutable('+24 hours'))->format('Y-m-d H:i:s');
+            $user->setEmailVerified(0)
+                ->setEmailVerificationToken($token)
+                ->setEmailVerificationExpires(new \DateTimeImmutable($expires));
+
             // Persistance
             if (!$this->userRepository->create($user)) {
                 throw new \Exception('Erreur lors de l\'inscription.');
             }
+
+            // Envoi du mail de confirmation
+            $verifyUrl = SITE_URL . 'verify-email?token=' . urlencode($token) . '&email=' . urlencode($email);
+            $subject = 'Confirmez votre adresse email';
+            $body = '<p>Bonjour ' . htmlspecialchars($username) . ',</p>' .
+                '<p>Merci pour votre inscription sur EcoRide. Veuillez confirmer votre adresse email en cliquant sur le lien ci-dessous&nbsp;:</p>' .
+                '<p><a href="' . htmlspecialchars($verifyUrl) . '">Confirmer mon email</a></p>' .
+                '<p>Ce lien expirera dans 24 heures.</p>' .
+                '<p>— L\'équipe EcoRide</p>';
+            (new \App\Service\Mailer())->send($email, $subject, $body);
 
             // Récup utilisateur complet
             $newUser = $this->userRepository->findByEmail($email);
@@ -88,19 +105,11 @@ class AuthController extends Controller
                 throw new \Exception('Votre compte a été créé mais désactivé. Contactez l\'administrateur.');
             }
 
-            // Session + redirection
-            $this->createUserSession($newUser);
-            $redirectUrl = match ((int) $newUser->getRoleId()) {
-                3 => '/admin',
-                2 => '/employe',
-                default => '/',
-            };
-
             return [
                 'success'  => true,
-                'message'  => 'Inscription réussie et connexion automatique !',
+                'message'  => 'Inscription réussie ! Un email de confirmation vous a été envoyé.',
                 'user'     => ['pseudo' => $newUser->getPseudo()],
-                'redirect' => $redirectUrl
+                'redirect' => '/login'
             ];
         });
     }
@@ -149,6 +158,11 @@ class AuthController extends Controller
                 throw new \Exception('Votre compte a été désactivé. Contactez l\'administrateur.');
             }
 
+            // Vérification email confirmé
+            if (method_exists($user, 'getEmailVerified') && (int)$user->getEmailVerified() !== 1) {
+                throw new \Exception('Veuillez confirmer votre adresse email avant de vous connecter.');
+            }
+
             // Création de la session sécurisée
             $this->createUserSession($user);
 
@@ -177,6 +191,29 @@ class AuthController extends Controller
     {
         session_destroy();
         $this->json(['success' => true]);
+    }
+
+    // Vérifie l'email à partir d'un lien de confirmation
+    public function verifyEmail(): void
+    {
+        $token = isset($_GET['token']) ? trim((string)$_GET['token']) : '';
+        $email = isset($_GET['email']) ? trim((string)$_GET['email']) : '';
+        if ($token === '' || $email === '') {
+            \App\Service\Flash::add('Lien de vérification invalide.', 'danger');
+            redirect('/login');
+        }
+        try {
+            $ok = $this->userRepository->verifyEmailByToken($email, $token);
+        } catch (\Throwable $e) {
+            $ok = false;
+            error_log('[verifyEmail] ' . $e->getMessage());
+        }
+        if ($ok) {
+            \App\Service\Flash::add('Votre adresse email a été confirmée, vous pouvez vous connecter.', 'success');
+        } else {
+            \App\Service\Flash::add('Lien de vérification invalide ou expiré.', 'danger');
+        }
+        redirect('/login');
     }
 
     // Déconnexion (HTML) + redirection

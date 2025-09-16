@@ -46,6 +46,13 @@ return [
             'action' => 'apiLogout'
         ]
     ],
+    // Vérification d'email
+    '/verify-email' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\AuthController',
+            'action' => 'verifyEmail'
+        ]
+    ],
     // Profil utilisateur
     '/my-profil' => [
         'GET' => [
