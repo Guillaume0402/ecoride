@@ -31,11 +31,13 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role_id'] !== 2) { // 2 = Em
                                 <td><?= htmlspecialchars($review['rating']) ?>/5</td>
                                 <td>
                                     <form method="post" action="/employee/review/validate" class="d-inline">
-                                        <input type="hidden" name="review_id" value="<?= $review['id'] ?>">
+                                        <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+                                        <input type="hidden" name="review_id" value="<?= htmlspecialchars($review['id']) ?>">
                                         <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">Valider</button>
                                     </form>
                                     <form method="post" action="/employee/review/validate" class="d-inline">
-                                        <input type="hidden" name="review_id" value="<?= $review['id'] ?>">
+                                        <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+                                        <input type="hidden" name="review_id" value="<?= htmlspecialchars($review['id']) ?>">
                                         <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">Refuser</button>
                                     </form>
                                 </td>
@@ -57,23 +59,21 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role_id'] !== 2) { // 2 = Em
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>ID Covoiturage</th>
-                            <th>Chauffeur</th>
-                            <th>Passager</th>
-                            <th>Départ</th>
-                            <th>Arrivée</th>
-                            <th>Date</th>
+                            <th>ID</th>
+                            <th>Trajet</th>
+                            <th>Raison</th>
+                            <th>Commentaire</th>
+                            <th>Créé</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($problematicTrips as $trip): ?>
+                        <?php foreach ($problematicTrips as $rep): ?>
                             <tr>
-                                <td>#<?= $trip['covoiturage_id'] ?></td>
-                                <td><?= htmlspecialchars($trip['driver_pseudo']) ?> <br><small><?= htmlspecialchars($trip['driver_email']) ?></small></td>
-                                <td><?= htmlspecialchars($trip['passenger_pseudo']) ?> <br><small><?= htmlspecialchars($trip['passenger_email']) ?></small></td>
-                                <td><?= htmlspecialchars($trip['start_location']) ?></td>
-                                <td><?= htmlspecialchars($trip['end_location']) ?></td>
-                                <td><?= htmlspecialchars($trip['start_date']) ?> → <?= htmlspecialchars($trip['end_date']) ?></td>
+                                <td><?= htmlspecialchars($rep['id']) ?></td>
+                                <td>#<?= (int)($rep['covoiturage_id'] ?? 0) ?></td>
+                                <td><?= htmlspecialchars($rep['reason'] ?? '') ?></td>
+                                <td><?= htmlspecialchars($rep['comment'] ?? '') ?></td>
+                                <td><?php if (!empty($rep['created_at_ms'])) { $d = (int)$rep['created_at_ms']/1000; echo date('d/m/Y H:i', $d); } ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

@@ -166,6 +166,12 @@ return [
             'action' => 'dashboard'
         ]
     ],
+    '/employee/review/validate' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\EmployeeController',
+            'action' => 'validateReview'
+        ]
+    ],
 
 
 

@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Service\Flash;
+
 // Contrôleur employé (role_id = 2): gardes d'accès + dashboard
 class EmployeeController extends Controller
 {
@@ -22,55 +24,72 @@ class EmployeeController extends Controller
         }
     }
 
-    // Dashboard employé (données mockées pour l'instant)
+    // Dashboard employé (modération Mongo)
     public function dashboard(): void
     {
-        // Données mockées: avis en attente de modération
-        $pendingReviews = [
-            [
-                'id' => 1,
-                'driver_name' => 'Jean Dupont',
-                'comment' => 'Très bon trajet, conducteur sympa',
-                'rating' => 5
-            ],
-            [
-                'id' => 2,
-                'driver_name' => 'Marie Curie',
-                'comment' => 'Un peu en retard mais trajet agréable',
-                'rating' => 4
-            ]
-        ];
-
-        // Données mockées: trajets problématiques signalés
-        $problematicTrips = [
-            [
-                'covoiturage_id' => 101,
-                'driver_pseudo' => 'Paul',
-                'driver_email' => 'paul@example.com',
-                'passenger_pseudo' => 'Alice',
-                'passenger_email' => 'alice@example.com',
-                'start_location' => 'Paris',
-                'end_location' => 'Lyon',
-                'start_date' => '2025-08-02 08:30:00',
-                'end_date' => '2025-08-02 12:30:00'
-            ],
-            [
-                'covoiturage_id' => 102,
-                'driver_pseudo' => 'Luc',
-                'driver_email' => 'luc@example.com',
-                'passenger_pseudo' => 'Sophie',
-                'passenger_email' => 'sophie@example.com',
-                'start_location' => 'Marseille',
-                'end_location' => 'Nice',
-                'start_date' => '2025-08-03 09:00:00',
-                'end_date' => '2025-08-03 11:00:00'
-            ]
-        ];
+        $pendingReviews = [];
+        $problematicTrips = [];
+        try {
+            $mod = new \App\Service\ReviewModerationService();
+            $pending = $mod->listPending();
+            // Sépare reviews et reports si on veut afficher deux sections distinctes
+            foreach ($pending as $doc) {
+                if (($doc['kind'] ?? '') === 'report') {
+                    $problematicTrips[] = [
+                        'id' => $doc['id'] ?? '',
+                        'covoiturage_id' => $doc['covoiturage_id'] ?? null,
+                        'driver_id' => $doc['driver_id'] ?? null,
+                        'passager_id' => $doc['passager_id'] ?? null,
+                        'reason' => $doc['reason'] ?? '',
+                        'comment' => $doc['comment'] ?? '',
+                        'created_at_ms' => $doc['created_at_ms'] ?? null,
+                    ];
+                } else {
+                    $pendingReviews[] = [
+                        'id' => $doc['id'] ?? '',
+                        'covoiturage_id' => $doc['covoiturage_id'] ?? null,
+                        'driver_id' => $doc['driver_id'] ?? null,
+                        'passager_id' => $doc['passager_id'] ?? null,
+                        'comment' => $doc['comment'] ?? '',
+                        'rating' => $doc['rating'] ?? null,
+                        'created_at_ms' => $doc['created_at_ms'] ?? null,
+                    ];
+                }
+            }
+        } catch (\Throwable $e) {
+            error_log('[EmployeeController::dashboard] ' . $e->getMessage());
+        }
 
         // Rendu de la vue du dashboard avec les données
         $this->render('pages/employee/employee-dashboard', [
             'pendingReviews' => $pendingReviews,
             'problematicTrips' => $problematicTrips
         ]);
+    }
+
+    // POST /employee/review/validate
+    public function validateReview(): void
+    {
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role_id'] !== 2) {
+            abort(403);
+        }
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            abort(405);
+        }
+        if (!\App\Security\Csrf::check($_POST['csrf'] ?? null)) {
+            Flash::add('Requête invalide (CSRF).', 'danger');
+            redirect('/employe');
+        }
+        $id = (string)($_POST['review_id'] ?? '');
+        $action = (string)($_POST['action'] ?? 'reject');
+        try {
+            $mod = new \App\Service\ReviewModerationService();
+            $ok = $mod->updateStatus($id, $action === 'approve' ? 'approved' : 'rejected');
+            Flash::add($ok ? 'Décision enregistrée.' : 'Aucune mise à jour.', $ok ? 'success' : 'warning');
+        } catch (\Throwable $e) {
+            error_log('[EmployeeController::validateReview] ' . $e->getMessage());
+            Flash::add('Erreur lors de la mise à jour.', 'danger');
+        }
+        redirect('/employe');
     }
 }
