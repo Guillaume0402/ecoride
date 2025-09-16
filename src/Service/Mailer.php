@@ -15,8 +15,11 @@ class Mailer
 
     public function __construct(?string $from = null, ?string $fromName = null)
     {
-        $this->from = $from ?: (getenv('MAIL_FROM') ?: 'no-reply@localhost');
-        $this->fromName = $fromName ?: (getenv('MAIL_FROM_NAME') ?: 'EcoRide');
+        // Préférence à $_ENV (chargé par phpdotenv) puis fallback getenv, sinon valeur par défaut
+        $envFrom = $_ENV['MAIL_FROM'] ?? (getenv('MAIL_FROM') ?: null);
+        $envFromName = $_ENV['MAIL_FROM_NAME'] ?? (getenv('MAIL_FROM_NAME') ?: null);
+        $this->from = $from ?: ($envFrom ?: 'no-reply@example.com');
+        $this->fromName = $fromName ?: ($envFromName ?: 'EcoRide');
         // Déduction d'environnement: variable APP_ENV sinon heuristique sur SITE_URL
         $env = null;
         if (isset($_ENV['APP_ENV'])) {
