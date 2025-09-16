@@ -87,7 +87,7 @@ async function handleAuth(endpoint, formData) {
         try {
             return window.location.pathname + window.location.search;
         } catch (_) {
-            return '/';
+            return "/";
         }
     })();
     // Inclure une cible de redirection si fournie par le formulaire, sinon l’URL courante
@@ -123,7 +123,11 @@ async function handleAuth(endpoint, formData) {
 
             if (endpoint === "login") {
                 setTimeout(() => {
-                    const to = data.redirect || formData.redirect || fallbackRedirect || '/';
+                    const to =
+                        data.redirect ||
+                        formData.redirect ||
+                        fallbackRedirect ||
+                        "/";
                     if (to) {
                         window.location.href = to;
                     } else {
@@ -434,10 +438,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 setActiveTab(start);
                 // Pré-remplir le champ hidden redirect avec l'URL courante
                 try {
-                    const lf = document.getElementById('loginForm');
+                    const lf = document.getElementById("loginForm");
                     const red = lf?.querySelector('input[name="redirect"]');
                     if (red) {
-                        red.value = window.location.pathname + window.location.search;
+                        red.value =
+                            window.location.pathname + window.location.search;
                     }
                 } catch (_) {}
                 modal.show();
