@@ -98,17 +98,16 @@ class AuthController extends Controller
                 '<p>— L\'équipe EcoRide</p>';
             (new \App\Service\Mailer())->send($email, $subject, $body);
 
-            // Récup utilisateur complet
+            // Récup utilisateur complet (facultatif) pour vérifs/feedback
             $newUser = $this->userRepository->findByEmail($email);
-
-            if (!$newUser->getIsActive()) {
+            if ($newUser && !$newUser->getIsActive()) {
                 throw new \Exception('Votre compte a été créé mais désactivé. Contactez l\'administrateur.');
             }
 
             return [
                 'success'  => true,
                 'message'  => 'Inscription réussie ! Un email de confirmation vous a été envoyé.',
-                'user'     => ['pseudo' => $newUser->getPseudo()],
+                'user'     => ['pseudo' => $newUser ? $newUser->getPseudo() : $username],
                 'redirect' => '/login'
             ];
         });
@@ -199,7 +198,7 @@ class AuthController extends Controller
         $token = isset($_GET['token']) ? trim((string)$_GET['token']) : '';
         $email = isset($_GET['email']) ? trim((string)$_GET['email']) : '';
         if ($token === '' || $email === '') {
-            \App\Service\Flash::add('Lien de vérification invalide.', 'danger');
+            Flash::add('Lien de vérification invalide.', 'danger');
             redirect('/login');
         }
         try {
@@ -209,9 +208,9 @@ class AuthController extends Controller
             error_log('[verifyEmail] ' . $e->getMessage());
         }
         if ($ok) {
-            \App\Service\Flash::add('Votre adresse email a été confirmée, vous pouvez vous connecter.', 'success');
+            Flash::add('Votre adresse email a été confirmée, vous pouvez vous connecter.', 'success');
         } else {
-            \App\Service\Flash::add('Lien de vérification invalide ou expiré.', 'danger');
+            Flash::add('Lien de vérification invalide ou expiré.', 'danger');
         }
         redirect('/login');
     }
@@ -235,8 +234,13 @@ class AuthController extends Controller
         header('Content-Type: application/json');
         try {
             echo json_encode($callback());
-        } catch (\Exception $e) {
-            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            // Toujours renvoyer du JSON, même en cas d'erreur fatale (TypeError, Error, ...)
+            $msg = ($GLOBALS['_ENV']['APP_ENV'] ?? ($_ENV['APP_ENV'] ?? 'prod')) === 'dev'
+                ? $e->getMessage()
+                : 'Erreur serveur';
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => $msg]);
         }
         exit;
     }
