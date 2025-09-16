@@ -18,8 +18,14 @@ $collection = 'reviews';
 $client = new Client($dsn);
 $coll = $client->selectCollection($dbName, $collection);
 
-function doc_id() { return bin2hex(random_bytes(12)); }
-function now_ms() { return (int) round(microtime(true) * 1000); }
+function doc_id()
+{
+    return bin2hex(random_bytes(12));
+}
+function now_ms()
+{
+    return (int) round(microtime(true) * 1000);
+}
 
 $docs = [
     // Reviews (avis)

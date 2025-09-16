@@ -4,7 +4,7 @@
 
 Cette démo montre la modération d’avis/signalements (stockés dans MongoDB) côté Employé.
 
-1) Seed Mongo (avis + signalements)
+1. Seed Mongo (avis + signalements)
 
 Exécuter le script:
 
@@ -13,21 +13,22 @@ php scripts/seed_mongo.php
 ```
 
 Le script insère 4 documents pending dans la collection `reviews` (DB `ecoride`):
-- 2 avis (`kind: review`),
-- 2 signalements (`kind: report`).
 
-2) Parcours Employé
+-   2 avis (`kind: review`),
+-   2 signalements (`kind: report`).
 
-- Connectez-vous avec un compte employé (role_id = 2), puis ouvrez `/employe`.
-- Vous voyez:
-    - “Avis en attente”: liste des reviews (commentaire + note) avec boutons Valider/Refuser (CSRF inclus).
-    - “Trajets signalés”: liste des reports (raison + commentaire + date).
-- En validant un “report”, des emails sont envoyés au conducteur et au passager concernés (Mailer SMTP si configuré, sinon fallback).
+2. Parcours Employé
 
-3) Parcours Passager (optionnel)
+-   Connectez-vous avec un compte employé (role_id = 2), puis ouvrez `/employe`.
+-   Vous voyez:
+    -   “Avis en attente”: liste des reviews (commentaire + note) avec boutons Valider/Refuser (CSRF inclus).
+    -   “Trajets signalés”: liste des reports (raison + commentaire + date).
+-   En validant un “report”, des emails sont envoyés au conducteur et au passager concernés (Mailer SMTP si configuré, sinon fallback).
 
-- Quand un conducteur termine un trajet, chaque passager reçoit un email l’invitant à “Valider” ou “Signaler”.
-- “Valider” crédite le conducteur (idempotent par motif), “Signaler” crée un document Mongo pending.
+3. Parcours Passager (optionnel)
+
+-   Quand un conducteur termine un trajet, chaque passager reçoit un email l’invitant à “Valider” ou “Signaler”.
+-   “Valider” crédite le conducteur (idempotent par motif), “Signaler” crée un document Mongo pending.
 
 ## Seed SQL rapide (trajet terminé + participation confirmée)
 
