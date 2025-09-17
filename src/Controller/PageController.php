@@ -127,6 +127,12 @@ class PageController extends Controller
                 return false;
             }
             $status = (string)($c['status'] ?? 'en_attente');
+            // Règle: un trajet démarré reste dans l'onglet Conducteur même si l'heure est passée,
+            // jusqu'à ce qu'il soit marqué "terminé" (ou annulé).
+            if ($status === 'demarre') {
+                return true;
+            }
+            // Sinon, on affiche ici uniquement les trajets à venir, non annulés/terminés.
             return $depart >= $now && !in_array($status, ['annule', 'termine'], true);
         }));
         $asPassenger = array_values(array_filter($asPassengerAll, function ($p) use ($now) {
@@ -154,7 +160,13 @@ class PageController extends Controller
                 return false;
             }
             $status = (string)($c['status'] ?? 'en_attente');
-            return $depart < $now || in_array($status, ['annule', 'termine'], true);
+            // Historique si:
+            // - terminé ou annulé, ou
+            // - l'heure est passée ET ce n'est pas un trajet en cours (démarré)
+            if (in_array($status, ['annule', 'termine'], true)) {
+                return true;
+            }
+            return $depart < $now && $status !== 'demarre';
         }));
         $historyPassenger = array_values(array_filter($asPassengerAll, function ($p) use ($now) {
             $status = (string)($p['status'] ?? '');
