@@ -21,7 +21,8 @@
                 </div>
                 <div class="col-md-6">
                     <h5 class="mb-2">Votre avis</h5>
-                    <form action="/participations/validate/<?= (int)$p['participation_id'] ?>" method="POST">
+                    <?php $pid = isset($p['participation_id']) ? (int)$p['participation_id'] : (int)($p['id'] ?? 0); ?>
+                    <form action="/participations/validate/<?= $pid ?>" method="POST">
                         <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
                         <div class="mb-3">
                             <label for="rating" class="form-label">Note</label>
@@ -47,7 +48,7 @@
                     <div>
                         <button class="btn btn-outline-danger btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#report" aria-expanded="false">Signaler un problème</button>
                         <div class="collapse mt-2" id="report">
-                            <form action="/participations/report/<?= (int)$p['participation_id'] ?>" method="POST">
+                            <form action="/participations/report/<?= $pid ?>" method="POST">
                                 <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
                                 <div class="mb-2">
                                     <input type="text" class="form-control" name="reason" placeholder="Raison">

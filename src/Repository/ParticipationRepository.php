@@ -69,8 +69,8 @@ class ParticipationRepository
      */
     public function findWithCovoiturageById(int $participationId): ?array
     {
-        $sql = "SELECT p.*, c.*, 
-                       c.id AS covoiturage_id,
+    $sql = "SELECT p.*, p.id AS participation_id, c.*, 
+               c.id AS covoiturage_id,
                        c.status AS covoit_status,
                        v.places_dispo AS vehicle_places,
                        v.marque AS vehicle_marque, v.modele AS vehicle_modele,
