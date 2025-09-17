@@ -105,6 +105,12 @@ class PageController extends Controller
         if (!isset($_SESSION['user'])) {
             redirect('/login');
         }
+        // Balayage léger de maintenance (annulations auto + rattrapage remboursements)
+        try {
+            (new \App\Service\MaintenanceService())->sweep();
+        } catch (\Throwable $e) {
+            error_log('[mesCovoiturages maintenance sweep] ' . $e->getMessage());
+        }
         $userId = (int) $_SESSION['user']['id'];
         $covoitRepo = new CovoiturageRepository();
         $partRepo = new \App\Repository\ParticipationRepository();

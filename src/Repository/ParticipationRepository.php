@@ -112,7 +112,7 @@ class ParticipationRepository
      */
     public function findByPassagerId(int $passagerId): array
     {
-    $sql = "SELECT p.*, p.id AS participation_id,
+        $sql = "SELECT p.*, p.id AS participation_id,
                c.id AS covoiturage_id, c.adresse_depart, c.adresse_arrivee, c.depart, c.prix, c.status AS covoit_status,
                v.marque AS vehicle_marque, v.modele AS vehicle_modele, v.couleur AS vehicle_couleur,
                u_driver.id AS driver_user_id, u_driver.pseudo AS driver_pseudo
