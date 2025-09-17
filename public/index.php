@@ -14,6 +14,7 @@ require_once APP_ROOT . '/vendor/autoload.php';
 
 // Charger les variables d'environnement (.env + .env.local)
 use Dotenv\Dotenv;
+
 $dotenv = Dotenv::createMutable(dirname(__DIR__), ['.env', '.env.local']);
 $dotenv->load();
 
