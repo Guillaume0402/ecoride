@@ -186,7 +186,10 @@
                                         </ul>
                                     </div>
                                 </div>
-                                <div class="card-footer d-flex justify-content-end">
+                                <div class="card-footer d-flex justify-content-between align-items-center">
+                                    <a class="btn btn-outline-primary btn-sm" href="/covoiturages/<?= (int)$ride['id'] ?>" title="Voir le trajet">
+                                        Voir le trajet
+                                    </a>
                                     <div>
                                         <?php
                                         $isLogged = isset($_SESSION['user']);

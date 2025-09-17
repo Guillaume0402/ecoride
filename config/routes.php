@@ -235,6 +235,14 @@ return [
         ]
     ],
 
+    // Page de détail d'un covoiturage
+    '/covoiturages/{id}' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'showCovoiturage'
+        ]
+    ],
+
     // Annulation d'un covoiturage (conducteur)
     '/covoiturages/cancel/{id}' => [
         'POST' => [

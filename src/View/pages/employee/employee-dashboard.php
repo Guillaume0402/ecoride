@@ -51,6 +51,16 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role_id'] !== 2) { // 2 = Em
                                     } ?>
                                 </td>
                                 <td>
+                                    <?php
+                                    $vehLabel = trim(((string)($review['vehicle_marque'] ?? '')) . ' ' . ((string)($review['vehicle_modele'] ?? '')));
+                                    $vehImmat = (string)($review['vehicle_immatriculation'] ?? '');
+                                    $tooltip = htmlspecialchars(trim($vehLabel . ($vehImmat ? ' • ' . $vehImmat : '')));
+                                    ?>
+                                    <?php if (!empty($review['covoiturage_id'])): ?>
+                                        <a class="btn btn-outline-primary btn-sm me-2" href="/covoiturages/<?= (int)$review['covoiturage_id'] ?>" title="Voir le trajet" data-bs-toggle="tooltip" data-bs-title="<?= $tooltip ?>">
+                                            Voir le trajet
+                                        </a>
+                                    <?php endif; ?>
                                     <form method="post" action="/employee/review/validate" class="d-inline">
                                         <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
                                         <input type="hidden" name="review_id" value="<?= htmlspecialchars($review['id']) ?>">
@@ -111,6 +121,16 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role_id'] !== 2) { // 2 = Em
                                         echo date('d/m/Y H:i', $sec);
                                     } ?></td>
                                 <td>
+                                    <?php
+                                    $vehLabel = trim(((string)($rep['vehicle_marque'] ?? '')) . ' ' . ((string)($rep['vehicle_modele'] ?? '')));
+                                    $vehImmat = (string)($rep['vehicle_immatriculation'] ?? '');
+                                    $tooltip = htmlspecialchars(trim($vehLabel . ($vehImmat ? ' • ' . $vehImmat : '')));
+                                    ?>
+                                    <?php if (!empty($rep['covoiturage_id'])): ?>
+                                        <a class="btn btn-outline-primary btn-sm me-2" href="/covoiturages/<?= (int)$rep['covoiturage_id'] ?>" title="Voir le trajet" data-bs-toggle="tooltip" data-bs-title="<?= $tooltip ?>">
+                                            Voir le trajet
+                                        </a>
+                                    <?php endif; ?>
                                     <form method="post" action="/employee/review/validate" class="d-inline">
                                         <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
                                         <input type="hidden" name="review_id" value="<?= htmlspecialchars($rep['id']) ?>">
@@ -132,3 +152,12 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role_id'] !== 2) { // 2 = Em
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.bootstrap) {
+            const triggers = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            triggers.forEach(el => new bootstrap.Tooltip(el));
+        }
+    });
+</script>
