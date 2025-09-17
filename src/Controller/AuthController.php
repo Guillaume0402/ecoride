@@ -30,7 +30,7 @@ class AuthController extends Controller
             // --- CSRF check (JSON) ---
             $token = $data['csrf'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null);
             if (!Csrf::check($token)) {
-                throw new \Exception('Requête invalide (CSRF)');
+                throw new \Exception('Requête invalide (CSRF)', 400);
             }
 
             // Champs requis
@@ -130,7 +130,7 @@ class AuthController extends Controller
 
             // Validation des champs requis
             if (empty($data['email']) || empty($data['password'])) {
-                throw new \Exception('Email et mot de passe requis');
+                throw new \Exception('Email et mot de passe requis', 400);
             }
 
 
@@ -140,7 +140,7 @@ class AuthController extends Controller
             // Recherche de l'utilisateur puis vérification du mot de passe
             $user = $this->userRepository->findByEmail($data['email']);
             if (!$user || !$this->userService->verifyPassword($user, $data['password'])) {
-                throw new \Exception('Email ou mot de passe incorrect');
+                throw new \Exception('Email ou mot de passe incorrect', 401);
             }
 
             /** ─── Rehash automatique si nécessaire ─── */
@@ -154,12 +154,12 @@ class AuthController extends Controller
 
             // Vérification du statut actif
             if (!$user->getIsActive()) {
-                throw new \Exception('Votre compte a été désactivé. Contactez l\'administrateur.');
+                throw new \Exception('Votre compte a été désactivé. Contactez l\'administrateur.', 403);
             }
 
             // Vérification email confirmé
             if (method_exists($user, 'getEmailVerified') && (int)$user->getEmailVerified() !== 1) {
-                throw new \Exception('Veuillez confirmer votre adresse email avant de vous connecter.');
+                throw new \Exception('Veuillez confirmer votre adresse email avant de vous connecter.', 403);
             }
 
             // Création de la session sécurisée
@@ -235,12 +235,24 @@ class AuthController extends Controller
         try {
             echo json_encode($callback());
         } catch (\Throwable $e) {
-            // Toujours renvoyer du JSON, même en cas d'erreur fatale (TypeError, Error, ...)
-            $msg = ($GLOBALS['_ENV']['APP_ENV'] ?? ($_ENV['APP_ENV'] ?? 'prod')) === 'dev'
-                ? $e->getMessage()
-                : 'Erreur serveur';
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => $msg]);
+            // Distinction erreurs applicatives (Exception) vs erreurs système (Error)
+            $appEnv = $GLOBALS['_ENV']['APP_ENV'] ?? ($_ENV['APP_ENV'] ?? 'prod');
+            if ($e instanceof \Exception) {
+                $status = (int) $e->getCode();
+                if ($status < 400 || $status >= 600) {
+                    $status = 400; // défaut pour erreur fonctionnelle
+                }
+                http_response_code($status);
+                echo json_encode([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ]);
+            } else {
+                // \Error, \TypeError ... => masquer le détail en prod
+                $msg = $appEnv === 'dev' ? $e->getMessage() : 'Erreur serveur';
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => $msg]);
+            }
         }
         exit;
     }
