@@ -73,12 +73,14 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                 $nowDt = new DateTime();
                                                 try {
                                                     $departDt = new DateTime($c['depart']);
-                                                    $isPast = $departDt < $nowDt;
+                                                    // Fenêtre de grâce: autoriser le bouton Démarrer jusqu'à 10 minutes avant l'heure prévue
+                                                    $graceStart = (clone $departDt)->modify('-10 minutes');
+                                                    $isPast = $nowDt >= $graceStart;
                                                 } catch (Throwable $e) {
                                                     $departDt = null;
                                                 }
                                                 $status = (string)($c['status'] ?? 'en_attente');
-                                                $canCancel = !$isPast && !in_array($status, ['annule', 'termine'], true);
+                                                $canCancel = ($departDt instanceof DateTime) ? ($nowDt < $departDt && !in_array($status, ['annule', 'termine'], true)) : !in_array($status, ['annule', 'termine'], true);
                                                 // Autoriser le démarrage lorsque l'heure est atteinte (ou passée) et que le trajet est en attente
                                                 $canStart = ($status === 'en_attente') && $isPast;
                                                 $canFinish = $status === 'demarre';
@@ -88,6 +90,9 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                         <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
                                                         <button type="submit" class="btn btn-primary btn-sm me-1">Démarrer</button>
                                                     </form>
+                                                    <?php if (isset($departDt) && $departDt instanceof DateTime && $nowDt < $departDt): ?>
+                                                        <small class="text-muted d-block">Départ prévu à <?= $departDt->format('H\hi') ?> — démarrage anticipé autorisé</small>
+                                                    <?php endif; ?>
                                                 <?php endif; ?>
                                                 <?php if ($canFinish): ?>
                                                     <form action="/covoiturages/finish/<?= (int)$c['id'] ?>" method="POST" class="d-inline js-confirm" data-confirm-text="Marquer comme terminé ? Les passagers seront invités à valider." data-confirm-variant="success">
