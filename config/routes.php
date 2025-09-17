@@ -287,9 +287,7 @@ return [
         'GET' => [
             'controller' => 'App\\Controller\\ParticipationController',
             'action' => 'showValidationForm'
-        ]
-    ],
-    '/participations/validate/{id}' => [
+        ],
         'POST' => [
             'controller' => 'App\\Controller\\ParticipationController',
             'action' => 'validateTrip'
