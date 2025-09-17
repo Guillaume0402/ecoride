@@ -187,8 +187,8 @@
                                     </div>
                                 </div>
                                 <div class="card-footer d-flex justify-content-between align-items-center">
-                                    <a class="btn btn-outline-primary btn-sm" href="/covoiturages/<?= (int)$ride['id'] ?>" title="Voir le trajet">
-                                        Voir le trajet
+                                    <a class="btn btn-outline-light btn-sm" href="/covoiturages/<?= (int)$ride['id'] ?>" title="Détails du trajet">
+                                        <i class="bi bi-eye"></i> Détails
                                     </a>
                                     <div>
                                         <?php
