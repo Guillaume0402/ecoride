@@ -322,6 +322,32 @@ class ParticipationController extends Controller
         redirect('/mes-covoiturages');
     }
 
+    // GET /participations/validate/{id}
+    public function showValidationForm(int $id): void
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        $userId = (int) $_SESSION['user']['id'];
+        $p = $this->participationRepository->findWithCovoiturageById($id);
+        if (!$p) {
+            Flash::add('Participation introuvable.', 'danger');
+            redirect('/mes-covoiturages');
+        }
+        if ((int)$p['passager_id'] !== $userId) {
+            Flash::add('Action non autorisée.', 'danger');
+            redirect('/mes-covoiturages');
+        }
+        if (($p['covoit_status'] ?? '') !== 'termine') {
+            Flash::add('Ce trajet n\'est pas encore terminé.', 'warning');
+            redirect('/mes-covoiturages');
+        }
+
+        $this->render('pages/participations/validate', [
+            'p' => $p,
+        ]);
+    }
+
     // POST /participations/report/{id}
     public function reportIssue(int $id): void
     {

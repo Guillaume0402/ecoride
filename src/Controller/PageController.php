@@ -105,6 +105,12 @@ class PageController extends Controller
         if (!isset($_SESSION['user'])) {
             redirect('/login');
         }
+        // Balayage léger de maintenance (annulations auto + rattrapage remboursements)
+        try {
+            (new \App\Service\MaintenanceService())->sweep();
+        } catch (\Throwable $e) {
+            error_log('[mesCovoiturages maintenance sweep] ' . $e->getMessage());
+        }
         $userId = (int) $_SESSION['user']['id'];
         $covoitRepo = new CovoiturageRepository();
         $partRepo = new \App\Repository\ParticipationRepository();
@@ -167,11 +173,26 @@ class PageController extends Controller
             return !$isActiveParticipation || !$isActiveRide || $isPast;
         }));
 
+        // Compte des validations en attente (participations confirmées dont le covoit est terminé mais non encore validées côté passager)
+        $pendingValidations = 0;
+        $txRepo = new \App\Repository\TransactionRepository();
+        foreach ($asPassengerAll as $p) {
+            if (($p['status'] ?? '') === 'confirmee' && ($p['covoit_status'] ?? '') === 'termine') {
+                $driverId = (int)($p['driver_user_id'] ?? 0);
+                $covoiturageId = (int)($p['covoiturage_id'] ?? 0);
+                $motif = 'Crédit conducteur trajet #' . $covoiturageId . ' - passager #' . $userId;
+                if (!$txRepo->existsForMotif($driverId, $motif)) {
+                    $pendingValidations++;
+                }
+            }
+        }
+
         $this->render('pages/mes-covoiturages', [
             'asDriver' => $asDriver,
             'asPassenger' => $asPassenger,
             'historyDriver' => $historyDriver,
             'historyPassenger' => $historyPassenger,
+            'pendingValidations' => $pendingValidations,
         ]);
     }
 

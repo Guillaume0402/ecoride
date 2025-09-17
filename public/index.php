@@ -14,8 +14,21 @@ require_once APP_ROOT . '/vendor/autoload.php';
 
 // Charger les variables d'environnement (.env + .env.local)
 use Dotenv\Dotenv;
+
 $dotenv = Dotenv::createMutable(dirname(__DIR__), ['.env', '.env.local']);
 $dotenv->load();
+
+// Définir le fuseau horaire par défaut (impacte toutes les DateTime)
+// Utilise APP_TZ si défini dans l'environnement, sinon Europe/Paris
+try {
+    $tz = $_ENV['APP_TZ'] ?? 'Europe/Paris';
+    if (is_string($tz) && $tz !== '') {
+        date_default_timezone_set($tz);
+    }
+} catch (\Throwable $e) {
+    // défaut silencieux si le TZ est invalide
+    @date_default_timezone_set('Europe/Paris');
+}
 
 // Inclusion du helper global
 require_once APP_ROOT . '/src/helpers.php';

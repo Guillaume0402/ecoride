@@ -10,6 +10,13 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
 <div class="container py-4 page-mes-trajets">
     <h1>Mes trajets</h1>
 
+    <?php if (!empty($pendingValidations) && (int)$pendingValidations > 0): ?>
+        <div class="alert alert-warning d-flex align-items-center gap-2 mt-2" role="alert">
+            <span class="badge bg-warning text-dark">Info</span>
+            <div>Vous avez <?= (int)$pendingValidations ?> validation<?= (int)$pendingValidations > 1 ? 's' : '' ?> en attente.</div>
+        </div>
+    <?php endif; ?>
+
     <div class="card mt-2">
         <div class="card-header pb-0">
             <ul class="nav nav-tabs card-header-tabs" id="mesTrajetsTabs" role="tablist">
@@ -73,13 +80,16 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                 $nowDt = new DateTime();
                                                 try {
                                                     $departDt = new DateTime($c['depart']);
-                                                    $isPast = $departDt < $nowDt;
+                                                    // Fenêtre de grâce: autoriser le bouton Démarrer jusqu'à 10 minutes avant l'heure prévue
+                                                    $graceStart = (clone $departDt)->modify('-10 minutes');
+                                                    $isPast = $nowDt >= $graceStart;
                                                 } catch (Throwable $e) {
                                                     $departDt = null;
                                                 }
                                                 $status = (string)($c['status'] ?? 'en_attente');
-                                                $canCancel = !$isPast && !in_array($status, ['annule', 'termine'], true);
-                                                $canStart = $isPast && $status === 'en_attente';
+                                                $canCancel = ($departDt instanceof DateTime) ? ($nowDt < $departDt && !in_array($status, ['annule', 'termine'], true)) : !in_array($status, ['annule', 'termine'], true);
+                                                // Autoriser le démarrage lorsque l'heure est atteinte (ou passée) et que le trajet est en attente
+                                                $canStart = ($status === 'en_attente') && $isPast;
                                                 $canFinish = $status === 'demarre';
                                                 ?>
                                                 <?php if ($canStart): ?>
@@ -87,11 +97,14 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                         <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
                                                         <button type="submit" class="btn btn-primary btn-sm me-1">Démarrer</button>
                                                     </form>
+                                                    <?php if (isset($departDt) && $departDt instanceof DateTime && $nowDt < $departDt): ?>
+                                                        <small class="text-muted d-block">Départ prévu à <?= $departDt->format('H\hi') ?> — démarrage anticipé autorisé</small>
+                                                    <?php endif; ?>
                                                 <?php endif; ?>
                                                 <?php if ($canFinish): ?>
                                                     <form action="/covoiturages/finish/<?= (int)$c['id'] ?>" method="POST" class="d-inline js-confirm" data-confirm-text="Marquer comme terminé ? Les passagers seront invités à valider." data-confirm-variant="success">
                                                         <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
-                                                        <button type="submit" class="btn btn-success btn-sm me-1">Terminer</button>
+                                                        <button type="submit" class="btn btn-success btn-sm me-1">Arrivée à destination</button>
                                                     </form>
                                                 <?php endif; ?>
                                                 <?php if ($canCancel): ?>
@@ -155,13 +168,26 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                 <?php
                                                 // Actions passager après fin de trajet
                                                 $canAct = ($p['status'] === 'confirmee') && (($p['covoit_status'] ?? '') === 'termine');
+                                                // Masquer le bouton si le conducteur est déjà crédité (validation déjà faite)
+                                                $alreadyCredited = false;
+                                                if ($canAct) {
+                                                    try {
+                                                        $txRepo = new \App\Repository\TransactionRepository();
+                                                        $driverId = (int)($p['driver_user_id'] ?? 0);
+                                                        $covoiturageId = (int)($p['covoiturage_id'] ?? 0);
+                                                        $motif = 'Crédit conducteur trajet #' . $covoiturageId . ' - passager #' . (int)($_SESSION['user']['id'] ?? 0);
+                                                        $alreadyCredited = $txRepo->existsForMotif($driverId, $motif);
+                                                    } catch (\Throwable $e) {
+                                                    }
+                                                }
                                                 if ($canAct): ?>
                                                     <div class="mt-2">
-                                                        <form action="/participations/validate/<?= (int)$p['participation_id'] ?>" method="POST" class="d-inline js-confirm" data-confirm-text="Confirmer que tout s'est bien passé ?" data-confirm-variant="success">
-                                                            <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
-                                                            <button type="submit" class="btn btn-success btn-sm me-1">Valider</button>
-                                                        </form>
-                                                        <button class="btn btn-outline-danger btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#reportForm<?= (int)$p['participation_id'] ?>" aria-expanded="false">Signaler</button>
+                                                        <?php if (!$alreadyCredited): ?>
+                                                            <a class="btn btn-success btn-sm" href="/participations/validate/<?= (int)$p['participation_id'] ?>">Valider votre voyage</a>
+                                                        <?php else: ?>
+                                                            <span class="badge bg-secondary">Déjà validé</span>
+                                                        <?php endif; ?>
+                                                        <button class="btn btn-outline-danger btn-sm ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#reportForm<?= (int)$p['participation_id'] ?>" aria-expanded="false">Signaler</button>
                                                         <div class="collapse mt-2" id="reportForm<?= (int)$p['participation_id'] ?>">
                                                             <form action="/participations/report/<?= (int)$p['participation_id'] ?>" method="POST">
                                                                 <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
@@ -269,6 +295,47 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                         $cvLabel = ['en_attente' => 'En attente', 'demarre' => 'Démarré', 'termine' => 'Terminé', 'annule' => 'Annulé'][$cv] ?? $cv;
                                                         ?>
                                                         <small class="text-status-meta ms-2">Trajet: <?= htmlspecialchars($cvLabel) ?></small>
+                                                    <?php endif; ?>
+                                                    <?php
+                                                    // Actions passager aussi dans l'historique quand le trajet est terminé
+                                                    $canActH = ($p['status'] === 'confirmee') && (($p['covoit_status'] ?? '') === 'termine');
+                                                    // Vérifie si déjà crédité (validation déjà faite)
+                                                    $alreadyCreditedH = false;
+                                                    if ($canActH) {
+                                                        try {
+                                                            $txRepo = new \App\Repository\TransactionRepository();
+                                                            $driverId = (int)($p['driver_user_id'] ?? 0);
+                                                            $covoiturageId = (int)($p['covoiturage_id'] ?? 0);
+                                                            $motif = 'Crédit conducteur trajet #' . $covoiturageId . ' - passager #' . (int)($_SESSION['user']['id'] ?? 0);
+                                                            $alreadyCreditedH = $txRepo->existsForMotif($driverId, $motif);
+                                                        } catch (\Throwable $e) {
+                                                        }
+                                                    }
+                                                    if ($canActH): ?>
+                                                        <div class="mt-2">
+                                                            <?php if (!$alreadyCreditedH): ?>
+                                                                <a class="btn btn-success btn-sm" href="/participations/validate/<?= (int)$p['participation_id'] ?>">Valider votre voyage</a>
+                                                            <?php else: ?>
+                                                                <span class="badge bg-secondary">Déjà validé</span>
+                                                            <?php endif; ?>
+                                                            <button class="btn btn-outline-danger btn-sm ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#reportFormH<?= (int)$p['participation_id'] ?>" aria-expanded="false">Signaler</button>
+                                                            <div class="collapse mt-2" id="reportFormH<?= (int)$p['participation_id'] ?>">
+                                                                <form action="/participations/report/<?= (int)$p['participation_id'] ?>" method="POST">
+                                                                    <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+                                                                    <div class="row g-2 align-items-end">
+                                                                        <div class="col-auto">
+                                                                            <input type="text" name="reason" class="form-control form-control-sm" placeholder="Raison">
+                                                                        </div>
+                                                                        <div class="col">
+                                                                            <input type="text" name="comment" class="form-control form-control-sm" placeholder="Commentaire (optionnel)">
+                                                                        </div>
+                                                                        <div class="col-auto">
+                                                                            <button type="submit" class="btn btn-danger btn-sm">Envoyer</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
                                                     <?php endif; ?>
                                                 </td>
                                             </tr>

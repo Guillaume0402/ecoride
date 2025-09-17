@@ -24,6 +24,16 @@ if (!defined('BASE_URL')) {
 // URL complète du site (utile pour générer des URLs absolues)
 define('SITE_URL', 'http://localhost:8080/');
 
+// Délai avant auto-annulation d'un trajet non démarré (en minutes)
+if (!defined('AUTO_CANCEL_MINUTES')) {
+    define('AUTO_CANCEL_MINUTES', (int) ($_ENV['AUTO_CANCEL_MINUTES'] ?? 30));
+}
+
+// Délai pour considérer un trajet démarré comme expiré s'il n'a pas été terminé (en minutes)
+if (!defined('AUTO_EXPIRE_STARTED_MINUTES')) {
+    define('AUTO_EXPIRE_STARTED_MINUTES', (int) ($_ENV['AUTO_EXPIRE_STARTED_MINUTES'] ?? 120));
+}
+
 // Avatar par défaut (utilisé si l'utilisateur n'a pas de photo)
 if (!defined('DEFAULT_AVATAR_URL')) {
     define('DEFAULT_AVATAR_URL', '/assets/images/logo.svg');
