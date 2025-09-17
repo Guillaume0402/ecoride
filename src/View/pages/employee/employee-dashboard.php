@@ -17,7 +17,11 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role_id'] !== 2) { // 2 = Em
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Chauffeur (ID)</th>
+                            <th>Chauffeur</th>
+                            <th>Passager</th>
+                            <th>Départ</th>
+                            <th>Destination</th>
+                            <th>Heure</th>
                             <th>Commentaire</th>
                             <th>Note</th>
                             <th>Créé</th>
@@ -27,12 +31,14 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role_id'] !== 2) { // 2 = Em
                     <tbody>
                         <?php foreach ($pendingReviews as $review): ?>
                             <tr>
+                                <td><?= htmlspecialchars((string) ($review['driver_name'] ?? ('#' . (int)($review['driver_id'] ?? 0)))) ?></td>
+                                <td><?= htmlspecialchars((string) ($review['passager_name'] ?? ('#' . (int)($review['passager_id'] ?? 0)))) ?></td>
+                                <td><?= htmlspecialchars((string) ($review['adresse_depart'] ?? '')) ?></td>
+                                <td><?= htmlspecialchars((string) ($review['adresse_arrivee'] ?? '')) ?></td>
                                 <td>
-                                    <?php
-                                    $driverName = $review['driver_name'] ?? null;
-                                    $driverId = (int) ($review['driver_id'] ?? 0);
-                                    echo htmlspecialchars($driverName ? $driverName : ('#' . $driverId));
-                                    ?>
+                                    <?php if (!empty($review['depart_at'])) {
+                                        echo date('d/m/Y H:i', strtotime((string)$review['depart_at']));
+                                    } ?>
                                 </td>
                                 <td><?= htmlspecialchars((string) ($review['comment'] ?? '')) ?></td>
                                 <td><?= htmlspecialchars((string) ($review['rating'] ?? '')) ?>/5</td>
@@ -74,18 +80,29 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role_id'] !== 2) { // 2 = Em
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Trajet</th>
+                            <th>Chauffeur</th>
+                            <th>Passager</th>
+                            <th>Départ</th>
+                            <th>Destination</th>
+                            <th>Heure</th>
                             <th>Raison</th>
                             <th>Commentaire</th>
                             <th>Créé</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($problematicTrips as $rep): ?>
                             <tr>
-                                <td><?= htmlspecialchars($rep['id']) ?></td>
-                                <td>#<?= (int)($rep['covoiturage_id'] ?? 0) ?></td>
+                                <td><?= htmlspecialchars((string) ($rep['driver_name'] ?? ('#' . (int)($rep['driver_id'] ?? 0)))) ?></td>
+                                <td><?= htmlspecialchars((string) ($rep['passager_name'] ?? ('#' . (int)($rep['passager_id'] ?? 0)))) ?></td>
+                                <td><?= htmlspecialchars((string) ($rep['adresse_depart'] ?? '')) ?></td>
+                                <td><?= htmlspecialchars((string) ($rep['adresse_arrivee'] ?? '')) ?></td>
+                                <td>
+                                    <?php if (!empty($rep['depart_at'])) {
+                                        echo date('d/m/Y H:i', strtotime((string)$rep['depart_at']));
+                                    } ?>
+                                </td>
                                 <td><?= htmlspecialchars($rep['reason'] ?? '') ?></td>
                                 <td><?= htmlspecialchars($rep['comment'] ?? '') ?></td>
                                 <td><?php if (!empty($rep['created_at_ms'])) {
@@ -93,6 +110,18 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role_id'] !== 2) { // 2 = Em
                                         $sec = intdiv((int) round($ms), 1000);
                                         echo date('d/m/Y H:i', $sec);
                                     } ?></td>
+                                <td>
+                                    <form method="post" action="/employee/review/validate" class="d-inline">
+                                        <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+                                        <input type="hidden" name="review_id" value="<?= htmlspecialchars($rep['id']) ?>">
+                                        <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">Valider</button>
+                                    </form>
+                                    <form method="post" action="/employee/review/validate" class="d-inline">
+                                        <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+                                        <input type="hidden" name="review_id" value="<?= htmlspecialchars($rep['id']) ?>">
+                                        <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">Refuser</button>
+                                    </form>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
