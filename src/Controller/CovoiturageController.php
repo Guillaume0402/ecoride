@@ -337,7 +337,7 @@ class CovoiturageController extends Controller
             redirect('/mes-covoiturages');
         }
         if ($this->covoiturageRepository->updateStatus($id, 'demarre')) {
-            Flash::add('Trajet démarré.', 'success');
+            Flash::add('Trajet démarré. Bonne route !', 'success');
         } else {
             Flash::add('Impossible de démarrer le trajet.', 'danger');
         }
@@ -378,7 +378,7 @@ class CovoiturageController extends Controller
 
         // Passage à terminé
         if ($this->covoiturageRepository->updateStatus($id, 'termine')) {
-            Flash::add('Trajet terminé. Les passagers vont recevoir un e-mail de validation.', 'success');
+            Flash::add('Arrivée à destination. Les passagers vont recevoir un e-mail de validation.', 'success');
             // TODO: envoyer un email à chaque passager confirmé avec un lien vers /mes-covoiturages
             // On peut trouver les passagers via ParticipationRepository::findConfirmedByCovoiturageId
             try {

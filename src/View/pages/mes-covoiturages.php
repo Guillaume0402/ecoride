@@ -79,7 +79,8 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                 }
                                                 $status = (string)($c['status'] ?? 'en_attente');
                                                 $canCancel = !$isPast && !in_array($status, ['annule', 'termine'], true);
-                                                $canStart = $isPast && $status === 'en_attente';
+                                                // Autoriser le démarrage lorsque l'heure est atteinte (ou passée) et que le trajet est en attente
+                                                $canStart = ($status === 'en_attente') && $isPast;
                                                 $canFinish = $status === 'demarre';
                                                 ?>
                                                 <?php if ($canStart): ?>
@@ -91,7 +92,7 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                 <?php if ($canFinish): ?>
                                                     <form action="/covoiturages/finish/<?= (int)$c['id'] ?>" method="POST" class="d-inline js-confirm" data-confirm-text="Marquer comme terminé ? Les passagers seront invités à valider." data-confirm-variant="success">
                                                         <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
-                                                        <button type="submit" class="btn btn-success btn-sm me-1">Terminer</button>
+                                                        <button type="submit" class="btn btn-success btn-sm me-1">Arrivée à destination</button>
                                                     </form>
                                                 <?php endif; ?>
                                                 <?php if ($canCancel): ?>
