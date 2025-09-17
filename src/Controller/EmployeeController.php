@@ -81,16 +81,24 @@ class EmployeeController extends Controller
             redirect('/employe');
         }
         $id = (string)($_POST['review_id'] ?? '');
+        if ($id === '') {
+            Flash::add('Avis introuvable (ID manquant).', 'danger');
+            redirect('/employe');
+        }
         $action = (string)($_POST['action'] ?? 'reject');
         try {
             $mod = new \App\Service\ReviewModerationService();
             // Charger le document pour connaître son type et les acteurs
             $doc = $mod->getById($id);
+            if (!$doc) {
+                Flash::add('Avis introuvable ou déjà traité.', 'warning');
+                redirect('/employe');
+            }
             $decision = $action === 'approve' ? 'approved' : 'rejected';
             $ok = $mod->updateStatus($id, $decision);
 
             // Si un report est approuvé → notifier conducteur et passager par email
-            if ($ok && $decision === 'approved' && ($doc['kind'] ?? '') === 'report') {
+            if ($ok && $decision === 'approved' && is_array($doc) && (($doc['kind'] ?? '') === 'report')) {
                 try {
                     $driverId = (int)($doc['driver_id'] ?? 0);
                     $passagerId = (int)($doc['passager_id'] ?? 0);
@@ -128,7 +136,7 @@ class EmployeeController extends Controller
                 }
             }
 
-            Flash::add($ok ? 'Décision enregistrée.' : 'Aucune mise à jour.', $ok ? 'success' : 'warning');
+            Flash::add($ok ? 'Décision enregistrée.' : 'Aucune mise à jour (élément introuvable ou déjà traité).', $ok ? 'success' : 'warning');
         } catch (\Throwable $e) {
             error_log('[EmployeeController::validateReview] ' . $e->getMessage());
             Flash::add('Erreur lors de la mise à jour.', 'danger');
