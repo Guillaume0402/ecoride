@@ -10,6 +10,13 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
 <div class="container py-4 page-mes-trajets">
     <h1>Mes trajets</h1>
 
+    <?php if (!empty($pendingValidations) && (int)$pendingValidations > 0): ?>
+        <div class="alert alert-warning d-flex align-items-center gap-2 mt-2" role="alert">
+            <span class="badge bg-warning text-dark">Info</span>
+            <div>Vous avez <?= (int)$pendingValidations ?> validation<?= (int)$pendingValidations > 1 ? 's' : '' ?> en attente.</div>
+        </div>
+    <?php endif; ?>
+
     <div class="card mt-2">
         <div class="card-header pb-0">
             <ul class="nav nav-tabs card-header-tabs" id="mesTrajetsTabs" role="tablist">
@@ -161,9 +168,25 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                 <?php
                                                 // Actions passager après fin de trajet
                                                 $canAct = ($p['status'] === 'confirmee') && (($p['covoit_status'] ?? '') === 'termine');
+                                                // Masquer le bouton si le conducteur est déjà crédité (validation déjà faite)
+                                                $alreadyCredited = false;
+                                                if ($canAct) {
+                                                    try {
+                                                        $txRepo = new \App\Repository\TransactionRepository();
+                                                        $driverId = (int)($p['driver_user_id'] ?? 0);
+                                                        $covoiturageId = (int)($p['covoiturage_id'] ?? 0);
+                                                        $motif = 'Crédit conducteur trajet #' . $covoiturageId . ' - passager #' . (int)($_SESSION['user']['id'] ?? 0);
+                                                        $alreadyCredited = $txRepo->existsForMotif($driverId, $motif);
+                                                    } catch (\Throwable $e) {
+                                                    }
+                                                }
                                                 if ($canAct): ?>
                                                     <div class="mt-2">
-                                                        <a class="btn btn-success btn-sm" href="/participations/validate/<?= (int)$p['participation_id'] ?>">Valider votre voyage</a>
+                                                        <?php if (!$alreadyCredited): ?>
+                                                            <a class="btn btn-success btn-sm" href="/participations/validate/<?= (int)$p['participation_id'] ?>">Valider votre voyage</a>
+                                                        <?php else: ?>
+                                                            <span class="badge bg-secondary">Déjà validé</span>
+                                                        <?php endif; ?>
                                                         <button class="btn btn-outline-danger btn-sm ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#reportForm<?= (int)$p['participation_id'] ?>" aria-expanded="false">Signaler</button>
                                                         <div class="collapse mt-2" id="reportForm<?= (int)$p['participation_id'] ?>">
                                                             <form action="/participations/report/<?= (int)$p['participation_id'] ?>" method="POST">
@@ -276,9 +299,25 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                     <?php
                                                     // Actions passager aussi dans l'historique quand le trajet est terminé
                                                     $canActH = ($p['status'] === 'confirmee') && (($p['covoit_status'] ?? '') === 'termine');
+                                                    // Vérifie si déjà crédité (validation déjà faite)
+                                                    $alreadyCreditedH = false;
+                                                    if ($canActH) {
+                                                        try {
+                                                            $txRepo = new \App\Repository\TransactionRepository();
+                                                            $driverId = (int)($p['driver_user_id'] ?? 0);
+                                                            $covoiturageId = (int)($p['covoiturage_id'] ?? 0);
+                                                            $motif = 'Crédit conducteur trajet #' . $covoiturageId . ' - passager #' . (int)($_SESSION['user']['id'] ?? 0);
+                                                            $alreadyCreditedH = $txRepo->existsForMotif($driverId, $motif);
+                                                        } catch (\Throwable $e) {
+                                                        }
+                                                    }
                                                     if ($canActH): ?>
                                                         <div class="mt-2">
-                                                            <a class="btn btn-success btn-sm" href="/participations/validate/<?= (int)$p['participation_id'] ?>">Valider votre voyage</a>
+                                                            <?php if (!$alreadyCreditedH): ?>
+                                                                <a class="btn btn-success btn-sm" href="/participations/validate/<?= (int)$p['participation_id'] ?>">Valider votre voyage</a>
+                                                            <?php else: ?>
+                                                                <span class="badge bg-secondary">Déjà validé</span>
+                                                            <?php endif; ?>
                                                             <button class="btn btn-outline-danger btn-sm ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#reportFormH<?= (int)$p['participation_id'] ?>" aria-expanded="false">Signaler</button>
                                                             <div class="collapse mt-2" id="reportFormH<?= (int)$p['participation_id'] ?>">
                                                                 <form action="/participations/report/<?= (int)$p['participation_id'] ?>" method="POST">
