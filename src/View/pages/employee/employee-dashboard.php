@@ -17,18 +17,31 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role_id'] !== 2) { // 2 = Em
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Chauffeur</th>
+                            <th>Chauffeur (ID)</th>
                             <th>Commentaire</th>
                             <th>Note</th>
+                            <th>Créé</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($pendingReviews as $review): ?>
                             <tr>
-                                <td><?= htmlspecialchars($review['driver_name']) ?></td>
-                                <td><?= htmlspecialchars($review['comment']) ?></td>
-                                <td><?= htmlspecialchars($review['rating']) ?>/5</td>
+                                <td>
+                                    <?php
+                                    $driverName = $review['driver_name'] ?? null;
+                                    $driverId = (int) ($review['driver_id'] ?? 0);
+                                    echo htmlspecialchars($driverName ? $driverName : ('#' . $driverId));
+                                    ?>
+                                </td>
+                                <td><?= htmlspecialchars((string) ($review['comment'] ?? '')) ?></td>
+                                <td><?= htmlspecialchars((string) ($review['rating'] ?? '')) ?>/5</td>
+                                <td>
+                                    <?php if (!empty($review['created_at_ms'])) {
+                                        $d = (int) $review['created_at_ms'] / 1000;
+                                        echo date('d/m/Y H:i', $d);
+                                    } ?>
+                                </td>
                                 <td>
                                     <form method="post" action="/employee/review/validate" class="d-inline">
                                         <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">

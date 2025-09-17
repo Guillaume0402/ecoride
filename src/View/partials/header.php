@@ -58,6 +58,11 @@
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
+                                <?php elseif ((int) $_SESSION['user']['role_id'] === 2): ?>
+                                    <li><a class="dropdown-item" href="/employe"><i class="bi bi-briefcase me-2"></i> Espace employé</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
                                 <?php else: ?>
                                     <li><a class="dropdown-item" href="/my-profil"><i class="bi bi-person me-2"></i> Mon profil</a></li>
                                     <?php
