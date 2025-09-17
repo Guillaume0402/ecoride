@@ -390,9 +390,10 @@ class CovoiturageController extends Controller
                     if ($u) {
                         $to = $u->getEmail();
                         $subject = 'Validez votre trajet EcoRide';
+                        $link = (defined('SITE_URL') ? SITE_URL : '/') . 'participations/validate/' . (int)$row['participation_id'];
                         $body = '<p>Bonjour ' . htmlspecialchars($u->getPseudo()) . ',</p>'
-                            . '<p>Votre trajet vient de se terminer. Merci de vous rendre dans votre espace pour confirmer que tout s\'est bien passé ou signaler un souci.</p>'
-                            . '<p><a href="' . (defined('SITE_URL') ? SITE_URL : '/') . 'mes-covoiturages">Accéder à mon espace</a></p>'
+                            . '<p>Votre trajet vient de se terminer. Merci de confirmer que tout s\'est bien passé ou de signaler un souci.</p>'
+                            . '<p><a href="' . htmlspecialchars($link) . '">Valider mon voyage</a></p>'
                             . '<p>— L\'équipe EcoRide</p>';
                         $mailer->send($to, $subject, $body);
                     }

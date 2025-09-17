@@ -163,29 +163,7 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                 $canAct = ($p['status'] === 'confirmee') && (($p['covoit_status'] ?? '') === 'termine');
                                                 if ($canAct): ?>
                                                     <div class="mt-2">
-                                                        <form action="/participations/validate/<?= (int)$p['participation_id'] ?>" method="POST" class="d-inline">
-                                                            <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
-                                                            <div class="row g-2 align-items-end">
-                                                                <div class="col-auto">
-                                                                    <label for="rating<?= (int)$p['participation_id'] ?>" class="form-label small mb-0">Note</label>
-                                                                    <select id="rating<?= (int)$p['participation_id'] ?>" name="rating" class="form-select form-select-sm">
-                                                                        <option value="">—</option>
-                                                                        <option value="1">1</option>
-                                                                        <option value="2">2</option>
-                                                                        <option value="3">3</option>
-                                                                        <option value="4">4</option>
-                                                                        <option value="5">5</option>
-                                                                    </select>
-                                                                </div>
-                                                                <div class="col">
-                                                                    <label for="comment<?= (int)$p['participation_id'] ?>" class="form-label small mb-0">Avis (optionnel)</label>
-                                                                    <input id="comment<?= (int)$p['participation_id'] ?>" type="text" name="comment" class="form-control form-control-sm" placeholder="Un mot pour le chauffeur">
-                                                                </div>
-                                                                <div class="col-auto">
-                                                                    <button type="submit" class="btn btn-success btn-sm">Valider</button>
-                                                                </div>
-                                                            </div>
-                                                        </form>
+                                                        <a class="btn btn-success btn-sm" href="/participations/validate/<?= (int)$p['participation_id'] ?>">Valider votre voyage</a>
                                                         <button class="btn btn-outline-danger btn-sm ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#reportForm<?= (int)$p['participation_id'] ?>" aria-expanded="false">Signaler</button>
                                                         <div class="collapse mt-2" id="reportForm<?= (int)$p['participation_id'] ?>">
                                                             <form action="/participations/report/<?= (int)$p['participation_id'] ?>" method="POST">
@@ -300,29 +278,7 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                     $canActH = ($p['status'] === 'confirmee') && (($p['covoit_status'] ?? '') === 'termine');
                                                     if ($canActH): ?>
                                                         <div class="mt-2">
-                                                            <form action="/participations/validate/<?= (int)$p['participation_id'] ?>" method="POST" class="d-inline">
-                                                                <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
-                                                                <div class="row g-2 align-items-end">
-                                                                    <div class="col-auto">
-                                                                        <label for="ratingH<?= (int)$p['participation_id'] ?>" class="form-label small mb-0">Note</label>
-                                                                        <select id="ratingH<?= (int)$p['participation_id'] ?>" name="rating" class="form-select form-select-sm">
-                                                                            <option value="">—</option>
-                                                                            <option value="1">1</option>
-                                                                            <option value="2">2</option>
-                                                                            <option value="3">3</option>
-                                                                            <option value="4">4</option>
-                                                                            <option value="5">5</option>
-                                                                        </select>
-                                                                    </div>
-                                                                    <div class="col">
-                                                                        <label for="commentH<?= (int)$p['participation_id'] ?>" class="form-label small mb-0">Avis (optionnel)</label>
-                                                                        <input id="commentH<?= (int)$p['participation_id'] ?>" type="text" name="comment" class="form-control form-control-sm" placeholder="Un mot pour le chauffeur">
-                                                                    </div>
-                                                                    <div class="col-auto">
-                                                                        <button type="submit" class="btn btn-success btn-sm">Valider</button>
-                                                                    </div>
-                                                                </div>
-                                                            </form>
+                                                            <a class="btn btn-success btn-sm" href="/participations/validate/<?= (int)$p['participation_id'] ?>">Valider votre voyage</a>
                                                             <button class="btn btn-outline-danger btn-sm ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#reportFormH<?= (int)$p['participation_id'] ?>" aria-expanded="false">Signaler</button>
                                                             <div class="collapse mt-2" id="reportFormH<?= (int)$p['participation_id'] ?>">
                                                                 <form action="/participations/report/<?= (int)$p['participation_id'] ?>" method="POST">

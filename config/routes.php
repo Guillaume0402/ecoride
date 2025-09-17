@@ -284,6 +284,12 @@ return [
     ],
     // Validation/Signalement par le passager après fin de trajet
     '/participations/validate/{id}' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\ParticipationController',
+            'action' => 'showValidationForm'
+        ]
+    ],
+    '/participations/validate/{id}' => [
         'POST' => [
             'controller' => 'App\\Controller\\ParticipationController',
             'action' => 'validateTrip'
