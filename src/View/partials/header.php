@@ -94,7 +94,14 @@
                                             </a>
                                         </li>
                                     <?php endif; ?>
-                                    <li><a class="dropdown-item" href="/employe"><i class="bi bi-briefcase me-2"></i> Espace employé</a></li>
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center justify-content-between" href="/employe">
+                                            <span><i class="bi bi-briefcase me-2"></i> Espace employé</span>
+                                            <?php if (isset($employeeModPendingCount) && $employeeModPendingCount !== null): ?>
+                                                <span class="badge bg-warning rounded-pill ms-3 text-black"><?= (int) $employeeModPendingCount ?></span>
+                                            <?php endif; ?>
+                                        </a>
+                                    </li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>

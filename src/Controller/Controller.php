@@ -70,6 +70,7 @@ class Controller
                 // Demandes en attente pour ce conducteur
                 $pendingCount = null;
                 $myTripsCount = null;
+                $employeeModPendingCount = null; // compteur modération employé (Mongo)
                 if (!empty($_SESSION['user']['id'])) {
                     $userId = (int) $_SESSION['user']['id'];
                     // Lazy import pour éviter dépendance forte ici
@@ -93,6 +94,18 @@ class Controller
                 }
             } catch (\Throwable $e) {
                 error_log('[render] Counters preload failed: ' . $e->getMessage());
+            }
+
+            // Compteur des avis/signalements "pending" pour les employés (role_id = 2)
+            try {
+                if (isset($_SESSION['user']['role_id']) && (int) $_SESSION['user']['role_id'] === 2) {
+                    $mod = new \App\Service\ReviewModerationService();
+                    $docs = $mod->listPending();
+                    $employeeModPendingCount = is_array($docs) ? count($docs) : 0;
+                }
+            } catch (\Throwable $e) {
+                // En cas d'indisponibilité de Mongo, on n'affiche simplement pas le badge
+                error_log('[render] Employee moderation counter failed: ' . $e->getMessage());
             }
         }
 
