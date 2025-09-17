@@ -38,8 +38,10 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role_id'] !== 2) { // 2 = Em
                                 <td><?= htmlspecialchars((string) ($review['rating'] ?? '')) ?>/5</td>
                                 <td>
                                     <?php if (!empty($review['created_at_ms'])) {
-                                        $d = (int) $review['created_at_ms'] / 1000;
-                                        echo date('d/m/Y H:i', $d);
+                                        // created_at_ms peut être un float (ms). On arrondit et on convertit proprement en secondes sans perte
+                                        $ms = (float) $review['created_at_ms'];
+                                        $sec = intdiv((int) round($ms), 1000);
+                                        echo date('d/m/Y H:i', $sec);
                                     } ?>
                                 </td>
                                 <td>
@@ -87,8 +89,9 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role_id'] !== 2) { // 2 = Em
                                 <td><?= htmlspecialchars($rep['reason'] ?? '') ?></td>
                                 <td><?= htmlspecialchars($rep['comment'] ?? '') ?></td>
                                 <td><?php if (!empty($rep['created_at_ms'])) {
-                                        $d = (int)$rep['created_at_ms'] / 1000;
-                                        echo date('d/m/Y H:i', $d);
+                                        $ms = (float) $rep['created_at_ms'];
+                                        $sec = intdiv((int) round($ms), 1000);
+                                        echo date('d/m/Y H:i', $sec);
                                     } ?></td>
                             </tr>
                         <?php endforeach; ?>
