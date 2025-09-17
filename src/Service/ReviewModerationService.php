@@ -18,15 +18,32 @@ class ReviewModerationService
         $this->client = new Client($dsn);
     }
 
+    /**
+     * Convertit un document Mongo (BSONDocument/objet) en tableau mutable
+     * et ajoute une clé 'id' (doc_id ou _id) pour un usage pratique côté vues.
+     */
+    private function normalizeDoc($doc): array
+    {
+        if ($doc instanceof \MongoDB\Model\BSONDocument) {
+            $doc = $doc->getArrayCopy();
+        } elseif (is_object($doc)) {
+            $doc = json_decode(json_encode($doc), true) ?? [];
+        } elseif (!is_array($doc)) {
+            $doc = [];
+        }
+        if (!isset($doc['id'])) {
+            $doc['id'] = isset($doc['doc_id']) ? (string) $doc['doc_id'] : (string) ($doc['_id'] ?? '');
+        }
+        return $doc;
+    }
+
     public function listPending(): array
     {
         $coll = $this->client->selectCollection($this->dbName, $this->collection);
         $cursor = $coll->find(['status' => 'pending']);
         $out = [];
         foreach ($cursor as $doc) {
-            // Préférer doc_id comme identifiant portable
-            $doc['id'] = isset($doc['doc_id']) ? (string) $doc['doc_id'] : (string) ($doc['_id'] ?? '');
-            $out[] = $doc;
+            $out[] = $this->normalizeDoc($doc);
         }
         return $out;
     }
@@ -48,7 +65,6 @@ class ReviewModerationService
         $coll = $this->client->selectCollection($this->dbName, $this->collection);
         $doc = $coll->findOne(['doc_id' => $id]);
         if (!$doc) return null;
-        $doc['id'] = isset($doc['doc_id']) ? (string) $doc['doc_id'] : (string) ($doc['_id'] ?? '');
-        return $doc;
+        return $this->normalizeDoc($doc);
     }
 }

@@ -134,6 +134,7 @@ class CovoiturageRepository
         $sql = "SELECT c.*, 
                        v.places_dispo AS vehicle_places,
                        v.marque AS vehicle_marque, v.modele AS vehicle_modele, v.couleur AS vehicle_couleur,
+                       v.immatriculation AS vehicle_immatriculation,
                        u.pseudo AS driver_pseudo, u.photo AS driver_photo
                 FROM {$this->table} c
                 LEFT JOIN vehicles v ON v.id = c.vehicle_id

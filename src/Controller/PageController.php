@@ -257,4 +257,17 @@ class PageController extends Controller
     {
         $this->render('pages/privacy');
     }
+
+    // Détail d'un covoiturage (public)
+    public function showCovoiturage(int $id): void
+    {
+        $repo = new CovoiturageRepository();
+        $ride = $repo->findOneWithVehicleById($id);
+        if (!$ride) {
+            abort(404, 'Covoiturage introuvable');
+        }
+        $this->render('pages/covoiturages/show', [
+            'ride' => $ride,
+        ]);
+    }
 }
