@@ -27,7 +27,9 @@ $reviewsCount = is_array($reviews ?? null) ? count($reviews) : 0;
                                 </span>
                                 <span class="ms-2">(<?= (int)$reviewsCount ?>)</span>
                             </div>
-                            <h2 class="fw-bold mb-2"><?= htmlspecialchars($profileUser['pseudo'] ?? '') ?></h2>
+                            <h2 class="fw-bold mb-2 text-break" style="word-break:break-word;overflow-wrap:anywhere;max-width:100%;">
+                                <?= htmlspecialchars($profileUser['pseudo'] ?? '') ?>
+                            </h2>
                             <?php $__avatar = !empty($profileUser['photo']) ? $profileUser['photo'] : (defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg'); ?>
                             <img src="<?= htmlspecialchars($__avatar) ?>" alt="Avatar" class="rounded-circle bg-white mb-2" style="width:70px;height:70px;object-fit:cover;" onerror="this.onerror=null;this.src='<?= defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg' ?>';">
                             <ul class="list-unstyled small mb-3">
