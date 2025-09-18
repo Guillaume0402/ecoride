@@ -60,6 +60,13 @@ return [
             'action' => 'profil'
         ]
     ],
+    // Profil public d'un utilisateur (lecture seule)
+    '/profil/{id}' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'showUserProfil'
+        ]
+    ],
     '/profil/edit' => [
         'GET' => [
             'controller' => 'App\\Controller\\UserController',
