@@ -256,7 +256,9 @@ class PageController extends Controller
                 ->selectCollection($_ENV['MONGO_DB'] ?? 'ecoride', 'reviews');
             $cursor = $coll->find(['kind' => 'review', 'status' => 'approved', 'driver_id' => (int)$id], ['sort' => ['created_at_ms' => -1]]);
             foreach ($cursor as $doc) {
-                if ($doc instanceof \MongoDB\Model\BSONDocument) { $doc = $doc->getArrayCopy(); }
+                if ($doc instanceof \MongoDB\Model\BSONDocument) {
+                    $doc = $doc->getArrayCopy();
+                }
                 $reviews[] = $doc;
             }
         } catch (\Throwable $e) {
