@@ -28,15 +28,37 @@ class AdminController extends Controller
     // Page d'accueil du tableau de bord administrateur.     
     public function dashboard(): void
     {
-        $this->render("pages/admin/dashboard");
+        // KPIs
+        $userCount = $this->userRepository->countAll();
+        $covoitRepo = new \App\Repository\CovoiturageRepository();
+        $partRepo = new \App\Repository\ParticipationRepository();
+        $todayRides = $covoitRepo->countToday();
+        $totalCreditsEstime = array_sum($covoitRepo->sumPrixByDay(30));
+
+        $this->render("pages/admin/dashboard", [
+            'kpi_users' => $userCount,
+            'kpi_rides_today' => $todayRides,
+            'kpi_credits_30d' => $totalCreditsEstime,
+        ]);
     }
 
     // Page de statistiques (expose un indicateur de page admin à la vue).
 
     public function stats(): void
     {
+        $covoitRepo = new \App\Repository\CovoiturageRepository();
+        $partRepo = new \App\Repository\ParticipationRepository();
+        $users = $this->userRepository->countAll();
+        $ridesSeries = $covoitRepo->seriesByDay(14);
+        $creditsSeries = $covoitRepo->sumPrixByDay(14);
+        $confirmRate = $partRepo->confirmationRateLastDays(30);
+
         $this->render("pages/admin/stats", [
-            'isAdminPage' => true
+            'isAdminPage' => true,
+            'usersCount' => $users,
+            'ridesSeries' => $ridesSeries,
+            'creditsSeries' => $creditsSeries,
+            'confirmRate' => $confirmRate,
         ]);
     }
 

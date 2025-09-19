@@ -171,6 +171,13 @@ class UserRepository
         return $stmt->execute([':note' => $newNote, ':id' => $userId]);
     }
 
+    // === Stats simples ===
+    public function countAll(): int
+    {
+        $stmt = $this->conn->query("SELECT COUNT(*) FROM {$this->table}");
+        return (int) $stmt->fetchColumn();
+    }
+
     // ===========================
     //  Gestion des crédits (débit/credit)
     // ===========================

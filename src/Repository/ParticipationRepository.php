@@ -126,4 +126,24 @@ class ParticipationRepository
         $stmt->execute([':pid' => $passagerId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+
+    // === Stats ===
+    public function countAll(): int
+    {
+        $stmt = $this->conn->query("SELECT COUNT(*) FROM {$this->table}");
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function confirmationRateLastDays(int $days = 30): float
+    {
+        $days = max(1, min(90, $days));
+        $sqlTot = $this->conn->prepare("SELECT COUNT(*) FROM {$this->table} WHERE date_participation >= DATE_SUB(CURDATE(), INTERVAL :d DAY)");
+        $sqlTot->execute([':d' => $days]);
+        $total = (int) $sqlTot->fetchColumn();
+        if ($total === 0) return 0.0;
+        $sqlOk = $this->conn->prepare("SELECT COUNT(*) FROM {$this->table} WHERE status='confirmee' AND date_participation >= DATE_SUB(CURDATE(), INTERVAL :d DAY)");
+        $sqlOk->execute([':d' => $days]);
+        $ok = (int) $sqlOk->fetchColumn();
+        return round(($ok / $total) * 100, 2);
+    }
 }
