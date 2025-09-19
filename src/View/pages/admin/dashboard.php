@@ -22,13 +22,13 @@
     <section class="flex-fill p-4">
         <h1 class="mb-4">Bienvenue, <?= htmlspecialchars($_SESSION['user']['pseudo']) ?> 👋</h1>
 
-        
+
         <div class="row g-4">
             <div class="col-md-4">
                 <div class="card dash shadow-sm">
                     <div class="card-body ">
                         <h4 class="card-title">Total utilisateurs</h4>
-                        <p class="card-text">📌 <strong>152</strong></p>
+                        <p class="card-text">📌 <strong><?= (int)($kpi_users ?? 0) ?></strong></p>
                     </div>
                 </div>
             </div>
@@ -36,15 +36,15 @@
                 <div class="card dash shadow-sm">
                     <div class="card-body ">
                         <h4 class="card-title">Covoiturages du jour</h4>
-                        <p class="card-text">🛺 <strong>23</strong></p>
+                        <p class="card-text">🛺 <strong><?= (int)($kpi_rides_today ?? 0) ?></strong></p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card dash shadow-sm">
                     <div class="card-body ">
-                        <h4 class="card-title">Crédits générés</h4>
-                        <p class="card-text">💳 <strong>382</strong></p>
+                        <h4 class="card-title">Crédits générés (30j)</h4>
+                        <p class="card-text">💳 <strong><?= number_format((float)($kpi_credits_30d ?? 0), 0, ',', ' ') ?></strong></p>
                     </div>
                 </div>
             </div>

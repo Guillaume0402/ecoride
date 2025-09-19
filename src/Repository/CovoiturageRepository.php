@@ -187,4 +187,59 @@ class CovoiturageRepository
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([':s' => $status, ':id' => $id]);
     }
+
+    // === Stats ===
+    public function countAll(): int
+    {
+        $stmt = $this->conn->query("SELECT COUNT(*) FROM {$this->table}");
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function countToday(): int
+    {
+        $stmt = $this->conn->query("SELECT COUNT(*) FROM {$this->table} WHERE DATE(depart) = CURDATE()");
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Retourne un tableau [ 'YYYY-MM-DD' => n ] pour les N derniers jours.
+     */
+    public function seriesByDay(int $days = 7): array
+    {
+        $days = max(1, min(60, $days));
+        $sql = "SELECT DATE(depart) AS d, COUNT(*) AS n
+                FROM {$this->table}
+                WHERE depart >= DATE_SUB(CURDATE(), INTERVAL :d DAY)
+                GROUP BY DATE(depart)
+                ORDER BY d ASC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':d' => $days]);
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+        $out = [];
+        foreach ($rows as $r) {
+            $out[$r['d']] = (int)$r['n'];
+        }
+        return $out;
+    }
+
+    /**
+     * Estimation de crédits générés par jour (somme prix), sur N jours.
+     */
+    public function sumPrixByDay(int $days = 7): array
+    {
+        $days = max(1, min(60, $days));
+        $sql = "SELECT DATE(depart) AS d, SUM(prix) AS s
+                FROM {$this->table}
+                WHERE depart >= DATE_SUB(CURDATE(), INTERVAL :d DAY)
+                GROUP BY DATE(depart)
+                ORDER BY d ASC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':d' => $days]);
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+        $out = [];
+        foreach ($rows as $r) {
+            $out[$r['d']] = (float)$r['s'];
+        }
+        return $out;
+    }
 }

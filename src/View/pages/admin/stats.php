@@ -26,7 +26,9 @@
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title">Évolution des covoiturages</h5>
-                        <canvas id="chartCovoiturages" height="200"></canvas>
+                        <canvas id="chartCovoiturages" height="200"
+                            data-labels='<?= json_encode(array_keys($ridesSeries ?? [])) ?>'
+                            data-values='<?= json_encode(array_values($ridesSeries ?? [])) ?>'></canvas>
                     </div>
                 </div>
             </div>
@@ -35,7 +37,9 @@
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title">Crédits générés (par jour)</h5>
-                        <canvas id="chartCredits" height="200"></canvas>
+                        <canvas id="chartCredits" height="200"
+                            data-labels='<?= json_encode(array_keys($creditsSeries ?? [])) ?>'
+                            data-values='<?= json_encode(array_values($creditsSeries ?? [])) ?>'></canvas>
                     </div>
                 </div>
             </div>
@@ -44,10 +48,10 @@
         <div class="mt-5">
             <h5>Résumé</h5>
             <ul>
-                <li>Total covoiturages : <strong>137</strong></li>
-                <li>Total utilisateurs : <strong>58</strong></li>
-                <li>Crédits générés ce mois-ci : <strong>846</strong></li>
-                <li>Moyenne de trajets par jour : <strong>5</strong></li>
+                <li>Total covoiturages (14j) : <strong><?= array_sum($ridesSeries ?? []) ?></strong></li>
+                <li>Total utilisateurs : <strong><?= (int)($usersCount ?? 0) ?></strong></li>
+                <li>Crédits générés (14j) : <strong><?= number_format(array_sum($creditsSeries ?? []), 0, ',', ' ') ?></strong></li>
+                <li>Taux de confirmation (30j) : <strong><?= (float)($confirmRate ?? 0) ?>%</strong></li>
             </ul>
         </div>
     </section>
