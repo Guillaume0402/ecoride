@@ -229,7 +229,7 @@ class PageController extends Controller
     {
         try {
             $uRepo = new \App\Repository\UserRepository();
-            $vehRepo = new \App\Repository\VehicleRepository();
+            $vehRepo = new VehicleRepository();
         } catch (\Throwable $e) {
             abort(500, 'Dépendances indisponibles');
         }

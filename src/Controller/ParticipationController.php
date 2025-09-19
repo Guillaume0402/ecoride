@@ -261,7 +261,7 @@ class ParticipationController extends Controller
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
             abort(405);
         }
-        if (!\App\Security\Csrf::check($_POST['csrf'] ?? null)) {
+        if (!Csrf::check($_POST['csrf'] ?? null)) {
             Flash::add('Requête invalide (CSRF).', 'danger');
             redirect('/mes-covoiturages');
         }
@@ -357,7 +357,7 @@ class ParticipationController extends Controller
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
             abort(405);
         }
-        if (!\App\Security\Csrf::check($_POST['csrf'] ?? null)) {
+        if (!Csrf::check($_POST['csrf'] ?? null)) {
             Flash::add('Requête invalide (CSRF).', 'danger');
             redirect('/mes-covoiturages');
         }
