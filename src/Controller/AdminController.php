@@ -49,16 +49,115 @@ class AdminController extends Controller
         $covoitRepo = new \App\Repository\CovoiturageRepository();
         $partRepo = new \App\Repository\ParticipationRepository();
         $users = $this->userRepository->countAll();
-        $ridesSeries = $covoitRepo->seriesByDay(14);
-        $creditsSeries = $covoitRepo->sumPrixByDay(14);
+        // Fenêtre configurable (7/15/30 jours)
+        $allowedDays = [7, 15, 30];
+        $days = (int)($_GET['days'] ?? 15);
+        if (!in_array($days, $allowedDays, true)) {
+            $days = 15;
+        }
+
+        $ridesSeries = $covoitRepo->seriesByDay($days);
+        $creditsSeries = $covoitRepo->sumPrixByDay($days);
         $confirmRate = $partRepo->confirmationRateLastDays(30);
+
+        // Sécuriser l'ordre chronologique (clés = dates YYYY-MM-DD)
+        if (is_array($ridesSeries)) {
+            ksort($ridesSeries);
+        }
+        if (is_array($creditsSeries)) {
+            ksort($creditsSeries);
+        }
+
+        // KPIs dérivés (fenêtre choisie)
+        $daysCount = max(1, count($ridesSeries ?? []));
+        $totalRidesWindow = array_sum($ridesSeries ?? []);
+        $avgRidesPerDayWindow = $totalRidesWindow / $daysCount;
+        $creditsWindow = array_sum($creditsSeries ?? []);
+        $avgCreditsPerDayWindow = $creditsWindow / max(1, count($creditsSeries ?? []));
+        $avgCreditsPerRide = $totalRidesWindow > 0 ? ($creditsWindow / $totalRidesWindow) : 0.0;
+
+        // Meilleurs jours (trajets et crédits)
+        $bestRideDayDate = null;
+        $bestRideDayValue = 0;
+        foreach (($ridesSeries ?? []) as $d => $v) {
+            if ($v > $bestRideDayValue) {
+                $bestRideDayValue = (int)$v;
+                $bestRideDayDate = $d;
+            }
+        }
+        $bestCreditDayDate = null;
+        $bestCreditDayValue = 0.0;
+        foreach (($creditsSeries ?? []) as $d => $v) {
+            if ($v > $bestCreditDayValue) {
+                $bestCreditDayValue = (float)$v;
+                $bestCreditDayDate = $d;
+            }
+        }
+
+        // Totaux "depuis toujours"
+        $totalRidesAll = $covoitRepo->countAll();
+        $totalCreditsAll = $covoitRepo->sumPrixAll();
+
+        // Covoiturages aujourd'hui (aperçu rapide)
+        $todayRides = $covoitRepo->countToday();
+
+        // Préparation UI (labels JSON pour charts, classes boutons période)
+        $labelsR = json_encode(array_keys($ridesSeries ?? []));
+        $valuesR = json_encode(array_values($ridesSeries ?? []));
+        $labelsC = json_encode(array_keys($creditsSeries ?? []));
+        $valuesC = json_encode(array_values($creditsSeries ?? []));
+        $btn7  = ($days === 7)  ? 'btn-success' : 'btn-outline-success';
+        $btn15 = ($days === 15) ? 'btn-success' : 'btn-outline-success';
+        $btn30 = ($days === 30) ? 'btn-success' : 'btn-outline-success';
+
+        // Formats strings pour la vue (évite la logique dans le template)
+        $summaryStrings = [
+            'todayRides' => (int)$todayRides,
+            'totalRidesWindow' => (int)$totalRidesWindow,
+            'avgRidesPerDayWindow' => number_format((float)$avgRidesPerDayWindow, 1, ',', ' '),
+            'totalCreditsWindow' => number_format((float)$creditsWindow, 0, ',', ' '),
+            'avgCreditsPerRide' => number_format((float)$avgCreditsPerRide, 1, ',', ' '),
+            'avgCreditsPerDayWindow' => number_format((float)$avgCreditsPerDayWindow, 1, ',', ' '),
+            'bestRideDayLabel' => $bestRideDayDate ? date('d/m', strtotime($bestRideDayDate)) : '-',
+            'bestRideDayValue' => (int)$bestRideDayValue,
+            'bestCreditDayLabel' => $bestCreditDayDate ? date('d/m', strtotime($bestCreditDayDate)) : '-',
+            'bestCreditDayValue' => number_format((float)$bestCreditDayValue, 0, ',', ' '),
+            'usersCount' => (int)$users,
+            'confirmRate' => number_format((float)$confirmRate, 2, ',', ' '),
+            'totalRidesAll' => (int)$totalRidesAll,
+            'totalCreditsAll' => number_format((float)$totalCreditsAll, 0, ',', ' '),
+        ];
 
         $this->render("pages/admin/stats", [
             'isAdminPage' => true,
+            'days' => $days,
             'usersCount' => $users,
             'ridesSeries' => $ridesSeries,
             'creditsSeries' => $creditsSeries,
             'confirmRate' => $confirmRate,
+            'ui' => [
+                'btn7' => $btn7,
+                'btn15' => $btn15,
+                'btn30' => $btn30,
+                'labelsR' => $labelsR,
+                'valuesR' => $valuesR,
+                'labelsC' => $labelsC,
+                'valuesC' => $valuesC,
+            ],
+            // Résumé enrichi
+            'summary' => [
+                'totalRidesWindow' => $totalRidesWindow,
+                'avgRidesPerDayWindow' => $avgRidesPerDayWindow,
+                'totalCreditsWindow' => $creditsWindow,
+                'avgCreditsPerRide' => $avgCreditsPerRide,
+                'avgCreditsPerDayWindow' => $avgCreditsPerDayWindow,
+                'bestRideDay' => ['date' => $bestRideDayDate, 'value' => $bestRideDayValue],
+                'bestCreditDay' => ['date' => $bestCreditDayDate, 'value' => $bestCreditDayValue],
+                'todayRides' => $todayRides,
+                'totalRidesAll' => $totalRidesAll,
+                'totalCreditsAll' => $totalCreditsAll,
+            ],
+            'summaryStrings' => $summaryStrings,
         ]);
     }
 
