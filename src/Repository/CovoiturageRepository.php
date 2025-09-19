@@ -195,6 +195,12 @@ class CovoiturageRepository
         return (int) $stmt->fetchColumn();
     }
 
+    public function sumPrixAll(): float
+    {
+        $stmt = $this->conn->query("SELECT COALESCE(SUM(prix),0) FROM {$this->table}");
+        return (float) $stmt->fetchColumn();
+    }
+
     public function countToday(): int
     {
         $stmt = $this->conn->query("SELECT COUNT(*) FROM {$this->table} WHERE DATE(depart) = CURDATE()");
