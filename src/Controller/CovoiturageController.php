@@ -102,14 +102,44 @@ class CovoiturageController extends Controller
             'prix' => $prix,
             'status' => 'en_attente',
         ]);
-
-        if ($this->covoiturageRepository->create($c)) {
-            Flash::add('Covoiturage créé avec succès.', 'success');
-            redirect('/liste-covoiturages');
+        // Frais de création: débiter le conducteur avant l'insertion
+        $fee = defined('RIDE_CREATE_FEE_CREDITS') ? (int) RIDE_CREATE_FEE_CREDITS : 2;
+        if ($fee > 0) {
+            if (!$this->userRepository->debitIfEnough($userId, $fee)) {
+                Flash::add("Crédits insuffisants: il faut au moins {$fee} crédit(s) pour créer un trajet.", 'warning');
+                redirect('/');
+            }
+            // Rafraîchir le solde en session si besoin
+            if (!empty($_SESSION['user']) && (int)$_SESSION['user']['id'] === $userId) {
+                $u = $this->userRepository->findById($userId);
+                if ($u) {
+                    $_SESSION['user']['credits'] = $u->getCredits();
+                }
+            }
         }
 
-        Flash::add("Erreur lors de la création du covoiturage.", 'danger');
-        redirect('/');
+        if ($this->covoiturageRepository->create($c)) {
+            // Ajoute une transaction informative avec l'ID
+            if ($fee > 0) {
+                $this->transactionRepository->create($userId, $fee, 'debit', 'Frais création trajet #' . (int)$c->getId());
+            }
+            Flash::add('Covoiturage créé avec succès.', 'success');
+            redirect('/liste-covoiturages');
+        } else {
+            // Rembourser le frais si l'insertion a échoué
+            if ($fee > 0) {
+                $this->userRepository->credit($userId, $fee);
+                $this->transactionRepository->create($userId, $fee, 'credit', 'Remboursement frais création (échec)');
+                if (!empty($_SESSION['user']) && (int)$_SESSION['user']['id'] === $userId) {
+                    $u = $this->userRepository->findById($userId);
+                    if ($u) {
+                        $_SESSION['user']['credits'] = $u->getCredits();
+                    }
+                }
+            }
+            Flash::add("Erreur lors de la création du covoiturage.", 'danger');
+            redirect('/');
+        }
     }
     // POST /api/covoiturages/create
     public function apiCreate(): void
@@ -194,14 +224,30 @@ class CovoiturageController extends Controller
             'prix' => $prix,
             'status' => 'en_attente',
         ]);
-
-        if ($this->covoiturageRepository->create($c)) {
-            echo json_encode(['success' => true, 'message' => 'Covoiturage créé.', 'id' => $c->getId()]);
-            return;
+        // Frais de création
+        $fee = defined('RIDE_CREATE_FEE_CREDITS') ? (int) RIDE_CREATE_FEE_CREDITS : 2;
+        if ($fee > 0) {
+            if (!$this->userRepository->debitIfEnough($userId, $fee)) {
+                http_response_code(402);
+                echo json_encode(['success' => false, 'message' => "Crédits insuffisants: il faut au moins {$fee} crédit(s) pour créer un trajet."]);
+                return;
+            }
         }
 
-        http_response_code(500);
-        echo json_encode(['success' => false, 'message' => "Erreur lors de la création."]);
+        if ($this->covoiturageRepository->create($c)) {
+            if ($fee > 0) {
+                $this->transactionRepository->create($userId, $fee, 'debit', 'Frais création trajet #' . (int)$c->getId());
+            }
+            echo json_encode(['success' => true, 'message' => 'Covoiturage créé.', 'id' => $c->getId()]);
+            return;
+        } else {
+            if ($fee > 0) {
+                $this->userRepository->credit($userId, $fee);
+                $this->transactionRepository->create($userId, $fee, 'credit', 'Remboursement frais création (échec)');
+            }
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Erreur lors de la création.']);
+        }
     }
 
     // POST /covoiturages/cancel/{id}

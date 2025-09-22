@@ -163,9 +163,20 @@ SMTP_PORT=587
 SMTP_USER=
 SMTP_PASS=
 SMTP_SECURE=tls
+
+# Frais plateforme (crédits)
+# Nombre de crédits débités au conducteur lors de la création d'un trajet
+# Par défaut: 2 si non défini
+RIDE_CREATE_FEE_CREDITS=2
 ```
 
 Ne pas versionner vos vrais identifiants de production.
+
+### Crédits et transactions
+
+-   Débit passager: au moment où le conducteur accepte la participation, le passager est débité du prix (arrondi à l'entier supérieur, min 1).
+-   Crédit conducteur: quand le passager valide le trajet terminé, le conducteur est crédité (idempotent par motif).
+-   Frais de création: lorsque le conducteur crée un covoiturage, la plateforme prélève `RIDE_CREATE_FEE_CREDITS` crédits immédiatement. Si la création échoue techniquement, les crédits sont remboursés.
 
 ---
 
