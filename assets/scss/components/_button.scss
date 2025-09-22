@@ -22,15 +22,13 @@
     }
 }
 
-
-
 // ————————————————
 // Boutons
 // ————————————————
 
 // Bouton principal EcoRide
 .btn-ecoride {
-    @extend %btn-base;   
+    @extend %btn-base;
     background: $btn-gradient;
     color: var(--text-white);
     border: none;
@@ -45,14 +43,19 @@
 .btn-inscription {
     @extend %btn-base;
     background: $btn-gradient;
-    color: var(--text-white);    
+    color: var(--text-white);
     @extend %btn-hover;
 }
 
 // Bouton outline custom
 .btn-custom-outline {
-    @extend %btn-base;    
+    @extend %btn-base;
     background: transparent;
-    color: var(--text-white);
-    @extend %btn-hover;
+    color: var(--text-black);
+    border-color: $color-secondary !important;
+    &:hover {
+        background-color: $color-secondary;
+        color: var(--text-black) !important;
+        border-color: $color-secondary;
+    }
 }

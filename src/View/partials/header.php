@@ -17,7 +17,7 @@
             <div class="collapse navbar-collapse justify-content-end mobile-menu" id="navbarNavDropdown">
                 <ul class="navbar-nav gap-3">
                     <li class="nav-item ">
-                        <a class="navlink nav-link " href="/contact">Qui sommes-nous ?</a>
+                        <a class="navlink nav-link " href="/qui-sommes-nous">Qui sommes-nous ?</a>
                     </li>
                     <li class="nav-item align-items-center">
                         <a class="navlink nav-link " aria-current="page" href="/">Accueil</a>
