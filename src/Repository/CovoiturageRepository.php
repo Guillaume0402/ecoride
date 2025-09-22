@@ -310,35 +310,39 @@ class CovoiturageRepository
      *   ...
      * ]
      */
-    public function popularDestinations(int $destLimit = 6, int $perDestDepartLimit = 4): array
+        public function popularDestinations(int $destLimit = 6, int $perDestDepartLimit = 4, int $daysBack = 30): array
     {
         $destLimit = max(1, min(24, $destLimit));
         $perDestDepartLimit = max(1, min(10, $perDestDepartLimit));
+                $daysBack = max(0, min(365, $daysBack));
 
-        // Top destinations par nombre de trajets à venir
-        $sqlTop = "SELECT c.adresse_arrivee AS arrivee, COUNT(*) AS cnt
-                   FROM {$this->table} c
-                   WHERE c.status NOT IN ('annule','termine')
-                     AND c.depart >= NOW()
-                     AND c.adresse_arrivee IS NOT NULL AND c.adresse_arrivee <> ''
-                   GROUP BY c.adresse_arrivee
-                   ORDER BY cnt DESC, arrivee ASC
-                   LIMIT {$destLimit}";
+                // Top destinations par nombre de trajets à venir OU partis sur les 30 derniers jours
+                $whereWindow = $daysBack > 0
+                        ? "(c.depart >= NOW() OR c.depart >= DATE_SUB(NOW(), INTERVAL {$daysBack} DAY))"
+                        : "c.depart >= NOW()";
+                $sqlTop = "SELECT c.adresse_arrivee AS arrivee, COUNT(*) AS cnt
+                                     FROM {$this->table} c
+                                     WHERE c.status NOT IN ('annule','termine')
+                                         AND {$whereWindow}
+                                         AND c.adresse_arrivee IS NOT NULL AND c.adresse_arrivee <> ''
+                                     GROUP BY c.adresse_arrivee
+                                     ORDER BY cnt DESC, arrivee ASC
+                                     LIMIT {$destLimit}";
         $topStmt = $this->conn->query($sqlTop);
         $tops = $topStmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
 
         if (empty($tops)) return [];
 
         $out = [];
-        $sqlDeps = "SELECT c.adresse_depart AS depart, COUNT(*) AS cnt, MIN(c.prix) AS min_prix, AVG(c.prix) AS avg_prix
-                    FROM {$this->table} c
-                    WHERE c.status NOT IN ('annule','termine')
-                      AND c.depart >= NOW()
-                      AND c.adresse_arrivee = :arr
-                      AND c.adresse_depart IS NOT NULL AND c.adresse_depart <> ''
-                    GROUP BY c.adresse_depart
-                    ORDER BY cnt DESC, depart ASC
-                    LIMIT {$perDestDepartLimit}";
+                $sqlDeps = "SELECT c.adresse_depart AS depart, COUNT(*) AS cnt, MIN(c.prix) AS min_prix, AVG(c.prix) AS avg_prix
+                                        FROM {$this->table} c
+                                        WHERE c.status NOT IN ('annule','termine')
+                                            AND {$whereWindow}
+                                            AND c.adresse_arrivee = :arr
+                                            AND c.adresse_depart IS NOT NULL AND c.adresse_depart <> ''
+                                        GROUP BY c.adresse_depart
+                                        ORDER BY cnt DESC, depart ASC
+                                        LIMIT {$perDestDepartLimit}";
         $depStmt = $this->conn->prepare($sqlDeps);
 
         foreach ($tops as $row) {

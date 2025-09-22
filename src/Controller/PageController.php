@@ -24,7 +24,7 @@ class PageController extends Controller
         $popular = [];
         try {
             $repo = new CovoiturageRepository();
-            $popular = $repo->popularDestinations(6, 4);
+            $popular = $repo->popularDestinations(6, 4, 30);
         } catch (\Throwable $e) {
             error_log('[home] popular destinations failed: ' . $e->getMessage());
         }
