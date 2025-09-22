@@ -11,22 +11,23 @@ Assurer un développement clair, organisé et conforme aux **bonnes pratiques de
 | Nom de branche       | Description                                           |
 |----------------------|-------------------------------------------------------|
 | `main`               | Version **stable** prête à être livrée en production |
-| `develop`            | Intégration de toutes les fonctionnalités validées   |
-| `feat/xxx`           | Développement d'une **nouvelle fonctionnalité**      |
+| `dev`                | Intégration des fonctionnalités validées             |
+| `feat/xxx` ou `feature/xxx` | Développement d'une **nouvelle fonctionnalité**      |
 | `fix/xxx`            | **Correction de bug** non critique                   |
 | `hotfix/xxx`         | **Correction urgente** directement en production     |
 | `refactor/xxx`       | **Refactorisation** de code sans ajout de fonction   |
 | `style/xxx`          | Modifications purement **visuelles / CSS**           |
-| `doc/xxx`            | **Documentation**, README, changelog, etc.          |
+| `docs/xxx`           | **Documentation**, README, changelog, etc.           |
+| `chore/xxx`          | Tâches techniques/outillage (config, CI, cleanup)    |
 
 ---
 
 ## Workflow recommandé
 
-### 1. Se baser sur `develop` à jour :
+### 1. Se baser sur `dev` à jour :
 ```bash
-git checkout develop
-git pull origin develop
+git checkout dev
+git pull origin dev
 ```
 
 ### 2. Créer une branche dédiée et nommée proprement :
@@ -58,9 +59,9 @@ git push origin feat/nom-clair
 
 ---
 
-### 5. Fusionner dans `develop` après validation :
+### 5. Fusionner dans `dev` après validation :
 ```bash
-git checkout develop
+git checkout dev
 git merge feat/nom-clair
 ```
 
@@ -70,7 +71,7 @@ git merge feat/nom-clair
 ```bash
 git checkout main
 git pull origin main
-git merge develop
+git merge dev
 git push origin main
 ```
 
@@ -78,13 +79,14 @@ git push origin main
 
 ##  Règles de bonne conduite
 
-- Ne jamais coder directement sur `main` ou `develop`
+- Ne jamais coder directement sur `main` ou `dev`
 - 1 branche = 1 tâche (même petite)
 - Rester cohérent avec les préfixes (`feat/`, `fix/`, etc.)
-- Supprimer les branches locales une fois mergées
+- Supprimer les branches locales et distantes une fois mergées
 
 ```bash
 git branch -d feat/nom-clair
+git push origin --delete feat/nom-clair
 ```
 
 ---
@@ -92,42 +94,41 @@ git branch -d feat/nom-clair
 ## Exemple complet
 
 ```bash
-# Nouvelle fonctionnalité
-git checkout develop
-git pull origin develop
-git checkout -b feat/modale-auth
+# Nouvelle fonctionnalité (ex: modale d'authentification)
+git checkout dev
+git pull origin dev
+git checkout -b feature/modal-auth
 # Code...
 git add .
 git commit -m "feat: modale de connexion et d'inscription"
-git push origin feat/modale-auth
+git push origin feature/modal-auth
 
-# Testé → merge dans develop
-git checkout develop
-git merge feat/modale-auth
+# Testé → merge dans dev
+git checkout dev
+git merge feature/modal-auth
 
-# Tout validé → merge dans main
+# Tout validé → merge dans main (depuis dev)
 git checkout main
-git merge develop
+git merge dev
 git push origin main
 ```
 
 ---
 
-##  Suivi des branches Git
+##  Suivi des branches Git (échantillon conservé)
 
-| Branche                     | Type       | Statut         | Description courte                               | Merge vers     |
-|----------------------------|------------|----------------|---------------------------------------------------|----------------|
-| main                       | stable     |  à conserver  | Version finale stable (prod)                       | -              |
-| develop                    | intégration|  à conserver  | Version de développement principale                | main           |
-| feat/creation-profil       | feature    |  à conserver  | Formulaire de création de profil                   | develop        |
-| feat/creation-covoiturage  | feature    |  à conserver  | Formulaire de création de covoiturage              | develop        |
-| feat/nav-modale-auth       | feature    |  à conserver  | Navigation + modale connexion/inscription          | develop        |
-| feat/home-page             | feature    |  renommée     | Page d’accueil avec présentation et images         | develop        |
-| feat/search-covoiturages   | feature    |  renommée     | Formulaire et affichage de recherche               | develop        |
-| refactor/routing           | refactor   |  renommée     | Refonte du système de routage                      | develop        |
-| feat/pages-header-update   | feature    |  en cours     | Nouvelles pages vierges + refonte du header        | develop        |
+| Branche                 | Type     | Statut       | Description courte                                 | Merge vers |
+|-------------------------|----------|--------------|-----------------------------------------------------|------------|
+| main                    | stable   | à conserver  | Version finale stable (prod)                        | -          |
+| dev                     | intégration | à conserver | Branche d’intégration principale                    | main       |
+| feature/modal-auth      | feature  | à conserver  | Modale de connexion / inscription                   | dev        |
+| feat/csrf-login         | feature  | à conserver  | Protection CSRF lors de la connexion                | dev        |
+| fix/login-error-message | fix      | à conserver  | Amélioration du message d’erreur login              | dev        |
+| refactor/javascript     | refactor | à conserver  | Refactorisation JS côté front                       | dev        |
+| chore/error-handler     | chore    | à conserver  | Gestionnaire d’erreurs (technique)                  | dev        |
+| docs/readme-ecf         | docs     | à conserver  | Documentation spécifique ECF                        | dev        |
 
->  Branches supprimées : `sauvegarde-apres-stash`, `feature/router-refactor` (doublon inutile)
+>  Branches nettoyées : anciennes branches non essentielles (features/fixes/refactors obsolètes) supprimées localement et à distance pour ne garder qu’un échantillon représentatif.
 
 ---
 
@@ -150,7 +151,7 @@ git push origin main
 | `fix`       |  Correction de bug                               |
 | `refactor`  |  Refactorisation sans changement fonctionnel     |
 | `style`     |  Modifs visuelles uniquement (CSS, HTML…)        |
-| `doc`       |  Modifications de docs ou README                 |
+| `docs`      |  Modifications de docs ou README                 |
 | `test`      |  Ajout ou modif de tests                         |
 | `chore`     |  Maintenance ou tâches annexes (npm, config…)    |
 | `hotfix`    |  Correction urgente en prod                      |
@@ -170,7 +171,7 @@ git push origin main
 # Laisse vide si pas nécessaire.
 
 # Types valides :
-# feat, fix, refactor, style, doc, test, chore, hotfix
+# feat, fix, refactor, style, docs, test, chore, hotfix
 ```
 
 2. Exécuter :
