@@ -225,6 +225,18 @@ User : user@example.com / User!234
 
 ---
 
+## Convention de branches (Git)
+
+Branche principale: `main` (stable). Branche d’intégration: `dev`.
+
+Conventions: `feature/…` ou `feat/…`, `fix/…`, `refactor/…`, `chore/…`, `docs/…`.
+
+Exemples conservés pour l’ECF: `feature/modal-auth`, `feat/csrf-login`, `fix/login-error-message`, `refactor/javascript`, `chore/error-handler`, `docs/readme-ecf`.
+
+Stratégie complète et commandes: voir `documentation/git-strategie.md`.
+
+---
+
 ## Licence
 
 Projet pédagogique — libre pour l’ECF **DWWM Studi**.
