@@ -231,6 +231,12 @@ return [
             'action' => 'privacy'
         ]
     ],
+    '/mentions-legales' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'mentionsLegales'
+        ]
+    ],
 
     // Formulaire classique (non-API) de création de covoiturage
     '/covoiturages/create' => [
