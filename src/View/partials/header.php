@@ -58,6 +58,45 @@
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
+                                    <!-- Liens "utilisateur" aussi disponibles pour l'admin -->
+                                    <li><a class="dropdown-item" href="/my-profil"><i class="bi bi-person me-2"></i> Mon profil</a></li>
+                                    <?php
+                                    // Petits compteurs (optionnels) injectés via variables de vue si disponibles
+                                    $pendingCount = isset($pendingCount) ? (int)$pendingCount : null;
+                                    $myTripsCount = isset($myTripsCount) ? (int)$myTripsCount : null;
+                                    ?>
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center justify-content-between" href="/mes-demandes">
+                                            <span><i class="bi bi-inbox me-2"></i> Mes demandes</span>
+                                            <?php if ($pendingCount !== null): ?>
+                                                <span class="badge bg-danger rounded-pill ms-3 text-black"><?= $pendingCount ?></span>
+                                            <?php endif; ?>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center justify-content-between" href="/mes-covoiturages">
+                                            <span><i class="bi bi-list-check me-2"></i> Mes trajets</span>
+                                            <?php if ($myTripsCount !== null): ?>
+                                                <span class="badge bg-secondary rounded-pill ms-3 text-black"><?= $myTripsCount ?></span>
+                                            <?php endif; ?>
+                                        </a>
+                                    </li>
+                                    <?php if (!empty($hasVehicle)): ?>
+                                        <li>
+                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createCovoitModal">
+                                                <i class="bi bi-plus-circle me-2"></i> Créer un trajet
+                                            </a>
+                                        </li>
+                                    <?php else: ?>
+                                        <li>
+                                            <a class="dropdown-item" href="/vehicle/create" title="Ajoutez un véhicule pour pouvoir créer un covoiturage">
+                                                <i class="bi bi-car-front me-2"></i> Ajouter un véhicule
+                                            </a>
+                                        </li>
+                                    <?php endif; ?>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
                                 <?php elseif ((int) $_SESSION['user']['role_id'] === 2): ?>
                                     <li><a class="dropdown-item" href="/my-profil"><i class="bi bi-person me-2"></i> Mon profil</a></li>
                                     <?php
