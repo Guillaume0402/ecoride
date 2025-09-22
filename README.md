@@ -260,6 +260,14 @@ Astuce: Si un premier envoi tombe en SPAM, marquez comme « Non-spam » et authe
 
 ---
 
+## Délivrabilité e-mail (SPF/DKIM)
+
+Pour authentifier votre domaine d’envoi (SPF/DKIM) avec SendGrid et améliorer la délivrabilité, suivez le guide:
+
+- documentation/delivrabilite-sendgrid-spf-dkim.md
+
+---
+
 ## Convention de branches (Git)
 
 Branche principale: `main` (stable). Branche d’intégration: `dev`.
