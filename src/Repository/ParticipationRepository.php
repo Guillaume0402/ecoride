@@ -146,4 +146,30 @@ class ParticipationRepository
         $ok = (int) $sqlOk->fetchColumn();
         return round(($ok / $total) * 100, 2);
     }
+
+    /**
+     * Vérifie si un passager a déjà une participation CONFIRMÉE qui chevauche
+     * un horaire donné dans une fenêtre [depart - windowMin ; depart + windowMin].
+     * Idée simple pour l'ECF: on évite les doubles réservations sur la même tranche.
+     */
+    public function hasConfirmedConflictAround(int $passagerId, \DateTime $depart, int $windowMinutes = 120): bool
+    {
+        $windowMinutes = max(15, min(480, $windowMinutes)); // borne 15min à 8h
+        $start = (clone $depart)->modify('-' . $windowMinutes . ' minutes')->format('Y-m-d H:i:s');
+        $end   = (clone $depart)->modify('+' . $windowMinutes . ' minutes')->format('Y-m-d H:i:s');
+
+        $sql = "SELECT COUNT(*)
+                FROM {$this->table} p
+                JOIN covoiturages c ON c.id = p.covoiturage_id
+                WHERE p.passager_id = :pid
+                  AND p.status = 'confirmee'
+                  AND c.depart BETWEEN :start AND :end";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([
+            ':pid' => $passagerId,
+            ':start' => $start,
+            ':end' => $end,
+        ]);
+        return ((int)$stmt->fetchColumn()) > 0;
+    }
 }

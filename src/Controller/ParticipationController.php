@@ -90,6 +90,18 @@ class ParticipationController extends Controller
             redirect('/liste-covoiturages');
         }
 
+        // Sécurité ECF: empêcher de participer à deux trajets qui se chevauchent
+        // Si l'utilisateur a déjà une participation CONFIRMÉE dans une fenêtre autour de l'horaire
+        // (par défaut ±120 minutes), on bloque la création.
+        try {
+            if ($this->participationRepository->hasConfirmedConflictAround($userId, $depart, 120)) {
+                Flash::add('Vous avez déjà une participation confirmée à proximité de cet horaire. Choisissez un autre trajet.', 'warning');
+                redirect('/liste-covoiturages');
+            }
+        } catch (\Throwable $e) {
+            error_log('[participations.create] conflict check failed: ' . $e->getMessage());
+        }
+
         // Déjà participant ?
         if ($this->participationRepository->findByCovoiturageAndPassager($covoiturageId, $userId)) {
             Flash::add('Vous avez déjà une demande pour ce trajet.', 'info');
