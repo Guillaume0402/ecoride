@@ -239,8 +239,25 @@ Ne pas versionner vos vrais identifiants de production.
 -   [x] Sécurité mots de passe robuste + hash + rehash auto + CSRF + PDO
 -   [x] Documentation d’installation (README)
 -   [x] Pages d’erreurs personnalisées
+-   [x] Emails OK en prod (via SendGrid)
 
 ---
+
+## Délivrabilité e-mail (SendGrid)
+
+Pour une livraison fiable des e-mails en production, EcoRide utilise un relais SMTP (SendGrid recommandé).
+
+- Vérification d’expéditeur rapide: Single Sender Verification (Settings → Sender Authentication → Single Sender). Utiliser la même adresse en `MAIL_FROM`.
+- Meilleure pratique: Domain Authentication (SPF/DKIM) sur votre domaine pour améliorer la réputation et sortir des spams durablement.
+- Variables utiles (optionnelles):
+    - `MAIL_REPLY_TO` pour diriger les réponses vers une boîte support
+    - `LIST_UNSUBSCRIBE_URL` et/ou `LIST_UNSUBSCRIBE_MAILTO` (+ `LIST_UNSUBSCRIBE_POST=1` pour One-Click)
+- Diagnostic:
+    - Suivre les envois dans SendGrid → Activity
+    - En cas d’échec SMTP ou d’absence de config, un fallback est journalisé: `/tmp/ecoride-mail.log`
+- Test CLI (depuis l’app): `php scripts/send_test_email.php destinataire@example.com`
+
+Astuce: Si un premier envoi tombe en SPAM, marquez comme « Non-spam » et authentifiez votre domaine (SPF/DKIM) pour stabiliser.
 
 ## Convention de branches (Git)
 
