@@ -58,7 +58,8 @@ footer.bg-primary {
   background: var(--navbar-gradient);
 }
 
+// Respecter le thème pour .text-muted (éviter le jaune peu lisible)
 .text-muted {
-  color: #d0ff00 !important;
+  color: var(--bs-secondary-color) !important;
 }
 

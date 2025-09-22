@@ -185,7 +185,7 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                         <?php if (!$alreadyCredited): ?>
                                                             <a class="btn btn-success btn-sm" href="/participations/validate/<?= (int)$p['participation_id'] ?>">Valider votre voyage</a>
                                                         <?php else: ?>
-                                                            <span class="badge bg-secondary">Déjà validé</span>
+                                                            <span class="badge text-bg-secondary">Déjà validé</span>
                                                         <?php endif; ?>
                                                         <button class="btn btn-outline-danger btn-sm ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#reportForm<?= (int)$p['participation_id'] ?>" aria-expanded="false">Signaler</button>
                                                         <div class="collapse mt-2" id="reportForm<?= (int)$p['participation_id'] ?>">
@@ -316,7 +316,7 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                             <?php if (!$alreadyCreditedH): ?>
                                                                 <a class="btn btn-success btn-sm" href="/participations/validate/<?= (int)$p['participation_id'] ?>">Valider votre voyage</a>
                                                             <?php else: ?>
-                                                                <span class="badge bg-secondary">Déjà validé</span>
+                                                                <span class="badge text-bg-secondary">Déjà validé</span>
                                                             <?php endif; ?>
                                                             <button class="btn btn-outline-danger btn-sm ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#reportFormH<?= (int)$p['participation_id'] ?>" aria-expanded="false">Signaler</button>
                                                             <div class="collapse mt-2" id="reportFormH<?= (int)$p['participation_id'] ?>">
