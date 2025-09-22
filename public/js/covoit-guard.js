@@ -1,11 +1,12 @@
-/**
- * Garde côté front pour empêcher l'ouverture de la modale de création de covoiturage
- * si l'utilisateur n'a pas encore déclaré de véhicule.
- */
+/*
+Module: Covoit Guard
+Rôle: Empêcher l’ouverture de la modale de création si aucun véhicule n’est déclaré.
+Prérequis: <body data-has-vehicle="0|1">, conteneur #alerts (pour l’alerte).
+Utilisation: Bouton qui ouvre la modale via data-bs-target="#createCovoitModal".
+*/
 (function () {
-    
     //Affiche une alerte discrète dans le conteneur #alerts
-   
+
     function showInlineAlert(message, type = "info") {
         // Récupère la pile d'alertes; si absente on abandonne silencieusement
         const stack = document.getElementById("alerts");

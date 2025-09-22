@@ -1,10 +1,9 @@
-/* Module front: gestion de la création/édition du profil
-Prévisualisation de la photo de profil et affichage du nom du fichier choisi
-Affichage/masquage du mot de passe avec une icône
-Pré-requis DOM:
-#photo (input type="file"), #photo-name (élément texte), #avatarPreview (img)
-Pour le toggle password: un bouton qui appelle togglePassword('idDuChamp', this)
-Prévisualisation de la photo de profil et affichage du nom de fichier */
+/*
+Module: Création Profil
+Rôle: Prévisualiser la photo choisie et basculer l’affichage du mot de passe.
+Prérequis: #photo, #photo-name, #avatarPreview; bouton appelant togglePassword(id, this).
+Utilisation: Inclure dans les pages de création/édition de profil.
+*/
 
 const photoInput = document.getElementById("photo");
 
