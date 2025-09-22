@@ -21,7 +21,17 @@ class PageController extends Controller
     // Page d'accueil.
     public function home(): void
     {
-        $this->render('home');
+        $popular = [];
+        try {
+            $repo = new CovoiturageRepository();
+            $popular = $repo->popularDestinations(6, 4, 30);
+        } catch (\Throwable $e) {
+            error_log('[home] popular destinations failed: ' . $e->getMessage());
+        }
+
+        $this->render('home', [
+            'popularDestinations' => $popular,
+        ]);
     }
 
     // Page de contact.
