@@ -66,7 +66,8 @@ try {
     // Fallback: exécuter statement par statement
     fwrite(STDERR, "Bulk exec failed: " . $e->getMessage() . "\nFalling back to split statements...\n");
     $statements = preg_split('/;\s*\n/', $sql);
-    $count = 0; $errors = 0;
+    $count = 0;
+    $errors = 0;
     foreach ($statements as $stmt) {
         $stmt = trim($stmt);
         if ($stmt === '' || str_starts_with($stmt, '--') || str_starts_with($stmt, '/*')) {
