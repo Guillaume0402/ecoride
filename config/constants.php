@@ -24,6 +24,11 @@ if (!defined('BASE_URL')) {
 // URL complète du site (utile pour générer des URLs absolues)
 define('SITE_URL', 'http://localhost:8080/');
 
+// Frais de création d'un covoiturage (crédits débités au conducteur à la création)
+if (!defined('RIDE_CREATE_FEE_CREDITS')) {
+    define('RIDE_CREATE_FEE_CREDITS', (int) ($_ENV['RIDE_CREATE_FEE_CREDITS'] ?? 2));
+}
+
 // Délai avant auto-annulation d'un trajet non démarré (en minutes)
 // Sert aussi de période de grâce côté Conducteur pour garder le trajet dans l'onglet
 // et permettre un démarrage tardif avant bascule en historique
