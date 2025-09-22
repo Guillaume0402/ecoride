@@ -9,6 +9,7 @@
     font-size: 1.5rem;
     font-weight: 700;
     text-shadow: $shadow-text;
+    color: var(--text-black);
 }
 
 nav.sticky-top {
@@ -50,13 +51,14 @@ nav.sticky-top {
     height: 100%;
     font-family: $font-primary;
     font-weight: 200;
+    color: var(--text-black) !important;
 }
 
 .dropdown-menu {
     min-width: 200px;
     padding: 0.5rem 0;
     background-color: $color-primary;
-    color: $text-white;
+    color: var(--text-white);
     border: 1px solid $color-secondary;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     border-radius: 0.2rem;
@@ -64,6 +66,15 @@ nav.sticky-top {
         font-family: $font-primary;
         font-weight: 200;
         font-size: 1rem;
+    }
+}
+.btn-outline {
+    color: var(--text-black);
+    border-color: $color-secondary;
+    background-color: transparent;
+    &:hover {
+        background-color: $color-secondary;
+        color: $text-black;
     }
 }
 

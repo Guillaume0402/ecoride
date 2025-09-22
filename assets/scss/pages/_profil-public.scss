@@ -1,0 +1,145 @@
+// Styles spécifiques à la page profil public
+// Augmente la lisibilité sur desktop: 16px -> 20px et 14px -> 18px
+// Conserve les tailles d’origine sur mobile.
+
+.profil-public-page {
+    // Ajustements spécifiques pour md (768–991px)
+    @media (min-width: 768px) and (max-width: 991.98px) {
+        .header-card {
+            padding: 2rem 2rem 2.25rem;
+        }
+        .profil-public-header {
+            row-gap: 1.25rem;
+        }
+        .left-stack {
+            align-items: center;
+        }
+        .left-stack .history-cta {
+            align-self: center;
+        }
+    }
+    // Tabs véhicules scrollables en dessous du lg
+    @media (max-width: 991.98px) {
+        #vehicleTabs {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            padding-bottom: 0.25rem;
+        }
+        #vehicleTabs .nav-item {
+            display: inline-block;
+        }
+        #vehicleTabs .nav-link {
+            display: inline-block;
+            margin-right: 0.5rem;
+            scroll-snap-align: start;
+        }
+        #vehicleTabs::-webkit-scrollbar {
+            height: 6px;
+        }
+        #vehicleTabs::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 4px;
+        }
+    }
+    // Neutralise d'éventuels offsets de layout sur le container local
+    &.container,
+    &.container.py-5 {
+        margin-left: auto !important;
+        margin-right: auto !important;
+        width: 100%;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+    // Général: empêche le chevauchement des grands pseudos
+    h1,
+    h2,
+    .fw-bold {
+        word-break: normal;
+        overflow-wrap: anywhere; // coupe proprement si besoin
+    }
+
+    // Desktop et grands écrans
+    @media (min-width: 992px) {
+        .header-card {
+            padding-top: 2.25rem;
+            padding-bottom: 2rem;
+        }
+        .profil-public-header {
+            row-gap: 1rem;
+        }
+        .left-stack {
+            min-height: 220px; // réserve de place pour avatar+texte
+        }
+        .left-stack h2 {
+            margin-top: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+        .left-stack img {
+            margin-top: 0.25rem;
+        }
+        .history-cta {
+            margin-top: auto !important;
+        }
+
+        // Textes courants à 16px -> 20px
+        p,
+        li,
+        .small,
+        .card p,
+        .card li,
+        .text-muted,
+        .text-status-meta {
+            font-size: 20px !important;
+        }
+
+        // Équivalent 14px -> 18px
+        .small,
+        .badge,
+        .nav-tabs .nav-link,
+        .tab-content .small,
+        .card .small,
+        .btn.btn-custom-outline,
+        .btn.btn-inscription {
+            font-size: 18px !important;
+        }
+
+        // Ajuste les titres pour garder une hiérarchie agréable
+        h2 {
+            font-size: clamp(28px, 2.2vw, 36px);
+        }
+        h3 {
+            font-size: clamp(22px, 1.8vw, 28px);
+        }
+
+        // Carte d'entête: permet au bloc de s'étendre avec pseudos longs
+        .card > .row {
+            align-items: stretch;
+        }
+        .left-stack .fw-bold {
+            line-height: 1.1;
+        }
+    }
+    .header-card {
+        /* centrage et conteneur fluide */
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+        max-width: 980px;
+
+        /* look verre + relief */
+        background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.08),
+            rgba(255, 255, 255, 0.02)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 1rem; // proche de rounded-4
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35),
+            0 4px 12px rgba(0, 0, 0, 0.25),
+            0 0 0 1px rgba(255, 255, 255, 0.07) inset;
+        backdrop-filter: blur(6px) saturate(120%);
+    }
+}

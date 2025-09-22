@@ -14,24 +14,59 @@
             <div id="authAlert" class="alert d-none mx-3" role="alert"></div>
 
             <!-- FORM INSCRIPTION -->
-            <form id="registerForm" class="auth-form p-0 p-lg-5">
+            <form id="registerForm" class="auth-form p-0 p-lg-5" novalidate>
                 <div class="mb-3">
                     <label for="username" class="form-label">Pseudo*</label>
-                    <input type="text" class="form-control" id="username" name="username" required>
+                    <input type="text" class="form-control" id="username" name="username" required minlength="3" autocomplete="username">
+                    <div class="invalid-feedback">Veuillez renseigner un pseudo (3 caractères minimum).</div>
                 </div>
                 <div class="mb-3">
                     <label for="emailRegister" class="form-label">Email*</label>
-                    <input type="email" class="form-control" id="emailRegister" name="email" required>
+                    <input type="email" class="form-control" id="emailRegister" name="email" required inputmode="email" autocomplete="email">
+                    <div class="invalid-feedback">Veuillez entrer une adresse email valide.</div>
                 </div>
                 <div class="mb-3">
                     <label for="passwordRegister" class="form-label">Mot de passe*</label>
-                    <input type="password" class="form-control" id="passwordRegister" name="password" required>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="passwordRegister" name="password" required minlength="12"
+                            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])(?!.*\s).+$"
+                            autocomplete="new-password" aria-describedby="passwordHelp passwordStrengthText">
+                        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="passwordRegister" aria-label="Afficher/Masquer le mot de passe">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary toggle-criteria" type="button" aria-label="Afficher l'aide sur le mot de passe" aria-controls="passwordCriteriaList" aria-expanded="false">
+                            <i class="bi bi-info-circle"></i>
+                        </button>
+                    </div>
+                    <div id="passwordHelp" class="form-text visually-hidden">Règles de sécurité du mot de passe.</div>
+                    <ul id="passwordCriteriaList" class="password-criteria d-none" aria-live="polite" aria-describedby="passwordHelp">
+                        <li data-crit="len">Au moins 12 caractères</li>
+                        <li data-crit="lower">Contient une minuscule</li>
+                        <li data-crit="upper">Contient une majuscule</li>
+                        <li data-crit="digit">Contient un chiffre</li>
+                        <li data-crit="special">Contient un caractère spécial</li>
+                        <li data-crit="space">Ne contient aucun espace</li>
+                    </ul>
+                    <div class="invalid-feedback">Votre mot de passe ne respecte pas les règles de sécurité.</div>
+                    <div class="mt-2" aria-live="polite">
+                        <div class="progress" style="height: 6px;">
+                            <div id="passwordStrengthBar" class="progress-bar bg-danger" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <small id="passwordStrengthText">Robustesse : très faible</small>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label for="confirmPassword" class="form-label">Confirmer mot de passe*</label>
-                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required autocomplete="new-password">
+                        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="confirmPassword" aria-label="Afficher/Masquer le mot de passe">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <div class="invalid-feedback">Les mots de passe ne correspondent pas.</div>
                 </div>
                 <div class="text-center">
+                    <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
                     <button type="submit" class="btn btn-inscription">
                         <span class="btn-text">Inscription</span>
                         <span class="spinner-border spinner-border-sm d-none" role="status"></span>
@@ -39,16 +74,25 @@
                 </div>
             </form>
             <!-- FORM CONNEXION -->
-            <form id="loginForm" class="auth-form d-none p-0 p-lg-5">
+            <form id="loginForm" class="auth-form d-none p-0 p-lg-5" novalidate>
                 <div class="mb-3">
                     <label for="emailLogin" class="form-label">Email*</label>
-                    <input type="email" class="form-control" id="emailLogin" name="email" required>
+                    <input type="email" class="form-control" id="emailLogin" name="email" required inputmode="email" autocomplete="username">
+                    <div class="invalid-feedback">Veuillez entrer une adresse email valide.</div>
                 </div>
                 <div class="mb-3">
                     <label for="passwordLogin" class="form-label">Mot de passe*</label>
-                    <input type="password" class="form-control" id="passwordLogin" name="password" required>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="passwordLogin" name="password" required autocomplete="current-password">
+                        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="passwordLogin" aria-label="Afficher/Masquer le mot de passe">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <div class="invalid-feedback">Veuillez saisir votre mot de passe.</div>
                 </div>
                 <div class="text-center">
+                    <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+                    <input type="hidden" name="redirect" value="">
                     <button type="submit" class="btn btn-inscription">
                         <span class="btn-text">Connexion</span>
                         <span class="spinner-border spinner-border-sm d-none" role="status"></span>
@@ -58,218 +102,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    // SOLUTION : Déplacer les fonctions utilitaires en dehors du DOMContentLoaded
-
-    // Fonction pour afficher les messages
-    function showAlert(message, type = 'danger') {
-        const alertDiv = document.getElementById('authAlert');
-        alertDiv.className = `alert alert-${type} mx-3`;
-        alertDiv.textContent = message;
-        alertDiv.classList.remove('d-none');
-
-        // Auto-masquer après 5 secondes
-        setTimeout(() => {
-            alertDiv.classList.add('d-none');
-        }, 5000);
-    }
-
-    // Fonction pour masquer les messages
-    function hideAlert() {
-        const alertDiv = document.getElementById('authAlert');
-        alertDiv.classList.add('d-none');
-    }
-
-    // Fonction pour gérer le loading
-    function setLoading(form, isLoading) {
-        const button = form.querySelector('button[type="submit"]');
-        const btnText = button.querySelector('.btn-text');
-        const spinner = button.querySelector('.spinner-border');
-
-        if (isLoading) {
-            button.disabled = true;
-            btnText.classList.add('d-none');
-            spinner.classList.remove('d-none');
-        } else {
-            button.disabled = false;
-            btnText.classList.remove('d-none');
-            spinner.classList.add('d-none');
-        }
-    }
-
-    // Fonction pour changer d'onglet (connexion/inscription)
-    function setActiveTab(tab) {
-        hideAlert(); // Masquer les alertes lors du changement d'onglet
-
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-        const showLogin = document.getElementById('showLogin');
-        const showRegister = document.getElementById('showRegister');
-        const title = document.getElementById('authModalLabel');
-
-        if (tab === 'login') {
-            loginForm.classList.remove('d-none');
-            registerForm.classList.add('d-none');
-            showLogin.classList.add('active-tab');
-            showRegister.classList.remove('active-tab');
-            title.innerText = "Connexion";
-        } else {
-            registerForm.classList.remove('d-none');
-            loginForm.classList.add('d-none');
-            showRegister.classList.add('active-tab');
-            showLogin.classList.remove('active-tab');
-            title.innerText = "Inscription";
-        }
-    }
-
-    // Fonction pour gérer l'authentification (connexion/inscription)
-    // Utilise fetch pour appeler les API correspondantes
-    // Renvoie une promesse pour gérer les réponses
-    async function handleAuth(endpoint, formData) {
-        try {
-            const response = await fetch(`/api/auth/${endpoint}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                // Désactiver tous les champs du formulaire courant
-                const currentForm = endpoint === 'login' ?
-                    document.getElementById('loginForm') :
-                    document.getElementById('registerForm');
-                Array.from(currentForm.elements).forEach(el => el.disabled = true);
-                // Optionnel : désactiver les interactions et réduire l'opacité
-                currentForm.style.pointerEvents = "none";
-                currentForm.style.opacity = 0.7; // (optionnel, visuel)
-
-                showAlert(data.message, 'success');
-
-                if (endpoint === 'login') {
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else if (endpoint === 'register') {
-                    setTimeout(() => {
-                        setActiveTab('login');
-                        // Pré-remplir l'email dans le formulaire de connexion
-                        document.getElementById('emailLogin').value = formData.email;
-                    }, 1500);
-                }
-                return true; // <-- Retourne true si succès
-            } else {
-                showAlert(data.message, 'danger');
-                return false; // <-- Retourne false si erreur serveur/app
-            }
-        } catch (error) {
-            showAlert('Erreur de connexion au serveur', 'danger');
-            console.error('Erreur:', error);
-            return false; // <-- Retourne false si erreur réseau/JS
-        }
-    }
-
-
-    // 🔥 Les événements restent dans le DOMContentLoaded
-    document.addEventListener('DOMContentLoaded', () => {
-        const authModal = document.getElementById('authModal');
-        const showLogin = document.getElementById('showLogin');
-        const showRegister = document.getElementById('showRegister');
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-
-        // Gestionnaires pour les boutons de changement d'onglet
-        showLogin.addEventListener('click', () => setActiveTab('login'));
-        showRegister.addEventListener('click', () => setActiveTab('register'));
-
-        // Gestionnaires pour les formulaires
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            hideAlert();
-            setLoading(registerForm, true);
-
-            const formData = new FormData(registerForm);
-            const data = Object.fromEntries(formData);
-
-            // Validation côté client
-            if (data.password !== data.confirmPassword) {
-                showAlert('Les mots de passe ne correspondent pas', 'danger');
-                setLoading(registerForm, false);
-                return;
-            }
-
-            const result = await handleAuth('register', data);
-
-            if (!result) {
-                setLoading(registerForm, false);
-            }
-        });
-
-        // Gestion du formulaire de connexion
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            hideAlert();
-            setLoading(loginForm, true);
-
-            const formData = new FormData(loginForm);
-            const data = Object.fromEntries(formData);
-
-            // handleAuth renvoie une promesse, tu peux savoir s’il y a eu succès ou non
-            const result = await handleAuth('login', data);
-
-            // ATTENTION : setLoading(loginForm, false) ne doit être fait QUE si erreur !
-            // Donc : si le login a échoué, on réactive, sinon NON
-            if (!result) {
-                setLoading(loginForm, false);
-            }
-        });
-
-        // Gestion de l'ouverture de la modal
-        const modal = new bootstrap.Modal(authModal);
-        document.querySelectorAll('[data-bs-target="#authModal"]').forEach(button => {
-            button.addEventListener('click', () => {
-                const start = button.getAttribute('data-start') || 'register';
-                setActiveTab(start);
-                modal.show();
-            });
-        });
-
-        // Réinitialiser les formulaires à la fermeture
-        authModal.addEventListener('hidden.bs.modal', () => {
-            registerForm.reset();
-            loginForm.reset();
-            hideAlert();
-            setLoading(registerForm, false);
-            setLoading(loginForm, false);
-        });
-    });
-
-    // Déconnexion via API (AJAX)
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            try {
-                const response = await fetch('/api/auth/logout', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                const data = await response.json();
-                if (data.success) {
-                    showAlert('Vous êtes bien déconnecté(e) !', 'success');
-                    setTimeout(() => {
-                        window.location.href = '/'; // Redirige vers l'accueil ou où tu veux
-                    }, 1000);
-                }
-            } catch (err) {
-                showAlert('Erreur lors de la déconnexion', 'danger');
-            }
-        });
-    }
-</script>

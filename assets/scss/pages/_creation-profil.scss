@@ -1,0 +1,50 @@
+@use "../abstracts" as *;
+@use "../components/button" as *;
+
+.form-control {
+    padding: 0.2rem 1rem;
+    border: 2px solid $color-secondary;
+}
+
+.input-password-toggle {
+    position: absolute;
+    top: 42px; // ✔️ Fixe la hauteur
+    right: 0.75rem;
+    background: none;
+    border: none;
+    padding: 0;
+    z-index: 10;
+    color: #212529;
+    line-height: 1;
+}
+
+.input-password-toggle i {
+    font-size: 1.25rem;
+    pointer-events: none;
+}
+
+.input-password-toggle:hover {
+    color: #198754;
+}
+
+.upload-label {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+}
+
+.upload-icon {
+    width: 42px;
+    height: 42px;
+    background: #f0f0f0;
+    color: #444;
+    font-size: 1.3rem;
+}

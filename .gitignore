@@ -29,3 +29,5 @@ vendor/
 *.bak
 *.swp
 *.tmp
+
+/public/uploads/*

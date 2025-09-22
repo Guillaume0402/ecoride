@@ -2,90 +2,93 @@
 
 namespace App\Routing;
 
-use App\Controller\ErrorController;
-
-
 class Router
 {
+    // Table de routage chargée depuis config/routes.php
+    private array $routes;
 
-
-
-    private $routes;
     public function __construct()
     {
-        // Chargement des routes depuis le fichier de configuration
+        // Charge la configuration des routes (tableau associatif)
         $this->routes = require_once APP_ROOT . "/config/routes.php";
-    }
-
-
-    public function handleRequest(string $uri)
-    {
-        try {
-
-            // Normalisation de l'URI pour correspondre au format des routes
-            $path = $this->normalizePath($uri);
-
-            // Vérification de l'existence de la route
-            if (!isset($this->routes[$path])) {
-                throw new \Exception("Route not found for path: " . $path);
-            }
-
-            // Récupération des informations de la route
-            $route = $this->routes[$path];
-            $controllerPath = $route['controller'];
-            $action = $route['action'];
-
-            // Vérification de l'existence de la classe contrôleur
-            if (!class_exists($controllerPath)) {
-                throw new \Exception("Controller class not found: " . $controllerPath);
-            }
-            if (!class_exists($controllerPath)) {
-                error_log("Controller class introuvable : " . $controllerPath);
-                throw new \Exception("Controller class not found: " . $controllerPath);
-            }
-            // Instanciation du contrôleur
-            $controller = new $controllerPath();
-
-            error_log("On cherche la méthode : '$action' dans " . get_class($controller));
-            error_log("Méthodes trouvées dans le contrôleur : " . implode(', ', get_class_methods($controller)));
-
-            if (!method_exists($controller, $action)) {
-                error_log("Action introuvable : " . $action . " dans " . $controllerPath);
-                throw new \Exception("Action not found: " . $action . " in controller " . $controllerPath);
-            }
-
-            // Vérification de l'existence de la méthode (action)
-            if (!method_exists($controller, $action)) {
-                throw new \Exception("Action not found: " . $action . " in controller " . $controllerPath);
-            }
-            error_log("PATH DEMANDE : " . $path);
-            // Exécution de l'action
-            $controller->$action();
-        } catch (\Exception $e) {
-            // Gestion centralisée des erreurs
-            $errorController = new ErrorController();
-            $errorController->show404("Route not found: " . $uri);
+        // Log de debug uniquement en environnement de développement
+        $appEnv = $GLOBALS['_ENV']['APP_ENV'] ?? ($_ENV['APP_ENV'] ?? 'prod');
+        if ($appEnv === 'dev') {
+            error_log("Routes chargées : " . print_r(array_keys($this->routes), true));
         }
     }
 
+    // Point d'entrée: fait correspondre l'URI à une route et invoque le contrôleur
+    public function handleRequest(string $uri): void
+    {
+        // Normalise le chemin et détermine la méthode HTTP courante
+        $path = $this->normalizePath($uri);
+        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        $appEnv = $GLOBALS['_ENV']['APP_ENV'] ?? ($_ENV['APP_ENV'] ?? 'prod');
+        if ($appEnv === 'dev') {
+            error_log("Recherche de la route : $path");
+        }
 
+        $matchedRoute = null;
+        $params = [];
+
+        foreach ($this->routes as $routePath => $routeConfig) {
+            // Convertit /admin/users/toggle/{id} → regex
+            // NOTE: ici, les paramètres sont limités à des chiffres (\d+). Adapter si besoin (ex: [^/]+).
+            $pattern = preg_replace('#\{[a-zA-Z_]+\}#', '(\d+)', $routePath);
+
+            if (preg_match("#^$pattern$#", $path, $matches)) {
+                // Sélectionne la config spécifique à la méthode si définie, sinon la config par défaut
+                $matchedRoute = $routeConfig[$method] ?? $routeConfig;
+                // Extrait les noms des paramètres et associe leurs valeurs capturées (ex: id => 8)
+                preg_match_all('#\{([a-zA-Z_]+)\}#', $routePath, $paramNames);
+                array_shift($matches); // Retire la correspondance complète
+                $params = array_combine($paramNames[1], $matches);
+                break;
+            }
+        }
+
+        if (!$matchedRoute) {
+            // Pas de route trouvée → 404
+            (new \App\Controller\ErrorController())->show404("Route non trouvée : $path");
+            return;
+        }
+
+        // Si la route existe mais pas pour cette méthode HTTP → 405
+        if (!isset($matchedRoute['controller']) || !isset($matchedRoute['action'])) {
+            (new \App\Controller\ErrorController())->show405("Méthode $method non autorisée pour $path");
+            return;
+        }
+
+        $controllerPath = $matchedRoute['controller'];
+        $action = $matchedRoute['action'];
+
+
+        if (!class_exists($controllerPath)) {
+            abort(500, "Controller introuvable : $controllerPath");
+        }
+
+        $controller = new $controllerPath();
+
+        if (!method_exists($controller, $action)) {
+            abort(500, "Méthode $action introuvable dans $controllerPath");
+        }
+
+        // Appel du contrôleur avec les paramètres (transmet les valeurs dans l'ordre défini par la route)
+        call_user_func_array([$controller, $action], $params);
+    }
+
+
+    // Normalise un URI: extrait le path et supprime le slash de fin (sauf pour la racine)
     public static function normalizePath(string $uri): string
     {
-        // Extraction du chemin sans paramètres GET ni ancres
         $path = parse_url($uri, PHP_URL_PATH);
-
-        // Pour la racine, garder "/"
-        if ($path === '/') {
-            return '/';
-        }
-
-        // Pour les autres chemins, supprimer les slashes de fin
-        return rtrim($path, '/');
+        return rtrim($path, '/') ?: '/';
     }
 
+    // Compare une route au chemin courant (normalisé) pour marquage "actif"
     public static function isActiveRoute(string $path): bool
     {
-        // Comparaison entre l'URI actuelle normalisée et le chemin donné
         return self::normalizePath($_SERVER["REQUEST_URI"]) === $path;
     }
 }

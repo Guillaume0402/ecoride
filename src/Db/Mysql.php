@@ -5,33 +5,36 @@ namespace App\Db;
 class Mysql
 {
 
+    // Paramètres de connexion lus depuis le fichier d'environnement (ex: .env.local)
     private string $dbName;
     private string $dbUser;
     private string $dbPassword;
     private string $dbPort;
     private string $dbHost;
 
+    // Instance PDO réutilisée (connexion ouverte à la demande)
     private ?\PDO $pdo = null;
+    // Implémentation du pattern Singleton (instance unique)
     private static ?self $_instance = null;
 
     private function __construct()
     {
-        // Chargement de la configuration depuis le fichier .env.local
-        $dbConf = parse_ini_file(APP_ROOT . "/" . APP_ENV);
+        // Lis depuis $_ENV, sinon $_SERVER, sinon getenv(), avec valeurs par défaut
+        $env = fn(string $key, ?string $def = null) =>
+        $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key) ?: $def;
 
-        // Attribution des valeurs de configuration aux propriétés
-        $this->dbHost = $dbConf['db_host'];
-        $this->dbName = $dbConf['db_name'];
-        $this->dbUser = $dbConf['db_user'];
-        $this->dbPassword = $dbConf['db_password'];
-        $this->dbPort = $dbConf['db_port'];
-        error_log("CONF MYSQL : host={$this->dbHost}, name={$this->dbName}, user={$this->dbUser}, port={$this->dbPort}");
+        $this->dbHost     = $env('DB_HOST', '127.0.0.1');
+        $this->dbName     = $env('DB_NAME', 'ecoride');
+        $this->dbUser     = $env('DB_USER', 'root');
+        $this->dbPassword = $env('DB_PASSWORD', '');
+        $this->dbPort     = $env('DB_PORT', '3306');
     }
+
 
     public static function getInstance(): self
     {
-        error_log("Mysql::getInstance() appelé !");
-        // Création de l'instance si elle n'existe pas encore
+
+        // Crée l'instance au premier appel uniquement (Singleton)
         if (self::$_instance === null) {
             self::$_instance = new self();
         }
@@ -40,13 +43,21 @@ class Mysql
 
     public function getPDO(): \PDO
     {
-        if (is_null($this->pdo)) {
-            $dsn = "mysql:host={$this->dbHost};charset=utf8;dbname={$this->dbName};port={$this->dbPort}";
+        if ($this->pdo === null) {
+            $dsn = sprintf(
+                'mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
+                $this->dbHost,
+                $this->dbPort,
+                $this->dbName
+            );
             try {
-                $this->pdo = new \PDO($dsn, $this->dbUser, $this->dbPassword);
+                $this->pdo = new \PDO($dsn, $this->dbUser, $this->dbPassword, [
+                    \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
+                    \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+                ]);
             } catch (\PDOException $e) {
-                error_log("Erreur PDO lors de la connexion : " . $e->getMessage());
-                throw $e; // (optionnel : à commenter si tu veux une erreur contrôlée)
+                // En dev : remonter l'erreur ; en prod tu pourrais afficher un message neutre
+                throw $e;
             }
         }
         return $this->pdo;

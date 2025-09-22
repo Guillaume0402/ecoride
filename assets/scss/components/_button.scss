@@ -6,9 +6,10 @@
 %btn-base {
     font-family: $font-primary;
     font-size: clamp(0.8rem, 2vw, 1rem);
+    font-weight: 700;
     transition: all 0.3s ease;
     padding: 0.5rem 0.8rem;
-    border: 1px solid $color-secondary !important;
+    border: 1px solid $color-primary !important;
 }
 
 // Placeholder pour le hover
@@ -21,12 +22,6 @@
     }
 }
 
-// Placeholder pour le text-shadow « grillé »
-%btn-text-shadow {
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
-        1px 1px 0 #000;
-}
-
 // ————————————————
 // Boutons
 // ————————————————
@@ -34,9 +29,8 @@
 // Bouton principal EcoRide
 .btn-ecoride {
     @extend %btn-base;
-    @extend %btn-text-shadow;
     background: $btn-gradient;
-    color: $color-white;
+    color: var(--text-white);
     border: none;
 
     &:hover {
@@ -49,23 +43,39 @@
 .btn-inscription {
     @extend %btn-base;
     background: $btn-gradient;
-    color: $text-white;
-    @extend %btn-hover;
-}
-
-// Bouton “Participate”
-.btn-participate {
-    @extend %btn-base;    
-    background: $btn-gradient;
-    color: $color-white !important;
+    color: var(--text-white);
     @extend %btn-hover;
 }
 
 // Bouton outline custom
 .btn-custom-outline {
     @extend %btn-base;
-    @extend %btn-text-shadow;
     background: transparent;
-    color: $color-white;
-    @extend %btn-hover;
+    color: var(--text-black);
+    border-color: $color-primary !important;
+    &:hover {
+        background-color: $color-primary;
+        color: $text-black !important; // Texte noir demandé en light theme
+        border-color: $color-primary;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    // En thème sombre, garder un texte clair pour le hover
+    @media (prefers-color-scheme: dark) {
+        &:hover {
+            color: $color-white !important;
+        }
+    }
+}
+
+// Renforcer la spécificité pour surcharger d'anciens styles résiduels (ordre CSS)
+.btn.btn-custom-outline:hover {
+    background-color: $color-primary !important;
+    border-color: $color-primary !important;
+    color: $text-black !important; // noir en thème clair
+}
+
+@media (prefers-color-scheme: dark) {
+    .btn.btn-custom-outline:hover {
+        color: $color-white !important; // lisible en dark
+    }
 }

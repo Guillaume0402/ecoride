@@ -2,105 +2,328 @@
 
 
 return [
-    // Route pour la page d'accueil
-    "/" => [
-        "controller" => "App\Controller\PageController",
-        "action" => "home"
-    ],
+    // NOTE paramètres de route:
+    // - Les segments entre accolades (ex: {id}) sont interprétés par le Router comme des nombres (regex \d+).
+    // - Si vous souhaitez des slugs alphanumériques, adaptez le Router pour utiliser [^/]+ à la place.
+    //   Exemple: '/article/{slug}' avec slug alphanumérique → requires Router update.
 
-    // Routes pour l'authentification
-    "/login" => [
+    // Page d'accueil
+    '/' => [
         'GET' => [
-            "controller" => "App\Controller\AuthController",
-            "action" => "showLogin"
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'home'
         ]
-    ],    
-    "/logout" => [
-        "controller" => "App\Controller\AuthController",
-        "action" => "logout"
+    ],
+    // Authentification (pages et API JSON)
+    '/login' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\AuthController',
+            'action' => 'showLogin'
+        ]
+    ],
+    '/logout' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\AuthController',
+            'action' => 'logout'
+        ]
+    ],
+    // API Auth (utilisées par la modale)
+    '/api/auth/register' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\AuthController',
+            'action' => 'apiRegister'
+        ]
+    ],
+    '/api/auth/login' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\AuthController',
+            'action' => 'apiLogin'
+        ]
+    ],
+    '/api/auth/logout' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\AuthController',
+            'action' => 'apiLogout'
+        ]
+    ],
+    // Vérification d'email
+    '/verify-email' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\AuthController',
+            'action' => 'verifyEmail'
+        ]
+    ],
+    // Profil utilisateur
+    '/my-profil' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'profil'
+        ]
+    ],
+    // Profil public d'un utilisateur (lecture seule)
+    '/profil/{id}' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'showUserProfil'
+        ]
+    ],
+    '/creation-profil' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'creationProfil'
+        ],
+        'POST' => [
+            'controller' => 'App\\Controller\\ProfilController',
+            'action' => 'update'
+        ]
     ],
 
-    // NOUVELLES ROUTES API pour votre modal
-    "/api/auth/register" => [
-        "controller" => "App\Controller\AuthController",
-        "action" => "apiRegister"
+    '/vehicle/create' => [
+        // Afficher le formulaire vide
+        'GET' => [
+            'controller' => 'App\\Controller\\VehicleController',
+            'action' => 'create'
+        ],
+        // Traiter le formulaire de création
+        'POST' => [
+            'controller' => 'App\\Controller\\VehicleController',
+            'action' => 'store'
+        ]
     ],
-    "/api/auth/login" => [
-        "controller" => "App\Controller\AuthController",
-        "action" => "apiLogin"
+    '/vehicle/update' => [
+        // Traiter les modifications du véhicule
+        'POST' => [
+            'controller' => 'App\\Controller\\VehicleController',
+            'action' => 'update'
+        ]
     ],
-    "/api/auth/logout" => [
-        "controller" => "App\Controller\AuthController",
-        "action" => "apiLogout"
+    // Traiter la suppression du véhicule
+    '/vehicle/delete' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\VehicleController',
+            'action' => 'delete'
+        ]
     ],
-
-    // Routes pour les trajets
-    "/rides" => [
-        "controller" => "App\Controller\RideController",
-        "action" => "index"
-    ],
-    "/rides/create" => [
-        "controller" => "App\Controller\RideController",
-        "action" => "create"
-    ],
-    "/rides/search" => [
-        "controller" => "App\Controller\RideController",
-        "action" => "search"
-    ],
-
-    // Routes pour le profil utilisateur
-    "/profile" => [
-        "controller" => "App\Controller\UserController",
-        "action" => "profile"
-    ],
-    "/profile/edit" => [
-        "controller" => "App\Controller\UserController",
-        "action" => "edit"
+    '/vehicle/edit' => [
+        // Afficher le formulaire pré-rempli
+        'GET' => [
+            'controller' => 'App\\Controller\\VehicleController',
+            'action' => 'edit'
+        ]
     ],
 
-    // Routes pour les réservations
-    "/bookings" => [
-        "controller" => "App\Controller\BookingController",
-        "action" => "index"
+    // Administration
+    '/admin' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\AdminController',
+            'action' => 'dashboard'
+        ]
     ],
-    "/bookings/create" => [
-        "controller" => "App\Controller\BookingController",
-        "action" => "create"
+    '/admin/dashboard' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\AdminController',
+            'action' => 'dashboard'
+        ]
+    ],
+    '/admin/users' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\AdminController',
+            'action' => 'users'
+        ]
+    ],
+    '/admin/stats' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\AdminController',
+            'action' => 'stats'
+        ]
+    ],
+    '/admin/covoiturages' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\AdminController',
+            'action' => 'covoiturages'
+        ]
+    ],
+    '/admin/users/create' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\AdminController',
+            'action' => 'createEmployee'
+        ]
+    ],
+    '/admin/users/toggle/{id}' => [
+        // {id} = identifiant numérique de l'utilisateur
+        'POST' => [
+            'controller' => 'App\\Controller\\AdminController',
+            'action' => 'toggleEmployeeStatus'
+        ]
+    ],
+    '/admin/users/delete/{id}' => [
+        // {id} = identifiant numérique de l'utilisateur
+        'GET' => [
+            'controller' => 'App\\Controller\\AdminController',
+            'action' => 'deleteEmployee'
+        ]
     ],
 
-    // Routes pour l'administration
-    "/admin" => [
-        "controller" => "App\Controller\AdminController",
-        "action" => "dashboard"
+
+    // Employés
+
+    '/employe' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\EmployeeController',
+            'action' => 'dashboard'
+        ]
     ],
-    "/admin/users" => [
-        "controller" => "App\Controller\AdminController",
-        "action" => "users"
-    ],
-    "/admin/rides" => [
-        "controller" => "App\Controller\AdminController",
-        "action" => "rides"
+    '/employee/review/validate' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\EmployeeController',
+            'action' => 'validateReview'
+        ]
     ],
 
-    // Routes statiques
-    "/about" => [
-        "controller" => "App\Controller\PageController",
-        "action" => "about"
+
+
+    // Pages statiques
+    '/about' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'about'
+        ]
     ],
-    "/liste-covoiturages" => [
-        "controller" => "App\Controller\PageController",
-        "action" => "listeCovoiturages"
+    '/qui-sommes-nous' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'about'
+        ]
     ],
-    "/contact" => [
-        "controller" => "App\Controller\PageController",
-        "action" => "contact"
+    '/liste-covoiturages' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'listeCovoiturages'
+        ]
     ],
-    "/terms" => [
-        "controller" => "App\Controller\PageController",
-        "action" => "terms"
+    '/contact' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'contact'
+        ]
     ],
-    "/privacy" => [
-        "controller" => "App\Controller\PageController",
-        "action" => "privacy"
+    '/mes-covoiturages' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'mesCovoiturages'
+        ]
+    ],
+    '/mes-credits' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'mesCredits'
+        ]
+    ],
+    '/terms' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'terms'
+        ]
+    ],
+    '/privacy' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'privacy'
+        ]
+    ],
+    '/mentions-legales' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'mentionsLegales'
+        ]
+    ],
+
+    // Formulaire classique (non-API) de création de covoiturage
+    '/covoiturages/create' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\CovoiturageController',
+            'action' => 'create'
+        ]
+    ],
+
+    // API covoiturages (création minimale)
+    '/api/covoiturages/create' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\CovoiturageController',
+            'action' => 'apiCreate'
+        ]
+    ],
+
+    // Page de détail d'un covoiturage
+    '/covoiturages/{id}' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'showCovoiturage'
+        ]
+    ],
+
+    // Annulation d'un covoiturage (conducteur)
+    '/covoiturages/cancel/{id}' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\CovoiturageController',
+            'action' => 'cancel'
+        ]
+    ],
+
+    // Démarrer/Terminer un covoiturage (conducteur)
+    '/covoiturages/start/{id}' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\CovoiturageController',
+            'action' => 'start'
+        ]
+    ],
+    '/covoiturages/finish/{id}' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\CovoiturageController',
+            'action' => 'finish'
+        ]
+    ],
+
+    // Participations
+    '/participations/create' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\ParticipationController',
+            'action' => 'create'
+        ]
+    ],
+    '/mes-demandes' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\ParticipationController',
+            'action' => 'driverRequests'
+        ]
+    ],
+    '/participations/accept/{id}' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\ParticipationController',
+            'action' => 'accept'
+        ]
+    ],
+    '/participations/reject/{id}' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\ParticipationController',
+            'action' => 'reject'
+        ]
+    ],
+    // Validation/Signalement par le passager après fin de trajet
+    '/participations/validate/{id}' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\ParticipationController',
+            'action' => 'showValidationForm'
+        ],
+        'POST' => [
+            'controller' => 'App\\Controller\\ParticipationController',
+            'action' => 'validateTrip'
+        ]
+    ],
+    '/participations/report/{id}' => [
+        'POST' => [
+            'controller' => 'App\\Controller\\ParticipationController',
+            'action' => 'reportIssue'
+        ]
     ]
 ];

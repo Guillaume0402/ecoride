@@ -1,10 +1,9 @@
 // fichier principal
-@use './bootstrap'; // ← avant tout le reste
 
-
-
+@use './bootstrap'; 
 @use './abstracts' as *;
 @use './base';
-@use './layout';       // <- va chercher layout.scss
+@use './layout';      
 @use './components';
 @use './pages';
+@use './theme';        

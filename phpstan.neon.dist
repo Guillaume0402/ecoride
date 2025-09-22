@@ -1,0 +1,10 @@
+parameters:
+  level: 5
+  paths:
+    - src
+  bootstrapFiles:
+    - config/constants.php
+  ignoreErrors:
+    - '#Variable \$.* might not be defined\.#'
+  treatPhpDocTypesAsCertain: false
+  reportUnmatchedIgnoredErrors: false

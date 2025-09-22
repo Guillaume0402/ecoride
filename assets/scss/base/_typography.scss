@@ -1,7 +1,7 @@
 @use "../abstracts" as *;
 
 h1 {
-    font-size: clamp(1.5rem, 5vw, 3.5rem) !important;
+    font-size: clamp(1.5rem, 5vw, 3rem) !important;
     font-weight: 700;
     line-height: 1.2;
     margin-bottom: 1rem;
@@ -19,8 +19,14 @@ h2 {
 h3 {
     font-size: clamp(1rem, 2.85vw, 3rem);
     font-weight: 600;
-    line-height: 1.2;
-    margin-bottom: 1rem;
+    line-height: 1.2;    
+    text-shadow: $shadow-text;
+
+}
+h4 {
+    font-size: clamp(0.8rem, 2.5vw, 2rem);
+    font-weight: 600;
+    line-height: 1.2;    
     text-shadow: $shadow-text;
 
 }
@@ -38,7 +44,7 @@ a {
     font-family: $font-primary;
     text-decoration: none;
     font-weight: 600;
-    color: $color-white !important;
+    color: var(--text-black);
     transition: all 0.3s ease-out;
 
     &:hover {
@@ -46,14 +52,5 @@ a {
     }
 }
 
-.navlink {
-    font-family: $font-primary;
-    font-weight: 400;
-    text-decoration: none;
-    color: $color-white !important;
-    transition: all 0.3s ease;
 
-    &:hover {
-        color: $color-secondary !important;
-    }
-}
+

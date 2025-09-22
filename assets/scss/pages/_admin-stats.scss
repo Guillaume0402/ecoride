@@ -1,0 +1,140 @@
+@use "../abstracts" as *;
+
+/* === Base === */
+.admin-side {
+    background-color: var(--color-primary);
+    min-height: 100%;
+    width: 250px;
+}
+
+.card {
+    background-color: var(--table-bg);
+    color: var(--table-text);
+    border: 1px solid var(--table-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-box);
+    transition: background-color 0.3s ease, color 0.3s ease;
+
+    .card-title {
+        color: var(--table-text);
+        font-weight: 600;
+    }
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+
+    li {
+        margin-bottom: 5px;
+        color: var(--table-text);
+        font-size: 1rem;
+    }
+}
+
+/* === Résumé / KPIs === */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.kpi-card {
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.04),
+        rgba(255, 255, 255, 0.02)
+    );
+    border: 1px solid var(--table-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: var(--table-text);
+    box-shadow: var(--shadow-box);
+}
+
+.kpi-label {
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+.kpi-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 0.3px;
+}
+.kpi-value.small {
+    font-size: 1.2rem;
+}
+.kpi-sub {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.kpi-chip {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    border-radius: 999px;
+    background: rgba(0, 191, 99, 0.12);
+    border: 1px solid rgba(0, 191, 99, 0.4);
+}
+
+.kpi-value.trend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.kpi-value.trend.up {
+    color: #19c37d;
+}
+.kpi-value.trend.down {
+    color: #ff6b6b;
+}
+.kpi-value.trend.flat {
+    color: var(--table-text);
+    opacity: 0.9;
+}
+
+@media (max-width: 1200px) {
+    .summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+@media (max-width: 768px) {
+    .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 500px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Sélecteur de période */
+.period-switch .btn {
+    border-radius: 999px !important;
+}
+
+/* === Responsive === */
+@media (max-width: 992px) {
+    .admin-side {
+        display: none;
+    }
+    .container.py-5 {
+        width: 100%;
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .row.g-4 {
+        flex-direction: column;
+
+        .col-md-6 {
+            width: 100%;
+        }
+    }
+}

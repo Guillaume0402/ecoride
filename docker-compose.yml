@@ -1,6 +1,3 @@
-#yaml
-version: '3.8'
-
 services:
   # Service Web (Apache + PHP)
   web:
@@ -16,7 +13,7 @@ services:
       - DB_HOST=db
       - DB_NAME=ecoride
       - DB_USER=ecoride_user
-      - DB_PASS=ecoride_password
+      - DB_PASSWORD=ecoride_password
     networks:
       - ecoride_network
 
@@ -53,8 +50,37 @@ services:
     networks:
       - ecoride_network
 
+  # MongoDB service
+  mongo:
+    image: mongo:6
+    container_name: ecoride_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - ecoride_network
+
+
+  # Mongo Express for managing MongoDB
+  mongo-express:
+    image: mongo-express
+    container_name: ecoride_mongo_ui
+    ports:
+      - "8082:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin
+    depends_on:
+      - mongo
+    networks:
+      - ecoride_network
+
 volumes:
   mysql_data:
+  mongo_data:
 
 networks:
   ecoride_network:

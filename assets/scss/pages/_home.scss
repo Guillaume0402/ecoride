@@ -1,15 +1,19 @@
 // specific pages
 @use "../abstracts" as *;
 
+h1 {
+    color: var(--color-white);
+}
 
+p {
+    color: var(--color-white);
+}
 
-
-
-// IMAGE COLLAGE (desktop only)
+// IMAGE COLLAGE POUR DESKTOP
 .image-collage {
     position: relative;
-    height: 280px;
-    
+    height: 450px;
+    margin-bottom: 120px;
 
     img {
         position: absolute;
@@ -46,9 +50,47 @@
     z-index: 3;
 }
 
+.popular-destinations {
+    box-shadow: var(--shadow-box);
+}
 
+.card-list-item {
 
-
+    background: var(--list-bg);
+    color: var(--list-text);
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: none;
+    padding: 20px;
+    &:hover {
+        background: var(--list-hover);
+        box-shadow: 2px 2px 8px 0 #1e90340a;
+    }
+    span {
+        flex: 1 1 0;
+        text-align: left;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+    .fw-bold {
+        flex: 0 0 100px;
+        text-align: right;
+        font-size: 1.05rem;
+        color: var(--text-black) !important;
+    }
+    button {
+        flex: 0 0 auto;
+        margin-left: 16px;
+    }
+}
+.card-header {
+    background: transparent !important;
+    border-bottom: 2.5px solid var(--color-primary, #215732) !important;
+    font-size: 1.18rem;
+    letter-spacing: 0.02em;
+}
+.card {
+    border-radius: 1.2rem !important;
+}
 
 // IMAGES POUR MOBILE UNIQUEMENT
 .image-mobile {
@@ -62,10 +104,9 @@
     }
 }
 
-.section-form{
+.section-form {
     margin-top: 180px;
 }
-
 
 // RESPONSIVE MOBILE
 @media (max-width: 991.98px) {
@@ -84,7 +125,22 @@
     .row.align-items-center {
         margin-top: 10px;
     }
-
+    .popular-destinations {
+        width: 100%;
+        margin-top: 0;
+        padding: 10px !important;
+    }
+    .card-list-item {
+        padding: 10px;
+        span {
+            font-size: 0.9rem;
+        }
+        .fw-bold {
+            font-size: 1rem;
+        }
+        button {
+            padding: 0.2rem;
+            font-size: 1rem;
+        }
+    }
 }
-
-

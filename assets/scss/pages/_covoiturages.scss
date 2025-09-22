@@ -5,20 +5,39 @@
 // -------------------- Filter Bar --------------------
 .filter-section {
     .filter-bar {
-        background: rgba($color-white, 0.1);
+        background: var(--list-bg);
         backdrop-filter: blur(6px);
-        border: 1px solid rgba($color-white, 0.4);
+        border: 1px solid var(--color-secondary);
         border-radius: 8px;
         padding: 0.5rem 1rem;
 
         .btn-filter {
-            @include mixin.btn-custom-outline;
+            border: 1px solid var(--color-secondary);
             display: flex;
             align-items: center;
+            color: var(--text-black);
         }
-
         .btn-sort {
-            @include mixin.btn-custom-outline;
+            border: 1px solid var(--color-secondary);
+            color: var(--text-black);
+        }
+    }
+}
+.dropdown-menu {
+    background: var(--list-bg);
+    a {
+        color: var(--text-black);
+    }
+}
+
+// Très petits écrans uniquement (< 360px): recentre et empile la barre de filtres
+@media (max-width: 360px) {
+    .filter-section {
+        .filter-bar {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
     }
 }
@@ -36,7 +55,7 @@
 
     &:hover {
         transform: translateY(-4px);
-        box-shadow: 0 6px 16px rgba($text-black, 0.15);
+        box-shadow: var(--shadow-box);
     }
 
     // ----- Header -----
@@ -51,10 +70,8 @@
             .price,
             .sep {
                 font-size: clamp(1.2rem, 2vw, 1.5rem);
-                color: $text-white;
+                color: var(--text-black);
                 text-shadow: $shadow-text;
-
-                
             }
 
             .badge-eco {
@@ -72,9 +89,8 @@
             display: flex;
             align-items: center;
             font-size: clamp(1.2rem, 2vw, 1.5rem);
-            color: $text-white;
+            color: var(--text-black);
             text-shadow: $shadow-text;
-
 
             i {
                 margin-right: 0.3rem;
@@ -94,7 +110,7 @@
         .details {
             margin-left: 2rem;
             h5 {
-                color: $text-white;
+                color: var(--text-black);
                 text-shadow: $shadow-text;
                 font-size: 1.5rem;
                 margin-bottom: 0.5rem;
@@ -105,8 +121,9 @@
                 margin: 0;
                 li {
                     font-size: clamp(1rem, 2vw, 1.2rem);
-                    color: $text-black;
-                    
+                    color: var(--text-black);
+                    text-shadow: 1px 1px 2px rgba(var(--text-black), 0.1);
+
                     line-height: 1.4;
                     margin-bottom: 0.25rem;
                 }
@@ -115,7 +132,7 @@
 
         .btn-participate {
             align-self: flex-start;
-            margin-top: 0.5rem;            
+            margin-top: 0.5rem;
             padding: 1.5rem;
         }
     }
@@ -130,7 +147,7 @@
             margin-left: 6rem;
             .star {
                 font-size: 1.8rem;
-                color: $text-white;
+                color: var(--text-black);
                 text-shadow: $shadow-text;
 
                 cursor: pointer;
@@ -185,8 +202,7 @@
             align-items: center;
             .card-info {
                 margin-bottom: 0.75rem;
-                margin-left:0;
-                
+                margin-left: 0;
             }
         }
 
@@ -199,14 +215,14 @@
             }
         }
 
-        .card-footer {       
+        .card-footer {
             margin-left: 0;
             .stars {
                 display: flex;
                 gap: 0.3rem;
                 margin-left: 0;
                 .star {
-                    font-size: 1.4rem;                    
+                    font-size: 1.4rem;
                     cursor: pointer;
                     transition: transform 0.2s, color 0.2s;
                     &:hover {
@@ -218,4 +234,3 @@
         }
     }
 }
-

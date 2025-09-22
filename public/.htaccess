@@ -1,3 +1,21 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Ne pas réécrire les fichiers et dossiers existants
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Rediriger tout le reste vers index.php
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options nosniff
+    Header set X-Frame-Options SAMEORIGIN
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
 RewriteEngine On
 
 # Redirige tout vers index.php sauf les fichiers réels (images, CSS, etc.)

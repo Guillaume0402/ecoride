@@ -1,27 +1,61 @@
 // variables, mixins, functions
 
+$font-primary: "Poppins", sans-serif;
+$font-secondary: "Inter", serif;
+
 $color-primary: #215732;
 $color-secondary: #00ff50;
-$color-white: #f8f9f3;
+$color-white: #d6d8ca;
+$color-fade-white: #bbbdb9;
 $text-black: #000000;
-$text-white: #f7e9e9;
-$shadow-text: -1px -1px 0 #000000c0, 1px -1px 0 #000000b2, -1px 1px 0 #000000a9,
-    1px 1px 0 #000000b2;
+$text-white: #c2bebe;
+$shadow-text: -1px -1px 0 #797979c0, 1px -1px 0 797979c0, -1px 1px 0 797979c0,
+    1px 1px 0 #797979c0;
+
+$bg-gradient-dark: linear-gradient(
+    135deg,
+    #051f02 0%,
+    #093206 30%,
+    #145012 60%,
+    #0a2d08 80%
+);
 
 $bg-gradient: linear-gradient(
     135deg,
-    #137a03 0%,
-    #128208 31%,
-    #3abb34 58%,
-    #129717 70%
+    #0f5e02 0%,
+    #106d06 30%,
+    #2e9b28 60%,
+    #127517 80%
+);
+
+$bg-gradient-light: linear-gradient(
+    135deg,
+    #eafff5 0%,
+    #baf5d5 33%,
+    #81e6b1 66%,
+    #4fd199 100%
+);
+
+$navbar-gradient: linear-gradient(
+    135deg,
+    #051f02 0%,
+    #093206 30%,
+    #145012 60%,
+    #0a2d08 80%
 );
 
 $btn-gradient: linear-gradient(to right, #ff4a02 100%, #ffa202 100%);
 $btn-gradient-hover: linear-gradient(135deg, #008000, #00b140);
 
-.bg-body-color-primary {
-    background-color: $color-primary !important;
+.navbar.bg-primary {
+    background: var(--navbar-gradient);
 }
 
-$font-primary: "Poppins", sans-serif;
-$font-secondary: "Inter", serif;
+footer.bg-primary {
+    background: var(--navbar-gradient);
+}
+
+// Respecter le thème pour .text-muted (éviter le jaune peu lisible)
+.text-muted {
+    color: var(--bs-secondary-color) !important;
+}

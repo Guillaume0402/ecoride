@@ -4,9 +4,9 @@
 .auth-modal-content {
     border-radius: 0.5rem;
     padding: 1rem;
-    background: $bg-gradient;
-    color: $text-white;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    background: var(--bg-gradient);
+    color: var(--text-black);
+    box-shadow: var(--shadow-box, 0 0 20px rgba(0, 0, 0, 0.3));
     font-family: $font-primary;
     .modal-header {
         .btn-close {
@@ -18,7 +18,7 @@
 
             &::before {
                 content: "×";
-                color: $text-white;
+                color: var(--text-black);
                 font-size: 1.5rem;
                 line-height: 1;
                 position: absolute;
@@ -27,7 +27,8 @@
                 transform: translate(-50%, -50%);
             }
             &:hover::before {
-                color: color.adjust($text-white, $lightness: 10%);
+                // éclaircit la couleur actuelle, quelle que soit le thème
+                color: color-mix(in srgb, currentColor 85%, white);
             }
         }
     }
@@ -35,52 +36,154 @@
 
 .form-switcher {
     .btn-link {
-        color: $text-white !important; // ✅ couleur blanche pour le texte
-        text-shadow: $shadow-text; // ✅ ombre de texte
+        color: var(
+            --text-black
+        ) !important; // ✅ texte sombre en thème clair / clair en alt (via var)
+        text-shadow: var(--shadow-text); // ✅ ombre suivant thème
         border: none;
-        background: none;        
+        background: none;
         font-size: clamp(0.7rem, 2vw, 1rem);
         transition: border-color 0.3s, color 0.3s;
         padding: 0;
         text-decoration: none; // 🔥 désactive le underline arrondi
         border-bottom: 1px solid transparent; // ligne invisible de base
-        border-radius: 0; // ✅ supprime l’arrondi        
+        border-radius: 0; // ✅ supprime l’arrondi
 
         &.active-tab {
-            border-color: $text-white; // ✅ ligne noire, droite
+            border-color: currentColor; // ✅ ligne suit la couleur du texte
         }
 
         &:hover {
-            color: $color-primary;
+            color: var(--color-primary);
         }
     }
 }
 
 .auth-form {
     input.form-control {
-        color: $text-black;
+        // Texte/caret/placeholder s'adaptent au thème via list-text
+        color: var(--list-text);
+        caret-color: currentColor;
+        background-color: var(--list-bg);
         border-radius: 0.5rem;
         padding: 0.2rem 0.5rem;
         font-size: 1rem;
         font-family: $font-primary;
-        border: 2px solid $color-secondary;
+        border: 2px solid var(--color-secondary);
         transition: border-color 0.3s ease;
 
+        &::placeholder {
+            color: color-mix(in srgb, currentColor 60%, transparent);
+            opacity: 1; // Safari
+        }
+
         &:focus {
-            border-color: $color-primary;
-            box-shadow: 0 0 0 0.2rem rgba(33, 87, 50, 0.25);
+            border-color: var(--color-primary);
+            // Utilise color-mix pour une ombre adaptée au thème (fallback si non supporté)
+            box-shadow: 0 0 0 0.2rem
+                color-mix(in srgb, var(--color-primary) 25%, transparent);
         }
     }
 
     label.form-label {
         font-weight: 200;
-        color: $text-white;
+        color: var(--text-black);
     }
 
     .btn-inscription {
         @extend .btn-inscription; // utilise ton style global
         width: auto;
         margin-top: 1rem;
+    }
+}
+
+// Lisibilité jauge de mot de passe et toggle
+.auth-form {
+    .input-group .toggle-password {
+        color: var(--text-black);
+        border-color: color-mix(in srgb, currentColor 30%, transparent);
+        background: transparent;
+        &:hover {
+            background: color-mix(in srgb, currentColor 8%, transparent);
+        }
+    }
+
+    .input-group .toggle-criteria {
+        color: var(--text-black);
+        border-color: color-mix(in srgb, currentColor 30%, transparent);
+        background: transparent;
+        &:hover {
+            background: color-mix(in srgb, currentColor 8%, transparent);
+        }
+    }
+
+    #passwordStrengthBar {
+        height: 10px !important; // plus lisible
+        transition: width 0.25s ease;
+    }
+
+    #passwordStrengthText {
+        display: inline-block;
+        margin-top: 0.35rem;
+        color: var(--text-black);
+        text-shadow: var(--shadow-text);
+        // léger fond translucide pour lisibilité sur le gradient
+        padding: 0.1rem 0.25rem;
+        border-radius: 0.25rem;
+        background-color: color-mix(
+            in srgb,
+            var(--color-white) 30%,
+            transparent
+        );
+    }
+
+    // Espace entre aide et jauge
+    #passwordHelp + .mt-2 {
+        margin-top: 0.5rem !important;
+    }
+}
+
+// Checklist des critères de mot de passe
+.password-criteria {
+    margin: 0.35rem 0 0.25rem;
+    padding-left: 1.2rem;
+    list-style: none;
+    color: var(--text-black);
+    text-shadow: var(--shadow-text);
+    font-size: 0.9rem;
+
+    li {
+        position: relative;
+        padding-left: 1.2rem;
+        margin: 0.25rem 0;
+        opacity: 0.85;
+
+        &::before {
+            content: "\F62A"; // bootstrap-icons: circle
+            font-family: "bootstrap-icons";
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        &.ok {
+            opacity: 1;
+            color: var(--color-secondary); // suit le thème
+            &::before {
+                content: "\F26E"; // check-circle
+                color: var(--color-secondary);
+            }
+        }
+
+        &.bad {
+            opacity: 1;
+            color: #ffb3b3; // rouge doux lisible
+            &::before {
+                content: "\F62E"; // x-circle
+                color: #ff6b6b;
+            }
+        }
     }
 }
 
@@ -128,7 +231,7 @@
 
         &::before {
             content: "×";
-            color: $text-white;
+            color: var(--text-black);
             font-size: 1.5rem;
             line-height: 1;
             position: absolute;
@@ -138,7 +241,7 @@
         }
 
         &:hover::before {
-            color: lighten($text-white, 10%);
+            color: color-mix(in srgb, currentColor 85%, white);
         }
     }
 }
