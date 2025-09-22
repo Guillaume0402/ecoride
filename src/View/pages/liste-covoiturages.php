@@ -225,12 +225,13 @@
                                             <?php endif; ?>
                                         <?php else: ?>
                                             <?php
+                                            // Autoriser Utilisateur (1), Employé (2) et Admin (3)
                                             $roleId = (int)($_SESSION['user']['role_id'] ?? 0);
                                             $myCredits = (int)($_SESSION['user']['credits'] ?? 0);
                                             $prix = (float)($ride['prix'] ?? 0);
                                             $cost = max(1, (int) ceil($prix));
                                             ?>
-                                            <?php if ($roleId !== 1): ?>
+                                            <?php if (!in_array($roleId, [1, 2, 3], true)): ?>
                                                 <button class="btn btn-secondary" disabled>Réservé aux Utilisateurs</button>
                                             <?php elseif ($myCredits < $cost): ?>
                                                 <a class="btn btn-secondary" href="/mes-credits" title="Solde: <?= (int)$myCredits ?>">Crédits insuffisants (<?= (int)$cost ?>)</a>
