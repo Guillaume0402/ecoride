@@ -81,11 +81,6 @@ class PageController extends Controller
         ]);
     }
 
-    // Page de création d'un covoiturage.
-    public function creationCovoiturage(): void
-    {
-        $this->render('pages/creation-covoiturage');
-    }
 
     // Page de création/édition du profil (protégée), précharge le véhicule
     public function creationProfil(): void
@@ -371,11 +366,7 @@ class PageController extends Controller
         ]);
     }
 
-    // Page de connexion.
-    public function login(): void
-    {
-        $this->render('pages/login');
-    }
+    // (supprimé) Page de connexion: la route /login utilise AuthController::showLogin
 
     // Page "À propos".
     public function about(): void

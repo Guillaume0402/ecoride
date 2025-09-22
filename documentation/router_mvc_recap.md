@@ -1,183 +1,111 @@
+# Récap pratique: notre Router MVC (EcoRide)
 
-#  RÉCAP COMPLET DU ROUTEUR MVC EN PHP
-
-##  STRUCTURE MVC SIMPLIFIÉE
-
-**MVC = Modèle / Vue / Contrôleur**
-
-| Composant     | Rôle |
-|---------------|------|
-| `Router.php`  | Gère les routes (URLs) |
-| `Controller`  | Traite la logique selon la route |
-| `view/*.php`  | Affiche l’interface à l’utilisateur |
-| `helpers.php` | Fonctions utiles : `url()`, `view()`, `asset()` |
-| `index.php`   | Point d’entrée de l’application (exécuté à chaque visite) |
+Ce fichier résume comment nos pages sont dispatchées avec le Router « maison » et comment on rend les vues. C’est volontairement simple et fidèle au code actuel (pas de pseudo-helpers inventés).
 
 ---
 
-## 1.  `Router.php` – Le cœur du système de routage
+## Architecture en deux mots
 
-###  Le `namespace`
+-   Le Router est `App\Routing\Router` et lit la table des routes dans `config/routes.php`.
+-   Les contrôleurs sont sous `App\Controller\...` et héritent du contrôleur de base `Controller` qui expose `render()` pour afficher une vue dans le layout.
+-   Les vues sont sous `src/View/...` (ex: `src/View/pages/login.php`) et sont injectées dans `src/View/layout.php`.
+-   Le point d’entrée est `public/index.php` qui charge les constantes, l’autoload Composer, `.env`, puis appelle `Router->handleRequest()`.
 
-- `namespace App;` indique que cette classe appartient au groupe logique "App".
-- Cela évite les conflits si d'autres classes avec le même nom existent ailleurs.
+---
 
-###  Attributs
+## Router: fonctionnement réel
+
+Fichier: `src/Routing/Router.php`
+
+-   Charge les routes via: `require APP_ROOT . '/config/routes.php'`.
+-   Normalise l’URI, détecte la méthode HTTP, et tente de faire matcher un pattern.
+-   Les paramètres entre accolades sont numériques par défaut: `{id}` correspond à `(\d+)`.
+-   En cas d’absence de route: 404 via `ErrorController`. En erreur: 500.
+-   Environnement « dev »: log basique des routes chargées et du chemin recherché.
+
+Extrait (simplifié) des routes:
 
 ```php
-public static string $basePath = '';
+return [
+    '/login' => [
+        'GET' => ['controller' => App\Controller\AuthController::class, 'action' => 'showLogin']
+    ],
+    '/covoiturages/{id}' => [
+        'GET' => ['controller' => App\Controller\PageController::class, 'action' => 'showCovoiturage']
+    ],
+    '/participations/accept/{id}' => [
+        'POST' => ['controller' => App\Controller\ParticipationController::class, 'action' => 'accept']
+    ],
+];
 ```
-- `public` = accessible partout
-- `static` = on peut y accéder sans instancier l'objet
-- `string` = typage strict (PHP 7+)
 
-```php
-protected array $routes = [];
-```
-- `protected` = accessible dans la classe ou ses enfants uniquement
-- `array` = contient toutes les routes classées par méthode (`GET`, `POST`, etc.)
-
-###  Méthodes `get()` et `post()`
-
-Enregistrent une route en appelant `addRoute()` avec la bonne méthode HTTP.
+Note: si vous voulez des slugs non numériques (ex: `{slug}`), il faut adapter `Router` (remplacer la regex `(\d+)` par `[^/]+` ou gérer au cas par cas).
 
 ---
 
-###  `dispatch()`
+## Rendu des vues: `Controller::render()`
 
-Traite la requête réelle :
-1. Récupère la méthode HTTP
-2. Nettoie l'URL (`basePath`, query strings)
-3. Cherche la route
-4. Exécute la méthode du contrôleur OU le callback
-5. Sinon ➜ erreur 404 ou 500
+Fichier: `src/Controller/Controller.php`
+
+-   Démarre la session au besoin, prépare des infos globales (utilisateur, véhicules, compteurs).
+-   `render('pages/login', $data)` va:
+    -   extraire `$data` en variables,
+    -   inclure la vue `src/View/pages/login.php` dans un buffer,
+    -   injecter ce contenu dans `src/View/layout.php`.
+
+On n’utilise pas de helpers `url()`, `asset()` ou `view()` génériques. Tout passe par `render()` côté contrôleurs.
 
 ---
 
-## 2.  Fichier `helpers.php`
+## Point d’entrée: `public/index.php`
 
-Contient les fonctions globales utilisées dans les vues.
+1. Définit les constantes (`config/constants.php`), charge l’autoload Composer et les variables d’environnement via Dotenv.
+2. Inclut `src/helpers.php` (avec `redirect()`, `abort()`, `getRideCreateFee()`).
+3. Instancie le Router et appelle `handleRequest($_SERVER['REQUEST_URI'])`.
 
-###  `url($path)`
+En dev, les exceptions sont relancées; en prod, on affiche une 500 propre.
+
+---
+
+## Mini « contrat » d’une route
+
+-   Entrée: un chemin (ex: `/admin/users/toggle/{id}`) + méthode HTTP (`GET`/`POST`).
+-   Sortie: appel de `Controller::action($params...)` avec les paramètres capturés.
+-   Erreurs: 404 si route introuvable, 405 si méthode non autorisée, 500 si classe ou méthode absente.
+
+---
+
+## Exemples concrets
+
+1. Page de détail d’un covoiturage:
 
 ```php
-function url(string $path = ''): string {
-    return rtrim(Router::$basePath, '/') . '/' . ltrim($path, '/');
+// config/routes.php
+'/covoiturages/{id}' => [
+    'GET' => ['controller' => App\Controller\PageController::class, 'action' => 'showCovoiturage']
+]
+
+// src/Controller/PageController.php
+public function showCovoiturage(int $id): void {
+    // récupérer les infos et rendre la vue
+    $this->render('pages/covoiturage-detail', ['id' => $id]);
 }
 ```
 
-####  Explication détaillée :
-- `Router::$basePath` contient un éventuel sous-dossier comme `/monprojet`
-- `rtrim()` supprime les `/` à droite
-- `ltrim()` supprime les `/` à gauche de `$path`
-- Résultat : une URL propre même si ton site est dans un sous-dossier
-
-#### Exemple :
-```php
-<a href="<?= url('login') ?>">Connexion</a>
-```
-
-➡ Donne `/login` ou `/monprojet/login` selon ton `$basePath`.
-
----
-
-###  `asset($path)`
+2. Action POST protégée (acceptation d’une demande):
 
 ```php
-function asset(string $path): string {
-    return url('assets/' . ltrim($path, '/'));
-}
+// config/routes.php
+'/participations/accept/{id}' => [
+    'POST' => ['controller' => App\Controller\ParticipationController::class, 'action' => 'accept']
+]
 ```
 
-####  Explication détaillée :
-- On ajoute `'assets/'` au chemin demandé
-- `ltrim($path, '/')` évite les doubles slashs
-- On utilise `url()` pour s'assurer que le chemin est correct
-
-#### Exemple :
-```php
-<img src="<?= asset('images/logo.png') ?>" alt="Logo">
-```
-
-➡ Donne `/assets/images/logo.png` ou `/monprojet/assets/images/logo.png`
-
 ---
 
-###  `view()`
+## À retenir
 
-Charge un fichier de vue avec des données :
-1. `extract($data)` ➜ transforme `['title' => 'Bienvenue']` en `$title = 'Bienvenue'`
-2. Capture le contenu avec `ob_start()`
-3. Affiche la vue dans un layout commun
-
----
-
-## 3.  `HomeController.php`
-
-```php
-namespace App\controller;
-
-class HomeController {
-    public function index(): void {
-        view('home');
-    }
-}
-```
-
-Affiche `view/home.php` quand l'utilisateur visite `/`.
-
----
-
-## 4.  `view/home.php`
-
-HTML affiché à l'utilisateur. Utilise :
-
-- `include` pour le header et footer
-- `url()` pour les liens
-- `asset()` pour les images
-- Un formulaire de recherche
-
----
-
-## 5.  `index.php`
-
-Point d'entrée du site.
-
-1. Charge tous les fichiers nécessaires
-2. Définit `$basePath`
-3. Déclare toutes les routes
-4. Lance `$router->dispatch()`
-
----
-
-##  Résumé final
-
-| Élément        | Explication |
-|----------------|-------------|
-| `public`       | Accessible partout |
-| `private`      | Accessible seulement dans la classe |
-| `protected`    | Accessible dans la classe et ses enfants |
-| `static`       | Accessible sans créer d’objet |
-| `namespace`    | Organise ton code par "dossier logique" |
-| `dispatch()`   | Détecte l’URL actuelle et appelle la bonne méthode |
-| `view()`       | Charge une page HTML avec les données |
-| `url()`        | Crée des liens dynamiques en tenant compte du sous-dossier |
-| `asset()`      | Crée le chemin vers les fichiers statiques |
-| `call_user_func()` | Appelle dynamiquement une fonction ou méthode |
-
----
-
-##  Exemple complet
-
-```php
-// index.php
-$router->get('/', 'HomeController@index');
-
-// HomeController.php
-public function index() {
-    view('home', ['title' => 'Bienvenue sur EcoRide']);
-}
-
-// home.php
-<h1><?= $title ?></h1>
-```
+-   Routes déclarées dans `config/routes.php` (structure tableau par méthode HTTP).
+-   Router strict sur les paramètres numériques par défaut.
+-   Rendu via `Controller::render()`; pas de helpers de template spéciaux.
+-   `helpers.php` expose `redirect()`, `abort()` et `getRideCreateFee()`.

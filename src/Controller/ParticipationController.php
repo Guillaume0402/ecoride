@@ -53,7 +53,7 @@ class ParticipationController extends Controller
             $travelRole = $currentUser?->getTravelRole() ?? 'passager';
             if (!in_array($travelRole, ['passager', 'les-deux'], true)) {
                 Flash::add("Votre profil n'est pas configuré comme passager. Mettez à jour votre rôle de voyage dans votre profil.", 'warning');
-                redirect('/profil/edit');
+                redirect('/creation-profil');
             }
         } catch (\Throwable $e) {
             error_log('[participations.create] Travel role check failed: ' . $e->getMessage());

@@ -10,5 +10,12 @@
         "vlucas/phpdotenv": "^5.6",
         "mongodb/mongodb": "^2.1",
         "phpmailer/phpmailer": "^6.9"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.11",
+        "phpunit/phpunit": "^10"
+    },
+    "scripts": {
+        "test": "php -d zend.assertions=1 -d assert.exception=1 ./vendor/bin/phpunit -c phpunit.xml.dist"
     }
 }

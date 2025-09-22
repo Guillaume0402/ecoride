@@ -1,4 +1,5 @@
 <?php
+
 use App\Controller\ErrorController;
 
 if (!function_exists('redirect')) {
@@ -31,5 +32,12 @@ if (!function_exists('abort')) {
         }
 
         exit;
+    }
+}
+
+if (!function_exists('getRideCreateFee')) {
+    function getRideCreateFee(): int
+    {
+        return (int) (defined('RIDE_CREATE_FEE_CREDITS') ? RIDE_CREATE_FEE_CREDITS : 2);
     }
 }

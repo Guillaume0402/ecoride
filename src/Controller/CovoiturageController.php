@@ -103,7 +103,7 @@ class CovoiturageController extends Controller
             'status' => 'en_attente',
         ]);
         // Frais de création: débiter le conducteur avant l'insertion
-        $fee = defined('RIDE_CREATE_FEE_CREDITS') ? (int) RIDE_CREATE_FEE_CREDITS : 2;
+        $fee = getRideCreateFee();
         if ($fee > 0) {
             if (!$this->userRepository->debitIfEnough($userId, $fee)) {
                 Flash::add("Crédits insuffisants: il faut au moins {$fee} crédit(s) pour créer un trajet.", 'warning');
@@ -225,7 +225,7 @@ class CovoiturageController extends Controller
             'status' => 'en_attente',
         ]);
         // Frais de création
-        $fee = defined('RIDE_CREATE_FEE_CREDITS') ? (int) RIDE_CREATE_FEE_CREDITS : 2;
+        $fee = getRideCreateFee();
         if ($fee > 0) {
             if (!$this->userRepository->debitIfEnough($userId, $fee)) {
                 http_response_code(402);

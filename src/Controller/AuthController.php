@@ -98,16 +98,10 @@ class AuthController extends Controller
                 '<p>— L\'équipe EcoRide</p>';
             (new \App\Service\Mailer())->send($email, $subject, $body);
 
-            // Récup utilisateur complet (facultatif) pour vérifs/feedback
-            $newUser = $this->userRepository->findByEmail($email);
-            if ($newUser && !$newUser->getIsActive()) {
-                throw new \Exception('Votre compte a été créé mais désactivé. Contactez l\'administrateur.');
-            }
-
             return [
                 'success'  => true,
                 'message'  => 'Inscription réussie ! Un email de confirmation vous a été envoyé.',
-                'user'     => ['pseudo' => $newUser ? $newUser->getPseudo() : $username],
+                'user'     => ['pseudo' => $username],
                 'redirect' => '/login'
             ];
         });

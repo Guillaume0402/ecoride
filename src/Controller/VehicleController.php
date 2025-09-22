@@ -66,11 +66,15 @@ class VehicleController extends Controller
             redirect('/vehicle/create');
         }
 
-        // Date Y-m-d -> SQL (ou null)
-        $dateFr  = $_POST['date_premiere_immatriculation'] ?? '';
-        $dateSql = $dateFr !== ''
-            ? \DateTime::createFromFormat('Y-m-d', $dateFr)?->format('Y-m-d')
-            : null;
+        // Date Y-m-d -> SQL (string|nullable)
+        $dateFr = $_POST['date_premiere_immatriculation'] ?? '';
+        $dateSql = null;
+        if ($dateFr !== '') {
+            $dt = \DateTime::createFromFormat('Y-m-d', $dateFr);
+            if ($dt instanceof \DateTime) {
+                $dateSql = $dt->format('Y-m-d');
+            }
+        }
 
         // Normalisation plaque via le repo (tu l’as ajoutée dans le repo 👍)
         $immatriculation = VehicleRepository::normalizePlate($_POST['immatriculation'] ?? '');
@@ -113,7 +117,7 @@ class VehicleController extends Controller
     public function edit(): void
     {
         $vehicleId = (int) ($_GET['id'] ?? 0);
-        $userId = $_SESSION['user']['id'];
+        $userId = (int) ($_SESSION['user']['id'] ?? 0);
 
         $vehicle = $this->vehicleRepository->findById($vehicleId);
 
@@ -168,10 +172,14 @@ class VehicleController extends Controller
             redirect('/vehicle/edit?id=' . $vehicleId);
         }
 
-        $dateFr  = $_POST['date_premiere_immatriculation'] ?? '';
-        $dateSql = $dateFr !== ''
-            ? \DateTime::createFromFormat('Y-m-d', $dateFr)?->format('Y-m-d')
-            : null;
+        $dateFr = $_POST['date_premiere_immatriculation'] ?? '';
+        $dateSql = null;
+        if ($dateFr !== '') {
+            $dt = \DateTime::createFromFormat('Y-m-d', $dateFr);
+            if ($dt instanceof \DateTime) {
+                $dateSql = $dt->format('Y-m-d');
+            }
+        }
 
         $allowed = ['fumeur', 'non-fumeur', 'animaux', 'pas-animaux'];
         $prefs   = array_intersect($allowed, (array) ($_POST['preferences'] ?? []));

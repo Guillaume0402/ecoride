@@ -11,8 +11,11 @@ class Router
     {
         // Charge la configuration des routes (tableau associatif)
         $this->routes = require_once APP_ROOT . "/config/routes.php";
-        // Log de debug: liste des chemins déclarés
-        error_log("Routes chargées : " . print_r(array_keys($this->routes), true));
+        // Log de debug uniquement en environnement de développement
+        $appEnv = $GLOBALS['_ENV']['APP_ENV'] ?? ($_ENV['APP_ENV'] ?? 'prod');
+        if ($appEnv === 'dev') {
+            error_log("Routes chargées : " . print_r(array_keys($this->routes), true));
+        }
     }
 
     // Point d'entrée: fait correspondre l'URI à une route et invoque le contrôleur
@@ -21,7 +24,10 @@ class Router
         // Normalise le chemin et détermine la méthode HTTP courante
         $path = $this->normalizePath($uri);
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-        error_log("Recherche de la route : $path");
+        $appEnv = $GLOBALS['_ENV']['APP_ENV'] ?? ($_ENV['APP_ENV'] ?? 'prod');
+        if ($appEnv === 'dev') {
+            error_log("Recherche de la route : $path");
+        }
 
         $matchedRoute = null;
         $params = [];

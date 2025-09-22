@@ -9,7 +9,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */
 ;
 
--- Base de données : `ecoride_db`
+-- Base de données : `ecoride`
 
 -- roles
 CREATE TABLE IF NOT EXISTS `roles` (
