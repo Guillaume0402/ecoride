@@ -23,7 +23,8 @@ Thumbs.db
 
 # PHP
 vendor/
-*.lock
+# Garder composer.lock versionné pour des builds reproductibles (Heroku)
+!composer.lock
 
 # Backup files
 *.bak
