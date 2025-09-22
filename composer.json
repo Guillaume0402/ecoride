@@ -14,5 +14,8 @@
     "require-dev": {
         "phpstan/phpstan": "^1.11",
         "phpunit/phpunit": "^10"
+    },
+    "scripts": {
+        "test": "php -d zend.assertions=1 -d assert.exception=1 ./vendor/bin/phpunit -c phpunit.xml.dist"
     }
 }
