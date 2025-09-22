@@ -166,6 +166,10 @@ SMTP_USER=
 SMTP_PASS=
 SMTP_SECURE=tls
 
+# Notes e-mail
+- En production, si aucune configuration SMTP n'est fournie (`SMTP_HOST` vide), l'application n'essaiera plus d'utiliser `mail()` (souvent bloqué/inopérant sur PaaS comme Heroku) et journalisera les emails dans un fichier de log.
+- Emplacement du log emails (tous environnements): `${TMPDIR}/ecoride-mail.log` (ex: `/tmp/ecoride-mail.log` sur Linux/Heroku). Utile pour vérifier les contenus envoyés.
+
 # Frais plateforme (crédits)
 # Nombre de crédits débités au conducteur lors de la création d'un trajet
 # Par défaut: 2 si non défini

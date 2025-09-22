@@ -21,11 +21,11 @@ if (!defined('BASE_URL')) {
     define('BASE_URL', '/');
 }
 
-// URL complète du site (utile pour générer des URLs absolues)
 // Peut être surchargée via variable d'env SITE_URL (ex: https://votre-app.herokuapp.com/)
+// URL complète du site (utile pour générer des URLs absolues)
 if (!defined('SITE_URL')) {
     $envSiteUrl = $_ENV['SITE_URL'] ?? getenv('SITE_URL') ?: 'http://localhost:8080/';
-    // S'assurer d'un trailing slash
+    // S'assurer d'un trailing slash sans dépendre de str_ends_with
     if ($envSiteUrl !== '' && substr($envSiteUrl, -1) !== '/') {
         $envSiteUrl .= '/';
     }
