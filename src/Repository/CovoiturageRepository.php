@@ -248,4 +248,49 @@ class CovoiturageRepository
         }
         return $out;
     }
+
+    /**
+     * Liste administrateur: tous les covoiturages avec détails (conducteur, véhicule, stats simples)
+     * $scope: 'all' | 'past' | 'ongoing' | 'future'
+     */
+    public function findAllAdmin(string $scope = 'all', int $limit = 500): array
+    {
+        $limit = max(1, min(1000, $limit));
+        $sql = "SELECT c.*,
+                       u.pseudo AS driver_pseudo,
+                       v.marque AS vehicle_marque, v.modele AS vehicle_modele, v.couleur AS vehicle_couleur,
+                       v.places_dispo AS vehicle_places,
+                       (SELECT COUNT(*) FROM participations p WHERE p.covoiturage_id = c.id AND p.status = 'confirmee') AS confirmed_count,
+                       (SELECT COUNT(*) FROM participations p WHERE p.covoiturage_id = c.id AND p.status = 'en_attente_validation') AS pending_count
+                FROM {$this->table} c
+                LEFT JOIN users u ON u.id = c.driver_id
+                LEFT JOIN vehicles v ON v.id = c.vehicle_id
+                WHERE 1=1";
+
+        $now = (new \DateTime())->format('Y-m-d H:i:s');
+        $params = [];
+        switch ($scope) {
+            case 'past':
+                $sql .= " AND c.depart < :now";
+                $params[':now'] = $now;
+                break;
+            case 'ongoing':
+                // 'démarré' ou départ passé mais avant auto-cancel/finish
+                $sql .= " AND c.status = 'demarre'";
+                break;
+            case 'future':
+                $sql .= " AND c.depart >= :now";
+                $params[':now'] = $now;
+                break;
+            case 'all':
+            default:
+                // pas de filtre supplémentaire
+                break;
+        }
+
+        $sql .= " ORDER BY c.depart DESC LIMIT {$limit}";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+    }
 }
