@@ -26,11 +26,11 @@ if (!isset($avgRating)) {
 
 <div class="container py-5 my-profil-page">
     <div class="row justify-content-center">
-        <div class="col-lg-10">
+        <div class="col-12 col-xl-11">
             <div class="card shadow-lg border-0 rounded-4 p-4 mb-5" style="background:rgba(0,0,0,0.10);backdrop-filter:blur(2px);">
-                <div class="row g-0 align-items-center">
-                    <div class="col-md-4 text-center text-md-start mb-4 mb-md-0">
-                        <div class="d-flex flex-column align-items-center align-items-md-start gap-2">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-5 col-lg-4 col-xl-4 text-center text-md-start mb-2 mb-md-0">
+                        <div class="d-flex flex-column align-items-center align-items-md-start gap-2 w-100" style="min-width:0;">
                             <div class="d-flex align-items-center gap-2 mb-2">
                                 <span class="fs-5">
                                     <?php $fill = (int) round(min(5, max(0, (float)($avgRating ?? 0))));
@@ -41,7 +41,9 @@ if (!isset($avgRating)) {
                                 <span class="ms-2">(<?= (int)$reviewsCount ?>)</span>
                             </div>
                             <?php if (isset($_SESSION['user'])): ?>
-                                <h2 class="fw-bold mb-2"><?= $_SESSION['user']['pseudo'] ?? '' ?></h2>
+                                <h2 class="fw-bold mb-2 text-break" style="word-break:break-word;overflow-wrap:anywhere;max-width:100%;line-height:1.2;">
+                                    <?= htmlspecialchars($_SESSION['user']['pseudo'] ?? '') ?>
+                                </h2>
                                 <?php $__avatar = !empty($user['photo']) ? $user['photo'] : (defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg'); ?>
                                 <img src="<?= htmlspecialchars($__avatar) ?>" alt="Avatar" class="rounded-circle bg-white mb-2" style="width:70px;height:70px;object-fit:cover;" onerror="this.onerror=null;this.src='<?= defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg' ?>';">
                                 <ul class="list-unstyled small mb-3">
@@ -62,7 +64,7 @@ if (!isset($avgRating)) {
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-md-7 col-lg-8 col-xl-8">
                         <div class="row g-3">
                             <div class="col-6 col-lg-4">
                                 <div class="fw-semibold">Date d'inscription</div>
@@ -83,10 +85,10 @@ if (!isset($avgRating)) {
                             <!-- Historique des transactions déplacé vers /mes-credits -->
                             <?php if (!empty($vehicles)): ?>
                                 <!-- Onglets -->
-                                <ul class="nav nav-tabs mb-4" id="vehicleTabs" role="tablist">
+                                <ul class="nav nav-tabs mb-4 flex-nowrap overflow-auto" id="vehicleTabs" role="tablist" style="gap:.25rem;">
                                     <?php foreach ($vehicles as $index => $vehicle): ?>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link <?= $index === 0 ? 'active' : '' ?>" id="vehicle-tab-<?= $index ?>"
+                                            <button class="nav-link <?= $index === 0 ? 'active' : '' ?> text-nowrap" id="vehicle-tab-<?= $index ?>"
                                                 data-bs-toggle="tab" data-bs-target="#vehicle-<?= $index ?>" type="button" role="tab">
                                                 Véhicule <?= $index + 1 ?>
                                             </button>
@@ -155,7 +157,7 @@ if (!isset($avgRating)) {
     <?php if ($reviewsCount > 0 && is_array($reviews ?? null)): ?>
         <div class="row justify-content-center g-4">
             <?php foreach ($reviews as $r): ?>
-                <div class="col-md-4">
+                <div class="col-sm-6 col-md-6 col-lg-4 col-xxl-3">
                     <div class="card shadow border-0 rounded-4 p-4 h-100" style="background:rgba(0,0,0,0.10);backdrop-filter:blur(2px);">
                         <div class="mb-2">
                             <?php $rr = (int)($r['rating'] ?? 0);
