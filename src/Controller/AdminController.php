@@ -173,6 +173,27 @@ class AdminController extends Controller
         ]);
     }
 
+    // Liste globale des covoiturages (passés, en cours, à venir) avec filtre "scope"
+    public function covoiturages(): void
+    {
+        $scope = (string)($_GET['scope'] ?? 'all');
+        if (!in_array($scope, ['all', 'past', 'ongoing', 'future'], true)) {
+            $scope = 'all';
+        }
+        $limit = (int)($_GET['limit'] ?? 200);
+        $limit = max(1, min(1000, $limit));
+
+        $repo = new \App\Repository\CovoiturageRepository();
+        $rows = $repo->findAllAdmin($scope, $limit);
+
+        $this->render('pages/admin/covoiturages', [
+            'isAdminPage' => true,
+            'scope' => $scope,
+            'limit' => $limit,
+            'rows' => $rows,
+        ]);
+    }
+
     // Crée un employé (POST), validations + hash + persistance
     public function createEmployee(): void
     {

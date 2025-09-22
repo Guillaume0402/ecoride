@@ -143,6 +143,12 @@ return [
             'action' => 'stats'
         ]
     ],
+    '/admin/covoiturages' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\AdminController',
+            'action' => 'covoiturages'
+        ]
+    ],
     '/admin/users/create' => [
         'POST' => [
             'controller' => 'App\\Controller\\AdminController',
