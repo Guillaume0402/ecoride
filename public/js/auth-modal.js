@@ -107,6 +107,8 @@ async function handleAuth(endpoint, formData) {
                 "Content-Type": "application/json",
                 ...(csrf ? { "X-CSRF-Token": csrf } : {}),
             },
+            // Important: inclure les cookies de session pour SameSite Lax
+            credentials: "same-origin",
             body: JSON.stringify(formData),
         });
 

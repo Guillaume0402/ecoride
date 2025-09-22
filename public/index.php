@@ -23,6 +23,25 @@ if ($__appEnv === 'dev') {
     error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 }
 
+// --- Sessions fiables derrière proxy Heroku ---
+// Si la requête est passée en HTTPS via le routeur Heroku, on l'indique à PHP
+if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+    $_SERVER['HTTPS'] = 'on';
+}
+
+// Paramètres de cookie de session (secure en HTTPS, HttpOnly, SameSite=Lax)
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    // Laisse le domaine par défaut (host courant). Path=/ pour toute l'app.
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'secure'   => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+    @session_start();
+}
+
 // Charger les constantes globales
 require_once __DIR__ . '/../config/constants.php';
 

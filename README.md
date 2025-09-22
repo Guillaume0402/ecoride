@@ -111,7 +111,7 @@ config/             # routes.php, constants.php, env
 
 ## ▶Installation locale avec Docker
 
-<<<<<<< HEAD
+
 
 ### 1. Cloner le projet
 
@@ -122,19 +122,19 @@ cd ecoride
 
 ### 2. Installer les dépendances PHP
 
-<<<<<<< HEAD
+
 composer install
 
 ```
 
 ### 3. Lancer les conteneurs
-<<<<<<< HEAD
+
 docker compose up -d --build
 ```
 
 ### 4. Accès aux services
 
-<<<<<<< HEAD
+
 
 -   Application : [http://localhost:8080](http://localhost:8080)
 -   phpMyAdmin : [http://localhost:8081](http://localhost:8081)
@@ -155,7 +155,7 @@ DB_PASSWORD=ecoride_password
 DB_PORT=3306
 
 APP_ENV=dev
-<<<<<<< HEAD
+
 # E-mail / SMTP (optionnel mais recommandé en prod)
 MAIL_FROM=no-reply@localhost
 MAIL_FROM_NAME=EcoRide
@@ -188,7 +188,7 @@ Ne pas versionner vos vrais identifiants de production.
 
 ### Politique de mot de passe (PasswordPolicy)
 
-<<<<<<< HEAD
+
 
 -   Au moins **1 minuscule**, **1 majuscule**, **1 chiffre**, **1 caractère spécial**
 -   **Aucun espace**
@@ -218,7 +218,7 @@ Ne pas versionner vos vrais identifiants de production.
 
 ## Accès de test (exemple)
 
-<<<<<<< HEAD
+
 
 > > > > > > > dev
 > > > > > > > Employé : employe@example.com / Employe!234
@@ -230,7 +230,7 @@ Ne pas versionner vos vrais identifiants de production.
 
 ## Checklist ECF
 
-<<<<<<< HEAD
+
 -   [x] Déploiement local reproductible avec Docker
 -   [x] Sécurité mots de passe robuste + hash + rehash auto + CSRF + PDO
 -   [x] Documentation d’installation (README)
