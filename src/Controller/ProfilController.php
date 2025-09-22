@@ -19,16 +19,7 @@ class ProfilController extends Controller
         }
     }
 
-    // GET /creation-profil
-    public function showForm(): void
-    {
-        $userId = (int)($_SESSION['user']['id'] ?? 0);
-        $user   = $this->userRepository->findById($userId);
-
-        $this->render('pages/creation-profil', [
-            'user' => $user ? $this->userService->toArray($user) : null,
-        ]);
-    }
+    // (supprimé) GET /creation-profil: géré par PageController::creationProfil
 
     // POST /creation-profil
     public function update(): void

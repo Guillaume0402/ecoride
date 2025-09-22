@@ -366,11 +366,7 @@ class PageController extends Controller
         ]);
     }
 
-    // Page de connexion.
-    public function login(): void
-    {
-        $this->render('pages/login');
-    }
+    // (supprimé) Page de connexion: la route /login utilise AuthController::showLogin
 
     // Page "À propos".
     public function about(): void
