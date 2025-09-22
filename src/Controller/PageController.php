@@ -120,7 +120,8 @@ class PageController extends Controller
 
         // Filtrage (Option B): aligner avec le header
         $now = new \DateTime();
-        $asDriver = array_values(array_filter($asDriverAll, function ($c) use ($now) {
+        $graceMinutes = defined('AUTO_CANCEL_MINUTES') ? (int) AUTO_CANCEL_MINUTES : 60;
+        $asDriver = array_values(array_filter($asDriverAll, function ($c) use ($now, $graceMinutes) {
             try {
                 $depart = new \DateTime($c['depart']);
             } catch (\Throwable $e) {
@@ -132,8 +133,10 @@ class PageController extends Controller
             if ($status === 'demarre') {
                 return true;
             }
-            // Sinon, on affiche ici uniquement les trajets à venir, non annulés/terminés.
-            return $depart >= $now && !in_array($status, ['annule', 'termine'], true);
+            // Sinon, on affiche ici les trajets à venir ET ceux dont l'heure est passée depuis moins de N minutes (grâce),
+            // tant qu'ils ne sont pas annulés/terminés. Cela laisse le temps au conducteur de démarrer.
+            $graceThreshold = (clone $depart)->modify("+{$graceMinutes} minutes");
+            return ($depart >= $now || $graceThreshold >= $now) && !in_array($status, ['annule', 'termine'], true);
         }));
         $asPassenger = array_values(array_filter($asPassengerAll, function ($p) use ($now) {
             $status = (string)($p['status'] ?? '');
@@ -153,7 +156,7 @@ class PageController extends Controller
         }));
 
         // Historique
-        $historyDriver = array_values(array_filter($asDriverAll, function ($c) use ($now) {
+        $historyDriver = array_values(array_filter($asDriverAll, function ($c) use ($now, $graceMinutes) {
             try {
                 $depart = new \DateTime($c['depart']);
             } catch (\Throwable $e) {
@@ -162,11 +165,12 @@ class PageController extends Controller
             $status = (string)($c['status'] ?? 'en_attente');
             // Historique si:
             // - terminé ou annulé, ou
-            // - l'heure est passée ET ce n'est pas un trajet en cours (démarré)
+            // - dépassé de plus de N minutes après l'heure de départ ET ce n'est pas un trajet en cours (démarré)
             if (in_array($status, ['annule', 'termine'], true)) {
                 return true;
             }
-            return $depart < $now && $status !== 'demarre';
+            $graceThreshold = (clone $depart)->modify("+{$graceMinutes} minutes");
+            return $graceThreshold < $now && $status !== 'demarre';
         }));
         $historyPassenger = array_values(array_filter($asPassengerAll, function ($p) use ($now) {
             $status = (string)($p['status'] ?? '');
