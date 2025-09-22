@@ -81,11 +81,6 @@ class PageController extends Controller
         ]);
     }
 
-    // Page de création d'un covoiturage.
-    public function creationCovoiturage(): void
-    {
-        $this->render('pages/creation-covoiturage');
-    }
 
     // Page de création/édition du profil (protégée), précharge le véhicule
     public function creationProfil(): void

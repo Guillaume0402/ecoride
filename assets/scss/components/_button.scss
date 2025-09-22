@@ -53,29 +53,29 @@
     background: transparent;
     color: var(--text-black);
     border-color: $color-primary !important;
+    &:hover {
+        background-color: $color-primary;
+        color: $text-black !important; // Texte noir demandé en light theme
+        border-color: $color-primary;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    // En thème sombre, garder un texte clair pour le hover
+    @media (prefers-color-scheme: dark) {
         &:hover {
-            background-color: $color-primary;
-            color: $text-black !important; // Texte noir demandé en light theme
-            border-color: $color-primary;
-            box-shadow: 0 4px 12px rgba(0,0,0,.15);
+            color: $color-white !important;
         }
-        // En thème sombre, garder un texte clair pour le hover
-        @media (prefers-color-scheme: dark) {
-            &:hover {
-                color: $color-white !important;
-            }
-        }
+    }
 }
 
-    // Renforcer la spécificité pour surcharger d'anciens styles résiduels (ordre CSS)
-    .btn.btn-custom-outline:hover {
-        background-color: $color-primary !important;
-        border-color: $color-primary !important;
-        color: $text-black !important; // noir en thème clair
-    }
+// Renforcer la spécificité pour surcharger d'anciens styles résiduels (ordre CSS)
+.btn.btn-custom-outline:hover {
+    background-color: $color-primary !important;
+    border-color: $color-primary !important;
+    color: $text-black !important; // noir en thème clair
+}
 
-    @media (prefers-color-scheme: dark) {
-        .btn.btn-custom-outline:hover {
-            color: $color-white !important; // lisible en dark
-        }
+@media (prefers-color-scheme: dark) {
+    .btn.btn-custom-outline:hover {
+        color: $color-white !important; // lisible en dark
     }
+}

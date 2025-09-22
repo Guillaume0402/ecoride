@@ -67,12 +67,6 @@ return [
             'action' => 'showUserProfil'
         ]
     ],
-    '/profil/edit' => [
-        'GET' => [
-            'controller' => 'App\\Controller\\UserController',
-            'action' => 'edit'
-        ]
-    ],
     '/creation-profil' => [
         'GET' => [
             'controller' => 'App\\Controller\\PageController',
