@@ -177,7 +177,7 @@ class AdminController extends Controller
     public function covoiturages(): void
     {
         $scope = (string)($_GET['scope'] ?? 'all');
-        if (!in_array($scope, ['all','past','ongoing','future'], true)) {
+        if (!in_array($scope, ['all', 'past', 'ongoing', 'future'], true)) {
             $scope = 'all';
         }
         $limit = (int)($_GET['limit'] ?? 200);

@@ -55,6 +55,7 @@
                                     <li><a class="dropdown-item" href="/admin/dashboard"><i class="bi bi-speedometer2 me-2"></i> Dashboard admin</a></li>
                                     <li><a class="dropdown-item" href="/admin/users"><i class="bi bi-people me-2"></i> Gérer les utilisateurs</a></li>
                                     <li><a class="dropdown-item" href="/admin/stats"><i class="bi bi-bar-chart-line me-2"></i> Statistiques</a></li>
+                                    <li><a class="dropdown-item" href="/admin/covoiturages"><i class="bi bi-list-ul me-2"></i> Tous les covoiturages</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
