@@ -22,7 +22,14 @@ if (!defined('BASE_URL')) {
 }
 
 // URL complète du site (utile pour générer des URLs absolues)
-define('SITE_URL', 'http://localhost:8080/');
+if (!defined('SITE_URL')) {
+    $envSiteUrl = $_ENV['SITE_URL'] ?? getenv('SITE_URL') ?: 'http://localhost:8080/';
+    // S'assurer du '/' final pour les concaténations simples (evite les '//' et les manques)
+    if (!str_ends_with($envSiteUrl, '/')) {
+        $envSiteUrl .= '/';
+    }
+    define('SITE_URL', $envSiteUrl);
+}
 
 // Frais de création d'un covoiturage (crédits débités au conducteur à la création)
 if (!defined('RIDE_CREATE_FEE_CREDITS')) {
