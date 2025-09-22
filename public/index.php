@@ -19,7 +19,8 @@ if ($__appEnv === 'dev') {
     ini_set('display_errors', '0');
     ini_set('display_startup_errors', '0');
     ini_set('html_errors', '0');
-    error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
+        // E_STRICT n'existe plus en 8.x, supprimer du masque
+        error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 }
 
 // Charger les constantes globales
