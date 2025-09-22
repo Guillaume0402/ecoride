@@ -25,8 +25,10 @@ if (!defined('BASE_URL')) {
 define('SITE_URL', 'http://localhost:8080/');
 
 // Délai avant auto-annulation d'un trajet non démarré (en minutes)
+// Sert aussi de période de grâce côté Conducteur pour garder le trajet dans l'onglet
+// et permettre un démarrage tardif avant bascule en historique
 if (!defined('AUTO_CANCEL_MINUTES')) {
-    define('AUTO_CANCEL_MINUTES', (int) ($_ENV['AUTO_CANCEL_MINUTES'] ?? 30));
+    define('AUTO_CANCEL_MINUTES', (int) ($_ENV['AUTO_CANCEL_MINUTES'] ?? 60));
 }
 
 // Délai pour considérer un trajet démarré comme expiré s'il n'a pas été terminé (en minutes)
