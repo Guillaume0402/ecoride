@@ -41,10 +41,10 @@ class ParticipationController extends Controller
         }
 
         $userId = (int) $_SESSION['user']['id'];
-        // Rôle autorisé: uniquement "Utilisateur" (role_id = 1)
+        // Rôles autorisés: Utilisateur (1), Employé (2), Admin (3)
         $roleId = (int) ($_SESSION['user']['role_id'] ?? 0);
-        if ($roleId !== 1) {
-            Flash::add('Cette action est réservée aux utilisateurs.', 'warning');
+        if (!in_array($roleId, [1, 2, 3], true)) {
+            Flash::add('Action non autorisée pour votre rôle.', 'warning');
             redirect('/liste-covoiturages');
         }
         // Exiger un profil apte à voyager en tant que passager
