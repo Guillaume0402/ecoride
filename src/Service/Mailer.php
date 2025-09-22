@@ -43,10 +43,8 @@ class Mailer
             ];
         }
 
-        // Fichier de log: en dev, utiliser un répertoire toujours accessible (/tmp)
-        $this->logFile = $this->appEnv === 'dev'
-            ? rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . '/ecoride-mail.log'
-            : APP_ROOT . '/mail.log';
+    // Fichier de log: utiliser un répertoire toujours accessible (Heroku → /tmp)
+    $this->logFile = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . '/ecoride-mail.log';
     }
 
     /**
@@ -87,7 +85,12 @@ class Mailer
                 $mailer->send();
                 return true;
             } catch (MailException $e) {
-                error_log('[Mailer][SMTP] ' . $e->getMessage());
+                // Essayer de récupérer des informations d'erreur supplémentaires
+                $errInfo = '';
+                if (isset($mailer) && $mailer instanceof PHPMailer && !empty($mailer->ErrorInfo)) {
+                    $errInfo = ' ErrorInfo=' . $mailer->ErrorInfo;
+                }
+                error_log('[Mailer][SMTP] ' . $e->getMessage() . $errInfo);
                 // fallback log
                 return $this->logFallback($to, $subject, $htmlBody);
             }
@@ -98,12 +101,17 @@ class Mailer
             return $this->logFallback($to, $subject, $htmlBody);
         }
 
-        // En prod, tentative d’envoi via mail(), sinon fallback log
+        // En prod, si aucun SMTP n'est configuré, éviter mail() (souvent bloqué sur PaaS) → journalisation
+        if ($this->appEnv === 'prod') {
+            error_log('[Mailer] SMTP non configuré en production – message journalisé dans ' . $this->logFile);
+            return $this->logFallback($to, $subject, $htmlBody);
+        }
+
+        // En autres cas (sécurité), tenter mail() puis fallback
         $ok = @mail($to, $subject, $htmlBody, $headersStr);
         if ($ok) {
             return true;
         }
-        // Fallback: journaliser le message pour inspection
         return $this->logFallback($to, $subject, $htmlBody);
     }
 
@@ -118,5 +126,13 @@ class Mailer
             error_log('[Mailer] fallback log failed: ' . $e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * Expose le fichier de log utilisé (utile pour les diagnostics/tests CLI)
+     */
+    public function getLogFile(): string
+    {
+        return $this->logFile;
     }
 }
