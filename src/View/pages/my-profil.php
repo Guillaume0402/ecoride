@@ -26,7 +26,7 @@ if (!isset($avgRating)) {
 
 <div class="container py-5 my-profil-page">
     <div class="row justify-content-center">
-    <div class="col-12 col-xl-12 col-xxl-12">
+        <div class="col-12 col-xl-12 col-xxl-12">
             <div class="card shadow-lg border-0 rounded-4 p-4 mb-5" style="background:rgba(0,0,0,0.10);backdrop-filter:blur(2px);">
                 <div class="row g-3 align-items-center">
                     <div class="col-md-5 col-lg-5 col-xl-5 text-center text-md-start mb-2 mb-md-0">
