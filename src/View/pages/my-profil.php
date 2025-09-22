@@ -5,12 +5,6 @@ if (!$user) {
     header('Location: /login');
     exit;
 }
-
-// Redirection si l'utilisateur est admin
-if ($user['role_id'] === 3) {
-    header('Location: /admin/dashboard');
-    exit;
-}
 ?>
 
 <div class="container py-5 my-profil-page">
