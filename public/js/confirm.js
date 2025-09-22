@@ -1,13 +1,12 @@
+/*
+Module: Confirmation Formulaire
+Rôle: Intercepter les formulaires .js-confirm et demander une confirmation (1 ou 2 étapes).
+Prérequis: Conteneur #alerts (optionnel), styles .custom-alert.
+Utilisation: <form class="js-confirm" data-confirm-text="..." data-confirm-steps="1|2">.
+*/
 (function () {
-    /* Petit module de confirmation: intercepte certains formulaires et
-    affiche une alerte personnalisée avec boutons OK / Annuler.
-    Utilisation: ajouter la classe "js-confirm" sur le <form>
-    et, optionnellement, des attributs data:
-    data-confirm-text: message principal
-    data-confirm-text2: message de 2e étape (si nécessaire)
-    data-confirm-steps: nombre d'étapes (1 ou 2)
-    data-confirm-variant: style visuel (info, success, warning, danger) */
-    
+    // Petit module de confirmation avec alerte personnalisée et boutons OK/Annuler.
+
     const STACK_ID = "alerts"; // Id du conteneur où empiler les alertes (fallback sur <body>)
 
     // Construit le DOM de l'alerte avec message + boutons d'action

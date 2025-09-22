@@ -1,3 +1,9 @@
+/*
+Module: Auth Modal
+Rôle: Gérer l’interface de connexion/inscription (onglets, validation, force du mot de passe, redirections) et la déconnexion.
+Prérequis: Bootstrap (Modal), éléments #authModal, #loginForm, #registerForm, #authAlert, #passwordStrengthBar, etc.
+Utilisation: Boutons avec data-bs-target="#authModal" pour ouvrir la modale.
+*/
 // Fonction pour afficher les messages
 function showAlert(message, type = "danger") {
     const modalAlert = document.querySelector("#authModal #authAlert");

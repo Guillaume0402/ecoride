@@ -1,5 +1,9 @@
-// Bascule un thème alternatif en ajoutant une classe sur <body>
-// Utilise des icônes Bootstrap via innerHTML (sans emoji dans les commentaires)
+/*
+Module: Toggle Thème
+Rôle: Basculer un thème alternatif via une classe sur <body> et stocker la préférence.
+Prérequis: Bouton #themeToggleBtn, Bootstrap Icons si utilisé pour l’icône.
+Utilisation: Inclure, puis cliquer sur #themeToggleBtn pour changer de thème.
+*/
 const themeToggleBtn = document.getElementById("themeToggleBtn");
 if (themeToggleBtn) {
     // Initialisation à partir du stockage local

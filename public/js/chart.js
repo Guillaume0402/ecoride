@@ -1,4 +1,9 @@
-// Instancie les graphiques si les canvas sont présents dans le DOM
+/*
+Module: Charts (Dashboard)
+Rôle: Instancier les graphiques Chart.js si les canvas cibles sont présents.
+Prérequis: Chart.js chargé, canvases #chartCovoiturages et/ou #chartCredits.
+Utilisation: Fournir labels/values via data-attributes ou valeurs par défaut.
+*/
 document.addEventListener("DOMContentLoaded", () => {
     const chartCovoiturages = document.getElementById("chartCovoiturages");
     const chartCredits = document.getElementById("chartCredits");
