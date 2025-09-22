@@ -293,4 +293,72 @@ class CovoiturageRepository
         $stmt->execute($params);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
     }
+
+    /**
+     * Destinations populaires basées sur le nombre de trajets à venir (non annulés/terminés).
+     * Retourne un tableau de destinations avec les départs les plus fréquents et prix min/moyen.
+     * Format:
+     * [
+     *   [
+     *     'arrivee' => 'Paris',
+     *     'count' => 42,
+     *     'departures' => [
+     *        ['depart' => 'Lille', 'count' => 12, 'min_prix' => 20.0, 'avg_prix' => 28.5],
+     *        ...
+     *     ]
+     *   ],
+     *   ...
+     * ]
+     */
+    public function popularDestinations(int $destLimit = 6, int $perDestDepartLimit = 4): array
+    {
+        $destLimit = max(1, min(24, $destLimit));
+        $perDestDepartLimit = max(1, min(10, $perDestDepartLimit));
+
+        // Top destinations par nombre de trajets à venir
+        $sqlTop = "SELECT c.adresse_arrivee AS arrivee, COUNT(*) AS cnt
+                   FROM {$this->table} c
+                   WHERE c.status NOT IN ('annule','termine')
+                     AND c.depart >= NOW()
+                     AND c.adresse_arrivee IS NOT NULL AND c.adresse_arrivee <> ''
+                   GROUP BY c.adresse_arrivee
+                   ORDER BY cnt DESC, arrivee ASC
+                   LIMIT {$destLimit}";
+        $topStmt = $this->conn->query($sqlTop);
+        $tops = $topStmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+
+        if (empty($tops)) return [];
+
+        $out = [];
+        $sqlDeps = "SELECT c.adresse_depart AS depart, COUNT(*) AS cnt, MIN(c.prix) AS min_prix, AVG(c.prix) AS avg_prix
+                    FROM {$this->table} c
+                    WHERE c.status NOT IN ('annule','termine')
+                      AND c.depart >= NOW()
+                      AND c.adresse_arrivee = :arr
+                      AND c.adresse_depart IS NOT NULL AND c.adresse_depart <> ''
+                    GROUP BY c.adresse_depart
+                    ORDER BY cnt DESC, depart ASC
+                    LIMIT {$perDestDepartLimit}";
+        $depStmt = $this->conn->prepare($sqlDeps);
+
+        foreach ($tops as $row) {
+            $arr = (string) $row['arrivee'];
+            $depStmt->execute([':arr' => $arr]);
+            $deps = $depStmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+            $out[] = [
+                'arrivee' => $arr,
+                'count' => (int)$row['cnt'],
+                'departures' => array_map(function ($d) {
+                    return [
+                        'depart' => (string)$d['depart'],
+                        'count' => (int)$d['cnt'],
+                        'min_prix' => isset($d['min_prix']) ? (float)$d['min_prix'] : null,
+                        'avg_prix' => isset($d['avg_prix']) ? (float)$d['avg_prix'] : null,
+                    ];
+                }, $deps),
+            ];
+        }
+
+        return $out;
+    }
 }
