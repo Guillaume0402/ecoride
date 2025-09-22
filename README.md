@@ -123,7 +123,6 @@ cd ecoride
 ```bash
 composer install
 ```
-
 ### 3. Lancer les conteneurs
 
 ```bash
