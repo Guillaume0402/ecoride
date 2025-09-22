@@ -26,10 +26,10 @@ if (!isset($avgRating)) {
 
 <div class="container py-5 my-profil-page">
     <div class="row justify-content-center">
-        <div class="col-12 col-xl-11">
+    <div class="col-12 col-xl-12 col-xxl-12">
             <div class="card shadow-lg border-0 rounded-4 p-4 mb-5" style="background:rgba(0,0,0,0.10);backdrop-filter:blur(2px);">
                 <div class="row g-3 align-items-center">
-                    <div class="col-md-5 col-lg-4 col-xl-4 text-center text-md-start mb-2 mb-md-0">
+                    <div class="col-md-5 col-lg-5 col-xl-5 text-center text-md-start mb-2 mb-md-0">
                         <div class="d-flex flex-column align-items-center align-items-md-start gap-2 w-100" style="min-width:0;">
                             <div class="d-flex align-items-center gap-2 mb-2">
                                 <span class="fs-5">
@@ -64,7 +64,7 @@ if (!isset($avgRating)) {
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="col-md-7 col-lg-8 col-xl-8">
+                    <div class="col-md-7 col-lg-7 col-xl-7">
                         <div class="row g-3">
                             <div class="col-6 col-lg-4">
                                 <div class="fw-semibold">Date d'inscription</div>
