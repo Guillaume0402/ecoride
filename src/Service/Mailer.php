@@ -43,8 +43,8 @@ class Mailer
             ];
         }
 
-    // Fichier de log: utiliser un répertoire toujours accessible (Heroku → /tmp)
-    $this->logFile = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . '/ecoride-mail.log';
+        // Fichier de log: utiliser un répertoire toujours accessible (Heroku → /tmp)
+        $this->logFile = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . '/ecoride-mail.log';
     }
 
     /**
@@ -63,6 +63,12 @@ class Mailer
         if ($this->smtp) {
             try {
                 $mailer = new PHPMailer(true);
+                // Debug SMTP optionnel activable via SMTP_DEBUG=1|2 (journalisé via error_log)
+                $smtpDebug = getenv('SMTP_DEBUG') ?: ($_ENV['SMTP_DEBUG'] ?? null);
+                if ($smtpDebug !== null && (string)$smtpDebug !== '' && (int)$smtpDebug > 0) {
+                    $mailer->SMTPDebug = (int) $smtpDebug; // 1 = client, 2 = client+server
+                    $mailer->Debugoutput = 'error_log';
+                }
                 $mailer->isSMTP();
                 $mailer->Host = $this->smtp['host'];
                 $mailer->Port = $this->smtp['port'];

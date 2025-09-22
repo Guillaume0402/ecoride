@@ -20,14 +20,14 @@ try {
 
 $to = $argv[1] ?? ($_ENV['TEST_EMAIL_TO'] ?? getenv('TEST_EMAIL_TO') ?: null);
 if (!$to || !filter_var($to, FILTER_VALIDATE_EMAIL)) {
-    fwrite(STDERR, "Usage: php scripts/send_test_email.php <destinataire@exemple.com>\n".
+    fwrite(STDERR, "Usage: php scripts/send_test_email.php <destinataire@exemple.com>\n" .
         "(ou définir TEST_EMAIL_TO dans l'env)\n");
     exit(1);
 }
 
 $subject = $argv[2] ?? 'EcoRide: Test SMTP';
 $body = '<p>Ceci est un e-mail de test envoyé par EcoRide.</p>'
-      . '<p>Date: ' . date('Y-m-d H:i:s') . "</p>";
+    . '<p>Date: ' . date('Y-m-d H:i:s') . "</p>";
 
 $mailer = new \App\Service\Mailer();
 $ok = $mailer->send($to, $subject, $body);
