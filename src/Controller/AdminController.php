@@ -69,17 +69,17 @@ class AdminController extends Controller
         }
 
         // KPIs dérivés (fenêtre choisie)
-        $daysCount = max(1, count($ridesSeries ?? []));
-        $totalRidesWindow = array_sum($ridesSeries ?? []);
+        $daysCount = max(1, is_array($ridesSeries) ? count($ridesSeries) : 0);
+        $totalRidesWindow = is_array($ridesSeries) ? array_sum($ridesSeries) : 0;
         $avgRidesPerDayWindow = $totalRidesWindow / $daysCount;
-        $creditsWindow = array_sum($creditsSeries ?? []);
-        $avgCreditsPerDayWindow = $creditsWindow / max(1, count($creditsSeries ?? []));
+        $creditsWindow = is_array($creditsSeries) ? array_sum($creditsSeries) : 0;
+        $avgCreditsPerDayWindow = $creditsWindow / max(1, is_array($creditsSeries) ? count($creditsSeries) : 0);
         $avgCreditsPerRide = $totalRidesWindow > 0 ? ($creditsWindow / $totalRidesWindow) : 0.0;
 
         // Meilleurs jours (trajets et crédits)
         $bestRideDayDate = null;
         $bestRideDayValue = 0;
-        foreach (($ridesSeries ?? []) as $d => $v) {
+        foreach ((is_array($ridesSeries) ? $ridesSeries : []) as $d => $v) {
             if ($v > $bestRideDayValue) {
                 $bestRideDayValue = (int)$v;
                 $bestRideDayDate = $d;
@@ -87,7 +87,7 @@ class AdminController extends Controller
         }
         $bestCreditDayDate = null;
         $bestCreditDayValue = 0.0;
-        foreach (($creditsSeries ?? []) as $d => $v) {
+        foreach ((is_array($creditsSeries) ? $creditsSeries : []) as $d => $v) {
             if ($v > $bestCreditDayValue) {
                 $bestCreditDayValue = (float)$v;
                 $bestCreditDayDate = $d;
@@ -102,10 +102,10 @@ class AdminController extends Controller
         $todayRides = $covoitRepo->countToday();
 
         // Préparation UI (labels JSON pour charts, classes boutons période)
-        $labelsR = json_encode(array_keys($ridesSeries ?? []));
-        $valuesR = json_encode(array_values($ridesSeries ?? []));
-        $labelsC = json_encode(array_keys($creditsSeries ?? []));
-        $valuesC = json_encode(array_values($creditsSeries ?? []));
+        $labelsR = json_encode(array_keys(is_array($ridesSeries) ? $ridesSeries : []));
+        $valuesR = json_encode(array_values(is_array($ridesSeries) ? $ridesSeries : []));
+        $labelsC = json_encode(array_keys(is_array($creditsSeries) ? $creditsSeries : []));
+        $valuesC = json_encode(array_values(is_array($creditsSeries) ? $creditsSeries : []));
         $btn7  = ($days === 7)  ? 'btn-success' : 'btn-outline-success';
         $btn15 = ($days === 15) ? 'btn-success' : 'btn-outline-success';
         $btn30 = ($days === 30) ? 'btn-success' : 'btn-outline-success';

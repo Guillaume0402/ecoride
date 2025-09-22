@@ -33,7 +33,7 @@ if (!isset($avgRating)) {
                         <div class="d-flex flex-column align-items-center align-items-md-start gap-2 w-100" style="min-width:0;">
                             <div class="d-flex align-items-center gap-2 mb-2">
                                 <span class="fs-5">
-                                    <?php $fill = (int) round(min(5, max(0, (float)($avgRating ?? 0))));
+                                    <?php $fill = (int) round(min(5, max(0, (float)$avgRating)));
                                     for ($i = 0; $i < 5; $i++): ?>
                                         <i class="bi bi-star-fill <?= $i < $fill ? 'text-warning' : 'text-secondary' ?>"></i>
                                     <?php endfor; ?>
