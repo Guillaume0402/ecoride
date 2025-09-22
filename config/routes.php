@@ -195,6 +195,12 @@ return [
             'action' => 'about'
         ]
     ],
+    '/qui-sommes-nous' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'about'
+        ]
+    ],
     '/liste-covoiturages' => [
         'GET' => [
             'controller' => 'App\\Controller\\PageController',
