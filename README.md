@@ -111,8 +111,6 @@ config/             # routes.php, constants.php, env
 
 ## ▶Installation locale avec Docker
 
-
-
 ### 1. Cloner le projet
 
 ```bash
@@ -121,7 +119,6 @@ cd ecoride
 ```
 
 ### 2. Installer les dépendances PHP
-
 
 composer install
 
@@ -133,8 +130,6 @@ docker compose up -d --build
 ```
 
 ### 4. Accès aux services
-
-
 
 -   Application : [http://localhost:8080](http://localhost:8080)
 -   phpMyAdmin : [http://localhost:8081](http://localhost:8081)
@@ -192,8 +187,6 @@ Ne pas versionner vos vrais identifiants de production.
 
 ### Politique de mot de passe (PasswordPolicy)
 
-
-
 -   Au moins **1 minuscule**, **1 majuscule**, **1 chiffre**, **1 caractère spécial**
 -   **Aucun espace**
 -   Interdiction de contenir le **pseudo** ou la **partie locale** de l’**e-mail**
@@ -221,8 +214,6 @@ Ne pas versionner vos vrais identifiants de production.
 -   Codes d’erreur et pages 404/405/500 personnalisées
 
 ## Accès de test (exemple)
-
-
 
 > > > > > > > dev
 > > > > > > > Employé : employe@example.com / Employe!234
