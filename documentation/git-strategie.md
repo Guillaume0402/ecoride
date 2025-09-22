@@ -180,6 +180,33 @@ git push origin main
 
 # Types valides :
 # feat, fix, refactor, style, docs, test, chore, hotfix
+
+---
+
+## Versions taguées (jalons)
+
+Pour marquer des jalons stables présentables à l’ECF, on utilise des tags versionnés.
+
+- Exemple récent: `v0.1.0` (UI de base, modale d’auth, alertes, profil)
+- Intérêt: identifier rapidement un snapshot stable et comparable
+
+Créer un tag annoté et le pousser:
+
+```bash
+# depuis la branche dev, une fois stable
+git tag v0.1.0 -m "ECF: première étape stable (UI + auth modale, alerts, profils)"
+git push origin v0.1.0
+```
+
+Lister les tags:
+
+```bash
+git tag -l
+```
+
+Règle simple:
+- Taguer après validation/merge sur `dev` ou `main`
+- Utiliser un message clair (contexte du jalon)
 ```
 
 2. Exécuter :
