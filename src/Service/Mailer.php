@@ -88,7 +88,10 @@ class Mailer
                 // Reply-To optionnel
                 $replyTo = getenv('MAIL_REPLY_TO') ?: ($_ENV['MAIL_REPLY_TO'] ?? null);
                 if (is_string($replyTo) && $replyTo !== '') {
-                    try { $mailer->addReplyTo($replyTo); } catch (\Throwable $e) { /* ignore */ }
+                    try {
+                        $mailer->addReplyTo($replyTo);
+                    } catch (\Throwable $e) { /* ignore */
+                    }
                 }
                 // En-têtes utiles pour réduire les auto-réponses et clarifier la nature du message
                 $mailer->addCustomHeader('Auto-Submitted', 'auto-generated');
@@ -97,8 +100,12 @@ class Mailer
                 $luParts = [];
                 $luUrl = getenv('LIST_UNSUBSCRIBE_URL') ?: ($_ENV['LIST_UNSUBSCRIBE_URL'] ?? null);
                 $luMailto = getenv('LIST_UNSUBSCRIBE_MAILTO') ?: ($_ENV['LIST_UNSUBSCRIBE_MAILTO'] ?? null);
-                if (is_string($luUrl) && $luUrl !== '') { $luParts[] = '<' . $luUrl . '>'; }
-                if (is_string($luMailto) && $luMailto !== '') { $luParts[] = '<mailto:' . $luMailto . '>'; }
+                if (is_string($luUrl) && $luUrl !== '') {
+                    $luParts[] = '<' . $luUrl . '>';
+                }
+                if (is_string($luMailto) && $luMailto !== '') {
+                    $luParts[] = '<mailto:' . $luMailto . '>';
+                }
                 if ($luParts) {
                     $mailer->addCustomHeader('List-Unsubscribe', implode(', ', $luParts));
                     $luPost = getenv('LIST_UNSUBSCRIBE_POST') ?: ($_ENV['LIST_UNSUBSCRIBE_POST'] ?? null);
