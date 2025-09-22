@@ -2,8 +2,10 @@
 node_modules/
 
 # Sass compiled CSS & maps
+# Ignorer par défaut, mais garder le CSS principal en prod
 /public/assets/css/*.css
 /public/assets/css/*.map
+!public/assets/css/style.css
 
 # Logs
 *.log
@@ -23,7 +25,8 @@ Thumbs.db
 
 # PHP
 vendor/
-*.lock
+# Garder composer.lock versionné pour des builds reproductibles (Heroku)
+!composer.lock
 
 # Backup files
 *.bak
