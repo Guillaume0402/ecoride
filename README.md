@@ -111,6 +111,8 @@ config/             # routes.php, constants.php, env
 
 ## ▶Installation locale avec Docker
 
+
+
 ### 1. Cloner le projet
 
 ```bash
@@ -120,26 +122,26 @@ cd ecoride
 
 ### 2. Installer les dépendances PHP
 
-```bash
+
 composer install
+
 ```
 
 ### 3. Lancer les conteneurs
 
-```bash
 docker compose up -d --build
 ```
 
 ### 4. Accès aux services
 
+
+
 -   Application : [http://localhost:8080](http://localhost:8080)
 -   phpMyAdmin : [http://localhost:8081](http://localhost:8081)
     -   **host** : `db`
     -   **user** : user : valeur définie dans .env.local (DB_USER)
-    -   **password** : password : valeur définie dans .env.local (DB_PASSWORD)
--   Mongo Express (optionnel) : [http://localhost:8082](http://localhost:8082)
-
----
+    -   **user** : valeur définie dans `.env.local` (`DB_USER`)
+    -   **password** : valeur définie dans `.env.local` (`DB_PASSWORD`)
 
 ## Variables d’environnement
 
@@ -175,12 +177,14 @@ RIDE_CREATE_FEE_CREDITS=2
 ```
 
 Ne pas versionner vos vrais identifiants de production.
+Ne pas versionner vos vrais identifiants de production.
 
 ### Crédits et transactions
 
 -   Débit passager: au moment où le conducteur accepte la participation, le passager est débité du prix (arrondi à l'entier supérieur, min 1).
 -   Crédit conducteur: quand le passager valide le trajet terminé, le conducteur est crédité (idempotent par motif).
 -   Frais de création: lorsque le conducteur crée un covoiturage, la plateforme prélève `RIDE_CREATE_FEE_CREDITS` crédits immédiatement. Si la création échoue techniquement, les crédits sont remboursés.
+    > > > > > > > dev
 
 ---
 
@@ -188,7 +192,8 @@ Ne pas versionner vos vrais identifiants de production.
 
 ### Politique de mot de passe (PasswordPolicy)
 
--   Longueur **≥ 12** et **≤ 72** (compat. bcrypt)
+
+
 -   Au moins **1 minuscule**, **1 majuscule**, **1 chiffre**, **1 caractère spécial**
 -   **Aucun espace**
 -   Interdiction de contenir le **pseudo** ou la **partie locale** de l’**e-mail**
@@ -215,24 +220,21 @@ Ne pas versionner vos vrais identifiants de production.
 -   PDO + requêtes préparées (anti-injection)
 -   Codes d’erreur et pages 404/405/500 personnalisées
 
----
-
 ## Accès de test (exemple)
 
-À créer en BDD pour tester :
 
-```
-Admin : admin@example.com / Admin!234
-Employé : employe@example.com / Employe!234
-User : user@example.com / User!234
+
+> > > > > > > dev
+> > > > > > > Employé : employe@example.com / Employe!234
+> > > > > > > User : user@example.com / User!234
+
 ```
 
 ---
 
 ## Checklist ECF
 
--   [x] Projet versionné sur GitHub (branche `dev`)
--   [x] Gestion de projet (branches par fonctionnalités)
+
 -   [x] Déploiement local reproductible avec Docker
 -   [x] Sécurité mots de passe robuste + hash + rehash auto + CSRF + PDO
 -   [x] Documentation d’installation (README)
@@ -255,3 +257,5 @@ Stratégie complète et commandes: voir `documentation/git-strategie.md`.
 ## Licence
 
 Projet pédagogique — libre pour l’ECF **DWWM Studi**.
+>>>>>>> dev
+```
