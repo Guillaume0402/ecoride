@@ -395,6 +395,12 @@ class PageController extends Controller
         $this->render('pages/privacy');
     }
 
+    // Page des mentions légales.
+    public function mentionsLegales(): void
+    {
+        $this->render('pages/mentions-legales');
+    }
+
     // Détail d'un covoiturage (public)
     public function showCovoiturage(int $id): void
     {
