@@ -22,6 +22,37 @@ Assurer un développement clair, organisé et conforme aux **bonnes pratiques de
 
 ---
 
+## Politique interne de merge (EcoRide)
+
+Par défaut, on privilégie un merge simple sans Pull Request pour aller vite, tant que la feature est petite et validée localement.
+
+- Développement sur une branche dédiée (feature/fix/docs…)
+- Tests manuels locaux OK → merge direct dans `dev`
+- Pas de review obligatoire, PR facultative (utilisée si changement sensible)
+- Après merge dans `dev`, on push immédiatement et on supprime la branche feature locale/distante
+
+Mémo express sans PR:
+
+```bash
+# sur la branche de travail
+git push -u origin <branch>
+
+# merge simple dans dev
+git checkout dev
+git pull --ff-only
+git merge --no-ff <branch> -m "merge: <titre concis>"
+git push origin dev
+
+# nettoyage
+git branch -d <branch>
+git push origin --delete <branch>
+```
+
+Cas particuliers:
+
+- Si des modifs non liées traînent: `git stash push -m "WIP"` avant le merge, puis `git stash apply` après.
+- Si conflit: résoudre, `git add`, puis `git commit` (merge) et poursuivre le push.
+
 ## Workflow recommandé
 
 ### 1. Se baser sur `dev` à jour :
@@ -170,7 +201,7 @@ git push origin main
 
 1. Créer un fichier `.gitmessage.txt` :
 
-```text
+````text
 <type>: <courte description à l’infinitif>
 
 # Ligne vide obligatoire
@@ -196,7 +227,7 @@ Créer un tag annoté et le pousser:
 # depuis la branche dev, une fois stable
 git tag v0.1.0 -m "ECF: première étape stable (UI + auth modale, alerts, profils)"
 git push origin v0.1.0
-```
+````
 
 Lister les tags:
 
@@ -205,14 +236,16 @@ git tag -l
 ```
 
 Règle simple:
-- Taguer après validation/merge sur `dev` ou `main`
-- Utiliser un message clair (contexte du jalon)
-```
+
+-   Taguer après validation/merge sur `dev` ou `main`
+-   Utiliser un message clair (contexte du jalon)
+
+````
 
 2. Exécuter :
 
 ```bash
 git config --global commit.template .gitmessage.txt
-```
+````
 
 Dès lors, `git commit` ouvrira ce modèle automatiquement.
