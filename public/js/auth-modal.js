@@ -1,7 +1,6 @@
 /*
 Module: Auth Modal
 Rôle: Gérer l’interface de connexion/inscription (onglets, validation, force du mot de passe, redirections) et la déconnexion.
-Prérequis: Bootstrap (Modal), éléments #authModal, #loginForm, #registerForm, #authAlert, #passwordStrengthBar, etc.
 Utilisation: Boutons avec data-bs-target="#authModal" pour ouvrir la modale.
 */
 // Fonction pour afficher les messages
@@ -271,7 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     attachLiveValidation(registerForm, validateRegisterField);
     attachLiveValidation(loginForm, validateLoginField);
-    // Strength meter for registration password
+    
     const pwdInput = document.getElementById("passwordRegister");
     const strengthBar = document.getElementById("passwordStrengthBar");
     const strengthText = document.getElementById("passwordStrengthText");
@@ -354,7 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Toggle show/hide password for all .toggle-password buttons
+    
     document.querySelectorAll(".toggle-password").forEach((btn) => {
         btn.addEventListener("click", () => {
             const targetId = btn.getAttribute("data-target");
@@ -371,7 +370,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Toggle criteria info visibility
+    
     document.querySelectorAll(".toggle-criteria").forEach((btn) => {
         btn.addEventListener("click", () => {
             const list = document.getElementById("passwordCriteriaList");

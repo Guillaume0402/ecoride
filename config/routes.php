@@ -1,12 +1,8 @@
 <?php
 
 
-return [
-    // NOTE paramètres de route:
-    // - Les segments entre accolades (ex: {id}) sont interprétés par le Router comme des nombres (regex \d+).
-    // - Si vous souhaitez des slugs alphanumériques, adaptez le Router pour utiliser [^/]+ à la place.
-    //   Exemple: '/article/{slug}' avec slug alphanumérique → requires Router update.
-
+return [   
+   
     // Page d'accueil
     '/' => [
         'GET' => [

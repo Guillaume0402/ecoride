@@ -90,7 +90,7 @@ class ParticipationController extends Controller
             redirect('/liste-covoiturages');
         }
 
-        // Sécurité ECF: empêcher de participer à deux trajets qui se chevauchent
+        // Sécurité: empêcher de participer à deux trajets qui se chevauchent
         // Si l'utilisateur a déjà une participation CONFIRMÉE dans une fenêtre autour de l'horaire
         // (par défaut ±120 minutes), on bloque la création.
         try {

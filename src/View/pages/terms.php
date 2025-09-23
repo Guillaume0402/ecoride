@@ -1,7 +1,3 @@
-<?php
-// Conditions d'utilisation - page statique
-?>
-
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-10">

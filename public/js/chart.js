@@ -1,7 +1,6 @@
 /*
 Module: Charts (Dashboard)
 Rôle: Instancier les graphiques Chart.js si les canvas cibles sont présents.
-Prérequis: Chart.js chargé, canvases #chartCovoiturages et/ou #chartCredits.
 Utilisation: Fournir labels/values via data-attributes ou valeurs par défaut.
 */
 document.addEventListener("DOMContentLoaded", () => {

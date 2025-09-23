@@ -162,7 +162,7 @@ class VehicleController extends Controller
         $immatriculation = VehicleRepository::normalizePlate($_POST['immatriculation'] ?? '');
 
 
-        // ⚠️ Idéalement, une méthode qui exclut l’ID courant:
+        // méthode qui exclut l’ID courant:
         // existsByImmatriculationForUserExcept($immat, $userId, $excludeId)
         if (
             $this->vehicleRepository->existsByImmatriculation($immatriculation, $userId)

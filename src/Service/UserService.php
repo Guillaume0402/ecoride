@@ -8,10 +8,6 @@ use App\Security\PasswordPolicy;
 
 class UserService
 {
-    // Service métier côté utilisateur: sécurité, rôles, crédits, conversions
-    // ===========================
-    //  Sécurité
-    // ===========================   
 
     public function hashPassword(UserEntity $user, string $plainPassword): void
     {
@@ -46,9 +42,8 @@ class UserService
         return filter_var($user->getEmail(), FILTER_VALIDATE_EMAIL) !== false;
     }
 
-    // ===========================
-    //  Gestion de l'utilisateur
-    // ===========================
+
+    //  Gestion de l'utilisateur   
     public function validate(UserEntity $user): array
     {
         // Rassemble des messages d'erreurs de validation (sans side effects)
@@ -107,9 +102,8 @@ class UserService
         return substr($initiales, 0, 2);
     }
 
-    // ===========================
-    //  Gestion des crédits
-    // ===========================
+
+    //  Gestion des crédits    
     public function addCredits(UserEntity $user, int $amount): void
     {
         // Ajoute des crédits si le montant est positif
@@ -134,9 +128,7 @@ class UserService
         return $user->getCredits() >= $amount;
     }
 
-    // ===========================
-    //  Note utilisateur
-    // ===========================
+    //  Note utilisateur    
     public function updateNote(UserEntity $user, float $newNote): void
     {
         // Contraint la note à [0,5] et arrondit à 2 décimales
@@ -145,9 +137,8 @@ class UserService
         }
     }
 
-    // ===========================
-    //  Gestion de la photo
-    // ===========================
+
+    //  Gestion de la photo    
     public function hasPhoto(UserEntity $user): bool
     {
         // True si un chemin de photo est défini
@@ -160,9 +151,8 @@ class UserService
         return $user->getPhoto() ?? '/assets/images/default-avatar.png';
     }
 
-    // ===========================
-    //  Conversion en tableau
-    // ===========================
+
+    //  Conversion en tableau   
     public function toArray(UserEntity $user, bool $includePassword = false): array
     {
         // Sérialise l'entité en tableau pour la vue/API (password optionnel)

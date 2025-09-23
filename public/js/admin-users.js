@@ -1,7 +1,6 @@
 /*
 Module: Admin Utilisateurs
 Rôle: Gérer les alertes auto, confirmations (suppression/activation) via une modale Bootstrap.
-Prérequis: Bootstrap JS, #deleteConfirmModal, #confirmDeleteBtn, boutons .delete-btn et .toggle-btn.
 Utilisation: Inclure ce script dans le layout admin.
 */
 document.addEventListener("DOMContentLoaded", () => {

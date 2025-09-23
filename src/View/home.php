@@ -25,7 +25,7 @@
 </div>
 
 
-<!-- DESTINATIONS POPULAIRES CENTRÉES -->
+<!-- DESTINATIONS POPULAIRES  -->
 <div class="row justify-content-center ">
     <div class="col-12">
         <div class="container popular-destinations rounded  px-5 py-3 w-100">

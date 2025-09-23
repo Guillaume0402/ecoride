@@ -1,7 +1,6 @@
 /*
 Module: Covoit Guard
 Rôle: Empêcher l’ouverture de la modale de création si aucun véhicule n’est déclaré.
-Prérequis: <body data-has-vehicle="0|1">, conteneur #alerts (pour l’alerte).
 Utilisation: Bouton qui ouvre la modale via data-bs-target="#createCovoitModal".
 */
 (function () {

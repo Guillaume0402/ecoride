@@ -19,7 +19,7 @@ class EmployeeController extends Controller
         }
 
         // Vérifie que l'utilisateur a le rôle employé (role_id = 2)
-        if ($_SESSION['user']['role_id'] !== 2) { // ✅ Correction de l'indice
+        if ($_SESSION['user']['role_id'] !== 2) { // Correction de l'indice
             abort(403, "Accès interdit");
         }
     }

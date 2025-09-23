@@ -1,7 +1,3 @@
-// Styles spécifiques à la page profil public
-// Augmente la lisibilité sur desktop: 16px -> 20px et 14px -> 18px
-// Conserve les tailles d’origine sur mobile.
-
 .profil-public-page {
     // Ajustements spécifiques pour md (768–991px)
     @media (min-width: 768px) and (max-width: 991.98px) {
@@ -53,7 +49,7 @@
         padding-left: 12px;
         padding-right: 12px;
     }
-    // Général: empêche le chevauchement des grands pseudos
+    // empêche le chevauchement des grands pseudos
     h1,
     h2,
     .fw-bold {
@@ -127,16 +123,14 @@
         margin-left: auto;
         margin-right: auto;
         width: 100%;
-        max-width: 980px;
-
-        /* look verre + relief */
+        max-width: 980px;      
         background: linear-gradient(
             135deg,
             rgba(255, 255, 255, 0.08),
             rgba(255, 255, 255, 0.02)
         );
         border: 1px solid rgba(255, 255, 255, 0.16);
-        border-radius: 1rem; // proche de rounded-4
+        border-radius: 1rem; 
         box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35),
             0 4px 12px rgba(0, 0, 0, 0.25),
             0 0 0 1px rgba(255, 255, 255, 0.07) inset;

@@ -178,9 +178,8 @@ class UserRepository
         return (int) $stmt->fetchColumn();
     }
 
-    // ===========================
-    //  Gestion des crédits (débit/credit)
-    // ===========================
+    
+    //  Gestion des crédits (débit/credit)    
     /**
      * Débite le compte de l'utilisateur si le solde est suffisant.
      * Retourne true si succès, false si solde insuffisant ou erreur.

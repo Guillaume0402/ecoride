@@ -1,7 +1,7 @@
 /*
 Module: JS Alerts
 Rôle: Gérer les alertes front (auto-fermeture, animation, observer, fermeture manuelle).
-Prérequis: Conteneur #alerts (optionnel), classes .custom-alert et .auto-dismiss.
+Prérequis: Conteneur #alerts, classes .custom-alert et .auto-dismiss.
 Utilisation: Créer des alertes .auto-dismiss et laisser ce module les gérer.
 */
 (function () {
@@ -34,7 +34,7 @@ Utilisation: Créer des alertes .auto-dismiss et laisser ce module les gérer.
         });
     }
 
-    // 🔧 nouvelle fonction
+    // nouvelle fonction
     // Attache un MutationObserver sur la pile d'alertes (#alerts) afin que
     // toute nouvelle alerte ajoutée soit automatiquement planifiée.
     function attachObserver(stack) {
@@ -56,7 +56,7 @@ Utilisation: Créer des alertes .auto-dismiss et laisser ce module les gérer.
         stack.dataset.observer = "1";
     }
 
-    // 1) au chargement
+    // au chargement
     // À la fin du chargement du DOM, on planifie les alertes déjà présentes
     // et on s'assure que #alerts est bien observé.
     document.addEventListener("DOMContentLoaded", () => {

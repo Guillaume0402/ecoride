@@ -250,8 +250,7 @@ class CovoiturageRepository
     }
 
     /**
-     * Liste administrateur: tous les covoiturages avec détails (conducteur, véhicule, stats simples)
-     * $scope: 'all' | 'past' | 'ongoing' | 'future'
+     * Liste administrateur: tous les covoiturages avec détails (conducteur, véhicule, stats simples)     
      */
     public function findAllAdmin(string $scope = 'all', int $limit = 500): array
     {

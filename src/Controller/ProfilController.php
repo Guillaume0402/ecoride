@@ -19,8 +19,6 @@ class ProfilController extends Controller
         }
     }
 
-    // (supprimé) GET /creation-profil: géré par PageController::creationProfil
-
     // POST /creation-profil
     public function update(): void
     {

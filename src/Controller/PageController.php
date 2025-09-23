@@ -123,7 +123,7 @@ class PageController extends Controller
         $asDriverAll = $covoitRepo->findByDriverId($userId);
         $asPassengerAll = $partRepo->findByPassagerId($userId);
 
-        // Filtrage (Option B): aligner avec le header
+        // Filtrage: aligner avec le header
         $now = new \DateTime();
         $graceMinutes = defined('AUTO_CANCEL_MINUTES') ? (int) AUTO_CANCEL_MINUTES : 60;
         $asDriver = array_values(array_filter($asDriverAll, function ($c) use ($now, $graceMinutes) {
@@ -365,9 +365,7 @@ class PageController extends Controller
             'transactions' => $transactions,
         ]);
     }
-
-    // (supprimé) Page de connexion: la route /login utilise AuthController::showLogin
-
+    
     // Page "À propos".
     public function about(): void
     {

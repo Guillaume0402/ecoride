@@ -62,7 +62,7 @@
                                     <!-- Liens "utilisateur" aussi disponibles pour l'admin -->
                                     <li><a class="dropdown-item" href="/my-profil"><i class="bi bi-person me-2"></i> Mon profil</a></li>
                                     <?php
-                                    // Petits compteurs (optionnels) injectés via variables de vue si disponibles
+                                    // Petits compteurs injectés via variables de vue si disponibles
                                     $pendingCount = isset($pendingCount) ? (int)$pendingCount : null;
                                     $myTripsCount = isset($myTripsCount) ? (int)$myTripsCount : null;
                                     ?>
@@ -101,7 +101,7 @@
                                 <?php elseif ((int) $_SESSION['user']['role_id'] === 2): ?>
                                     <li><a class="dropdown-item" href="/my-profil"><i class="bi bi-person me-2"></i> Mon profil</a></li>
                                     <?php
-                                    // Petits compteurs (optionnels) injectés via variables de vue si disponibles
+                                    // Petits compteurs injectés via variables de vue si disponibles
                                     $pendingCount = isset($pendingCount) ? (int)$pendingCount : null;
                                     $myTripsCount = isset($myTripsCount) ? (int)$myTripsCount : null;
                                     ?>
@@ -148,7 +148,7 @@
                                 <?php else: ?>
                                     <li><a class="dropdown-item" href="/my-profil"><i class="bi bi-person me-2"></i> Mon profil</a></li>
                                     <?php
-                                    // Petits compteurs (optionnels) injectés via variables de vue si disponibles
+                                    // Petits compteurs injectés via variables de vue si disponibles
                                     $pendingCount = isset($pendingCount) ? (int)$pendingCount : null;
                                     $myTripsCount = isset($myTripsCount) ? (int)$myTripsCount : null;
                                     ?>
@@ -193,8 +193,7 @@
                             </button>
                         <?php endif; ?>
                     </li>
-                    <li>
-                        <!-- Dans ta navbar Bootstrap -->
+                    <li>                        
                         <button id="themeToggleBtn" class="btn btn-outline ms-2" title="Changer de thème">
                             <i class="bi bi-moon-stars"></i>
                         </button>

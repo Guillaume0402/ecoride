@@ -1,7 +1,6 @@
 /*
 Module: Création Profil
 Rôle: Prévisualiser la photo choisie et basculer l’affichage du mot de passe.
-Prérequis: #photo, #photo-name, #avatarPreview; bouton appelant togglePassword(id, this).
 Utilisation: Inclure dans les pages de création/édition de profil.
 */
 

@@ -55,8 +55,7 @@ class Mysql
                     \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
                     \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
                 ]);
-            } catch (\PDOException $e) {
-                // En dev : remonter l'erreur ; en prod tu pourrais afficher un message neutre
+            } catch (\PDOException $e) {                
                 throw $e;
             }
         }

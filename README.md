@@ -8,14 +8,14 @@ Ce README explique uniquement comment installer et lancer EcoRide en local, du c
 -   Git
 -   Optionnel (assets SCSS): Node.js ≥ 18 et npm
 
-## 1) Cloner le projet
+## 1 Cloner le projet
 
 ```bash
 git clone https://github.com/Guillaume0402/ecoride.git
 cd ecoride
 ```
 
-## 2) Configurer l’environnement
+## 2 Configurer l’environnement
 
 Vous pouvez démarrer sans fichier `.env.local` (Docker injecte des valeurs par défaut pour MySQL), mais il est recommandé d’en créer un pour régler l’URL, l’horodatage, Mongo, SMTP, etc.
 
@@ -31,7 +31,7 @@ Points clés:
 -   `SITE_URL` doit se terminer par un slash (ex: `http://localhost:8080/`).
 -   SMTP est optionnel en local; sans SMTP, les e‑mails sont journalisés dans `/tmp/ecoride-mail.log` dans le conteneur web.
 
-## 3) Lancer l’environnement Docker
+## 3 Lancer l’environnement Docker
 
 ```bash
 docker compose up -d --build
@@ -47,7 +47,7 @@ Services et URLs:
 
 La base MySQL est initialisée automatiquement au premier démarrage via `init.sql` (tables et données de référence).
 
-## 4) Dépendances PHP (si besoin)
+## 4 Dépendances PHP (si besoin)
 
 Le répertoire `vendor/` est déjà présent. Pour regénérer/optimiser l’autoload depuis le conteneur:
 
@@ -57,7 +57,7 @@ docker compose exec -u www-data web composer install -o
 
 Vous pouvez aussi utiliser Composer en local si vous avez PHP/Composer sur votre machine.
 
-## 5) Accéder à l’application
+## 5 Accéder à l’application
 
 -   Application: http://localhost:8080
 -   phpMyAdmin: http://localhost:8081
@@ -66,14 +66,14 @@ Vous pouvez aussi utiliser Composer en local si vous avez PHP/Composer sur votre
     -   mot de passe: `ecoride_password`
 -   Mongo Express: http://localhost:8082 (si Mongo est lancé)
 
-## 6) Comptes de test (si présents)
+## 6 Comptes de test (si présents)
 
 -   Employé: employe@example.com / Employe!234
 -   Utilisateur: user@example.com / User!234
 
 Sinon, créez un compte via l’UI. Sans SMTP en local, les mails (confirmation, etc.) sont consignés dans `/tmp/ecoride-mail.log`.
 
-## 7) Données de démo (optionnel)
+## 7 Données de démo (optionnel)
 
 -   Démo modération (Mongo):
 
@@ -83,7 +83,7 @@ docker compose exec web php scripts/seed_mongo.php
 
 -   SQL « trajet terminé »: importez `scripts/seed_finished_trip.sql` dans MySQL (via phpMyAdmin). Éditez les IDs si nécessaire.
 
-## 8) Assets SCSS (optionnel)
+## 8 Assets SCSS (optionnel)
 
 Construire une fois:
 
@@ -100,7 +100,7 @@ npm run dev
 
 Le CSS généré est écrit dans `public/assets/css/style.css`.
 
-## 9) Dépannage rapide
+## 9 Dépannage rapide
 
 -   Conflit MySQL local: ce projet expose MySQL sur le port hôte 3307 pour éviter les conflits (ex: WAMP/XAMPP).
 -   Variables d’env.: `.env.local` est chargé par l’app (phpdotenv). Docker fournit aussi des valeurs par défaut compatibles.

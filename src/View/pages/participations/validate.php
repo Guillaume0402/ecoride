@@ -1,7 +1,3 @@
-<?php
-// Vue: Validation dédiée d'une participation par le passager
-// Variables disponibles: $p (array issu de ParticipationRepository::findWithCovoiturageById)
-?>
 <div class="container py-4">
     <h1>Valider votre voyage</h1>
 

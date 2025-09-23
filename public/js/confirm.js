@@ -1,7 +1,6 @@
 /*
 Module: Confirmation Formulaire
 Rôle: Intercepter les formulaires .js-confirm et demander une confirmation (1 ou 2 étapes).
-Prérequis: Conteneur #alerts (optionnel), styles .custom-alert.
 Utilisation: <form class="js-confirm" data-confirm-text="..." data-confirm-steps="1|2">.
 */
 (function () {

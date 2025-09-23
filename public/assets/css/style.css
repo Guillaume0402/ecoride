@@ -13022,8 +13022,8 @@ html:not(.theme-alt) .auth-form input.form-control::-webkit-calendar-picker-indi
   color: var(--text-white);
   text-transform: capitalize;
   display: inline-block;
-  margin: 0.2rem; /* espace entre badges */
-  max-width: 150px; /* limite largeur */
+  margin: 0.2rem;
+  max-width: 150px;
   white-space: normal;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -13049,10 +13049,10 @@ html:not(.theme-alt) .auth-form input.form-control::-webkit-calendar-picker-indi
 .badge-pref.custom {
   background: linear-gradient(to right, #6a11cb, #2575fc);
   font-style: italic;
-  display: block; /* ✅ force un retour à la ligne */
-  width: fit-content; /* ✅ largeur adaptée au contenu */
-  margin-top: 0.5rem; /* espace avec les badges normaux */
-  max-width: 100%; /* ✅ pas de débordement */
+  display: block;
+  width: fit-content;
+  margin-top: 0.5rem;
+  max-width: 100%;
   white-space: normal;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -13568,7 +13568,6 @@ ul li {
   margin-right: auto;
   width: 100%;
   max-width: 980px;
-  /* look verre + relief */
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 1rem;
@@ -13588,7 +13587,6 @@ ul li {
 
 :root {
   --color-primary: #215732;
-  /* Couleur secondaire encore plus sombre en thème clair pour un meilleur contraste */
   --color-secondary: #1f7a3a;
   --color-white: #000000;
   --color-fade-white: #eaf2e3;
@@ -13601,7 +13599,6 @@ ul li {
   --table-bg: var(--color-fade-white);
   --table-text: var(--list-text);
   --table-border: var(--color-border);
-  /* Dégradés adoucis pour le thème clair */
   --bg-gradient: linear-gradient(
       135deg,
       #eafff5 0%,
@@ -13618,11 +13615,10 @@ ul li {
   );
   --shadow-box: 0 10px 30px rgba(0, 0, 0, 0.3);
   --shadow-text: 1px 1px 3px rgba(0, 0, 0, 0.2);
-  /* Couleur pour textes atténués en thème clair */
   --muted-color: #6c757d;
 }
 
-/* Sécurité: en thème clair, ne pas altérer les icônes natifs des inputs date/time */
+/*en thème clair, ne pas altérer les icônes natifs des inputs date/time */
 html:not(.theme-alt) input[type=date]::-webkit-calendar-picker-indicator, html:not(.theme-alt) input[type=date]::-webkit-clear-button, html:not(.theme-alt) input[type=date]::-webkit-inner-spin-button, html:not(.theme-alt) input[type=date]::-webkit-outer-spin-button,
 html:not(.theme-alt) input[type=time]::-webkit-calendar-picker-indicator,
 html:not(.theme-alt) input[type=time]::-webkit-clear-button,
@@ -13647,16 +13643,15 @@ html:not(.theme-alt) input[type=week]::-webkit-outer-spin-button {
 /* Thème sombre (activé via .theme-alt sur <body>) */
 .theme-alt {
   --color-primary: #215732;
-  /* Conserver le vert néon uniquement en sombre */
   --color-secondary: #05ff1a;
-  --color-white: #e6ebdf; /* texte principal un peu plus clair */
-  --color-fade-white: #c8cec1; /* sous-texte */
+  --color-white: #e6ebdf;
+  --color-fade-white: #c8cec1;
   --text-black: #ffffff;
   --text-white: #c2bebe;
   --list-bg: #0f2511;
   --list-hover: #1a8f2a;
-  --list-text: #e9fff0; /* texte listes plus lisible */
-  --color-border: #34d132; /* bordure plus visible */
+  --list-text: #e9fff0;
+  --color-border: #34d132;
   --table-bg: rgba(255, 255, 255, 0.06);
   --table-text: #e9fff0;
   --table-border: #34d132;
@@ -13676,7 +13671,6 @@ html:not(.theme-alt) input[type=week]::-webkit-outer-spin-button {
   );
   --shadow-box: 0 10px 30px rgba(255, 255, 255, 0.22);
   --shadow-text: 1px 1px 3px rgba(255, 255, 255, 0.35);
-  /* Couleur pour textes atténués en thème sombre */
   --muted-color: #a8b8a8;
 }
 

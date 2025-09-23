@@ -434,7 +434,7 @@ class CovoiturageController extends Controller
         // Passage à terminé
         if ($this->covoiturageRepository->updateStatus($id, 'termine')) {
             Flash::add('Arrivée à destination. Les passagers vont recevoir un e-mail de validation.', 'success');
-            // TODO: envoyer un email à chaque passager confirmé avec un lien vers /mes-covoiturages
+            // envoyer un email à chaque passager confirmé avec un lien vers /mes-covoiturages
             // On peut trouver les passagers via ParticipationRepository::findConfirmedByCovoiturageId
             try {
                 $confirmed = $this->participationRepository->findConfirmedByCovoiturageId($id);

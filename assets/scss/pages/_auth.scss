@@ -38,19 +38,19 @@
     .btn-link {
         color: var(
             --text-black
-        ) !important; // ✅ texte sombre en thème clair / clair en alt (via var)
-        text-shadow: var(--shadow-text); // ✅ ombre suivant thème
+        ) !important; 
+        text-shadow: var(--shadow-text); 
         border: none;
         background: none;
         font-size: clamp(0.7rem, 2vw, 1rem);
         transition: border-color 0.3s, color 0.3s;
         padding: 0;
-        text-decoration: none; // 🔥 désactive le underline arrondi
-        border-bottom: 1px solid transparent; // ligne invisible de base
-        border-radius: 0; // ✅ supprime l’arrondi
+        text-decoration: none; 
+        border-bottom: 1px solid transparent; 
+        border-radius: 0; 
 
         &.active-tab {
-            border-color: currentColor; // ✅ ligne suit la couleur du texte
+            border-color: currentColor; 
         }
 
         &:hover {
@@ -91,7 +91,7 @@
     }
 
     .btn-inscription {
-        @extend .btn-inscription; // utilise ton style global
+        @extend .btn-inscription;
         width: auto;
         margin-top: 1rem;
     }
@@ -159,8 +159,7 @@ html:not(.theme-alt) {
         display: inline-block;
         margin-top: 0.35rem;
         color: var(--text-black);
-        text-shadow: var(--shadow-text);
-        // léger fond translucide pour lisibilité sur le gradient
+        text-shadow: var(--shadow-text);        
         padding: 0.1rem 0.25rem;
         border-radius: 0.25rem;
         background-color: color-mix(
@@ -202,7 +201,7 @@ html:not(.theme-alt) {
 
         &.ok {
             opacity: 1;
-            color: var(--color-secondary); // suit le thème
+            color: var(--color-secondary);
             &::before {
                 content: "\F26E"; // check-circle
                 color: var(--color-secondary);
@@ -211,7 +210,7 @@ html:not(.theme-alt) {
 
         &.bad {
             opacity: 1;
-            color: #ffb3b3; // rouge doux lisible
+            color: #ffb3b3;
             &::before {
                 content: "\F62E"; // x-circle
                 color: #ff6b6b;

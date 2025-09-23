@@ -27,8 +27,7 @@ class ParticipationRepository
 
     /**
      * Retourne les participations confirmées pour un covoiturage donné.
-     * Utilisé notamment pour rembourser lors d'une annulation par le conducteur.
-     * @return array<int, array{participation_id:int, passager_id:int}>
+     * Utilisé notamment pour rembourser lors d'une annulation par le conducteur.     
      */
     public function findConfirmedByCovoiturageId(int $covoiturageId): array
     {
@@ -150,7 +149,7 @@ class ParticipationRepository
     /**
      * Vérifie si un passager a déjà une participation CONFIRMÉE qui chevauche
      * un horaire donné dans une fenêtre [depart - windowMin ; depart + windowMin].
-     * Idée simple pour l'ECF: on évite les doubles réservations sur la même tranche.
+     * on évite les doubles réservations sur la même tranche.
      */
     public function hasConfirmedConflictAround(int $passagerId, \DateTime $depart, int $windowMinutes = 120): bool
     {
