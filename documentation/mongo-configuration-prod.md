@@ -15,8 +15,8 @@ Note: si le mot de passe contient des caractères spéciaux (@:/?#&=%…), il do
 
 Définissez dans Settings → Config Vars:
 
-- `MONGODB_URI` = `mongodb+srv://<user>:<mdp-encodé>@<cluster>.mongodb.net/?retryWrites=true&w=majority`
-- `MONGO_DB` = `ecoride`
+-   `MONGODB_URI` = `mongodb+srv://<user>:<mdp-encodé>@<cluster>.mongodb.net/?retryWrites=true&w=majority`
+-   `MONGO_DB` = `ecoride`
 
 Le code accepte aussi `MONGO_DSN`, mais `MONGODB_URI` est la voie recommandée (prise en charge en fallback partout).
 
@@ -37,15 +37,16 @@ heroku run php scripts/check_mongo.php -a <votre-app>
 Réponse attendue (extrait): `status: connected`, `db: ecoride`, `collection_count`, `pending_count`.
 
 En cas d’erreur:
-- `Failed to resolve 'mongo'` → variables manquantes (l’app essaie `mongodb://mongo:27017`, valable seulement en Docker local).
-- `bad auth : authentication failed` → user/MDP ou encodage du MDP incorrect; éventuellement ajouter `&authSource=admin` à l’URI.
+
+-   `Failed to resolve 'mongo'` → variables manquantes (l’app essaie `mongodb://mongo:27017`, valable seulement en Docker local).
+-   `bad auth : authentication failed` → user/MDP ou encodage du MDP incorrect; éventuellement ajouter `&authSource=admin` à l’URI.
 
 ## 4) Données de démo (seed)
 
 Deux scripts existent dans `scripts/`:
 
-- `seed_mongo.php` → insère 4 documents `pending` dans `reviews` (2 avis + 2 signalements).
-- `mongo_create_indexes.php` → crée des index utiles: unicité `doc_id`, `status+created_at_ms`, `driver_id`, `passager_id`.
+-   `seed_mongo.php` → insère 4 documents `pending` dans `reviews` (2 avis + 2 signalements).
+-   `mongo_create_indexes.php` → crée des index utiles: unicité `doc_id`, `status+created_at_ms`, `driver_id`, `passager_id`.
 
 Usage en local (fichier `.env.local`):
 
@@ -78,5 +79,5 @@ Vous pouvez aussi insérer des documents via Atlas/Compass. Exemple minimal pour
 
 ## 5) Intégration dans l’app
 
-- Le header affiche, pour un Employé, un badge du nombre de documents `pending`.
-- Le dashboard Employé (`/employe`) liste les avis/signalements à traiter et permet d’approuver/rejeter (`status`: `approved`/`rejected`).
+-   Le header affiche, pour un Employé, un badge du nombre de documents `pending`.
+-   Le dashboard Employé (`/employe`) liste les avis/signalements à traiter et permet d’approuver/rejeter (`status`: `approved`/`rejected`).
