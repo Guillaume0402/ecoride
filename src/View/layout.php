@@ -29,7 +29,8 @@
                     if (body) body.classList.add('theme-alt');
                     localStorage.setItem('theme', 'alt');
                 }
-            } catch (e) { /* no-op */ }
+            } catch (e) {
+                /* no-op */ }
         })();
     </script>
     <script type="module" src="/js/main.js" defer></script>

@@ -97,6 +97,39 @@
     }
 }
 
+// Icônes natifs des inputs date/time: appliquer l'inversion UNIQUEMENT en thème sombre
+html.theme-alt {
+    .auth-form {
+        input.form-control {
+            &::-webkit-calendar-picker-indicator {
+                filter: invert(1) sepia(0) saturate(0) hue-rotate(0deg)
+                    brightness(1.2);
+                opacity: 0.9;
+            }
+            &::-webkit-clear-button,
+            &::-webkit-inner-spin-button,
+            &::-webkit-outer-spin-button {
+                filter: invert(1) brightness(1.2);
+            }
+        }
+    }
+}
+
+// Thème clair: s'assurer qu'aucun filtre ne ternit les icônes natives
+html:not(.theme-alt) {
+    .auth-form {
+        input.form-control {
+            &::-webkit-calendar-picker-indicator,
+            &::-webkit-clear-button,
+            &::-webkit-inner-spin-button,
+            &::-webkit-outer-spin-button {
+                filter: none;
+                opacity: 1;
+            }
+        }
+    }
+}
+
 // Lisibilité jauge de mot de passe et toggle
 .auth-form {
     .input-group .toggle-password {

@@ -21,9 +21,8 @@ if (themeToggleBtn) {
 
     // Au clic: bascule et synchronise html/body + stockage
     themeToggleBtn.addEventListener("click", () => {
-        const isAltNow = !document.documentElement.classList.contains(
-            "theme-alt"
-        );
+        const isAltNow =
+            !document.documentElement.classList.contains("theme-alt");
         document.documentElement.classList.toggle("theme-alt", isAltNow);
         document.body.classList.toggle("theme-alt", isAltNow);
         localStorage.setItem("theme", isAltNow ? "alt" : "default");

@@ -62,6 +62,8 @@ class Mailer
         // Si config SMTP présente → utiliser SMTP prioritairement (dev ou prod)
         if ($this->smtp) {
             try {
+                // Pré-déclare $mailer pour l'utiliser en sécurité dans le catch
+                $mailer = null;
                 $mailer = new PHPMailer(true);
                 // Debug SMTP optionnel activable via SMTP_DEBUG=1|2 (journalisé via error_log)
                 $smtpDebug = getenv('SMTP_DEBUG') ?: ($_ENV['SMTP_DEBUG'] ?? null);
@@ -123,7 +125,7 @@ class Mailer
             } catch (MailException $e) {
                 // Essayer de récupérer des informations d'erreur supplémentaires
                 $errInfo = '';
-                if (isset($mailer) && $mailer instanceof PHPMailer && !empty($mailer->ErrorInfo)) {
+                if (($mailer instanceof PHPMailer) && !empty($mailer->ErrorInfo)) {
                     $errInfo = ' ErrorInfo=' . $mailer->ErrorInfo;
                 }
                 error_log('[Mailer][SMTP] ' . $e->getMessage() . $errInfo);
