@@ -1,5 +1,13 @@
 @use "../abstracts" as *;
 
+// Headers de cartes: cohérence light/dark
+:root .card-header.bg-primary {
+    color: #111 !important;
+}
+.theme-alt .card-header.bg-primary {
+    color: #ffffff !important;
+}
+
 .nav-tabs .nav-link.active {
     background-color: $color-primary !important;
     color: #fff !important;

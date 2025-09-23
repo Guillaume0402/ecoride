@@ -32,6 +32,22 @@
     );
     --shadow-box: 0 10px 30px rgba(0, 0, 0, 0.3);
     --shadow-text: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    /* Couleur pour textes atténués en thème clair */
+    --muted-color: #6c757d;
+}
+
+/* Sécurité: en thème clair, ne pas altérer les icônes natifs des inputs date/time */
+html:not(.theme-alt) {
+    input[type="date"],
+    input[type="time"],
+    input[type="datetime-local"],
+    input[type="month"],
+    input[type="week"] {
+        &::-webkit-calendar-picker-indicator,
+        &::-webkit-clear-button,
+        &::-webkit-inner-spin-button,
+        &::-webkit-outer-spin-button { filter: none; opacity: 1; }
+    }
 }
 
 /* Thème sombre (activé via .theme-alt sur <body>) */
@@ -68,4 +84,6 @@
     );
     --shadow-box: 0 10px 30px rgba(255, 255, 255, 0.22);
     --shadow-text: 1px 1px 3px rgba(255, 255, 255, 0.35);
+    /* Couleur pour textes atténués en thème sombre */
+    --muted-color: #a8b8a8;
 }
