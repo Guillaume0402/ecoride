@@ -56,7 +56,8 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Heure d'arrivée</label>
-                    <input type="time" class="form-control" name="time_arrivee" required>
+                    <input type="time" class="form-control" name="time_arrivee" required aria-describedby="arriveeHelp">
+                    <small id="arriveeHelp" class="form-text d-block mt-1"></small>
                 </div>
                 <div class="text-center">
                     <button type="submit" class="btn btn-inscription" <?= empty($userVehicles) ? 'disabled' : '' ?>>Créer le voyage</button>
@@ -100,23 +101,38 @@
                             } else {
                                 timeInput.removeAttribute('min');
                             }
-                            // Arrivée doit être > départ
-                            if (timeInput.value && timeArrInput) {
-                                // fixe min de l’arrivée à l’heure de départ (ou +1 minute pour être >)
-                                const [h, m] = timeInput.value.split(':').map(Number);
-                                const d = new Date();
-                                d.setHours(h || 0, m || 0, 0, 0);
-                                d.setMinutes(d.getMinutes() + 1);
-                                timeArrInput.min = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-                                if (timeArrInput.value && timeArrInput.value < timeArrInput.min) {
-                                    timeArrInput.value = timeArrInput.min;
+                            // Arrivée: on NE met PAS d'attribut min (pour autoriser le lendemain).
+                            // On affiche juste une indication "(le lendemain)" si l'heure sélectionnée est <= départ.
+                            if (timeArrInput) {
+                                timeArrInput.removeAttribute('min');
+
+                                const help = document.getElementById('arriveeHelp');
+                                if (help) {
+                                    help.textContent = '';
+                                    if (timeInput.value && timeArrInput.value) {
+                                        const [dh, dm] = timeInput.value.split(':').map(Number);
+                                        const [ah, am] = timeArrInput.value.split(':').map(Number);
+                                        const departM = (dh || 0) * 60 + (dm || 0);
+                                        const arriveeM = (ah || 0) * 60 + (am || 0);
+                                        if (arriveeM <= departM) {
+                                            help.textContent = 'Arrivée le lendemain (' + timeArrInput.value + ').';
+                                        }
+                                    }
                                 }
                             }
                         }
                         sel?.addEventListener('change', syncMax);
                         syncMax();
                         dateInput?.addEventListener('change', syncTimeMin);
-                        timeInput?.addEventListener('change', syncTimeMin);
+                        // UX: ne pas fermer automatiquement le picker d'heure.
+                        // On se contente de recalculer les contraintes quand la valeur est validée.
+                        timeInput?.addEventListener('change', () => {
+                            syncTimeMin();
+                        });
+                        // Idem pour l'heure d'arrivée (aucun blur forcé)
+                        timeArrInput?.addEventListener('change', () => {
+                            syncTimeMin();
+                        });
                         syncTimeMin();
                     })();
                 </script>

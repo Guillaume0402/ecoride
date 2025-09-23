@@ -86,10 +86,15 @@ class CovoiturageController extends Controller
             redirect('/');
         }
 
+        // Arrivée: si l'heure d'arrivée est inférieure ou égale à l'heure de départ,
+        // on considère que c'est le lendemain (trajet qui passe minuit).
         $arriveeDt = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $timeArrivee);
-        if (!$arriveeDt || $arriveeDt <= $departDt) {
-            Flash::add("L'heure d'arrivée doit être postérieure à l'heure de départ.", 'danger');
+        if (!$arriveeDt) {
+            Flash::add('Date/heure invalides.', 'danger');
             redirect('/');
+        }
+        if ($arriveeDt <= $departDt) {
+            $arriveeDt->modify('+1 day');
         }
 
         $c = new CovoiturageEntity([
@@ -208,10 +213,14 @@ class CovoiturageController extends Controller
         }
 
         $arriveeDt = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $timeArrivee);
-        if (!$arriveeDt || $arriveeDt <= $departDt) {
+        if (!$arriveeDt) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => "L'heure d'arrivée doit être postérieure à l'heure de départ."]);
+            echo json_encode(['success' => false, 'message' => 'Date/heure invalides.']);
             return;
+        }
+        if ($arriveeDt <= $departDt) {
+            // Interpréter comme le lendemain
+            $arriveeDt->modify('+1 day');
         }
 
         $c = new CovoiturageEntity([

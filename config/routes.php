@@ -180,6 +180,14 @@ return [
         ]
     ],
 
+    // Debug (restreint): diagnostic MongoDB
+    '/debug/mongo' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\DebugController',
+            'action' => 'mongo'
+        ]
+    ],
+
 
 
     // Pages statiques

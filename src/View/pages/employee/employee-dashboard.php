@@ -6,7 +6,7 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role_id'] !== 2) { // 2 = Em
 }
 ?>
 
-<div class="container py-5">
+<div class="container py-5 employee-page">
     <h2 class="mb-4 text-center">Espace Employé</h2>
 
     <!-- Section 1 : Valider / Refuser un avis -->
