@@ -112,8 +112,8 @@
                                     if (timeInput.value && timeArrInput.value) {
                                         const [dh, dm] = timeInput.value.split(':').map(Number);
                                         const [ah, am] = timeArrInput.value.split(':').map(Number);
-                                        const departM = (dh||0)*60 + (dm||0);
-                                        const arriveeM = (ah||0)*60 + (am||0);
+                                        const departM = (dh || 0) * 60 + (dm || 0);
+                                        const arriveeM = (ah || 0) * 60 + (am || 0);
                                         if (arriveeM <= departM) {
                                             help.textContent = 'Arrivée le lendemain (' + timeArrInput.value + ').';
                                         }

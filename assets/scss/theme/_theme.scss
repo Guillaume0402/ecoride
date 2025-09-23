@@ -46,7 +46,10 @@ html:not(.theme-alt) {
         &::-webkit-calendar-picker-indicator,
         &::-webkit-clear-button,
         &::-webkit-inner-spin-button,
-        &::-webkit-outer-spin-button { filter: none; opacity: 1; }
+        &::-webkit-outer-spin-button {
+            filter: none;
+            opacity: 1;
+        }
     }
 }
 

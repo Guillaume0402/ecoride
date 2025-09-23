@@ -1,13 +1,13 @@
 @use "../abstracts" as *;
 
 .employee-page {
-  .card-header.bg-primary {
-    color: #111; // en light
-  }
-  .theme-alt & .card-header.bg-primary {
-    color: #fff; // en dark
-  }
-  .card-body p.text-muted {
-    color: var(--muted-color) !important; // garantit la lisibilité
-  }
+    .card-header.bg-primary {
+        color: #111; // en light
+    }
+    .theme-alt & .card-header.bg-primary {
+        color: #fff; // en dark
+    }
+    .card-body p.text-muted {
+        color: var(--muted-color) !important; // garantit la lisibilité
+    }
 }
