@@ -58,5 +58,6 @@ footer.bg-primary {
 // Respecter le thème pour .text-muted (éviter le jaune peu lisible)
 .text-muted {
     /* Utilise une teinte atténuée dépendante du thème */
-    color: color-mix(in srgb, var(--text-white) 75%, transparent) !important;
+    color: color-mix(in srgb, var(--text-white) 75%, transparent) !important; // meilleur contraste en dark
+    color: var(--bs-secondary-color) !important; // fallback pour le contraste
 }

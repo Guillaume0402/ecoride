@@ -60,13 +60,25 @@
     }
     .table thead th {
         color: var(--text-white);
-        background-color: color-mix(in srgb, var(--color-white) 5%, transparent);
+        background-color: color-mix(
+            in srgb,
+            var(--color-white) 5%,
+            transparent
+        );
     }
     .table-striped > tbody > tr:nth-of-type(odd) {
-        background-color: color-mix(in srgb, var(--color-white) 4%, transparent);
+        background-color: color-mix(
+            in srgb,
+            var(--color-white) 4%,
+            transparent
+        );
     }
     .table-hover > tbody > tr:hover {
-        background-color: color-mix(in srgb, var(--color-white) 8%, transparent);
+        background-color: color-mix(
+            in srgb,
+            var(--color-white) 8%,
+            transparent
+        );
     }
 
     // Texte méta à côté des badges de statut
