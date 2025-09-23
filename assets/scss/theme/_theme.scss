@@ -39,18 +39,18 @@
     --color-primary: #215732;
     /* Conserver le vert néon uniquement en sombre */
     --color-secondary: #05ff1a;
-    --color-white: #d6d8ca;
-    --color-fade-white: #bbbdb9;
+    --color-white: #e6ebdf; /* texte principal un peu plus clair */
+    --color-fade-white: #c8cec1; /* sous-texte */
     --text-black: #ffffff;
     --text-white: #c2bebe;
     --list-bg: #0f2511;
     --list-hover: #1a8f2a;
-    --list-text: #e0ffe7;
-    --color-border: #28be23;
+    --list-text: #e9fff0; /* texte listes plus lisible */
+    --color-border: #34d132; /* bordure plus visible */
 
-    --table-bg: rgba(255, 255, 255, 0.05);
-    --table-text: #e0ffe7;
-    --table-border: #28be23;
+    --table-bg: rgba(255, 255, 255, 0.06);
+    --table-text: #e9fff0;
+    --table-border: #34d132;
 
     --bg-gradient: linear-gradient(
         135deg,
@@ -66,6 +66,6 @@
         #145012 60%,
         #0a2d08 80%
     );
-    --shadow-box: 0 10px 30px rgba(255, 255, 255, 0.25);
-    --shadow-text: 1px 1px 3px rgba(255, 255, 255, 0.4);
+    --shadow-box: 0 10px 30px rgba(255, 255, 255, 0.22);
+    --shadow-text: 1px 1px 3px rgba(255, 255, 255, 0.35);
 }

@@ -47,6 +47,28 @@
         border-radius: 16px;
     }
 
+    // Tables: lisibilité renforcée via variables de thème
+    .table {
+        background-color: var(--table-bg);
+        color: var(--table-text);
+        border-color: var(--table-border);
+    }
+    .table th,
+    .table td {
+        color: var(--table-text);
+        border-color: var(--table-border);
+    }
+    .table thead th {
+        color: var(--text-white);
+        background-color: color-mix(in srgb, var(--color-white) 5%, transparent);
+    }
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: color-mix(in srgb, var(--color-white) 4%, transparent);
+    }
+    .table-hover > tbody > tr:hover {
+        background-color: color-mix(in srgb, var(--color-white) 8%, transparent);
+    }
+
     // Texte méta à côté des badges de statut
     .text-status-meta {
         color: var(--list-text); // lisible en light
