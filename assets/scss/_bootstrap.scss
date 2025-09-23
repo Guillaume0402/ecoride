@@ -1,10 +1,7 @@
 // 🟢 1. Import de Bootstrap avec tes variables personnalisées
 @use "bootstrap/scss/bootstrap" as bs with (
     $primary: #215732,
-    $secondary: #00ff50,
+    $secondary: #1f7a3a,
     $white: #f8f9f3,
-    $enable-gradients: true,
-
-   
+    $enable-gradients: true
 );
-

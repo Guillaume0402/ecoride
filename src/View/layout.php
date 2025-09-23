@@ -9,6 +9,29 @@
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script>
+        // Init thème avant paint: respecte la préférence stockée; défaut = dark si aucune préférence
+        (function initTheme() {
+            try {
+                var stored = localStorage.getItem('theme');
+                var html = document.documentElement;
+                var body = document.body;
+
+                if (stored === 'alt') {
+                    html.classList.add('theme-alt');
+                    if (body) body.classList.add('theme-alt');
+                } else if (stored === 'default') {
+                    html.classList.remove('theme-alt');
+                    if (body) body.classList.remove('theme-alt');
+                } else {
+                    // Aucune préférence: appliquer dark par défaut et enregistrer
+                    html.classList.add('theme-alt');
+                    if (body) body.classList.add('theme-alt');
+                    localStorage.setItem('theme', 'alt');
+                }
+            } catch (e) { /* no-op */ }
+        })();
+    </script>
     <script type="module" src="/js/main.js" defer></script>
 
 
