@@ -22,7 +22,8 @@
                     document.body && document.body.classList.add('theme-alt');
                     localStorage.setItem('theme', 'alt');
                 }
-            } catch (e) { /* ignore */ }
+            } catch (e) {
+                /* ignore */ }
         })();
     </script>
     <script type="module" src="/js/main.js" defer></script>
