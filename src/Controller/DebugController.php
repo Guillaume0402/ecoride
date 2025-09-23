@@ -7,8 +7,8 @@ class DebugController extends Controller
     // GET /debug/mongo
     public function mongo(): void
     {
-        // Restreindre l'accès: admin (role_id=1) ou employé (role_id=2)
-        if (!isset($_SESSION['user']) || !in_array((int)($_SESSION['user']['role_id'] ?? 0), [1, 2], true)) {
+        // Restreindre l'accès: employé (role_id=2) ou admin (role_id=3)
+        if (!isset($_SESSION['user']) || !in_array((int)($_SESSION['user']['role_id'] ?? 0), [2, 3], true)) {
             abort(403, 'Accès interdit');
         }
 
@@ -16,6 +16,7 @@ class DebugController extends Controller
             'env' => [
                 'APP_ENV' => $_ENV['APP_ENV'] ?? null,
                 'MONGO_DSN' => isset($_ENV['MONGO_DSN']) ? '[set]' : '[missing]',
+                'MONGODB_URI' => isset($_ENV['MONGODB_URI']) ? '[set]' : '[missing]',
                 'MONGO_DB' => $_ENV['MONGO_DB'] ?? null,
             ],
             'status' => 'unknown',
@@ -26,7 +27,7 @@ class DebugController extends Controller
         ];
 
         try {
-            $dsn = $_ENV['MONGO_DSN'] ?? 'mongodb://mongo:27017';
+            $dsn = $_ENV['MONGO_DSN'] ?? ($_ENV['MONGODB_URI'] ?? 'mongodb://mongo:27017');
             $dbName = $_ENV['MONGO_DB'] ?? 'ecoride';
             $client = new \MongoDB\Client($dsn);
             // Essai listDatabases (ping indirect)

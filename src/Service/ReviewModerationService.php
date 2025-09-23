@@ -12,7 +12,7 @@ class ReviewModerationService
 
     public function __construct(?string $dsn = null, ?string $dbName = null, ?string $collection = null)
     {
-        $dsn = $dsn ?? ($_ENV['MONGO_DSN'] ?? 'mongodb://mongo:27017');
+        $dsn = $dsn ?? ($_ENV['MONGO_DSN'] ?? ($_ENV['MONGODB_URI'] ?? 'mongodb://mongo:27017'));
         $this->dbName = $dbName ?? ($_ENV['MONGO_DB'] ?? 'ecoride');
         $this->collection = $collection ?? 'reviews';
         $this->client = new Client($dsn);
