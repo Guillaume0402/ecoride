@@ -15,8 +15,11 @@ Le script insère 4 documents `pending` dans la collection `reviews` (DB `ecorid
 
 Variables utiles (dans `.env.local`):
 
--   `MONGO_DSN` (par défaut: `mongodb://mongo:27017`)
+-   `MONGODB_URI` (recommandé en prod/Atlas)
 -   `MONGO_DB` (par défaut: `ecoride`)
+-   `MONGO_DSN` (optionnel, utilisé en Docker local: `mongodb://mongo:27017`)
+
+Pour la configuration complète en production (Heroku + Atlas), voir `documentation/mongo-configuration-prod.md`.
 
 ## 2. Parcours Employé
 

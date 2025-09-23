@@ -232,7 +232,7 @@ class PageController extends Controller
         $avgRating = 0.0;
         $reviewsCount = 0;
         try {
-            $client = new \MongoDB\Client($_ENV['MONGO_DSN'] ?? 'mongodb://mongo:27017');
+            $client = new \MongoDB\Client($_ENV['MONGO_DSN'] ?? ($_ENV['MONGODB_URI'] ?? 'mongodb://mongo:27017'));
             $coll = $client->selectCollection($_ENV['MONGO_DB'] ?? 'ecoride', 'reviews');
             $cursor = $coll->find([
                 'kind' => 'review',
@@ -324,7 +324,7 @@ class PageController extends Controller
         // Avis approuvés (reviews) pour ce conducteur
         $reviews = [];
         try {
-            $coll = (new \MongoDB\Client($_ENV['MONGO_DSN'] ?? 'mongodb://mongo:27017'))
+            $coll = (new \MongoDB\Client($_ENV['MONGO_DSN'] ?? ($_ENV['MONGODB_URI'] ?? 'mongodb://mongo:27017')))
                 ->selectCollection($_ENV['MONGO_DB'] ?? 'ecoride', 'reviews');
             $cursor = $coll->find(['kind' => 'review', 'status' => 'approved', 'driver_id' => (int)$id], ['sort' => ['created_at_ms' => -1]]);
             foreach ($cursor as $doc) {
