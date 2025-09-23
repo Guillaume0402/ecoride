@@ -14,7 +14,7 @@
             </p>
         <?php endif; ?>
 
-        <a href="/" class="btn btn-inscription mt-4">← Retour à l'accueil</a>
+    <a href="/" class="btn btn-inscription mt-4">← Retour à l'accueil</a>
     </div>
 </div>
 

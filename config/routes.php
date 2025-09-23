@@ -7,11 +7,11 @@ return [
     // - Si vous souhaitez des slugs alphanumériques, adaptez le Router pour utiliser [^/]+ à la place.
     //   Exemple: '/article/{slug}' avec slug alphanumérique → requires Router update.
 
-    // Page d'accueil
+    // Page d'accueil → redirigée vers la liste des covoiturages
     '/' => [
         'GET' => [
             'controller' => 'App\\Controller\\PageController',
-            'action' => 'home'
+            'action' => 'listeCovoiturages'
         ]
     ],
     // Authentification (pages et API JSON)

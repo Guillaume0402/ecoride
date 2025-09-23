@@ -9,6 +9,22 @@
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script>
+        // Forcer le thème sombre par défaut avant le paint, sauf si l'utilisateur a déjà une préférence
+        (function() {
+            try {
+                var stored = localStorage.getItem('theme');
+                if (stored === 'alt') {
+                    document.documentElement.classList.add('js'); // hint CSS optionnel
+                    document.body && document.body.classList.add('theme-alt');
+                } else if (stored === null || stored === '' || stored === 'default') {
+                    // Par défaut: dark (theme-alt)
+                    document.body && document.body.classList.add('theme-alt');
+                    localStorage.setItem('theme', 'alt');
+                }
+            } catch (e) { /* ignore */ }
+        })();
+    </script>
     <script type="module" src="/js/main.js" defer></script>
 
 
