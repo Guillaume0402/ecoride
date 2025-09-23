@@ -20,23 +20,21 @@ Définissez dans Settings → Config Vars:
 
 Le code accepte aussi `MONGO_DSN`, mais `MONGODB_URI` est la voie recommandée (prise en charge en fallback partout).
 
-## 3) Vérifier la connexion en prod
+## 3) Vérifier la connexion (CLI, sans endpoint HTTP)
 
-Connectez‑vous avec un compte Employé (role_id = 2) ou Admin (role_id = 3), puis ouvrez:
+Pour diagnostiquer sans exposer de route publique, utilisez le script CLI:
 
-`/debug/mongo`
-
-Réponse attendue:
-
-```json
-{
-  "env": { "APP_ENV": "prod", "MONGODB_URI": "[set]", "MONGO_DB": "ecoride" },
-  "status": "connected",
-  "db": "ecoride",
-  "collection_count": 4,
-  "pending_count": 4
-}
 ```
+php scripts/check_mongo.php
+```
+
+Vous pouvez aussi l’exécuter sur Heroku:
+
+```
+heroku run php scripts/check_mongo.php -a <votre-app>
+```
+
+Réponse attendue (extrait): `status: connected`, `db: ecoride`, `collection_count`, `pending_count`.
 
 En cas d’erreur:
 - `Failed to resolve 'mongo'` → variables manquantes (l’app essaie `mongodb://mongo:27017`, valable seulement en Docker local).

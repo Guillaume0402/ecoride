@@ -180,13 +180,7 @@ return [
         ]
     ],
 
-    // Debug (restreint): diagnostic MongoDB
-    '/debug/mongo' => [
-        'GET' => [
-            'controller' => 'App\\Controller\\DebugController',
-            'action' => 'mongo'
-        ]
-    ],
+    // (Point de debug Mongo retiré en prod; utiliser les scripts CLI sous scripts/)
 
 
 
