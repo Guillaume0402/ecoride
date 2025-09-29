@@ -10,7 +10,8 @@
     $defaultTitle = isset($pageTitle) && $pageTitle ? ($pageTitle . ' • ' . $siteName) : $siteName;
     $metaTitle = $metaTitle ?? $defaultTitle;
     $metaDescription = $metaDescription ?? 'EcoRide - Covoiturage simple et durable pour vos trajets quotidiens. Rejoignez une communauté responsable et économisez du temps, de l’argent et du CO₂.';
-    $metaImage = $metaImage ?? (SITE_URL . 'assets/images/logo.svg');
+        // Image de partage par défaut (png existant dans public/assets/images)
+        $metaImage = $metaImage ?? (SITE_URL . 'assets/images/Avatar.png');
     $canonical = $canonical ?? (SITE_URL . ltrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '', '/'));
     $noindex = isset($noindex) ? (bool)$noindex : ($appEnv !== 'prod');
     ?>
