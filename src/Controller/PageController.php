@@ -31,13 +31,19 @@ class PageController extends Controller
 
         $this->render('home', [
             'popularDestinations' => $popular,
+            'pageTitle' => 'Accueil',
+            'metaDescription' => "EcoRide, la plateforme de covoiturage responsable pour vos trajets du quotidien. Trouvez ou proposez un trajet en quelques clics.",
+            'metaImage' => SITE_URL . 'assets/images/logo-share.png',
         ]);
     }
 
     // Page de contact.
     public function contact(): void
     {
-        $this->render('pages/contact');
+        $this->render('pages/contact', [
+            'pageTitle' => 'Contact',
+            'metaDescription' => "Contactez l'équipe EcoRide pour toute question sur le covoiturage, votre compte ou l'application.",
+        ]);
     }
 
     // Liste des covoiturages (vue listant les annonces).
@@ -78,6 +84,8 @@ class PageController extends Controller
                 'dir' => $dir,
             ],
             'results' => $results,
+            'pageTitle' => 'Covoiturages',
+            'metaDescription' => 'Parcourez les annonces de covoiturage EcoRide et trouvez un conducteur ou un passager correspondant à vos critères.',
         ]);
     }
 
@@ -365,7 +373,7 @@ class PageController extends Controller
             'transactions' => $transactions,
         ]);
     }
-    
+
     // Page "À propos".
     public function about(): void
     {
@@ -398,8 +406,25 @@ class PageController extends Controller
         if (!$ride) {
             abort(404, 'Covoiturage introuvable');
         }
+        // Meta dynamiques
+        $from = (string)($ride['adresse_depart'] ?? 'Départ');
+        $to = (string)($ride['adresse_arrivee'] ?? 'Arrivée');
+        $when = null;
+        try {
+            $when = (new \DateTime((string)($ride['depart'] ?? '')))->format('d/m/Y H\hi');
+        } catch (\Throwable $e) {
+        }
+        $titleBits = [$from . ' → ' . $to];
+        if ($when) {
+            $titleBits[] = $when;
+        }
+        $pageTitle = implode(' • ', $titleBits);
+        $desc = 'Trajet de ' . $from . ' à ' . $to . ($when ? ' le ' . $when : '') . ' — trouvez votre place avec EcoRide.';
         $this->render('pages/covoiturages/show', [
             'ride' => $ride,
+            'pageTitle' => $pageTitle,
+            'metaDescription' => $desc,
+            'canonical' => SITE_URL . 'covoiturages/' . $id,
         ]);
     }
 }
