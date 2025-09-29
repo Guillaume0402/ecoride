@@ -1,0 +1,77 @@
+@use "../abstracts/variables" as *;
+
+.ride-show {
+    // Un peu plus grand et plus aéré sur desktop
+    @media (min-width: 992px) {
+        font-size: 1.2rem; // +20% sur desktop
+    }
+    @media (min-width: 1200px) {
+        font-size: 1.25rem; // encore un cran sur grands écrans
+    }
+
+    .card {
+        border-radius: 14px;
+    }
+
+    .ride-summary,
+    .ride-detail {
+        .card-body {
+            padding: clamp(1rem, 2.5vw, 2rem);
+        }
+    }
+
+    .ride-summary {
+        .h5 {
+            font-size: clamp(1.25rem, 2vw, 1.5rem);
+        }
+        .badge {
+            font-weight: 600;
+        }
+        .badge.bg-success-subtle {
+            background: rgba(16, 128, 96, 0.15);
+        }
+        .badge.bg-secondary-subtle {
+            background: rgba(108, 117, 125, 0.2);
+        }
+
+        .d-flex.gap-3 {
+            gap: 1rem !important;
+        }
+        // Séparateurs subtils entre blocs de la colonne gauche
+        .mb-3 + .mb-3 {
+            border-top: 1px solid var(--color-secondary);
+            padding-top: 0.75rem;
+        }
+    }
+
+    .ride-detail {
+        // Titre plus impactant
+        h2.h4 {
+            font-size: clamp(1.8rem, 2.8vw, 2.4rem);
+            font-weight: 700;
+        }
+        dl {
+            row-gap: 0.75rem; // espace vertical entre lignes
+            dt {
+                color: var(--text-black);
+                opacity: 0.85;
+            }
+            dd {
+                margin-bottom: 0;
+            }
+            // Séparateurs subtils entre sections (sur chaque dd sauf le premier)
+            dd {
+                border-top: 1px solid var(--color-secondary);
+                padding-top: 0.5rem;
+            }
+            dd:first-of-type {
+                border-top: none;
+                padding-top: 0;
+            }
+        }
+
+        .mt-4 {
+            margin-top: 1.25rem !important;
+        }
+    }
+}
