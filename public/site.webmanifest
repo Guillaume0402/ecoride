@@ -1,15 +1,15 @@
 {
-  "name": "EcoRide",
-  "short_name": "EcoRide",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#0a7c66",
-  "icons": [
-    {
-      "src": "/assets/images/logo.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
-    }
-  ]
+    "name": "EcoRide",
+    "short_name": "EcoRide",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#0a7c66",
+    "icons": [
+        {
+            "src": "/assets/images/logo.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ]
 }
