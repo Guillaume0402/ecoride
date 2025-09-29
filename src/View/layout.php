@@ -22,7 +22,7 @@
     <meta name="robots" content="<?= $noindex ? 'noindex,nofollow,noarchive' : 'index,follow' ?>">
     <meta name="theme-color" content="#0a7c66">
     <link rel="icon" type="image/svg+xml" href="/assets/images/logo.svg">
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/Avatar.png">
     <link rel="manifest" href="/site.webmanifest">
 
     <!-- Open Graph / Facebook -->
