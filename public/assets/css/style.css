@@ -12446,6 +12446,7 @@ footer a:hover {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  gap: 0.6rem;
 }
 .carpool-card .card-header .card-info .date,
 .carpool-card .card-header .card-info .price,
@@ -12453,6 +12454,17 @@ footer a:hover {
   font-size: clamp(1.2rem, 2vw, 1.5rem);
   color: var(--text-black);
   text-shadow: -1px -1px 0 rgba(121, 121, 121, 0.7529411765), 1px -1px 0 797979c0, -1px 1px 0 797979c0, 1px 1px 0 rgba(121, 121, 121, 0.7529411765);
+}
+.carpool-card .card-header .card-info .sep {
+  opacity: 0.6;
+  margin: 0 0.25rem;
+  font-weight: 700;
+}
+.carpool-card .card-header .card-info .price {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding-left: 0.8rem;
+  margin-left: 0.2rem;
 }
 .carpool-card .card-header .card-info .badge-eco {
   background: #1f7a3a;
@@ -12524,6 +12536,43 @@ footer a:hover {
 .carpool-card .card-footer .stars .star:hover {
   transform: scale(1.2);
   color: #ffc107;
+}
+
+body:not(.theme-alt) .carpool-card .card-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+body:not(.theme-alt) .carpool-card .card-body {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+body:not(.theme-alt) .carpool-card .card-header .card-info .price {
+  border-left: 1px solid rgba(0, 0, 0, 0.2);
+}
+body:not(.theme-alt) .carpool-card .btn-outline-light {
+  color: #212529;
+  border-color: #212529;
+  transition: all 0.15s ease-in-out;
+}
+body:not(.theme-alt) .carpool-card .btn-outline-light:hover, body:not(.theme-alt) .carpool-card .btn-outline-light:focus {
+  background-color: #212529;
+  color: #fff;
+}
+
+.theme-alt .carpool-card .card-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.theme-alt .carpool-card .card-body {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.theme-alt .carpool-card .card-header .card-info .price {
+  border-left: 1px solid rgba(255, 255, 255, 0.35);
 }
 
 @media (max-width: 767px) {
