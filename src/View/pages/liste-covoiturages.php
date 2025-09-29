@@ -145,8 +145,7 @@
                                         $price = number_format((float)$ride['prix'], 2, ',', ' ');
                                         ?>
                                         <span class="date"><?= $d->format('d/m/Y') ?></span>
-                                        <span class="sep">•</span>
-                                        <span class="price"><?= $price ?></span>
+                                        <span class="price"><?= $price ?> crédits</span>
                                     </div>
                                     <div class="card-time">
                                         <i class="bi bi-clock-fill"></i>

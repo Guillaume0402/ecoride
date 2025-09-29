@@ -6,6 +6,8 @@ if (!empty($vehicle['date_premiere_immatriculation'])) {
     $timestamp = strtotime($vehicle['date_premiere_immatriculation']);
     $dateFormatted = date('Y-m-d', $timestamp);
 }
+// Date du jour pour contrainte max du champ date
+$today = date('Y-m-d');
 
 // Préférences
 $prefs = isset($vehicle['preferences']) ? explode(',', $vehicle['preferences']) : [];
@@ -31,7 +33,7 @@ $prefs = isset($vehicle['preferences']) ? explode(',', $vehicle['preferences']) 
         <div class="mb-3">
             <label for="date_premiere_immatriculation" class="form-label">Date de première immatriculation</label>
             <input type="date" class="form-control" id="date_premiere_immatriculation" name="date_premiere_immatriculation"
-                value="<?= $dateFormatted ?>" required>
+                value="<?= $dateFormatted ?>" max="<?= $today ?>" required>
         </div>
 
         <!-- Marque, modèle, couleur -->
@@ -121,3 +123,35 @@ $prefs = isset($vehicle['preferences']) ? explode(',', $vehicle['preferences']) 
         </div>
     </form>
 </div>
+
+<!-- Conflits de préférences: Fumeur vs Non-fumeur, Animaux vs Pas d'animal -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const sel = (val) => document.querySelector('input[name="preferences[]"][value="' + val + '"]');
+    const fumeur = sel('fumeur');
+    const nonFumeur = sel('non-fumeur');
+    const animaux = sel('animaux');
+    const pasAnimaux = sel('pas-animaux');
+
+    function bindExclusive(a, b) {
+        if (!a || !b) return;
+        const sync = () => {
+            if (a.checked && b.checked) {
+                // Par défaut, on garde celui qui vient d'être coché
+                // et on décoche l'autre
+                // L'événement 'change' se déclenchant sur l'élément modifié,
+                // on peut simplement décocher l'autre
+            }
+            if (a.checked) b.checked = false;
+            if (b.checked) a.checked = false;
+        };
+        a.addEventListener('change', sync);
+        b.addEventListener('change', sync);
+        // Sync initial (cas où le serveur a coché les deux par erreur)
+        sync();
+    }
+
+    bindExclusive(fumeur, nonFumeur);
+    bindExclusive(animaux, pasAnimaux);
+});
+</script>

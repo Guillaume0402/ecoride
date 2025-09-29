@@ -66,12 +66,18 @@ class VehicleController extends Controller
             redirect('/vehicle/create');
         }
 
-        // Date Y-m-d -> SQL (string|nullable)
+        // Date Y-m-d -> SQL (string|nullable) + validation: pas dans le futur
         $dateFr = $_POST['date_premiere_immatriculation'] ?? '';
         $dateSql = null;
         if ($dateFr !== '') {
             $dt = \DateTime::createFromFormat('Y-m-d', $dateFr);
             if ($dt instanceof \DateTime) {
+                $dt->setTime(0, 0, 0);
+                $today = new \DateTime('today');
+                if ($dt > $today) {
+                    Flash::add("La date de première immatriculation ne peut pas être postérieure à aujourd'hui.", 'danger');
+                    redirect('/vehicle/create');
+                }
                 $dateSql = $dt->format('Y-m-d');
             }
         }
@@ -79,9 +85,18 @@ class VehicleController extends Controller
         // Normalisation plaque via le repo (tu l’as ajoutée dans le repo 👍)
         $immatriculation = VehicleRepository::normalizePlate($_POST['immatriculation'] ?? '');
 
-        // Whitelist des préférences (sécurité)
+        // Whitelist des préférences (sécurité) + exclusivité logique
         $allowed = ['fumeur', 'non-fumeur', 'animaux', 'pas-animaux'];
-        $prefs   = array_intersect($allowed, (array) ($_POST['preferences'] ?? []));
+        $prefs   = array_values(array_intersect($allowed, (array) ($_POST['preferences'] ?? [])));
+        // Conflits exclusifs: fumeur vs non-fumeur, animaux vs pas-animaux
+        if (in_array('fumeur', $prefs, true) && in_array('non-fumeur', $prefs, true)) {
+            Flash::add('Vous ne pouvez pas sélectionner à la fois Fumeur et Non-fumeur.', 'danger');
+            redirect('/vehicle/create');
+        }
+        if (in_array('animaux', $prefs, true) && in_array('pas-animaux', $prefs, true)) {
+            Flash::add("Vous ne pouvez pas sélectionner à la fois 'Animaux acceptés' et 'Pas d'animal'.", 'danger');
+            redirect('/vehicle/create');
+        }
         $preferences = implode(',', $prefs);
 
         // Unicité (par utilisateur)
@@ -177,12 +192,26 @@ class VehicleController extends Controller
         if ($dateFr !== '') {
             $dt = \DateTime::createFromFormat('Y-m-d', $dateFr);
             if ($dt instanceof \DateTime) {
+                $dt->setTime(0, 0, 0);
+                $today = new \DateTime('today');
+                if ($dt > $today) {
+                    Flash::add("La date de première immatriculation ne peut pas être postérieure à aujourd'hui.", 'danger');
+                    redirect('/vehicle/edit?id=' . $vehicleId);
+                }
                 $dateSql = $dt->format('Y-m-d');
             }
         }
 
         $allowed = ['fumeur', 'non-fumeur', 'animaux', 'pas-animaux'];
-        $prefs   = array_intersect($allowed, (array) ($_POST['preferences'] ?? []));
+        $prefs   = array_values(array_intersect($allowed, (array) ($_POST['preferences'] ?? [])));
+        if (in_array('fumeur', $prefs, true) && in_array('non-fumeur', $prefs, true)) {
+            Flash::add('Vous ne pouvez pas sélectionner à la fois Fumeur et Non-fumeur.', 'danger');
+            redirect('/vehicle/edit?id=' . $vehicleId);
+        }
+        if (in_array('animaux', $prefs, true) && in_array('pas-animaux', $prefs, true)) {
+            Flash::add("Vous ne pouvez pas sélectionner à la fois 'Animaux acceptés' et 'Pas d'animal'.", 'danger');
+            redirect('/vehicle/edit?id=' . $vehicleId);
+        }
         $preferences = implode(',', $prefs);
 
         $places = filter_input(

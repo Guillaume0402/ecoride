@@ -66,6 +66,7 @@
             flex-wrap: wrap;
             align-items: center;
 
+            gap: 0.6rem; // aère la date, le séparateur et le prix
             .date,
             .price,
             .sep {
@@ -74,6 +75,19 @@
                 text-shadow: $shadow-text;
             }
 
+            // Améliore la lisibilité entre la date et le prix
+            .sep {
+                opacity: 0.6;
+                margin: 0 0.25rem;
+                font-weight: 700;
+            }
+
+            .price {
+                font-weight: 600;
+                letter-spacing: 0.01em;
+                padding-left: 0.8rem; // place pour le séparateur vertical
+                margin-left: 0.2rem;
+            }
             .badge-eco {
                 background: $color-secondary;
                 color: $text-black;
@@ -157,6 +171,54 @@
                     color: #ffc107;
                 }
             }
+        }
+    }
+}
+
+// Séparateurs subtils entre sections (clair vs sombre)
+body:not(.theme-alt) {
+    .carpool-card {
+        .card-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .card-body {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            padding-bottom: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .card-header .card-info .price {
+            border-left: 1px solid rgba(0, 0, 0, 0.2);
+        }
+        // Rendre le bouton "Détails" sombre en thème clair
+        .btn-outline-light {
+            color: #212529;
+            border-color: #212529;
+            transition: all 0.15s ease-in-out;
+            &:hover,
+            &:focus {
+                background-color: #212529;
+                color: #fff;
+            }
+        }
+    }
+}
+
+.theme-alt {
+    .carpool-card {
+        .card-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .card-body {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding-bottom: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .card-header .card-info .price {
+            border-left: 1px solid rgba(255, 255, 255, 0.35);
         }
     }
 }
