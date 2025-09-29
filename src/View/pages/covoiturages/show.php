@@ -18,7 +18,7 @@
 
     <div class="row g-4">
         <!-- Colonne gauche: résumé visuel -->
-    <div class="ride-summary col-12 col-lg-5">
+        <div class="ride-summary col-12 col-lg-5">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-center gap-3 mb-3">
@@ -45,7 +45,7 @@
         </div>
 
         <!-- Colonne droite: détails -->
-    <div class="ride-detail col-12 col-lg-7">
+        <div class="ride-detail col-12 col-lg-7">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
                     <h2 class="h4 mb-3">Détail du covoiturage</h2>
