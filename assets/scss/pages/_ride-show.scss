@@ -1,0 +1,39 @@
+@use "../abstracts/variables" as *;
+
+.ride-show {
+  // Un peu plus grand et plus aéré sur desktop
+  @media (min-width: 992px) {
+    font-size: 1.1rem; // taille de base +10%
+  }
+
+  .card {
+    border-radius: 14px;
+  }
+
+  .ride-summary,
+  .ride-detail {
+    .card-body {
+      padding: clamp(1rem, 2.5vw, 2rem);
+    }
+  }
+
+  .ride-summary {
+    .h5 { font-size: clamp(1.25rem, 2vw, 1.5rem); }
+    .badge { font-weight: 600; }
+    .badge.bg-success-subtle { background: rgba(16, 128, 96, 0.15); }
+    .badge.bg-secondary-subtle { background: rgba(108,117,125,0.2); }
+
+    .d-flex.gap-3 { gap: 1rem !important; }
+  }
+
+  .ride-detail {
+    h2.h4 { font-size: clamp(1.4rem, 2.2vw, 1.8rem); }
+    dl {
+      row-gap: .75rem; // espace vertical entre lignes
+      dt { color: var(--text-black); opacity: .85; }
+      dd { margin-bottom: 0; }
+    }
+
+    .mt-4 { margin-top: 1.25rem !important; }
+  }
+}
