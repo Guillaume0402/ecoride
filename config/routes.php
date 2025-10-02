@@ -1,8 +1,8 @@
 <?php
 
 
-return [   
-   
+return [
+
     // Page d'accueil
     '/' => [
         'GET' => [
@@ -233,6 +233,18 @@ return [
         'GET' => [
             'controller' => 'App\\Controller\\PageController',
             'action' => 'mentionsLegales'
+        ]
+    ],
+
+    // Test d'envoi d'e-mail (dev uniquement)
+    '/mail/test' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\MailController',
+            'action' => 'testForm'
+        ],
+        'POST' => [
+            'controller' => 'App\\Controller\\MailController',
+            'action' => 'sendTest'
         ]
     ],
 
