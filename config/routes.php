@@ -236,6 +236,18 @@ return [
         ]
     ],
 
+    // Test d'envoi d'e-mail (dev uniquement)
+    '/mail/test' => [
+        'GET' => [
+            'controller' => 'App\\Controller\\MailController',
+            'action' => 'testForm'
+        ],
+        'POST' => [
+            'controller' => 'App\\Controller\\MailController',
+            'action' => 'sendTest'
+        ]
+    ],
+
     // Formulaire classique (non-API) de création de covoiturage
     '/covoiturages/create' => [
         'POST' => [
