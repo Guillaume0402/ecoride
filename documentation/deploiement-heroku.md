@@ -1,4 +1,4 @@
-# Déployer EcoRide sur Heroku (guide humain)
+# Déployer EcoRide sur Heroku
 
 Ce guide explique simplement comment mettre en ligne le projet EcoRide sur Heroku.
 
