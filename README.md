@@ -110,7 +110,7 @@ Le CSS généré est écrit dans `public/assets/css/style.css`.
 ## Références (documentation)
 
 -   Démo modération Mongo: `documentation/demo-moderation-mongo.md`
--   Délivrabilité e‑mail (SendGrid, SPF/DKIM): `documentation/delivrabilite-sendgrid-spf-dkim.md`
+-   Délivrabilité e‑mail (Gmail SMTP): utilisez un From @gmail.com aligné avec Gmail SMTP pour des tests à faible volume. Pour un domaine pro, configurez SPF/DKIM/DMARC chez votre fournisseur SMTP.
 -   Déploiement Heroku: `documentation/deploiement-heroku.md`
 -   Guide MySQL & connexions: `documentation/mysql-database-guide.md`
 -   Rappels Router/MVC: `documentation/router_mvc_recap.md`
