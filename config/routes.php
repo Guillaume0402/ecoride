@@ -1,8 +1,8 @@
 <?php
 
 
-return [   
-   
+return [
+
     // Page d'accueil
     '/' => [
         'GET' => [

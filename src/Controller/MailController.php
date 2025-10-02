@@ -16,7 +16,7 @@ class MailController extends Controller
 
         $this->render('pages/mail-test', [
             'pageTitle' => 'Test e-mail',
-            'metaDescription' => 'Formulaire de test pour l’envoi d’e-mails (dev)'.
+            'metaDescription' => 'Formulaire de test pour l’envoi d’e-mails (dev)' .
                 ' — utilise la configuration SMTP/DKIM de votre .env.local.',
         ]);
     }
