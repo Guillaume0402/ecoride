@@ -83,6 +83,11 @@ class Mailer
                 if (in_array($secure, ['tls', 'ssl'], true)) {
                     $mailer->SMTPSecure = $secure;
                 }
+                // Optionnel: définir un Hostname pour les en-têtes Received/Message-ID (améliore parfois la réputation)
+                $hostname = getenv('MAIL_HOSTNAME') ?: ($_ENV['MAIL_HOSTNAME'] ?? null);
+                if (is_string($hostname) && $hostname !== '') {
+                    $mailer->Hostname = $hostname;
+                }
                 $mailer->CharSet = 'UTF-8';
                 $mailer->setFrom($this->from, $this->fromName);
                 // Envelope-From (Return-Path) – peut être ignoré par le relais SMTP mais utile si supporté
@@ -94,6 +99,29 @@ class Mailer
                         $mailer->addReplyTo($replyTo);
                     } catch (\Throwable $e) { /* ignore */
                     }
+                }
+                // DKIM optionnel si la clé privée est fournie (pour relai SMTP qui ne signe pas)
+                $dkimDomain = getenv('DKIM_DOMAIN') ?: ($_ENV['DKIM_DOMAIN'] ?? null);
+                $dkimSelector = getenv('DKIM_SELECTOR') ?: ($_ENV['DKIM_SELECTOR'] ?? null);
+                $dkimPrivateKey = getenv('DKIM_PRIVATE_KEY') ?: ($_ENV['DKIM_PRIVATE_KEY'] ?? null);
+                $dkimPassphrase = getenv('DKIM_PASSPHRASE') ?: ($_ENV['DKIM_PASSPHRASE'] ?? null);
+                if (is_string($dkimDomain) && is_string($dkimSelector) && is_string($dkimPrivateKey) && $dkimDomain !== '' && $dkimSelector !== '' && $dkimPrivateKey !== '') {
+                    // Si DKIM_PRIVATE_KEY commence par 'file://', lire le contenu du fichier
+                    $keyContent = $dkimPrivateKey;
+                    if (str_starts_with($dkimPrivateKey, 'file://')) {
+                        $path = substr($dkimPrivateKey, 7);
+                        if (is_readable($path)) {
+                            $keyContent = @file_get_contents($path) ?: $dkimPrivateKey;
+                        }
+                    }
+                    $mailer->DKIM_domain = $dkimDomain;
+                    $mailer->DKIM_selector = $dkimSelector;
+                    $mailer->DKIM_private = $keyContent;
+                    if (is_string($dkimPassphrase) && $dkimPassphrase !== '') {
+                        $mailer->DKIM_passphrase = $dkimPassphrase;
+                    }
+                    // Identité DKIM alignée sur From
+                    $mailer->DKIM_identity = $this->from;
                 }
                 // En-têtes utiles pour réduire les auto-réponses et clarifier la nature du message
                 $mailer->addCustomHeader('Auto-Submitted', 'auto-generated');

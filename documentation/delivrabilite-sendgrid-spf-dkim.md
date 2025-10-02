@@ -66,6 +66,14 @@ Dans Heroku ou votre env prod, définissez:
 - `SMTP_SECURE=tls`
 - Optionnels: `MAIL_REPLY_TO`, `LIST_UNSUBSCRIBE_URL`, `LIST_UNSUBSCRIBE_MAILTO`, `LIST_UNSUBSCRIBE_POST=1`
 
+Avancés (optionnels):
+
+- `MAIL_HOSTNAME=app.ecoride.example` (sert aux en-têtes Received/Message-ID)
+- `DKIM_DOMAIN=ecoride.example`
+- `DKIM_SELECTOR=s1`
+- `DKIM_PRIVATE_KEY=file:///app/config/dkim/private.key` (ou directement la clé PEM)
+- `DKIM_PASSPHRASE=<si nécessaire>`
+
 Assurez-vous que `SITE_URL` pointe sur votre domaine prod avec slash final (ex: `https://app.ecoride.example/`).
 
 ## 7) Vérifier la délivrabilité
