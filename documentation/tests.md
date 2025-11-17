@@ -21,12 +21,20 @@ Ce projet utilise PHPUnit pour les tests unitaires.
     -   Vérifie qu'elle est supérieure ou égale à zéro.
 -   `VehicleRepository::normalizePlate()`:
     -   Vérifie la normalisation d'immatriculation sur plusieurs formats (espaces, tirets, points, casse), avec un data provider.
+-   `PasswordPolicy`:
+    -   Vérifie la robustesse des mots de passe (validation de règles complexes).
+
+-   `UserService`:
+    -   Validation des données utilisateur (pseudos, emails, rôles, crédits).
+    -   Gestion des crédits et notes des utilisateurs.
+    -   Sérialisation des données utilisateur en tableau.
 
 ## Ajouter de nouveaux tests
 
 -   Créez un fichier dans `tests/` avec le suffixe `Test.php`.
--   Étendez `PHPUnit\Framework\TestCase` et ajoutez des méthodes `public function testXxx(): void`.
+-   Étendez `PHPUnit\Framework\TestCase` et ajoutez des méthodes `public function testXxx(): void`(sans mot-clé public).
 -   Utilisez des data providers pour couvrir plusieurs cas facilement.
+-   Évitez de coupler les tests à la base de données pour les tests unitaires.
 -   Exécutez `composer run test` pour vérifier.
 
 ## Bonnes pratiques
