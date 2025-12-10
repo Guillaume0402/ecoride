@@ -5,22 +5,31 @@ namespace App\Service;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception as MailException;
 
+// Service d'envoi d'e-mails pour l'application
+// Utilise PHPMailer si un serveur SMTP est configuré,
+// sinon journalise les messages dans un fichier de log.
 class Mailer
 {
+    // Adresse e-mail utilisée comme expéditeur (From)
     private string $from;
+    // Nom affiché comme expéditeur (ex: "EcoRide")
     private string $fromName;
+    // Chemin vers le fichier dans lequel on stocke les e-mails en fallback
     private string $logFile;
+    // Environnement courant (dev, prod, ...)
     private string $appEnv;
+    // Configuration SMTP (hôte, port, utilisateur, etc.) si disponible
     private ?array $smtp = null;
 
+    // Le constructeur initialise l'expéditeur, l'environnement et la config SMTP
     public function __construct(?string $from = null, ?string $fromName = null)
     {
-        // Préférence à $_ENV (chargé par phpdotenv) puis fallback getenv, sinon valeur par défaut
+        // Récupère l'adresse d'expédition d'abord dans $_ENV (phpdotenv), puis getenv(), sinon valeur par défaut
         $envFrom = $_ENV['MAIL_FROM'] ?? (getenv('MAIL_FROM') ?: null);
         $envFromName = $_ENV['MAIL_FROM_NAME'] ?? (getenv('MAIL_FROM_NAME') ?: null);
         $this->from = $from ?: ($envFrom ?: 'no-reply@example.com');
         $this->fromName = $fromName ?: ($envFromName ?: 'EcoRide');
-        // Déduction d'environnement: variable APP_ENV sinon heuristique sur SITE_URL
+        // Déduire l'environnement: APP_ENV si défini, sinon heuristique sur SITE_URL
         $env = null;
         if (isset($_ENV['APP_ENV'])) {
             $env = (string) $_ENV['APP_ENV'];
@@ -31,7 +40,7 @@ class Mailer
             $env = (defined('SITE_URL') && str_contains(SITE_URL, 'localhost')) ? 'dev' : 'prod';
         }
         $this->appEnv = $env;
-        // SMTP config si fournie
+        // Configuration SMTP si des variables d'environnement sont renseignées
         $host = getenv('SMTP_HOST') ?: ($_ENV['SMTP_HOST'] ?? null);
         if ($host) {
             $this->smtp = [
@@ -43,7 +52,7 @@ class Mailer
             ];
         }
 
-        // Fichier de log: utiliser un répertoire toujours accessible (Heroku → /tmp)
+        // Fichier de log: utiliser un répertoire toujours accessible (ex: /tmp sur Heroku)
         $this->logFile = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . '/ecoride-mail.log';
     }
 
@@ -53,6 +62,7 @@ class Mailer
      */
     public function send(string $to, string $subject, string $htmlBody): bool
     {
+        // Prépare les en-têtes pour un e-mail HTML basique
         $headers = [];
         $headers[] = 'MIME-Version: 1.0';
         $headers[] = 'Content-type: text/html; charset=UTF-8';
@@ -88,11 +98,13 @@ class Mailer
                 if (is_string($hostname) && $hostname !== '') {
                     $mailer->Hostname = $hostname;
                 }
+                // Encodage des caractères en UTF-8
                 $mailer->CharSet = 'UTF-8';
+                // Adresse d'expédition
                 $mailer->setFrom($this->from, $this->fromName);
                 // Envelope-From (Return-Path) – peut être ignoré par le relais SMTP mais utile si supporté
                 $mailer->Sender = $this->from;
-                // Reply-To optionnel
+                // Adresse Reply-To optionnelle (pour les réponses)
                 $replyTo = getenv('MAIL_REPLY_TO') ?: ($_ENV['MAIL_REPLY_TO'] ?? null);
                 if (is_string($replyTo) && $replyTo !== '') {
                     try {
@@ -143,53 +155,66 @@ class Mailer
                         $mailer->addCustomHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
                     }
                 }
+                // Ajoute le destinataire principal
                 $mailer->addAddress($to);
+                // Sujet du message
                 $mailer->Subject = $subject;
+                // Corps HTML et version texte brut (AltBody) pour compatibilité
                 $mailer->isHTML(true);
                 $mailer->Body = $htmlBody;
                 $mailer->AltBody = strip_tags($htmlBody);
                 $mailer->send();
+                // Si tout s'est bien passé, on retourne true
                 return true;
             } catch (MailException $e) {
-                // Essayer de récupérer des informations d'erreur supplémentaires
+                // En cas d'erreur SMTP, essayer de récupérer des informations d'erreur supplémentaires
                 $errInfo = '';
                 if (($mailer instanceof PHPMailer) && !empty($mailer->ErrorInfo)) {
                     $errInfo = ' ErrorInfo=' . $mailer->ErrorInfo;
                 }
                 error_log('[Mailer][SMTP] ' . $e->getMessage() . $errInfo);
-                // fallback log
+                // En cas d'échec, on journalise l'email dans un fichier de log
                 return $this->logFallback($to, $subject, $htmlBody);
             }
         }
 
         // En dev sans SMTP, on ne tente pas d'envoyer un vrai mail: on journalise directement
         if ($this->appEnv === 'dev') {
+            // Environnement de développement : on simule l'envoi en écrivant dans un fichier
             return $this->logFallback($to, $subject, $htmlBody);
         }
 
         // En prod, si aucun SMTP n'est configuré, éviter mail() (souvent bloqué sur PaaS) → journalisation
         if ($this->appEnv === 'prod') {
             error_log('[Mailer] SMTP non configuré en production – message journalisé dans ' . $this->logFile);
+            // On ne tente pas mail() car souvent bloqué, on log seulement
             return $this->logFallback($to, $subject, $htmlBody);
         }
 
         // En autres cas (sécurité), tenter mail() puis fallback
+        // Dernier recours : utiliser la fonction mail() native de PHP
         $ok = @mail($to, $subject, $htmlBody, $headersStr);
         if ($ok) {
+            // mail() a indiqué que l'envoi s'est bien passé
             return true;
         }
+        // Si mail() échoue, on garde une trace de l'e-mail dans le log
         return $this->logFallback($to, $subject, $htmlBody);
     }
 
+    // Méthode de repli: stocke le contenu de l'e-mail dans un fichier de log
     private function logFallback(string $to, string $subject, string $htmlBody): bool
     {
+        // On formate une ligne lisible contenant la date, le destinataire, le sujet et le contenu
         $entry = sprintf("[%s] TO:%s SUBJECT:%s\n%s\n\n", date('Y-m-d H:i:s'), $to, $subject, $htmlBody);
         try {
             // Supprime les warnings potentiels d'IO hors JSON (les erreurs seront loguées via error_log)
             @file_put_contents($this->logFile, $entry, FILE_APPEND | LOCK_EX);
+            // Si l'écriture dans le fichier fonctionne, on considère l'opération comme un succès
             return true;
         } catch (\Throwable $e) {
             error_log('[Mailer] fallback log failed: ' . $e->getMessage());
+            // Si même le fallback échoue, on retourne false pour remonter l'échec
             return false;
         }
     }
@@ -199,6 +224,7 @@ class Mailer
      */
     public function getLogFile(): string
     {
+        // Permet de connaître le chemin du fichier de log utilisé
         return $this->logFile;
     }
 }

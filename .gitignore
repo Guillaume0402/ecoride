@@ -34,3 +34,11 @@ vendor/
 *.tmp
 
 /public/uploads/*
+
+recap.md
+secu.md
+sql.md
+fetch.md
+mvc_pdo.md
+javascript.md
+api.md
