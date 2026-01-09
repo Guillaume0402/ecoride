@@ -31,8 +31,20 @@ class Controller
     }
 
     // Rend une vue au sein du layout global (extrait $data, bufferise la vue, inclut layout)
+
+    /**
+     * Rend une vue au sein du layout global.
+     *
+     * Variables injectées dans le layout :
+     * @var bool $hasVehicle
+     * @var array $userVehicles
+     * @var int $pendingCount
+     * @var int $myTripsCount
+     * @var int $employeeModPendingCount
+     */
     protected function render(string $view, array $data = []): void
     {
+
         // Expose les clés de $data comme variables accessibles dans la vue
         extract($data);
 

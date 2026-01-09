@@ -132,7 +132,7 @@ class UserRepository
         // Construit dynamiquement la liste de placeholders pour l'IN()
         $placeholders = implode(',', array_fill(0, count($roleIds), '?'));
         $sql = "SELECT u.*, r.role_name 
-            FROM users u 
+            FROM {$this->table} u 
             JOIN roles r ON u.role_id = r.id 
             WHERE u.role_id IN ($placeholders)
             ORDER BY u.created_at DESC";

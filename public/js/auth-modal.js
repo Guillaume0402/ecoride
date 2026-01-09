@@ -3,7 +3,7 @@ Module: Auth Modal
 Rôle: Gérer l’interface de connexion/inscription (onglets, validation, force du mot de passe, redirections) et la déconnexion.
 Utilisation: Boutons avec data-bs-target="#authModal" pour ouvrir la modale.
 */
-// Fonction pour afficher les messages
+// Fonction pour afficher les messages d'erreur/succès dans la modale
 function showAlert(message, type = "danger") {
     const modalAlert = document.querySelector("#authModal #authAlert");
     if (!modalAlert) return;
@@ -33,13 +33,13 @@ function showGlobalAlert(message, type = "success") {
     setTimeout(() => el.remove(), 4300);
 }
 
-// Fonction pour masquer les messages
+// Fonction pour masquer le message d'alerte de la modale
 function hideAlert() {
     const alertDiv = document.getElementById("authAlert");
     alertDiv.classList.add("d-none");
 }
 
-// Fonction pour gérer le loading
+// Fonction pour gérer l'état "chargement" d'un formulaire (désactive le bouton et affiche un spinner)
 function setLoading(form, isLoading) {
     const button = form.querySelector('button[type="submit"]');
     const btnText = button.querySelector(".btn-text");
@@ -81,13 +81,16 @@ function setActiveTab(tab) {
     }
 }
 
-// Fonction pour gérer l'authentification (connexion/inscription)
-// Utilise fetch pour appeler les API correspondantes
-// Renvoie une promesse pour gérer les réponses
+// Fonction générique pour gérer l'authentification (connexion/inscription)
+// - envoie les données en JSON à l'API
+// - gère l'affichage des messages
+// - applique la redirection ou le changement d'onglet en cas de succès
 async function handleAuth(endpoint, formData) {
     // récupère le token si présent (loginForm)
+    // Récupère le token CSRF si présent (protège contre les attaques CSRF)
     const csrf =
         formData.csrf || document.querySelector('input[name="csrf"]')?.value;
+    // URL de redirection par défaut : la page actuelle
     const fallbackRedirect = (() => {
         try {
             return window.location.pathname + window.location.search;
@@ -100,6 +103,7 @@ async function handleAuth(endpoint, formData) {
         formData.redirect = fallbackRedirect;
     }
     try {
+        // Appel à l'API d'authentification correspondante (login ou register)
         const response = await fetch(`/api/auth/${endpoint}`, {
             method: "POST",
             headers: {
@@ -111,6 +115,7 @@ async function handleAuth(endpoint, formData) {
             body: JSON.stringify(formData),
         });
 
+        // On suppose que l'API renvoie du JSON { success: bool, message: string, redirect?: string }
         const data = await response.json();
 
         if (data.success) {
@@ -119,6 +124,7 @@ async function handleAuth(endpoint, formData) {
                 endpoint === "login"
                     ? document.getElementById("loginForm")
                     : document.getElementById("registerForm");
+            // Désactive tous les champs et boutons du formulaire pour éviter les double-clics
             Array.from(currentForm.elements).forEach(
                 (el) => (el.disabled = true)
             );
@@ -128,6 +134,7 @@ async function handleAuth(endpoint, formData) {
 
             showAlert(data.message, "success");
 
+            // Cas connexion : après un petit délai, on redirige l'utilisateur
             if (endpoint === "login") {
                 setTimeout(() => {
                     const to =
@@ -141,6 +148,7 @@ async function handleAuth(endpoint, formData) {
                         window.location.reload();
                     }
                 }, 1500);
+            // Cas inscription : on repasse sur l'onglet login et on pré-remplit l'email
             } else if (endpoint === "register") {
                 setTimeout(() => {
                     setActiveTab("login");
@@ -161,7 +169,7 @@ async function handleAuth(endpoint, formData) {
     }
 }
 
-// Les événements de la modale restent dans le DOMContentLoaded
+// Tout le code qui touche au DOM est exécuté après le chargement de la page
 document.addEventListener("DOMContentLoaded", () => {
     const authModal = document.getElementById("authModal");
     const showLogin = document.getElementById("showLogin");
@@ -169,11 +177,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("loginForm");
     const registerForm = document.getElementById("registerForm");
 
-    // Gestionnaires pour les boutons de changement d'onglet
+    // Gestionnaires pour les boutons de changement d'onglet (Connexion / Inscription)
     showLogin.addEventListener("click", () => setActiveTab("login"));
     showRegister.addEventListener("click", () => setActiveTab("register"));
 
-    // Helpers validation visuelle
+    // Helpers pour la validation visuelle des champs (affiche/retire la classe .is-invalid)
     const setInvalid = (input, message) => {
         input.classList.add("is-invalid");
         const fb = input.parentElement.querySelector(".invalid-feedback");
@@ -184,8 +192,10 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // Règles de validation registration
+    // Règle de complexité du mot de passe (minuscule, majuscule, chiffre, caractère spécial, pas d'espace)
     const passwordRegex =
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])(?!.*\s).+$/;
+    // Validation champ par champ pour le formulaire d'inscription
     const validateRegisterField = (input) => {
         const id = input.id;
         const val = input.value.trim();
@@ -237,6 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return true;
     };
 
+    // Validation champ par champ pour le formulaire de connexion
     const validateLoginField = (input) => {
         const id = input.id;
         if (id === "emailLogin") {
@@ -261,6 +272,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return true;
     };
 
+    // Ajoute la validation "en direct" (input + blur) sur tous les champs du formulaire
     const attachLiveValidation = (form, validator) => {
         form.querySelectorAll("input").forEach((input) => {
             input.addEventListener("input", () => validator(input));
@@ -270,11 +282,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     attachLiveValidation(registerForm, validateRegisterField);
     attachLiveValidation(loginForm, validateLoginField);
-    
+
+    // Gestion de la jauge de robustesse du mot de passe et des critères détaillés
     const pwdInput = document.getElementById("passwordRegister");
     const strengthBar = document.getElementById("passwordStrengthBar");
     const strengthText = document.getElementById("passwordStrengthText");
 
+    // Calcule un score simple de robustesse de mot de passe (0 à 100)
     const computeStrength = (pwd) => {
         let score = 0;
         if (pwd.length >= 12) score += 25;
@@ -286,6 +300,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return Math.min(score, 100);
     };
 
+    // Met à jour l'affichage de la barre et du texte de robustesse
     const updateStrengthUI = (score) => {
         if (!strengthBar || !strengthText) return;
         strengthBar.style.width = `${score}%`;
@@ -302,6 +317,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (pwdInput) {
         updateStrengthUI(0);
+        // Éléments de la liste des critères (longueur, majuscules, etc.)
         const criteriaEls = {
             len: document.querySelector('.password-criteria [data-crit="len"]'),
             lower: document.querySelector(
@@ -322,6 +338,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         const criteriaList = document.querySelector(".password-criteria");
 
+        // Met à jour l'état visuel de chaque critère en fonction du mot de passe saisi
         const updateCriteria = (pwd) => {
             const hasLower = /[a-z]/.test(pwd);
             const hasUpper = /[A-Z]/.test(pwd);
@@ -353,7 +370,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    
+    // Boutons pour afficher/masquer les mots de passe (œil / œil barré)
     document.querySelectorAll(".toggle-password").forEach((btn) => {
         btn.addEventListener("click", () => {
             const targetId = btn.getAttribute("data-target");
@@ -370,7 +387,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    
+    // Bouton pour afficher/masquer la liste détaillée des critères du mot de passe
     document.querySelectorAll(".toggle-criteria").forEach((btn) => {
         btn.addEventListener("click", () => {
             const list = document.getElementById("passwordCriteriaList");
@@ -380,6 +397,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // Validation globale d'un formulaire au submit
+    // - boucle sur tous les inputs
+    // - s'arrête sur le premier champ invalide et lui donne le focus
     const validateForm = (form, validator) => {
         let firstInvalid = null;
         let ok = true;
@@ -391,7 +411,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return ok;
     };
 
-    // Gestionnaires pour les formulaires
+    // Gestionnaire pour le formulaire d'inscription
     registerForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         hideAlert();
@@ -413,7 +433,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Gestion du formulaire de connexion
+    // Gestionnaire pour le formulaire de connexion
     loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         hideAlert();
@@ -435,7 +455,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Gestion de l'ouverture de la modal
+    // Gestion de l'ouverture de la modale via les boutons data-bs-target="#authModal"
     const modal = new bootstrap.Modal(authModal);
     document
         .querySelectorAll('[data-bs-target="#authModal"]')
@@ -471,7 +491,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     } catch (_) {}
 
-    // Réinitialiser les formulaires à la fermeture
+    // Réinitialiser les formulaires et les états visuels à la fermeture de la modale
     authModal.addEventListener("hidden.bs.modal", () => {
         registerForm.reset();
         loginForm.reset();
@@ -496,7 +516,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// Déconnexion via API (AJAX)
+// Déconnexion via API (AJAX) quand l'utilisateur clique sur le bouton "logout"
 const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
     logoutBtn.addEventListener("click", async (e) => {

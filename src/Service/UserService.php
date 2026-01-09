@@ -5,10 +5,14 @@ namespace App\Service;
 use App\Entity\UserEntity;
 use App\Security\PasswordPolicy;
 
-
+// Service métier autour de l'utilisateur :
+// - gestion des mots de passe
+// - validation des données
+// - gestion des crédits et de la note
+// - aide pour l'affichage (photo, initiales, rôle, etc.)
 class UserService
 {
-
+    // Gestion des mots de passe 
     public function hashPassword(UserEntity $user, string $plainPassword): void
     {
         // Hash via la politique centralisée (Argon2id si dispo, sinon bcrypt cost 12)
@@ -24,6 +28,7 @@ class UserService
 
     public function needsRehash(UserEntity $user): bool
     {
+        // Permet de savoir si le hash actuel est encore conforme à la politique (algo/cost)
         return PasswordPolicy::needsRehash($user->getPassword());
     }
 
@@ -42,8 +47,8 @@ class UserService
         return filter_var($user->getEmail(), FILTER_VALIDATE_EMAIL) !== false;
     }
 
-
-    //  Gestion de l'utilisateur   
+    // Validation des données utilisateur
+    //  Rassemble toutes les règles de cohérence métier (longueurs, formats, bornes...)
     public function validate(UserEntity $user): array
     {
         // Rassemble des messages d'erreurs de validation (sans side effects)
@@ -74,6 +79,7 @@ class UserService
         return $errors;
     }
 
+    // Gestion du rôle et des droits
     public function getRoleName(UserEntity $user): string
     {
         // Mappe role_id -> libellé human-readable
@@ -102,8 +108,7 @@ class UserService
         return substr($initiales, 0, 2);
     }
 
-
-    //  Gestion des crédits    
+    // Gestion des crédits (porte-monnaie)
     public function addCredits(UserEntity $user, int $amount): void
     {
         // Ajoute des crédits si le montant est positif
@@ -128,7 +133,7 @@ class UserService
         return $user->getCredits() >= $amount;
     }
 
-    //  Note utilisateur    
+    // Note / réputation de l'utilisateur
     public function updateNote(UserEntity $user, float $newNote): void
     {
         // Contraint la note à [0,5] et arrondit à 2 décimales
@@ -137,8 +142,7 @@ class UserService
         }
     }
 
-
-    //  Gestion de la photo    
+    // Gestion de la photo de profil
     public function hasPhoto(UserEntity $user): bool
     {
         // True si un chemin de photo est défini
@@ -151,8 +155,7 @@ class UserService
         return $user->getPhoto() ?? '/assets/images/default-avatar.png';
     }
 
-
-    //  Conversion en tableau   
+    // Conversion en tableau (pour API / vues)
     public function toArray(UserEntity $user, bool $includePassword = false): array
     {
         // Sérialise l'entité en tableau pour la vue/API (password optionnel)

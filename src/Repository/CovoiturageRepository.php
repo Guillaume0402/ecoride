@@ -5,21 +5,28 @@ namespace App\Repository;
 use App\Db\Mysql;
 use App\Entity\CovoiturageEntity;
 
+// Repository responsable des accès à la table "covoiturages"
+// (création, recherche, statistiques, listes pour l'admin, etc.)
 class CovoiturageRepository
 {
+    // Connexion PDO vers la base MySQL
     private \PDO $conn;
+    // Nom de la table des covoiturages
     private string $table = 'covoiturages';
 
+    // Au constructeur, on récupère l'instance unique de connexion MySQL
     public function __construct()
     {
         $this->conn = Mysql::getInstance()->getPDO();
     }
 
+    // Créé un nouveau covoiturage en base à partir d'une entité
     public function create(CovoiturageEntity $c): bool
     {
         $sql = "INSERT INTO {$this->table} (driver_id, vehicle_id, adresse_depart, adresse_arrivee, depart, arrivee, prix, status, created_at)
                 VALUES (:driver_id, :vehicle_id, :adresse_depart, :adresse_arrivee, :depart, :arrivee, :prix, :status, NOW())";
 
+        // Prépare la requête SQL avec des paramètres nommés
         $stmt = $this->conn->prepare($sql);
         $ok = $stmt->execute([
             ':driver_id' => $c->getDriverId(),
@@ -32,16 +39,15 @@ class CovoiturageRepository
             ':status' => $c->getStatus(),
         ]);
 
+        // Si l'insertion réussit, on renseigne l'id auto-incrémenté dans l'entité
         if ($ok) {
             $c->setId((int)$this->conn->lastInsertId());
         }
         return $ok;
     }
-
-    /**
-     * Recherche simple par villes (LIKE) et date exacte (DATE(depart) = :date)
-     * $prefs: tableau de préférences exactes (ex: ['fumeur','pas-animaux'])
-     */
+    
+    // Recherche de covoiturages par ville de départ, d'arrivée, date, préférences, tri…
+    // Retourne un tableau de lignes SQL (array associatif)
     public function search(?string $depart = null, ?string $arrivee = null, ?string $date = null, array $prefs = [], ?string $sort = null, ?string $dir = null, ?int $currentUserId = null): array
     {
         $sql = "SELECT c.*,
@@ -82,14 +88,17 @@ class CovoiturageRepository
         // Cacher les trajets passés (uniquement les départs futurs ou en cours)
         $sql .= " AND c.depart >= NOW()";
         $params = [];
+        // Filtre éventuel sur la ville/adresse de départ
         if ($depart !== null && $depart !== '') {
             $sql .= " AND c.adresse_depart LIKE :depart";
             $params[':depart'] = '%' . $depart . '%';
         }
+        // Filtre éventuel sur la ville/adresse d'arrivée
         if ($arrivee !== null && $arrivee !== '') {
             $sql .= " AND c.adresse_arrivee LIKE :arrivee";
             $params[':arrivee'] = '%' . $arrivee . '%';
         }
+        // Filtre éventuel sur le jour précis (date sans l'heure)
         if ($date !== null && $date !== '') {
             $sql .= " AND DATE(c.depart) = :date";
             $params[':date'] = $date;
@@ -106,7 +115,7 @@ class CovoiturageRepository
         }
         $sql .= " GROUP BY c.id";
 
-        // Tri sécurisé
+        // Tri sécurisé : on ne permet de trier que sur des colonnes connues
         $allowedSort = [
             'date'  => 'c.depart',
             'price' => 'c.prix'
@@ -121,14 +130,13 @@ class CovoiturageRepository
         if ($currentUserId !== null) {
             $params[':me'] = $currentUserId;
         }
+        // Prépare puis exécute la requête avec tous les paramètres
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
-
-    /**
-     * Récupère un covoiturage par id avec info véhicule (places_dispo) et conducteur.
-     */
+  
+    // Récupère un covoiturage (une seule ligne) avec infos véhicule et conducteur
     public function findOneWithVehicleById(int $id): ?array
     {
         $sql = "SELECT c.*, 
@@ -144,12 +152,11 @@ class CovoiturageRepository
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([':id' => $id]);
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        // Retourne null si aucun covoiturage trouvé
         return $row ?: null;
     }
-
-    /**
-     * Liste les covoiturages créés par l'utilisateur (rôle conducteur).
-     */
+    
+    // Liste les covoiturages dont l'utilisateur est le conducteur
     public function findByDriverId(int $driverId): array
     {
         $sql = "SELECT c.*,
@@ -175,10 +182,8 @@ class CovoiturageRepository
         $stmt->execute([':d' => $driverId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
-
-    /**
-     * Met à jour le statut d'un covoiturage: en_attente|demarre|termine|annule
-     */
+   
+    // Met à jour le statut d'un covoiturage (avec contrôle sur les valeurs autorisées)
     public function updateStatus(int $id, string $status): bool
     {
         $allowed = ['en_attente', 'demarre', 'termine', 'annule'];
@@ -189,29 +194,31 @@ class CovoiturageRepository
     }
 
     // === Stats ===
+    // Retourne le nombre total de covoiturages en base
     public function countAll(): int
     {
         $stmt = $this->conn->query("SELECT COUNT(*) FROM {$this->table}");
         return (int) $stmt->fetchColumn();
     }
 
+    // Retourne la somme de tous les prix de covoiturages
     public function sumPrixAll(): float
     {
         $stmt = $this->conn->query("SELECT COALESCE(SUM(prix),0) FROM {$this->table}");
         return (float) $stmt->fetchColumn();
     }
 
+    // Compte les covoiturages qui partent aujourd'hui
     public function countToday(): int
     {
         $stmt = $this->conn->query("SELECT COUNT(*) FROM {$this->table} WHERE DATE(depart) = CURDATE()");
         return (int) $stmt->fetchColumn();
     }
-
-    /**
-     * Retourne un tableau [ 'YYYY-MM-DD' => n ] pour les N derniers jours.
-     */
+   
+    // Retourne, pour chaque jour, le nombre de covoiturages sur une période donnée
     public function seriesByDay(int $days = 7): array
     {
+        // Sécurise la fenêtre de jours (entre 1 et 60)
         $days = max(1, min(60, $days));
         $sql = "SELECT DATE(depart) AS d, COUNT(*) AS n
                 FROM {$this->table}
@@ -223,16 +230,16 @@ class CovoiturageRepository
         $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
         $out = [];
         foreach ($rows as $r) {
+            // Clé = date (YYYY-MM-DD), valeur = nombre de trajets
             $out[$r['d']] = (int)$r['n'];
         }
         return $out;
     }
-
-    /**
-     * Estimation de crédits générés par jour (somme prix), sur N jours.
-     */
+    
+    // Calcule la somme des prix par jour sur une période donnée
     public function sumPrixByDay(int $days = 7): array
     {
+        // Sécurise la fenêtre de jours (entre 1 et 60)
         $days = max(1, min(60, $days));
         $sql = "SELECT DATE(depart) AS d, SUM(prix) AS s
                 FROM {$this->table}
@@ -244,16 +251,16 @@ class CovoiturageRepository
         $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
         $out = [];
         foreach ($rows as $r) {
+            // Clé = date (YYYY-MM-DD), valeur = somme des prix
             $out[$r['d']] = (float)$r['s'];
         }
         return $out;
     }
-
-    /**
-     * Liste administrateur: tous les covoiturages avec détails (conducteur, véhicule, stats simples)     
-     */
+   
+    // Liste pour l'admin : tous les covoiturages avec quelques stats simples
     public function findAllAdmin(string $scope = 'all', int $limit = 500): array
     {
+        // Sécurise la limite pour éviter de charger trop de lignes
         $limit = max(1, min(1000, $limit));
         $sql = "SELECT c.*,
                        u.pseudo AS driver_pseudo,
@@ -266,18 +273,21 @@ class CovoiturageRepository
                 LEFT JOIN vehicles v ON v.id = c.vehicle_id
                 WHERE 1=1";
 
+        // Date/heure actuelle pour filtrer passé / futur / en cours
         $now = (new \DateTime())->format('Y-m-d H:i:s');
         $params = [];
         switch ($scope) {
             case 'past':
+                // Trajets déjà partis
                 $sql .= " AND c.depart < :now";
                 $params[':now'] = $now;
                 break;
             case 'ongoing':
-                // 'démarré' ou départ passé mais avant auto-cancel/finish
+                // Trajets en cours (statut "demarre")
                 $sql .= " AND c.status = 'demarre'";
                 break;
             case 'future':
+                // Trajets à venir
                 $sql .= " AND c.depart >= :now";
                 $params[':now'] = $now;
                 break;
@@ -309,8 +319,11 @@ class CovoiturageRepository
      *   ...
      * ]
      */
+    // Retourne les destinations les plus demandées avec, pour chaque destination,
+    // les villes de départ les plus fréquentes (et quelques stats de prix)
     public function popularDestinations(int $destLimit = 6, int $perDestDepartLimit = 4, int $daysBack = 30): array
     {
+        // Sécurise les paramètres pour éviter des requêtes trop lourdes
         $destLimit = max(1, min(24, $destLimit));
         $perDestDepartLimit = max(1, min(10, $perDestDepartLimit));
         $daysBack = max(0, min(365, $daysBack));
@@ -330,6 +343,7 @@ class CovoiturageRepository
         $topStmt = $this->conn->query($sqlTop);
         $tops = $topStmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
 
+        // Si aucune destination trouvée, on retourne un tableau vide
         if (empty($tops)) return [];
 
         $out = [];

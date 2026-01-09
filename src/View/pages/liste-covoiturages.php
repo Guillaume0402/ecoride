@@ -1,7 +1,9 @@
+<!-- Page de liste des covoiturages avec formulaires de recherche/filtre et cartes de résultats -->
 <div class="container">
     <div class="text-center mt-3">
         <h1>Liste des covoiturages</h1>
     </div>
+    <!-- Formulaire principal de recherche (ville départ, arrivée, date) -->
     <section class="container mt-5 ">
         <div class="col-lg-6 col-12 d-flex justify-content-center mb-4  m-auto">
             <div class="form-box rounded p-4 w-100 ">
@@ -18,6 +20,7 @@
                         <label class="form-label">Date de départ :</label>
                         <input type="date" name="date" class="form-control" value="<?= htmlspecialchars($criteria['date'] ?? '') ?>">
                     </div>
+                    <!-- On repasse ici d'éventuelles préférences déjà choisies pour ne pas les perdre -->
                     <?php if (!empty($criteria['pref']) && is_array($criteria['pref'])): ?>
                         <?php foreach ($criteria['pref'] as $p): ?>
                             <input type="hidden" name="pref[]" value="<?= htmlspecialchars($p) ?>">
@@ -29,7 +32,7 @@
             </div>
         </div>
     </section>
-    <!-- Filtre & tri -->
+    <!-- Barre de filtres supplémentaires (préférences) et tri -->
     <section class="filter-section m-5">
         <div class="container">
             <div class="d-flex align-items-center justify-content-between flex-wrap filter-bar px-3 py-2 rounded-2">
@@ -39,6 +42,7 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <?php
+                        // On conserve les autres critères pour ne modifier que les préférences
                         $baseParams = [
                             'depart' => $criteria['depart'] ?? '',
                             'arrivee' => $criteria['arrivee'] ?? '',
@@ -50,6 +54,7 @@
                         ?>
                         <li>
                             <form method="get" action="/liste-covoiturages" class="px-3 py-2">
+                                <!-- Re-crée des champs cachés pour chaque critère déjà saisi -->
                                 <?php foreach ($baseParams as $k => $v): ?>
                                     <?php if ($v !== '' && $v !== null): ?>
                                         <input type="hidden" name="<?= htmlspecialchars($k) ?>" value="<?= htmlspecialchars($v) ?>">
@@ -81,7 +86,7 @@
                     <button class="btn btn-sort dropdown-toggle" data-bs-toggle="dropdown">Trier par</button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <?php
-                        // Conserve les critères; change sort/dir
+                        // Conserve les critères de recherche; ne change que sort/dir
                         $baseParams = [
                             'depart' => $criteria['depart'] ?? '',
                             'arrivee' => $criteria['arrivee'] ?? '',
@@ -97,6 +102,7 @@
                 </div>
             </div>
             <?php if (!empty($criteria['pref'])): ?>
+                <!-- Affiche les filtres de préférences actifs sous forme de badges cliquables -->
                 <div class="px-3 mt-2 d-flex flex-wrap gap-2">
                     <?php
                     $labels = [
@@ -114,6 +120,7 @@
                     ];
                     $current = (array)$criteria['pref'];
                     foreach ($current as $rm) {
+                        // On construit une URL qui supprime une préférence à la fois
                         $remain = array_values(array_diff($current, [$rm]));
                         $params = $baseParams;
                         if (!empty($remain)) {
@@ -131,6 +138,7 @@
             <?php endif; ?>
         </div>
     </section>
+    <!-- Section d'affichage des cartes de covoiturages -->
     <section class="rides-section pb-5">
         <div class="container">
             <div class="row row-cols-1 row-cols-md-2 g-4">
@@ -141,6 +149,7 @@
                                 <div class="card-header d-flex justify-content-between mb-3">
                                     <div class="card-info">
                                         <?php
+                                        // Prépare l'objet DateTime et le formatage du prix
                                         $d = new DateTime($ride['depart']);
                                         $price = number_format((float)$ride['prix'], 2, ',', ' ');
                                         ?>
@@ -153,7 +162,10 @@
                                     </div>
                                 </div>
                                 <div class="card-body d-flex align-items-start justify-content-between flex-wrap mb-3">
-                                    <?php $avatar = !empty($ride['driver_photo']) ? $ride['driver_photo'] : (defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg'); ?>
+                                    <?php
+                                    // Avatar du conducteur (photo ou image par défaut)
+                                    $avatar = !empty($ride['driver_photo']) ? $ride['driver_photo'] : (defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg');
+                                    ?>
                                     <a href="/profil/<?= (int)$ride['driver_id'] ?>" title="Voir le profil du conducteur">
                                         <img src="<?= htmlspecialchars($avatar) ?>" alt="Avatar conducteur" class="avatar rounded-circle" style="width:48px;height:48px;object-fit:cover;" onerror="this.onerror=null;this.src='<?= defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg' ?>';">
                                     </a>
@@ -173,6 +185,7 @@
                                                 <li>Places dispo : <?= (int)$ride['vehicle_places'] ?></li>
                                             <?php endif; ?>
                                             <?php
+                                            // Construit la liste des préférences du véhicule (liste + texte libre)
                                             $prefs = [];
                                             if (!empty($ride['vehicle_preferences'])) {
                                                 $prefs = array_filter(array_map('trim', explode(',', (string)$ride['vehicle_preferences'])));
@@ -193,6 +206,7 @@
                                     </a>
                                     <div>
                                         <?php
+                                        // Quelques drapeaux pratiques sur l'état du trajet et de l'utilisateur
                                         $isLogged = isset($_SESSION['user']);
                                         $isDriver = $isLogged && ((int)$ride['driver_id'] === (int)$_SESSION['user']['id']);
                                         $placesRestantes = isset($ride['places_restantes'])
@@ -206,6 +220,7 @@
                                         ?>
 
                                         <?php if (!$isLogged): ?>
+                                            <!-- Non connecté : on propose d'ouvrir la modale de connexion -->
                                             <button type="button" class="btn btn-inscription" data-bs-toggle="modal" data-bs-target="#authModal" data-start="login">Se connecter pour participer</button>
                                         <?php elseif ($isDriver): ?>
                                             <button class="btn btn-secondary" disabled>Vous êtes le conducteur</button>
@@ -214,6 +229,7 @@
                                         <?php elseif ($placesRestantes <= 0): ?>
                                             <button class="btn btn-secondary" disabled>Complet</button>
                                         <?php elseif (!empty($ride['has_my_participation']) && (int)$ride['has_my_participation'] === 1): ?>
+                                            <!-- L'utilisateur a déjà une participation associée à ce trajet -->
                                             <?php $status = (string)($ride['my_participation_status'] ?? ''); ?>
                                             <?php if ($status === 'confirmee'): ?>
                                                 <button class="btn btn-secondary" disabled>Participation confirmée</button>
@@ -235,6 +251,7 @@
                                             <?php elseif ($myCredits < $cost): ?>
                                                 <a class="btn btn-secondary" href="/mes-credits" title="Solde: <?= (int)$myCredits ?>">Crédits insuffisants (<?= (int)$cost ?>)</a>
                                             <?php else: ?>
+                                                <!-- Formulaire de participation : un clic enverra une demande de réservation -->
                                                 <form action="/participations/create" method="POST" class="d-inline js-confirm"
                                                     data-confirm-steps="2"
                                                     data-confirm-text="Confirmer la participation ?"
@@ -253,6 +270,7 @@
                     <?php endforeach; ?>
                 <?php else: ?>
                     <div class="col">
+                        <!-- Message affiché lorsqu'aucun résultat ne correspond aux critères -->
                         <div class="alert alert-info">Aucun covoiturage trouvé. Essayez d'élargir votre recherche.</div>
                     </div>
                 <?php endif; ?>
