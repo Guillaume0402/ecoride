@@ -10,6 +10,9 @@ SET time_zone = "+00:00";
 ;
 
 -- Base de données : `ecoride`
+CREATE DATABASE IF NOT EXISTS `ecoride`;
+USE `ecoride`;
+
 
 -- roles
 CREATE TABLE IF NOT EXISTS `roles` (

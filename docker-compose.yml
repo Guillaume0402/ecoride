@@ -30,7 +30,7 @@ services:
       - "3307:3306"  # Port 3307 pour éviter conflits avec WAMP
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./docker/mysql/initdb:/docker-entrypoint-initdb.d:ro
     networks:
       - ecoride_network
 

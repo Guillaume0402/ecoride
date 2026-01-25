@@ -35,6 +35,7 @@ vendor/
 
 /public/uploads/*
 
+docs/
 recap.md
 secu.md
 sql.md

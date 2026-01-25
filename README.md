@@ -39,13 +39,26 @@ docker compose up -d --build
 
 Services et URLs:
 
--   Application (Apache + PHP 8.2): http://localhost:8080
+-   Application (Apache + PHP): http://localhost:8080
 -   MySQL 8: port hôte 3307 (3306 à l’intérieur du réseau Docker)
 -   phpMyAdmin: http://localhost:8081 (serveur: `db`, user: `ecoride_user`, pass: `ecoride_password`)
 -   MongoDB (optionnel): port 27017
 -   Mongo Express (optionnel): http://localhost:8082 (basic auth: admin / admin)
 
-La base MySQL est initialisée automatiquement au premier démarrage via `init.sql` (tables et données de référence).
+La base est initialisée automatiquement uniquement si le volume MySQL est vide (premier démarrage ou après reset).
+
+### Réinitialiser la base (rejouer init + seed MySQL)
+
+(Recommandé avant une démonstration/soutenance pour repartir sur des données cohérentes.)
+
+Attention : `-v` supprime le volume MySQL et efface les données locales.
+
+```bash
+docker compose down -v
+docker compose up -d --build
+```
+
+Les scripts exécutés sont ceux montés dans `/docker-entrypoint-initdb.d` (ex: `01_init.sql`, `02_seed_demo.sql`).
 
 ## 4 Dépendances PHP (si besoin)
 
@@ -66,22 +79,23 @@ Vous pouvez aussi utiliser Composer en local si vous avez PHP/Composer sur votre
     -   mot de passe: `ecoride_password`
 -   Mongo Express: http://localhost:8082 (si Mongo est lancé)
 
-## 6 Comptes de test (si présents)
+## 6 Comptes de démonstration (seed)
 
--   Employé: employe@example.com / Employe!234
--   Utilisateur: user@example.com / User!234
+Ces comptes sont injectés si la base a été initialisée via `02_seed_demo.sql` (voir reset ci-dessus).
+
+-   Admin: admin@ecoride.local / EcoRide!234
+-   Employé: employee@ecoride.local / EcoRide!234
+-   Utilisateur: user@ecoride.local / EcoRide!234
 
 Sinon, créez un compte via l’UI. Sans SMTP en local, les mails (confirmation, etc.) sont consignés dans `/tmp/ecoride-mail.log`.
 
 ## 7 Données de démo (optionnel)
 
--   Démo modération (Mongo):
+-   Démo modération (Mongo) — nécessite que le service Mongo soit lancé :
 
 ```bash
 docker compose exec web php scripts/seed_mongo.php
 ```
-
--   SQL « trajet terminé »: importez `scripts/seed_finished_trip.sql` dans MySQL (via phpMyAdmin). Éditez les IDs si nécessaire.
 
 ## 8 Assets SCSS (optionnel)
 
@@ -105,7 +119,7 @@ Le CSS généré est écrit dans `public/assets/css/style.css`.
 -   Conflit MySQL local: ce projet expose MySQL sur le port hôte 3307 pour éviter les conflits (ex: WAMP/XAMPP).
 -   Variables d’env.: `.env.local` est chargé par l’app (phpdotenv). Docker fournit aussi des valeurs par défaut compatibles.
 -   E‑mails en local: sans SMTP, pas d’envoi; vérifiez `/tmp/ecoride-mail.log` dans le conteneur web.
--   Réinitialiser MySQL: stoppez Docker, supprimez le volume `mysql_data` pour repartir de zéro (cela efface les données locales).
+-   Réinitialiser MySQL (efface les données locales) : voir la commande `docker compose down -v` ci-dessus.
 
 ## Références (documentation)
 
