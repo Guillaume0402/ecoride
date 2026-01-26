@@ -206,8 +206,8 @@ return [
     // Liste publique des covoiturages disponibles
     '/liste-covoiturages' => [
         'GET' => [
-            'controller' => 'App\\Controller\\PageController',
-            'action' => 'listeCovoiturages'
+            'controller' => 'App\\Controller\\CovoituragePageController',
+            'action' => 'index'
         ]
     ],
     // Page de contact (formulaire ou informations)
