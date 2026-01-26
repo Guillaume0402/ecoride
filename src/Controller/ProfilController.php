@@ -8,6 +8,7 @@ use App\Repository\VehicleRepository;
 use App\Repository\UserRepository;
 use MongoDB\Client;
 use MongoDB\Model\BSONDocument;
+use App\Repository\TransactionRepository;
 
 
 class ProfilController extends Controller
@@ -204,5 +205,23 @@ class ProfilController extends Controller
         $ok   = move_uploaded_file($file['tmp_name'], $dir . $name);
 
         return $ok ? '/uploads/' . $name : null;
+    }
+    // GET /mes-credits
+    public function mesCredits(): void
+    {
+        $user = $_SESSION['user'];
+
+        $transactions = [];
+        try {
+            $txRepo = new TransactionRepository();
+            $transactions = $txRepo->findByUserId((int)$user['id'], 50);
+        } catch (\Throwable $e) {
+            error_log('[mesCredits] transactions load failed: ' . $e->getMessage());
+        }
+
+        $this->render('pages/mes-credits', [
+            'user' => $user,
+            'transactions' => $transactions,
+        ]);
     }
 }

@@ -231,7 +231,7 @@ return [
     // Page de consultation des crédits de l'utilisateur
     '/mes-credits' => [
         'GET' => [
-            'controller' => 'App\\Controller\\PageController',
+            'controller' => 'App\\Controller\\ProfilController',
             'action' => 'mesCredits'
         ]
     ],

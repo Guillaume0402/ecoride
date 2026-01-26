@@ -274,29 +274,7 @@ class PageController extends Controller
             'vehicles' => $vehicles,
             'reviews' => $reviews,
         ]);
-    }
-
-    // Page dédiée aux crédits: liste des transactions récentes
-    public function mesCredits(): void
-    {
-        if (!isset($_SESSION['user'])) {
-            redirect('/login');
-        }
-
-        $user = $_SESSION['user'];
-        $transactions = [];
-        try {
-            $txRepo = new \App\Repository\TransactionRepository();
-            $transactions = $txRepo->findByUserId((int)$user['id'], 50);
-        } catch (\Throwable $e) {
-            error_log('[mesCredits] transactions load failed: ' . $e->getMessage());
-        }
-
-        $this->render('pages/mes-credits', [
-            'user' => $user,
-            'transactions' => $transactions,
-        ]);
-    }
+    }    
 
     // Page "À propos".
     public function about(): void
