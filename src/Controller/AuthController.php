@@ -183,7 +183,8 @@ class AuthController extends Controller
     // API logout JSON: détruit la session et renvoie success
     public function apiLogout(): void
     {
-        session_destroy();
+        unset($_SESSION['user']);       // déconnecte l’utilisateur
+        session_regenerate_id(true);    // hygiène (anti fixation)
         $this->json(['success' => true]);
     }
 
