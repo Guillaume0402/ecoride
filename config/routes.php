@@ -60,8 +60,8 @@ return [
     // Profil public d'un utilisateur (lecture seule, accessible par id)
     '/profil/{id}' => [
         'GET' => [
-            'controller' => 'App\\Controller\\PageController',
-            'action' => 'showUserProfil'
+            'controller' => 'App\\Controller\\PublicProfileController',
+            'action' => 'show'
         ]
     ],
     // Création ou mise à jour d'un profil utilisateur
