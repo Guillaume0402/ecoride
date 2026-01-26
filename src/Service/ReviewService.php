@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use MongoDB\Client;
+use MongoDB\Model\BSONDocument;
 
 class ReviewService
 {
@@ -16,6 +17,65 @@ class ReviewService
         $this->dbName = $dbName ?? ($_ENV['MONGO_DB'] ?? 'ecoride');
         $this->collection = $collection ?? 'reviews';
         $this->client = new Client($dsn);
+    }
+    // Convertit un doc Mongo en tableau PHP (même logique que ReviewModerationService)
+    private function normalizeDoc($doc): array
+    {
+        if ($doc instanceof BSONDocument) {
+            $doc = $doc->getArrayCopy();
+        } elseif (is_object($doc)) {
+            $doc = json_decode(json_encode($doc), true) ?? [];
+        } elseif (!is_array($doc)) {
+            $doc = [];
+        }
+
+        if (!isset($doc['id'])) {
+            $doc['id'] = isset($doc['doc_id']) ? (string)$doc['doc_id'] : (string)($doc['_id'] ?? '');
+        }
+        return $doc;
+    }
+
+    // Récupère les avis approuvés d’un conducteur
+    public function getApprovedDriverReviews(int $driverId, int $limit = 100): array
+    {
+        $coll = $this->client->selectCollection($this->dbName, $this->collection);
+
+        $cursor = $coll->find([
+            'kind' => 'review',
+            'status' => 'approved',
+            'driver_id' => $driverId,
+        ], [
+            'sort' => ['created_at_ms' => -1],
+            'limit' => $limit,
+        ]);
+
+        $out = [];
+        foreach ($cursor as $doc) {
+            $out[] = $this->normalizeDoc($doc);
+        }
+        return $out;
+    }
+
+    // Calcule moyenne + nb avis (sur les docs fournis)
+    public function getDriverRatingStats(array $reviews): array
+    {
+        $sum = 0;
+        $cnt = 0;
+
+        foreach ($reviews as $r) {
+            if (isset($r['rating']) && is_numeric($r['rating'])) {
+                $v = (int)$r['rating'];
+                if ($v >= 1 && $v <= 5) {
+                    $sum += $v;
+                    $cnt++;
+                }
+            }
+        }
+
+        return [
+            'avg' => $cnt > 0 ? round($sum / $cnt, 1) : 0.0,
+            'count' => count($reviews),
+        ];
     }
 
     /**

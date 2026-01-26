@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Repository\UserRepository;
 use App\Repository\VehicleRepository;
+use App\Service\ReviewService;
+
 
 class PublicProfileController extends Controller
 {
@@ -41,23 +43,12 @@ class PublicProfileController extends Controller
         // Avis approuvés (reviews) pour ce conducteur
         $reviews = [];
         try {
-            $coll = (new \MongoDB\Client($_ENV['MONGO_DSN'] ?? ($_ENV['MONGODB_URI'] ?? 'mongodb://mongo:27017')))
-                ->selectCollection($_ENV['MONGO_DB'] ?? 'ecoride', 'reviews');
-
-            $cursor = $coll->find(
-                ['kind' => 'review', 'status' => 'approved', 'driver_id' => (int)$id],
-                ['sort' => ['created_at_ms' => -1]]
-            );
-
-            foreach ($cursor as $doc) {
-                if ($doc instanceof \MongoDB\Model\BSONDocument) {
-                    $doc = $doc->getArrayCopy();
-                }
-                $reviews[] = $doc;
-            }
+            $svc = new ReviewService();
+            $reviews = $svc->getApprovedDriverReviews((int)$id, 100);
         } catch (\Throwable $e) {
             // pas bloquant
         }
+
 
         $this->render('pages/profil-public', [
             'profileUser' => $user,
