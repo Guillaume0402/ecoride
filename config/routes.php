@@ -217,8 +217,8 @@ return [
             'action' => 'contact'
         ],
         'POST' => [
-            'controller' => 'App\\Controller\\PageController',
-            'action' => 'contactSend'
+            'controller' => 'App\\Controller\\ContactController',
+            'action' => 'send'
         ],
     ],
     // Liste des covoiturages créés ou réservés par l'utilisateur
