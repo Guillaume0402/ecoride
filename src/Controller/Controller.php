@@ -40,7 +40,7 @@ class Controller
 
         // Variables globales du layout (navbar, badges, etc.)
         $globals = $this->buildLayoutGlobals();
-        extract($globals);
+        extract($globals, EXTR_SKIP);
 
         // Construit le chemin absolu de la vue et vérifie son existence
         $viewPath = APP_ROOT . '/src/View/' . ltrim($view, '/') . '.php';
@@ -56,6 +56,7 @@ class Controller
         // Inclut le layout qui utilise $content pour afficher la page complète
         require APP_ROOT . '/src/View/layout.php';
     }
+
     private function buildLayoutGlobals(): array
     {
         $pendingCount = 0;
