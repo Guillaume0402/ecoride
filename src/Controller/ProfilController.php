@@ -8,7 +8,10 @@ use App\Repository\VehicleRepository;
 use App\Repository\UserRepository;
 use MongoDB\Client;
 use MongoDB\Model\BSONDocument;
+use App\Repository\CovoiturageRepository;
+use App\Repository\ParticipationRepository;
 use App\Repository\TransactionRepository;
+use App\Service\MaintenanceService;
 
 
 class ProfilController extends Controller
@@ -241,6 +244,118 @@ class ProfilController extends Controller
         $this->render('pages/mes-credits', [
             'user' => $user,
             'transactions' => $transactions,
+        ]);
+    }
+    // GET /mes-covoiturages
+    public function mesCovoiturages(): void
+    {
+        // Balayage léger de maintenance (annulations auto + rattrapage remboursements)
+        try {
+            (new MaintenanceService())->sweep();
+        } catch (\Throwable $e) {
+            error_log('[mesCovoiturages maintenance sweep] ' . $e->getMessage());
+        }
+
+        $userId = (int) $_SESSION['user']['id'];
+
+        $covoitRepo = new CovoiturageRepository();
+        $partRepo   = new ParticipationRepository();
+
+        $asDriverAll    = $covoitRepo->findByDriverId($userId);
+        $asPassengerAll = $partRepo->findByPassagerId($userId);
+
+        // Filtrage: aligner avec le header
+        $now = new \DateTime();
+        $graceMinutes = defined('AUTO_CANCEL_MINUTES') ? (int) AUTO_CANCEL_MINUTES : 60;
+
+        $asDriver = array_values(array_filter($asDriverAll, function ($c) use ($now, $graceMinutes) {
+            try {
+                $depart = new \DateTime($c['depart']);
+            } catch (\Throwable $e) {
+                return false;
+            }
+
+            $status = (string)($c['status'] ?? 'en_attente');
+
+            if ($status === 'demarre') {
+                return true;
+            }
+
+            $graceThreshold = (clone $depart)->modify("+{$graceMinutes} minutes");
+            return ($depart >= $now || $graceThreshold >= $now) && !in_array($status, ['annule', 'termine'], true);
+        }));
+
+        $asPassenger = array_values(array_filter($asPassengerAll, function ($p) use ($now) {
+            $status  = (string)($p['status'] ?? '');
+            $cStatus = (string)($p['covoit_status'] ?? 'en_attente');
+
+            $isUpcoming = false;
+            try {
+                $isUpcoming = (new \DateTime($p['depart'])) >= $now;
+            } catch (\Throwable $e) {
+            }
+
+            return in_array($status, ['en_attente_validation', 'confirmee'], true)
+                && $isUpcoming
+                && !in_array($cStatus, ['annule', 'termine'], true);
+        }));
+
+        // Historique
+        $historyDriver = array_values(array_filter($asDriverAll, function ($c) use ($now, $graceMinutes) {
+            try {
+                $depart = new \DateTime($c['depart']);
+            } catch (\Throwable $e) {
+                return false;
+            }
+
+            $status = (string)($c['status'] ?? 'en_attente');
+
+            if (in_array($status, ['annule', 'termine'], true)) {
+                return true;
+            }
+
+            $graceThreshold = (clone $depart)->modify("+{$graceMinutes} minutes");
+            return $graceThreshold < $now && $status !== 'demarre';
+        }));
+
+        $historyPassenger = array_values(array_filter($asPassengerAll, function ($p) use ($now) {
+            $status  = (string)($p['status'] ?? '');
+            $cStatus = (string)($p['covoit_status'] ?? 'en_attente');
+
+            $isPast = false;
+            try {
+                $isPast = (new \DateTime($p['depart'])) < $now;
+            } catch (\Throwable $e) {
+            }
+
+            $isActiveParticipation = in_array($status, ['en_attente_validation', 'confirmee'], true);
+            $isActiveRide          = !in_array($cStatus, ['annule', 'termine'], true);
+
+            return !$isActiveParticipation || !$isActiveRide || $isPast;
+        }));
+
+        // Compte des validations en attente
+        $pendingValidations = 0;
+        $txRepo = new TransactionRepository();
+
+        foreach ($asPassengerAll as $p) {
+            if (($p['status'] ?? '') === 'confirmee' && ($p['covoit_status'] ?? '') === 'termine') {
+                $driverId = (int)($p['driver_user_id'] ?? 0);
+                $covoiturageId = (int)($p['covoiturage_id'] ?? 0);
+                $motif = 'Crédit conducteur trajet #' . $covoiturageId . ' - passager #' . $userId;
+
+                if (!$txRepo->existsForMotif($driverId, $motif)) {
+                    $pendingValidations++;
+                }
+            }
+        }
+
+        $this->render('pages/mes-covoiturages', [
+            'asDriver' => $asDriver,
+            'asPassenger' => $asPassenger,
+            'historyDriver' => $historyDriver,
+            'historyPassenger' => $historyPassenger,
+            'pendingValidations' => $pendingValidations,
         ]);
     }
 }

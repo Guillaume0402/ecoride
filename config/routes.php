@@ -224,7 +224,7 @@ return [
     // Liste des covoiturages créés ou réservés par l'utilisateur
     '/mes-covoiturages' => [
         'GET' => [
-            'controller' => 'App\\Controller\\PageController',
+            'controller' => 'App\\Controller\\ProfilController',
             'action' => 'mesCovoiturages'
         ]
     ],
