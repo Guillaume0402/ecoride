@@ -90,30 +90,7 @@ class PageController extends Controller
             'pageTitle' => 'Covoiturages',
             'metaDescription' => 'Parcourez les annonces de covoiturage EcoRide et trouvez un conducteur ou un passager correspondant à vos critères.',
         ]);
-    }
-
-
-    // Page de création/édition du profil (protégée), précharge le véhicule
-    public function creationProfil(): void
-    {
-        if (!isset($_SESSION['user'])) {
-            $_SESSION['error'] = 'Vous devez être connecté pour accéder à cette page.';
-            redirect('/login');
-        }
-
-        $user = $_SESSION['user'];
-
-        $vehicleEntity = !empty($_GET['id'])
-            ? $this->vehicleRepository->findById((int) $_GET['id'])
-            : $this->vehicleRepository->findByUserId($user['id']);
-
-        $vehicle = $vehicleEntity ? $vehicleEntity->toArray() : null;
-
-        $this->render('pages/creation-profil', [
-            'user' => $user,
-            'vehicle' => $vehicle,
-        ]);
-    }
+    }   
 
     // Page listant les covoiturages de l'utilisateur courant.
     public function mesCovoiturages(): void
