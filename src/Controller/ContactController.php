@@ -17,12 +17,13 @@ class ContactController extends Controller
     {
         // Sécurité basique
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            abort(405, 'Méthode HTTP non autorisée.');
+            abort(405, 'Méthode HTTP non autorisée.');            
         }
 
         if (!Csrf::check($_POST['csrf'] ?? null)) {
             Flash::add('Requête invalide (CSRF).', 'danger');
             redirect('/contact');
+            return;
         }
 
         $name    = trim((string)($_POST['name'] ?? ''));
@@ -33,6 +34,7 @@ class ContactController extends Controller
         if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($message) < 10) {
             Flash::add('Formulaire invalide (vérifie ton email et ton message).', 'danger');
             redirect('/contact');
+            return;
         }
 
         $to = (string)($_ENV['CONTACT_TO'] ?? '');
@@ -40,6 +42,7 @@ class ContactController extends Controller
             error_log('[contact] CONTACT_TO manquant');
             Flash::add('Configuration email manquante (CONTACT_TO).', 'danger');
             redirect('/contact');
+            return;
         }
 
         $mailSubject = 'Contact EcoRide' . ($subject !== '' ? ' — ' . $subject : '');
@@ -61,6 +64,8 @@ class ContactController extends Controller
         } catch (\Throwable $e) {
             error_log('[contact] ' . $e->getMessage());
             Flash::add("Oups, l’envoi a échoué. Réessaie dans quelques minutes.", 'danger');
+            redirect('/contact');
+            return;
         }
 
         redirect('/contact');
