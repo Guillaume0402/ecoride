@@ -1,9 +1,10 @@
 /*
-Module: Auth Modal
-Rôle: Gérer l’interface de connexion/inscription (onglets, validation, force du mot de passe, redirections) et la déconnexion.
-Utilisation: Boutons avec data-bs-target="#authModal" pour ouvrir la modale.
+Module: Auth Modal (version simplifiée DWWM)
+Rôle: onglets, submit AJAX (login/register), affichage messages, redirection, logout.
+Sécurité: CSRF envoyé via header X-CSRF-Token (si présent) + cookies session same-origin.
 */
-// Fonction pour afficher les messages d'erreur/succès dans la modale
+
+// --- UI helpers ---
 function showAlert(message, type = "danger") {
     const modalAlert = document.querySelector("#authModal #authAlert");
     if (!modalAlert) return;
@@ -12,12 +13,9 @@ function showAlert(message, type = "danger") {
     modalAlert.textContent = message;
     modalAlert.classList.remove("d-none");
 
-    setTimeout(() => {
-        modalAlert.classList.add("d-none");
-    }, 5000);
+    setTimeout(() => modalAlert.classList.add("d-none"), 5000);
 }
 
-// Fonction pour afficher des alertes globales (hors modal)
 function showGlobalAlert(message, type = "success") {
     const stack = document.getElementById("alerts");
     if (!stack) return;
@@ -28,37 +26,30 @@ function showGlobalAlert(message, type = "success") {
 
     stack.appendChild(el);
 
-    // Auto fermeture comme tes flash PHP
     setTimeout(() => el.classList.add("fade-out"), 3500);
     setTimeout(() => el.remove(), 4300);
 }
 
-// Fonction pour masquer le message d'alerte de la modale
 function hideAlert() {
     const alertDiv = document.getElementById("authAlert");
+    if (!alertDiv) return;
     alertDiv.classList.add("d-none");
 }
 
-// Fonction pour gérer l'état "chargement" d'un formulaire (désactive le bouton et affiche un spinner)
 function setLoading(form, isLoading) {
-    const button = form.querySelector('button[type="submit"]');
+    const button = form?.querySelector('button[type="submit"]');
+    if (!button) return;
+
     const btnText = button.querySelector(".btn-text");
     const spinner = button.querySelector(".spinner-border");
 
-    if (isLoading) {
-        button.disabled = true;
-        btnText.classList.add("d-none");
-        spinner.classList.remove("d-none");
-    } else {
-        button.disabled = false;
-        btnText.classList.remove("d-none");
-        spinner.classList.add("d-none");
-    }
+    button.disabled = !!isLoading;
+    if (btnText) btnText.classList.toggle("d-none", !!isLoading);
+    if (spinner) spinner.classList.toggle("d-none", !isLoading);
 }
 
-// Fonction pour changer d'onglet (connexion/inscription)
 function setActiveTab(tab) {
-    hideAlert(); // Masquer les alertes lors du changement d'onglet
+    hideAlert();
 
     const loginForm = document.getElementById("loginForm");
     const registerForm = document.getElementById("registerForm");
@@ -66,31 +57,24 @@ function setActiveTab(tab) {
     const showRegister = document.getElementById("showRegister");
     const title = document.getElementById("authModalLabel");
 
-    if (tab === "login") {
-        loginForm.classList.remove("d-none");
-        registerForm.classList.add("d-none");
-        showLogin.classList.add("active-tab");
-        showRegister.classList.remove("active-tab");
-        title.innerText = "Connexion";
-    } else {
-        registerForm.classList.remove("d-none");
-        loginForm.classList.add("d-none");
-        showRegister.classList.add("active-tab");
-        showLogin.classList.remove("active-tab");
-        title.innerText = "Inscription";
-    }
+    if (!loginForm || !registerForm || !showLogin || !showRegister || !title) return;
+
+    const isLogin = tab === "login";
+
+    loginForm.classList.toggle("d-none", !isLogin);
+    registerForm.classList.toggle("d-none", isLogin);
+
+    showLogin.classList.toggle("active-tab", isLogin);
+    showRegister.classList.toggle("active-tab", !isLogin);
+
+    title.innerText = isLogin ? "Connexion" : "Inscription";
 }
 
-// Fonction générique pour gérer l'authentification (connexion/inscription)
-// - envoie les données en JSON à l'API
-// - gère l'affichage des messages
-// - applique la redirection ou le changement d'onglet en cas de succès
-async function handleAuth(endpoint, formData) {
-    // récupère le token si présent (loginForm)
-    // Récupère le token CSRF si présent (protège contre les attaques CSRF)
+// --- API call (login/register) ---
+async function handleAuth(endpoint, formDataObj) {
     const csrf =
-        formData.csrf || document.querySelector('input[name="csrf"]')?.value;
-    // URL de redirection par défaut : la page actuelle
+        formDataObj.csrf || document.querySelector('input[name="csrf"]')?.value;
+
     const fallbackRedirect = (() => {
         try {
             return window.location.pathname + window.location.search;
@@ -98,78 +82,65 @@ async function handleAuth(endpoint, formData) {
             return "/";
         }
     })();
-    // Inclure une cible de redirection si fournie par le formulaire, sinon l’URL courante
-    if (!formData.redirect) {
-        formData.redirect = fallbackRedirect;
+
+    // si pas de redirect dans le form, on met la page courante
+    if (!formDataObj.redirect) {
+        formDataObj.redirect = fallbackRedirect;
     }
+
     try {
-        // Appel à l'API d'authentification correspondante (login ou register)
         const response = await fetch(`/api/auth/${endpoint}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 ...(csrf ? { "X-CSRF-Token": csrf } : {}),
             },
-            // Important: inclure les cookies de session pour SameSite Lax
             credentials: "same-origin",
-            body: JSON.stringify(formData),
+            body: JSON.stringify(formDataObj),
         });
 
-        // On suppose que l'API renvoie du JSON { success: bool, message: string, redirect?: string }
         const data = await response.json();
 
-        if (data.success) {
-            // Désactiver tous les champs du formulaire courant
-            const currentForm =
-                endpoint === "login"
-                    ? document.getElementById("loginForm")
-                    : document.getElementById("registerForm");
-            // Désactive tous les champs et boutons du formulaire pour éviter les double-clics
-            Array.from(currentForm.elements).forEach(
-                (el) => (el.disabled = true)
-            );
-            // Optionnel : désactiver les interactions et réduire l'opacité
-            currentForm.style.pointerEvents = "none";
-            currentForm.style.opacity = 0.7; // (optionnel, visuel)
-
-            showAlert(data.message, "success");
-
-            // Cas connexion : après un petit délai, on redirige l'utilisateur
-            if (endpoint === "login") {
-                setTimeout(() => {
-                    const to =
-                        data.redirect ||
-                        formData.redirect ||
-                        fallbackRedirect ||
-                        "/";
-                    if (to) {
-                        window.location.href = to;
-                    } else {
-                        window.location.reload();
-                    }
-                }, 1500);
-            // Cas inscription : on repasse sur l'onglet login et on pré-remplit l'email
-            } else if (endpoint === "register") {
-                setTimeout(() => {
-                    setActiveTab("login");
-                    // Pré-remplir l'email dans le formulaire de connexion
-                    document.getElementById("emailLogin").value =
-                        formData.email;
-                }, 1500);
-            }
-            return true; // <-- Retourne true si succès
-        } else {
-            showAlert(data.message, "danger");
-            return false; // <-- Retourne false si erreur serveur/app
+        if (!data?.success) {
+            showAlert(data?.message || "Erreur.", "danger");
+            return { ok: false };
         }
-    } catch (error) {
+
+        showAlert(data.message || "Succès.", "success");
+
+        if (endpoint === "login") {
+            setTimeout(() => {
+                const to = data.redirect || formDataObj.redirect || fallbackRedirect || "/";
+                window.location.href = to;
+            }, 800);
+        } else {
+            // register
+            setTimeout(() => {
+                setActiveTab("login");
+                const emailLogin = document.getElementById("emailLogin");
+                if (emailLogin && formDataObj.email) emailLogin.value = formDataObj.email;
+            }, 800);
+        }
+
+        return { ok: true, data };
+    } catch (err) {
+        console.error(err);
         showAlert("Erreur de connexion au serveur", "danger");
-        console.error("Erreur:", error);
-        return false; // <-- Retourne false si erreur réseau/JS
+        return { ok: false };
     }
 }
 
-// Tout le code qui touche au DOM est exécuté après le chargement de la page
+// --- Minimal validation helpers (simple + jury-friendly) ---
+function formToObject(form) {
+    return Object.fromEntries(new FormData(form));
+}
+
+function focusFirstInvalid(form) {
+    const first = form.querySelector(":invalid");
+    if (first) first.focus();
+}
+
+// --- DOM init ---
 document.addEventListener("DOMContentLoaded", () => {
     const authModal = document.getElementById("authModal");
     const showLogin = document.getElementById("showLogin");
@@ -177,346 +148,100 @@ document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("loginForm");
     const registerForm = document.getElementById("registerForm");
 
-    // Gestionnaires pour les boutons de changement d'onglet (Connexion / Inscription)
-    showLogin.addEventListener("click", () => setActiveTab("login"));
-    showRegister.addEventListener("click", () => setActiveTab("register"));
+    if (!authModal || !loginForm || !registerForm) return;
 
-    // Helpers pour la validation visuelle des champs (affiche/retire la classe .is-invalid)
-    const setInvalid = (input, message) => {
-        input.classList.add("is-invalid");
-        const fb = input.parentElement.querySelector(".invalid-feedback");
-        if (fb && message) fb.textContent = message;
-    };
-    const setValid = (input) => {
-        input.classList.remove("is-invalid");
-    };
+    // Tabs
+    showLogin?.addEventListener("click", () => setActiveTab("login"));
+    showRegister?.addEventListener("click", () => setActiveTab("register"));
 
-    // Règles de validation registration
-    // Règle de complexité du mot de passe (minuscule, majuscule, chiffre, caractère spécial, pas d'espace)
-    const passwordRegex =
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])(?!.*\s).+$/;
-    // Validation champ par champ pour le formulaire d'inscription
-    const validateRegisterField = (input) => {
-        const id = input.id;
-        const val = input.value.trim();
-        if (id === "username") {
-            if (val.length < 3)
-                return (
-                    setInvalid(
-                        input,
-                        "Veuillez renseigner un pseudo (3 caractères minimum)."
-                    ),
-                    false
-                );
-            return setValid(input), true;
-        }
-        if (id === "emailRegister") {
-            if (!input.checkValidity())
-                return (
-                    setInvalid(
-                        input,
-                        "Veuillez entrer une adresse email valide."
-                    ),
-                    false
-                );
-            return setValid(input), true;
-        }
-        if (id === "passwordRegister") {
-            if (val.length < 12 || !passwordRegex.test(val))
-                return (
-                    setInvalid(
-                        input,
-                        "Votre mot de passe ne respecte pas les règles de sécurité."
-                    ),
-                    false
-                );
-            return setValid(input), true;
-        }
-        if (id === "confirmPassword") {
-            const pwd = document.getElementById("passwordRegister").value;
-            if (val !== pwd)
-                return (
-                    setInvalid(
-                        input,
-                        "Les mots de passe ne correspondent pas."
-                    ),
-                    false
-                );
-            return setValid(input), true;
-        }
-        return true;
-    };
-
-    // Validation champ par champ pour le formulaire de connexion
-    const validateLoginField = (input) => {
-        const id = input.id;
-        if (id === "emailLogin") {
-            if (!input.checkValidity())
-                return (
-                    setInvalid(
-                        input,
-                        "Veuillez entrer une adresse email valide."
-                    ),
-                    false
-                );
-            return setValid(input), true;
-        }
-        if (id === "passwordLogin") {
-            if (!input.value)
-                return (
-                    setInvalid(input, "Veuillez saisir votre mot de passe."),
-                    false
-                );
-            return setValid(input), true;
-        }
-        return true;
-    };
-
-    // Ajoute la validation "en direct" (input + blur) sur tous les champs du formulaire
-    const attachLiveValidation = (form, validator) => {
-        form.querySelectorAll("input").forEach((input) => {
-            input.addEventListener("input", () => validator(input));
-            input.addEventListener("blur", () => validator(input));
-        });
-    };
-
-    attachLiveValidation(registerForm, validateRegisterField);
-    attachLiveValidation(loginForm, validateLoginField);
-
-    // Gestion de la jauge de robustesse du mot de passe et des critères détaillés
-    const pwdInput = document.getElementById("passwordRegister");
-    const strengthBar = document.getElementById("passwordStrengthBar");
-    const strengthText = document.getElementById("passwordStrengthText");
-
-    // Calcule un score simple de robustesse de mot de passe (0 à 100)
-    const computeStrength = (pwd) => {
-        let score = 0;
-        if (pwd.length >= 12) score += 25;
-        if (/[a-z]/.test(pwd)) score += 15;
-        if (/[A-Z]/.test(pwd)) score += 15;
-        if (/\d/.test(pwd)) score += 15;
-        if (/[^\w\s]/.test(pwd)) score += 20;
-        if (pwd.length >= 16) score += 10;
-        return Math.min(score, 100);
-    };
-
-    // Met à jour l'affichage de la barre et du texte de robustesse
-    const updateStrengthUI = (score) => {
-        if (!strengthBar || !strengthText) return;
-        strengthBar.style.width = `${score}%`;
-        strengthBar.setAttribute("aria-valuenow", String(score));
-        let label = "très faible",
-            cls = "bg-danger";
-        if (score >= 25) (label = "faible"), (cls = "bg-danger");
-        if (score >= 50) (label = "moyenne"), (cls = "bg-warning");
-        if (score >= 75) (label = "bonne"), (cls = "bg-success");
-        if (score >= 90) (label = "excellente"), (cls = "bg-success");
-        strengthBar.className = `progress-bar ${cls}`;
-        strengthText.textContent = `Robustesse : ${label}`;
-    };
-
-    if (pwdInput) {
-        updateStrengthUI(0);
-        // Éléments de la liste des critères (longueur, majuscules, etc.)
-        const criteriaEls = {
-            len: document.querySelector('.password-criteria [data-crit="len"]'),
-            lower: document.querySelector(
-                '.password-criteria [data-crit="lower"]'
-            ),
-            upper: document.querySelector(
-                '.password-criteria [data-crit="upper"]'
-            ),
-            digit: document.querySelector(
-                '.password-criteria [data-crit="digit"]'
-            ),
-            special: document.querySelector(
-                '.password-criteria [data-crit="special"]'
-            ),
-            space: document.querySelector(
-                '.password-criteria [data-crit="space"]'
-            ),
-        };
-        const criteriaList = document.querySelector(".password-criteria");
-
-        // Met à jour l'état visuel de chaque critère en fonction du mot de passe saisi
-        const updateCriteria = (pwd) => {
-            const hasLower = /[a-z]/.test(pwd);
-            const hasUpper = /[A-Z]/.test(pwd);
-            const hasDigit = /\d/.test(pwd);
-            const hasSpecial = /[^\w\s]/.test(pwd);
-            const hasLen = pwd.length >= 12;
-            const hasNoSpace = !/\s/.test(pwd);
-
-            criteriaEls.lower &&
-                criteriaEls.lower.classList.toggle("ok", hasLower);
-            criteriaEls.upper &&
-                criteriaEls.upper.classList.toggle("ok", hasUpper);
-            criteriaEls.digit &&
-                criteriaEls.digit.classList.toggle("ok", hasDigit);
-            criteriaEls.special &&
-                criteriaEls.special.classList.toggle("ok", hasSpecial);
-            criteriaEls.len && criteriaEls.len.classList.toggle("ok", hasLen);
-            if (criteriaEls.space) {
-                criteriaEls.space.classList.toggle("ok", hasNoSpace);
-                criteriaEls.space.classList.toggle("bad", !hasNoSpace);
-            }
-        };
-
-        pwdInput.addEventListener("input", () => {
-            const pwd = pwdInput.value;
-            updateStrengthUI(computeStrength(pwd));
-            updateCriteria(pwd);
-            // ne pas auto-afficher/masquer: contrôlé via .toggle-criteria
-        });
-    }
-
-    // Boutons pour afficher/masquer les mots de passe (œil / œil barré)
-    document.querySelectorAll(".toggle-password").forEach((btn) => {
-        btn.addEventListener("click", () => {
-            const targetId = btn.getAttribute("data-target");
-            const input = document.getElementById(targetId);
-            if (!input) return;
-            const isPwd = input.getAttribute("type") === "password";
-            input.setAttribute("type", isPwd ? "text" : "password");
-            // swap icon if using Bootstrap Icons
-            const icon = btn.querySelector("i");
-            if (icon) {
-                icon.classList.toggle("bi-eye");
-                icon.classList.toggle("bi-eye-slash");
-            }
-        });
-    });
-
-    // Bouton pour afficher/masquer la liste détaillée des critères du mot de passe
-    document.querySelectorAll(".toggle-criteria").forEach((btn) => {
-        btn.addEventListener("click", () => {
-            const list = document.getElementById("passwordCriteriaList");
-            if (!list) return;
-            const hidden = list.classList.toggle("d-none");
-            btn.setAttribute("aria-expanded", String(!hidden));
-        });
-    });
-
-    // Validation globale d'un formulaire au submit
-    // - boucle sur tous les inputs
-    // - s'arrête sur le premier champ invalide et lui donne le focus
-    const validateForm = (form, validator) => {
-        let firstInvalid = null;
-        let ok = true;
-        form.querySelectorAll("input").forEach((input) => {
-            const valid = validator(input);
-            if (!valid && !firstInvalid) (firstInvalid = input), (ok = false);
-        });
-        if (!ok && firstInvalid) firstInvalid.focus();
-        return ok;
-    };
-
-    // Gestionnaire pour le formulaire d'inscription
+    // Register submit (validation minimale)
     registerForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         hideAlert();
-        // Validation custom au submit
-        if (!validateForm(registerForm, validateRegisterField)) {
-            return; // messages affichés via invalid-feedback
+
+        // HTML5 validation (required/email/minlength/pattern)
+        if (!registerForm.checkValidity()) {
+            registerForm.reportValidity();
+            focusFirstInvalid(registerForm);
+            return;
         }
+
+        const pwd = registerForm.querySelector("#passwordRegister")?.value || "";
+        const confirm = registerForm.querySelector("#confirmPassword")?.value || "";
+        if (pwd !== confirm) {
+            showAlert("Les mots de passe ne correspondent pas.", "danger");
+            registerForm.querySelector("#confirmPassword")?.focus();
+            return;
+        }
+
         setLoading(registerForm, true);
 
-        const formData = new FormData(registerForm);
-        const data = Object.fromEntries(formData);
+        const payload = formToObject(registerForm);
+        const result = await handleAuth("register", payload);
 
-        // pas besoin du check ici, déjà fait via validateForm
-
-        const result = await handleAuth("register", data);
-
-        if (!result) {
-            setLoading(registerForm, false);
-        }
+        if (!result.ok) setLoading(registerForm, false);
+        // si ok, on laisse tel quel (tu changes d’onglet)
     });
 
-    // Gestionnaire pour le formulaire de connexion
+    // Login submit (validation minimale)
     loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         hideAlert();
-        if (!validateForm(loginForm, validateLoginField)) {
+
+        if (!loginForm.checkValidity()) {
+            loginForm.reportValidity();
+            focusFirstInvalid(loginForm);
             return;
         }
+
         setLoading(loginForm, true);
 
-        const formData = new FormData(loginForm);
-        const data = Object.fromEntries(formData);
+        const payload = formToObject(loginForm);
+        const result = await handleAuth("login", payload);
 
-        // handleAuth renvoie une promesse, tu peux savoir s’il y a eu succès ou non
-        const result = await handleAuth("login", data);
-
-        // ATTENTION : setLoading(loginForm, false) ne doit être fait QUE si erreur !
-        // Donc : si le login a échoué, on réactive, sinon NON
-        if (!result) {
-            setLoading(loginForm, false);
-        }
+        if (!result.ok) setLoading(loginForm, false);
+        // si ok, redirection arrive
     });
 
-    // Gestion de l'ouverture de la modale via les boutons data-bs-target="#authModal"
+    // Modal opening (buttons data-bs-target="#authModal")
     const modal = new bootstrap.Modal(authModal);
-    document
-        .querySelectorAll('[data-bs-target="#authModal"]')
-        .forEach((button) => {
-            button.addEventListener("click", () => {
-                const start = button.getAttribute("data-start") || "register";
-                setActiveTab(start);
-                // Pré-remplir le champ hidden redirect avec l'URL courante
-                try {
-                    const lf = document.getElementById("loginForm");
-                    const red = lf?.querySelector('input[name="redirect"]');
-                    if (red) {
-                        red.value =
-                            window.location.pathname + window.location.search;
-                    }
-                } catch (_) {}
-                modal.show();
-            });
-        });
 
-    // Si on est précisément sur /login, ouvrir automatiquement la modale
-    // sur l'onglet Connexion et forcer la redirection post-login vers '/'
+    document.querySelectorAll('[data-bs-target="#authModal"]').forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const start = btn.getAttribute("data-start") || "register";
+            setActiveTab(start);
+
+            // Pré-remplir redirect dans le loginForm
+            try {
+                const red = loginForm.querySelector('input[name="redirect"]');
+                if (red) red.value = window.location.pathname + window.location.search;
+            } catch (_) {}
+
+            modal.show();
+        });
+    });
+
+    // Auto open on /login
     try {
-        const isLoginPage = window.location.pathname === "/login";
-        if (isLoginPage) {
+        if (window.location.pathname === "/login") {
             setActiveTab("login");
-            const lf = document.getElementById("loginForm");
-            const red = lf?.querySelector('input[name="redirect"]');
-            if (red) {
-                red.value = "/"; // éviter de rester bloqué sur /login après connexion
-            }
+            const red = loginForm.querySelector('input[name="redirect"]');
+            if (red) red.value = "/";
             modal.show();
         }
     } catch (_) {}
 
-    // Réinitialiser les formulaires et les états visuels à la fermeture de la modale
+    // Reset on close
     authModal.addEventListener("hidden.bs.modal", () => {
         registerForm.reset();
         loginForm.reset();
-        registerForm
-            .querySelectorAll(".is-invalid")
-            .forEach((el) => el.classList.remove("is-invalid"));
-        loginForm
-            .querySelectorAll(".is-invalid")
-            .forEach((el) => el.classList.remove("is-invalid"));
-        // reset strength meter
-        updateStrengthUI(0);
-        const list = document.querySelector(".password-criteria");
-        if (list) {
-            list.classList.add("d-none");
-            list.querySelectorAll("li").forEach((li) => {
-                li.classList.remove("ok", "bad");
-            });
-        }
         hideAlert();
         setLoading(registerForm, false);
         setLoading(loginForm, false);
     });
 });
 
-// Déconnexion via API (AJAX) quand l'utilisateur clique sur le bouton "logout"
+// Logout via API (AJAX)
 const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
     logoutBtn.addEventListener("click", async (e) => {
@@ -524,16 +249,14 @@ if (logoutBtn) {
         try {
             const response = await fetch("/api/auth/logout", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
             });
             const data = await response.json();
-            if (data.success) {
-                showGlobalAlert("Vous êtes bien déconnecté(e) !", "success");
-                setTimeout(() => {
-                    window.location.href = "/"; // Redirige vers l'accueil ou où tu veux
-                }, 1000);
+
+            if (data?.success) {
+                showGlobalAlert("Vous êtes bien déconnecté(e) !", "success");
+                setTimeout(() => (window.location.href = "/"), 700);
             } else {
                 showGlobalAlert("Erreur lors de la déconnexion", "danger");
             }
