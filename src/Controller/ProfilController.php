@@ -96,6 +96,25 @@ class ProfilController extends Controller
         header('Location: /my-profil', true, 303);
         exit;
     }
+    // GET /creation-profil
+    public function creationProfil(): void
+    {
+        $user = $_SESSION['user'];
+
+        $vehRepo = new VehicleRepository();
+
+        $vehicleEntity = !empty($_GET['id'])
+            ? $vehRepo->findById((int) $_GET['id'])
+            : $vehRepo->findByUserId($user['id']);
+
+        $vehicle = $vehicleEntity ? $vehicleEntity->toArray() : null;
+
+        $this->render('pages/creation-profil', [
+            'user' => $user,
+            'vehicle' => $vehicle,
+        ]);
+    }
+
     // GET /my-profil
     public function profil(): void
     {

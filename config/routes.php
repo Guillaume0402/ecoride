@@ -68,7 +68,7 @@ return [
     '/creation-profil' => [
         // Affiche le formulaire de création/modification de profil
         'GET' => [
-            'controller' => 'App\\Controller\\PageController',
+            'controller' => 'App\\Controller\\ProfilController',
             'action' => 'creationProfil'
         ],
         // Traite la soumission du formulaire de profil
