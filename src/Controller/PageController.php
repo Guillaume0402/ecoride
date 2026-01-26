@@ -6,7 +6,8 @@ namespace App\Controller;
 use App\Repository\CovoiturageRepository;
 
 
-// Contrôleur des pages (publiques/protégées): statiques, covoiturages, profil
+// Contrôleur des pages publiques (home + pages statiques)
+
 class PageController extends Controller
 {
        
