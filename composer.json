@@ -1,5 +1,5 @@
 {
-    "name": "ton-nom/eco-ride",
+    "name": "guillaume0402/ecoride",
     "description": "Projet PHP vanilla pour EcoRide",
     "require": {
         "php": ">=8.2",

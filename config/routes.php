@@ -215,7 +215,11 @@ return [
         'GET' => [
             'controller' => 'App\\Controller\\PageController',
             'action' => 'contact'
-        ]
+        ],
+        'POST' => [
+            'controller' => 'App\\Controller\\PageController',
+            'action' => 'contactSend'
+        ],
     ],
     // Liste des covoiturages créés ou réservés par l'utilisateur
     '/mes-covoiturages' => [

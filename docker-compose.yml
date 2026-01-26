@@ -16,6 +16,9 @@ services:
       - DB_PASSWORD=ecoride_password
 
       - APP_ENV=dev
+
+      - CONTACT_TO=maignaut.g@gmail.com
+
       - SMTP_HOST=mailpit
       - SMTP_PORT=1025
       - SMTP_SECURE=
