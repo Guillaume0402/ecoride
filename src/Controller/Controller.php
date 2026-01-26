@@ -32,94 +32,15 @@ class Controller
 
     // Rend une vue au sein du layout global (extrait $data, bufferise la vue, inclut layout)
 
-    /**
-     * Rend une vue au sein du layout global.
-     *
-     * Variables injectées dans le layout :
-     * @var bool $hasVehicle
-     * @var array $userVehicles
-     * @var int $pendingCount
-     * @var int $myTripsCount
-     * @var int $employeeModPendingCount
-     */
     protected function render(string $view, array $data = []): void
     {
 
         // Expose les clés de $data comme variables accessibles dans la vue
         extract($data);
 
-        // Variables globales utiles aux vues/partials
-        $hasVehicle = false;
-        $userVehicles = [];
-        if (isset($_SESSION['user']) && !empty($_SESSION['user']['id'])) {
-            // Rafraîchit des infos légères pour le header (ex: crédits)
-            try {
-                $currentUser = $this->userRepository->findById((int) $_SESSION['user']['id']);
-                if ($currentUser) {
-                    // Met à jour le solde de crédits en session pour un affichage fiable
-                    $_SESSION['user']['credits'] = $currentUser->getCredits();
-                    // Sécurise l'avatar en session si manquant
-                    if (empty($_SESSION['user']['photo'])) {
-                        $_SESSION['user']['photo'] = defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg';
-                    }
-                    // Synchronise le travel_role depuis la base si manquant/obsolète
-                    $_SESSION['user']['travel_role'] = $currentUser->getTravelRole();
-                }
-            } catch (\Throwable $e) {
-                error_log('[render] User refresh failed: ' . $e->getMessage());
-            }
-            try {
-                $vehicleRepo = new VehicleRepository();
-                // On peut retourner des entités; les vues existantes manipulent déjà des entités côté profil
-                $userVehicles = $vehicleRepo->findAllByUserId((int) $_SESSION['user']['id']);
-                $hasVehicle = !empty($userVehicles);
-            } catch (\Throwable $e) {
-                // N'écrase pas l'affichage si la DB est indisponible; expose juste false
-                error_log('[render] Vehicle preload failed: ' . $e->getMessage());
-            }
-            // Compteurs basiques pour le header (optionnels)
-            try {
-                // Demandes en attente pour ce conducteur
-                $pendingCount = null;
-                $myTripsCount = null;
-                $employeeModPendingCount = null; // compteur modération employé (Mongo)
-                if (!empty($_SESSION['user']['id'])) {
-                    $userId = (int) $_SESSION['user']['id'];
-                    // Lazy import pour éviter dépendance forte ici
-                    $partRepo = new \App\Repository\ParticipationRepository();
-                    $pending = $partRepo->findPendingByDriverId($userId);
-                    $pendingCount = is_array($pending) ? count($pending) : 0;
-
-                    // Compte "Mes trajets" = trajets à venir comme conducteur + participations confirmées comme passager
-                    $pdo = \App\Db\Mysql::getInstance()->getPDO();
-                    // Participations confirmées en tant que passager
-                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM participations WHERE passager_id = :u AND status = 'confirmee'");
-                    $stmt->execute([':u' => $userId]);
-                    $asPassengerCount = (int) $stmt->fetchColumn();
-
-                    // Trajets à venir en tant que conducteur (non annulés/terminés)
-                    $stmt2 = $pdo->prepare("SELECT COUNT(*) FROM covoiturages WHERE driver_id = :u AND depart >= NOW() AND status NOT IN ('annule','termine')");
-                    $stmt2->execute([':u' => $userId]);
-                    $asDriverUpcomingCount = (int) $stmt2->fetchColumn();
-
-                    $myTripsCount = $asPassengerCount + $asDriverUpcomingCount;
-                }
-            } catch (\Throwable $e) {
-                error_log('[render] Counters preload failed: ' . $e->getMessage());
-            }
-
-            // Compteur des avis/signalements "pending" pour les employés (role_id = 2)
-            try {
-                if (isset($_SESSION['user']['role_id']) && (int) $_SESSION['user']['role_id'] === 2) {
-                    $mod = new \App\Service\ReviewModerationService();
-                    $docs = $mod->listPending();
-                    $employeeModPendingCount = is_array($docs) ? count($docs) : 0;
-                }
-            } catch (\Throwable $e) {
-                // En cas d'indisponibilité de Mongo, on n'affiche simplement pas le badge
-                error_log('[render] Employee moderation counter failed: ' . $e->getMessage());
-            }
-        }
+        // Variables globales du layout (navbar, badges, etc.)
+        $globals = $this->buildLayoutGlobals();
+        extract($globals);
 
         // Construit le chemin absolu de la vue et vérifie son existence
         $viewPath = APP_ROOT . '/src/View/' . ltrim($view, '/') . '.php';
@@ -134,5 +55,78 @@ class Controller
 
         // Inclut le layout qui utilise $content pour afficher la page complète
         require APP_ROOT . '/src/View/layout.php';
+    }
+    private function buildLayoutGlobals(): array
+    {
+        $pendingCount = 0;
+        $myTripsCount = 0;
+        $employeeModPendingCount = 0;
+
+        $hasVehicle = false;
+        $userVehicles = [];
+
+        if (isset($_SESSION['user']) && !empty($_SESSION['user']['id'])) {
+
+            try {
+                $currentUser = $this->userRepository->findById((int) $_SESSION['user']['id']);
+                if ($currentUser) {
+                    $_SESSION['user']['credits'] = $currentUser->getCredits();
+                    if (empty($_SESSION['user']['photo'])) {
+                        $_SESSION['user']['photo'] = defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg';
+                    }
+                    $_SESSION['user']['travel_role'] = $currentUser->getTravelRole();
+                }
+            } catch (\Throwable $e) {
+                error_log('[render] User refresh failed: ' . $e->getMessage());
+            }
+
+            try {
+                $vehicleRepo = new VehicleRepository();
+                $userVehicles = $vehicleRepo->findAllByUserId((int) $_SESSION['user']['id']);
+                $hasVehicle = !empty($userVehicles);
+            } catch (\Throwable $e) {
+                error_log('[render] Vehicle preload failed: ' . $e->getMessage());
+            }
+
+            try {
+                $userId = (int) $_SESSION['user']['id'];
+
+                $partRepo = new \App\Repository\ParticipationRepository();
+                $pending = $partRepo->findPendingByDriverId($userId);
+                $pendingCount = is_array($pending) ? count($pending) : 0;
+
+                $pdo = \App\Db\Mysql::getInstance()->getPDO();
+
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM participations WHERE passager_id = :u AND status = 'confirmee'");
+                $stmt->execute([':u' => $userId]);
+                $asPassengerCount = (int) $stmt->fetchColumn();
+
+                $stmt2 = $pdo->prepare("SELECT COUNT(*) FROM covoiturages WHERE driver_id = :u AND depart >= NOW() AND status NOT IN ('annule','termine')");
+                $stmt2->execute([':u' => $userId]);
+                $asDriverUpcomingCount = (int) $stmt2->fetchColumn();
+
+                $myTripsCount = $asPassengerCount + $asDriverUpcomingCount;
+            } catch (\Throwable $e) {
+                error_log('[render] Counters preload failed: ' . $e->getMessage());
+            }
+
+            try {
+                if (isset($_SESSION['user']['role_id']) && (int) $_SESSION['user']['role_id'] === 2) {
+                    $mod = new \App\Service\ReviewModerationService();
+                    $docs = $mod->listPending();
+                    $employeeModPendingCount = is_array($docs) ? count($docs) : 0;
+                }
+            } catch (\Throwable $e) {
+                error_log('[render] Employee moderation counter failed: ' . $e->getMessage());
+            }
+        }
+
+        return [
+            'pendingCount' => $pendingCount,
+            'myTripsCount' => $myTripsCount,
+            'employeeModPendingCount' => $employeeModPendingCount,
+            'hasVehicle' => $hasVehicle,
+            'userVehicles' => $userVehicles,
+        ];
     }
 }
