@@ -45,52 +45,7 @@ class PageController extends Controller
             'pageTitle' => 'Contact',
             'metaDescription' => "Contactez l'équipe EcoRide pour toute question sur le covoiturage, votre compte ou l'application.",
         ]);
-    }
-   
-
-
-    // Liste des covoiturages (vue listant les annonces).
-    public function listeCovoiturages(): void
-    {
-        // Lecture des critères GET (simples)
-        $depart = isset($_GET['depart']) ? trim((string)$_GET['depart']) : null;
-        $arrivee = isset($_GET['arrivee']) ? trim((string)$_GET['arrivee']) : null;
-        $date = isset($_GET['date']) ? trim((string)$_GET['date']) : null; // format YYYY-MM-DD
-        // Pref peut être string (ancienne UI) ou tableau (multi sélection)
-        $prefParam = $_GET['pref'] ?? null;
-        $prefs = [];
-        if (is_array($prefParam)) {
-            $prefs = array_values(array_filter(array_map('strval', $prefParam)));
-        } elseif (is_string($prefParam) && $prefParam !== '') {
-            $prefs = [$prefParam];
-        }
-        $sort = isset($_GET['sort']) ? trim((string)$_GET['sort']) : null; // 'date' | 'price'
-        $dir  = isset($_GET['dir'])  ? trim((string)$_GET['dir'])  : null; // 'asc' | 'desc'
-
-        $results = [];
-        try {
-            $repo = new CovoiturageRepository();
-            // Toujours effectuer la recherche pour permettre le tri même sans filtres
-            $currentUserId = isset($_SESSION['user']) ? (int) $_SESSION['user']['id'] : null;
-            $results = $repo->search($depart, $arrivee, $date, $prefs, $sort, $dir, $currentUserId);
-        } catch (\Throwable $e) {
-            error_log('Search error: ' . $e->getMessage());
-        }
-
-        $this->render('pages/liste-covoiturages', [
-            'criteria' => [
-                'depart' => $depart,
-                'arrivee' => $arrivee,
-                'date' => $date,
-                'pref' => $prefs,
-                'sort' => $sort,
-                'dir' => $dir,
-            ],
-            'results' => $results,
-            'pageTitle' => 'Covoiturages',
-            'metaDescription' => 'Parcourez les annonces de covoiturage EcoRide et trouvez un conducteur ou un passager correspondant à vos critères.',
-        ]);
-    }   
+    }  
 
     // Page listant les covoiturages de l'utilisateur courant.
     public function mesCovoiturages(): void
