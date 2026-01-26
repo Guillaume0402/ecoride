@@ -132,8 +132,9 @@ class AuthController extends Controller
             $email = mb_strtolower($email);
 
             // Recherche de l'utilisateur puis vérification du mot de passe
-            $user = $this->userRepository->findByEmail($data['email']);
-            if (!$user || !$this->userService->verifyPassword($user, $data['password'])) {
+            $user = $this->userRepository->findByEmail($email);
+            $password = (string)($data['password'] ?? '');
+            if (!$user || !$this->userService->verifyPassword($user, $password)) {
                 throw new \Exception('Email ou mot de passe incorrect', 401);
             }
 
