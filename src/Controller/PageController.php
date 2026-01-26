@@ -2,22 +2,14 @@
 
 namespace App\Controller;
 
-use App\Repository\VehicleRepository;
+
 use App\Repository\CovoiturageRepository;
 
 
 // Contrôleur des pages (publiques/protégées): statiques, covoiturages, profil
 class PageController extends Controller
 {
-    // Dépôt pour interagir avec les véhicules des utilisateurs.
-    private VehicleRepository $vehicleRepository;
-
-    // Initialisation des dépendances nécessaires aux pages.
-    public function __construct()
-    {
-        parent::__construct();
-        $this->vehicleRepository = new VehicleRepository();
-    }
+       
 
     // Page d'accueil.
     public function home(): void
