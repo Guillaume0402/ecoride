@@ -52,4 +52,40 @@ class CovoituragePageController extends Controller
             'metaDescription' => 'Parcourez les annonces de covoiturage EcoRide et trouvez un conducteur ou un passager correspondant à vos critères.',
         ]);
     }
+    // Détail d'un covoiturage (public)
+    // GET /covoiturages/{id}
+    public function show(int $id): void
+    {
+        $repo = new CovoiturageRepository();
+        $ride = $repo->findOneWithVehicleById($id);
+
+        if (!$ride) {
+            abort(404, 'Covoiturage introuvable');
+        }
+
+        // Meta dynamiques
+        $from = (string)($ride['adresse_depart'] ?? 'Départ');
+        $to   = (string)($ride['adresse_arrivee'] ?? 'Arrivée');
+
+        $when = null;
+        try {
+            $when = (new \DateTime((string)($ride['depart'] ?? '')))->format('d/m/Y H\hi');
+        } catch (\Throwable $e) {
+        }
+
+        $titleBits = [$from . ' → ' . $to];
+        if ($when) {
+            $titleBits[] = $when;
+        }
+
+        $pageTitle = implode(' • ', $titleBits);
+        $desc = 'Trajet de ' . $from . ' à ' . $to . ($when ? ' le ' . $when : '') . ' — trouvez votre place avec EcoRide.';
+
+        $this->render('pages/covoiturages/show', [
+            'ride' => $ride,
+            'pageTitle' => $pageTitle,
+            'metaDescription' => $desc,
+            'canonical' => SITE_URL . 'covoiturages/' . $id,
+        ]);
+    }
 }

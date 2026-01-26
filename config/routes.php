@@ -288,8 +288,8 @@ return [
     // Page de détail d'un covoiturage (accessible par id)
     '/covoiturages/{id}' => [
         'GET' => [
-            'controller' => 'App\\Controller\\PageController',
-            'action' => 'showCovoiturage'
+            'controller' => 'App\\Controller\\CovoituragePageController',
+            'action' => 'show'
         ]
     ],
 
