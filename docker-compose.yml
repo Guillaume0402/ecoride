@@ -14,6 +14,17 @@ services:
       - DB_NAME=ecoride
       - DB_USER=ecoride_user
       - DB_PASSWORD=ecoride_password
+
+      - APP_ENV=dev
+      - SMTP_HOST=mailpit
+      - SMTP_PORT=1025
+      - SMTP_SECURE=
+      - SMTP_USER=
+      - SMTP_PASS=
+      
+      - MAIL_FROM=no-reply@ecoride.local
+      - MAIL_FROM_NAME=EcoRide
+      - SMTP_DEBUG=2
     networks:
       - ecoride_network
 
@@ -78,6 +89,16 @@ services:
     networks:
       - ecoride_network
 
+    # Mailpit (capture mails en local)
+  mailpit:
+    image: axllent/mailpit
+    container_name: ecoride_mailpit
+    ports:
+      - "8025:8025"   # interface web
+      - "1025:1025"   # SMTP
+    networks:
+      - ecoride_network
+
 volumes:
   mysql_data:
   mongo_data:
@@ -85,3 +106,5 @@ volumes:
 networks:
   ecoride_network:
     driver: bridge
+
+  

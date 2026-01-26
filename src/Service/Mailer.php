@@ -5,226 +5,286 @@ namespace App\Service;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception as MailException;
 
-// Service d'envoi d'e-mails pour l'application
-// Utilise PHPMailer si un serveur SMTP est configuré,
-// sinon journalise les messages dans un fichier de log.
+/**
+ * Service d'envoi d'e-mails.
+ * - Priorité: SMTP (PHPMailer) si configuré (dev/prod)
+ * - Sinon: dev -> log, prod -> log (évite mail() souvent bloqué sur PaaS)
+ * - Fallback: log en cas d'échec SMTP/mail()
+ */
 class Mailer
 {
-    // Adresse e-mail utilisée comme expéditeur (From)
     private string $from;
-    // Nom affiché comme expéditeur (ex: "EcoRide")
     private string $fromName;
-    // Chemin vers le fichier dans lequel on stocke les e-mails en fallback
     private string $logFile;
-    // Environnement courant (dev, prod, ...)
     private string $appEnv;
-    // Configuration SMTP (hôte, port, utilisateur, etc.) si disponible
     private ?array $smtp = null;
 
-    // Le constructeur initialise l'expéditeur, l'environnement et la config SMTP
     public function __construct(?string $from = null, ?string $fromName = null)
     {
-        // Récupère l'adresse d'expédition d'abord dans $_ENV (phpdotenv), puis getenv(), sinon valeur par défaut
-        $envFrom = $_ENV['MAIL_FROM'] ?? (getenv('MAIL_FROM') ?: null);
-        $envFromName = $_ENV['MAIL_FROM_NAME'] ?? (getenv('MAIL_FROM_NAME') ?: null);
+        $envFrom = $this->env('MAIL_FROM');
+        $envFromName = $this->env('MAIL_FROM_NAME');
+
         $this->from = $from ?: ($envFrom ?: 'no-reply@example.com');
         $this->fromName = $fromName ?: ($envFromName ?: 'EcoRide');
-        // Déduire l'environnement: APP_ENV si défini, sinon heuristique sur SITE_URL
-        $env = null;
-        if (isset($_ENV['APP_ENV'])) {
-            $env = (string) $_ENV['APP_ENV'];
-        } elseif (getenv('APP_ENV') !== false) {
-            $env = (string) getenv('APP_ENV');
-        }
-        if (!$env) {
-            $env = (defined('SITE_URL') && str_contains(SITE_URL, 'localhost')) ? 'dev' : 'prod';
-        }
-        $this->appEnv = $env;
-        // Configuration SMTP si des variables d'environnement sont renseignées
-        $host = getenv('SMTP_HOST') ?: ($_ENV['SMTP_HOST'] ?? null);
-        if ($host) {
-            $this->smtp = [
-                'host' => $host,
-                'port' => (int) (getenv('SMTP_PORT') ?: ($_ENV['SMTP_PORT'] ?? 587)),
-                'user' => getenv('SMTP_USER') ?: ($_ENV['SMTP_USER'] ?? null),
-                'pass' => getenv('SMTP_PASS') ?: ($_ENV['SMTP_PASS'] ?? null),
-                'secure' => getenv('SMTP_SECURE') ?: ($_ENV['SMTP_SECURE'] ?? 'tls'), // 'tls' | 'ssl' | ''
-            ];
-        }
 
-        // Fichier de log: utiliser un répertoire toujours accessible (ex: /tmp sur Heroku)
+        $this->appEnv = $this->detectEnv();
+        $this->smtp = $this->buildSmtpConfig();
+
+        // Fichier de log: répertoire toujours accessible (ex: /tmp sur Heroku)
         $this->logFile = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . '/ecoride-mail.log';
     }
 
-    /**
-     * Envoi simple en texte/HTML. Retourne true si mail() a renvoyé true
-     * ou si le fallback de log a réussi.
-     */
     public function send(string $to, string $subject, string $htmlBody): bool
     {
-        // Prépare les en-têtes pour un e-mail HTML basique
-        $headers = [];
-        $headers[] = 'MIME-Version: 1.0';
-        $headers[] = 'Content-type: text/html; charset=UTF-8';
-        $headers[] = 'From: ' . $this->fromName . ' <' . $this->from . '>';
-        $headersStr = implode("\r\n", $headers);
+        // Validation minimale
+        if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+            error_log('[Mailer] Invalid recipient: ' . $to);
+            return false;
+        }
 
-        // Si config SMTP présente → utiliser SMTP prioritairement (dev ou prod)
+        // Anti header-injection / sujet cassé
+        $subject = trim(str_replace(["\r", "\n"], ' ', $subject));
+
+        // 1) SMTP si configuré (Mailpit en dev, SendGrid en prod)
         if ($this->smtp) {
+            return $this->sendViaSmtp($to, $subject, $htmlBody);
+        }
+
+        // 2) Pas de SMTP -> dev: log direct
+        if ($this->appEnv === 'dev') {
+            return $this->logFallback($to, $subject, $htmlBody);
+        }
+
+        // 3) Pas de SMTP -> prod: éviter mail() sur PaaS, log
+        if ($this->appEnv === 'prod') {
+            error_log('[Mailer] SMTP non configuré en production – message journalisé dans ' . $this->logFile);
+            return $this->logFallback($to, $subject, $htmlBody);
+        }
+
+        // 4) Autres environnements: tentative mail() puis fallback
+        $ok = @mail($to, $subject, $htmlBody, $this->buildPhpMailHeaders());
+        return $ok ? true : $this->logFallback($to, $subject, $htmlBody);
+    }
+
+    private function sendViaSmtp(string $to, string $subject, string $htmlBody): bool
+    {
+        $mailer = null;
+
+        try {
+            $mailer = $this->buildPhpMailer();
+
+            $mailer->addAddress($to);
+            $mailer->Subject = $subject;
+
+            $mailer->isHTML(true);
+            $mailer->Body = $htmlBody;
+            $mailer->AltBody = strip_tags($htmlBody);
+
+            $mailer->send();
+            return true;
+        } catch (MailException $e) {
+            $errInfo = '';
+            if (($mailer instanceof PHPMailer) && !empty($mailer->ErrorInfo)) {
+                $errInfo = ' ErrorInfo=' . $mailer->ErrorInfo;
+            }
+            error_log('[Mailer][SMTP] ' . $e->getMessage() . $errInfo);
+
+            return $this->logFallback($to, $subject, $htmlBody);
+        }
+    }
+
+    private function buildPhpMailer(): PHPMailer
+    {
+        $m = new PHPMailer(true);
+
+        // Debug SMTP optionnel via SMTP_DEBUG=1|2 (journalisé via error_log)
+        $smtpDebug = $this->env('SMTP_DEBUG');
+        if ($smtpDebug !== null && (string)$smtpDebug !== '' && (int)$smtpDebug > 0) {
+            $m->SMTPDebug = (int) $smtpDebug; // 1 = client, 2 = client+server
+            $m->Debugoutput = 'error_log';
+        }
+
+        $m->isSMTP();
+
+        // AutoTLS pilotable: par défaut ON (plus robuste avec SendGrid)
+        $autoTls = $this->env('SMTP_AUTOTLS');
+        if ($autoTls === null) {
+            $m->SMTPAutoTLS = true;
+        } else {
+            $m->SMTPAutoTLS = ((string)$autoTls === '1');
+        }
+
+        $m->Host = $this->smtp['host'];
+        $m->Port = $this->smtp['port'];
+
+        if (!empty($this->smtp['user'])) {
+            $m->SMTPAuth = true;
+            $m->Username = $this->smtp['user'];
+            $m->Password = $this->smtp['pass'] ?? '';
+        }
+
+        $secure = strtolower((string) ($this->smtp['secure'] ?? ''));
+        if (in_array($secure, ['tls', 'ssl'], true)) {
+            $m->SMTPSecure = $secure;
+        }
+
+        // Optionnel: Hostname (Received/Message-ID)
+        $hostname = $this->env('MAIL_HOSTNAME');
+        if (is_string($hostname) && $hostname !== '') {
+            $m->Hostname = $hostname;
+        }
+
+        $m->CharSet = 'UTF-8';
+
+        $m->setFrom($this->from, $this->fromName);
+        $m->Sender = $this->from;
+
+        $this->configureReplyTo($m);
+        $this->configureDkim($m);
+        $this->configureDeliverabilityHeaders($m);
+
+        return $m;
+    }
+
+    private function configureReplyTo(PHPMailer $m): void
+    {
+        $replyTo = $this->env('MAIL_REPLY_TO');
+        if (is_string($replyTo) && $replyTo !== '') {
             try {
-                // Pré-déclare $mailer pour l'utiliser en sécurité dans le catch
-                $mailer = null;
-                $mailer = new PHPMailer(true);
-                // Debug SMTP optionnel activable via SMTP_DEBUG=1|2 (journalisé via error_log)
-                $smtpDebug = getenv('SMTP_DEBUG') ?: ($_ENV['SMTP_DEBUG'] ?? null);
-                if ($smtpDebug !== null && (string)$smtpDebug !== '' && (int)$smtpDebug > 0) {
-                    $mailer->SMTPDebug = (int) $smtpDebug; // 1 = client, 2 = client+server
-                    $mailer->Debugoutput = 'error_log';
-                }
-                $mailer->isSMTP();
-                $mailer->Host = $this->smtp['host'];
-                $mailer->Port = $this->smtp['port'];
-                if (!empty($this->smtp['user'])) {
-                    $mailer->SMTPAuth = true;
-                    $mailer->Username = $this->smtp['user'];
-                    $mailer->Password = $this->smtp['pass'] ?? '';
-                }
-                $secure = strtolower((string) ($this->smtp['secure'] ?? 'tls'));
-                if (in_array($secure, ['tls', 'ssl'], true)) {
-                    $mailer->SMTPSecure = $secure;
-                }
-                // Optionnel: définir un Hostname pour les en-têtes Received/Message-ID (améliore parfois la réputation)
-                $hostname = getenv('MAIL_HOSTNAME') ?: ($_ENV['MAIL_HOSTNAME'] ?? null);
-                if (is_string($hostname) && $hostname !== '') {
-                    $mailer->Hostname = $hostname;
-                }
-                // Encodage des caractères en UTF-8
-                $mailer->CharSet = 'UTF-8';
-                // Adresse d'expédition
-                $mailer->setFrom($this->from, $this->fromName);
-                // Envelope-From (Return-Path) – peut être ignoré par le relais SMTP mais utile si supporté
-                $mailer->Sender = $this->from;
-                // Adresse Reply-To optionnelle (pour les réponses)
-                $replyTo = getenv('MAIL_REPLY_TO') ?: ($_ENV['MAIL_REPLY_TO'] ?? null);
-                if (is_string($replyTo) && $replyTo !== '') {
-                    try {
-                        $mailer->addReplyTo($replyTo);
-                    } catch (\Throwable $e) { /* ignore */
-                    }
-                }
-                // DKIM optionnel si la clé privée est fournie (pour relai SMTP qui ne signe pas)
-                $dkimDomain = getenv('DKIM_DOMAIN') ?: ($_ENV['DKIM_DOMAIN'] ?? null);
-                $dkimSelector = getenv('DKIM_SELECTOR') ?: ($_ENV['DKIM_SELECTOR'] ?? null);
-                $dkimPrivateKey = getenv('DKIM_PRIVATE_KEY') ?: ($_ENV['DKIM_PRIVATE_KEY'] ?? null);
-                $dkimPassphrase = getenv('DKIM_PASSPHRASE') ?: ($_ENV['DKIM_PASSPHRASE'] ?? null);
-                if (is_string($dkimDomain) && is_string($dkimSelector) && is_string($dkimPrivateKey) && $dkimDomain !== '' && $dkimSelector !== '' && $dkimPrivateKey !== '') {
-                    // Si DKIM_PRIVATE_KEY commence par 'file://', lire le contenu du fichier
-                    $keyContent = $dkimPrivateKey;
-                    if (str_starts_with($dkimPrivateKey, 'file://')) {
-                        $path = substr($dkimPrivateKey, 7);
-                        if (is_readable($path)) {
-                            $keyContent = @file_get_contents($path) ?: $dkimPrivateKey;
-                        }
-                    }
-                    $mailer->DKIM_domain = $dkimDomain;
-                    $mailer->DKIM_selector = $dkimSelector;
-                    $mailer->DKIM_private = $keyContent;
-                    if (is_string($dkimPassphrase) && $dkimPassphrase !== '') {
-                        $mailer->DKIM_passphrase = $dkimPassphrase;
-                    }
-                    // Identité DKIM alignée sur From
-                    $mailer->DKIM_identity = $this->from;
-                }
-                // En-têtes utiles pour réduire les auto-réponses et clarifier la nature du message
-                $mailer->addCustomHeader('Auto-Submitted', 'auto-generated');
-                $mailer->addCustomHeader('X-Auto-Response-Suppress', 'All');
-                // List-Unsubscribe (meilleure délivrabilité pour emails non strictement transactionnels)
-                $luParts = [];
-                $luUrl = getenv('LIST_UNSUBSCRIBE_URL') ?: ($_ENV['LIST_UNSUBSCRIBE_URL'] ?? null);
-                $luMailto = getenv('LIST_UNSUBSCRIBE_MAILTO') ?: ($_ENV['LIST_UNSUBSCRIBE_MAILTO'] ?? null);
-                if (is_string($luUrl) && $luUrl !== '') {
-                    $luParts[] = '<' . $luUrl . '>';
-                }
-                if (is_string($luMailto) && $luMailto !== '') {
-                    $luParts[] = '<mailto:' . $luMailto . '>';
-                }
-                if ($luParts) {
-                    $mailer->addCustomHeader('List-Unsubscribe', implode(', ', $luParts));
-                    $luPost = getenv('LIST_UNSUBSCRIBE_POST') ?: ($_ENV['LIST_UNSUBSCRIBE_POST'] ?? null);
-                    if ((string)$luPost === '1') {
-                        $mailer->addCustomHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
-                    }
-                }
-                // Ajoute le destinataire principal
-                $mailer->addAddress($to);
-                // Sujet du message
-                $mailer->Subject = $subject;
-                // Corps HTML et version texte brut (AltBody) pour compatibilité
-                $mailer->isHTML(true);
-                $mailer->Body = $htmlBody;
-                $mailer->AltBody = strip_tags($htmlBody);
-                $mailer->send();
-                // Si tout s'est bien passé, on retourne true
-                return true;
-            } catch (MailException $e) {
-                // En cas d'erreur SMTP, essayer de récupérer des informations d'erreur supplémentaires
-                $errInfo = '';
-                if (($mailer instanceof PHPMailer) && !empty($mailer->ErrorInfo)) {
-                    $errInfo = ' ErrorInfo=' . $mailer->ErrorInfo;
-                }
-                error_log('[Mailer][SMTP] ' . $e->getMessage() . $errInfo);
-                // En cas d'échec, on journalise l'email dans un fichier de log
-                return $this->logFallback($to, $subject, $htmlBody);
+                $m->addReplyTo($replyTo);
+            } catch (\Throwable $e) {
+                // ignore
+            }
+        }
+    }
+
+    private function configureDkim(PHPMailer $m): void
+    {
+        // Avec SendGrid, DKIM est normalement géré côté SendGrid (Domain Authentication).
+        // Donc on le coupe automatiquement, sauf si tu forces DKIM_ENABLE=1.
+        $force = (string)($this->env('DKIM_ENABLE') ?? '0');
+        $host = (string)($this->smtp['host'] ?? '');
+        if ($force !== '1' && stripos($host, 'sendgrid.net') !== false) {
+            return;
+        }
+
+        $dkimDomain = $this->env('DKIM_DOMAIN');
+        $dkimSelector = $this->env('DKIM_SELECTOR');
+        $dkimPrivateKey = $this->env('DKIM_PRIVATE_KEY');
+        $dkimPassphrase = $this->env('DKIM_PASSPHRASE');
+
+        if (!is_string($dkimDomain) || $dkimDomain === '') return;
+        if (!is_string($dkimSelector) || $dkimSelector === '') return;
+        if (!is_string($dkimPrivateKey) || $dkimPrivateKey === '') return;
+
+        $keyContent = $dkimPrivateKey;
+        if (str_starts_with($dkimPrivateKey, 'file://')) {
+            $path = substr($dkimPrivateKey, 7);
+            if (is_readable($path)) {
+                $keyContent = @file_get_contents($path) ?: $dkimPrivateKey;
             }
         }
 
-        // En dev sans SMTP, on ne tente pas d'envoyer un vrai mail: on journalise directement
-        if ($this->appEnv === 'dev') {
-            // Environnement de développement : on simule l'envoi en écrivant dans un fichier
-            return $this->logFallback($to, $subject, $htmlBody);
+        $m->DKIM_domain = $dkimDomain;
+        $m->DKIM_selector = $dkimSelector;
+        $m->DKIM_private = $keyContent;
+
+        if (is_string($dkimPassphrase) && $dkimPassphrase !== '') {
+            $m->DKIM_passphrase = $dkimPassphrase;
         }
 
-        // En prod, si aucun SMTP n'est configuré, éviter mail() (souvent bloqué sur PaaS) → journalisation
-        if ($this->appEnv === 'prod') {
-            error_log('[Mailer] SMTP non configuré en production – message journalisé dans ' . $this->logFile);
-            // On ne tente pas mail() car souvent bloqué, on log seulement
-            return $this->logFallback($to, $subject, $htmlBody);
-        }
-
-        // En autres cas (sécurité), tenter mail() puis fallback
-        // Dernier recours : utiliser la fonction mail() native de PHP
-        $ok = @mail($to, $subject, $htmlBody, $headersStr);
-        if ($ok) {
-            // mail() a indiqué que l'envoi s'est bien passé
-            return true;
-        }
-        // Si mail() échoue, on garde une trace de l'e-mail dans le log
-        return $this->logFallback($to, $subject, $htmlBody);
+        // Identité DKIM alignée sur From
+        $m->DKIM_identity = $this->from;
     }
 
-    // Méthode de repli: stocke le contenu de l'e-mail dans un fichier de log
-    private function logFallback(string $to, string $subject, string $htmlBody): bool
+    private function configureDeliverabilityHeaders(PHPMailer $m): void
     {
-        // On formate une ligne lisible contenant la date, le destinataire, le sujet et le contenu
-        $entry = sprintf("[%s] TO:%s SUBJECT:%s\n%s\n\n", date('Y-m-d H:i:s'), $to, $subject, $htmlBody);
-        try {
-            // Supprime les warnings potentiels d'IO hors JSON (les erreurs seront loguées via error_log)
-            @file_put_contents($this->logFile, $entry, FILE_APPEND | LOCK_EX);
-            // Si l'écriture dans le fichier fonctionne, on considère l'opération comme un succès
-            return true;
-        } catch (\Throwable $e) {
-            error_log('[Mailer] fallback log failed: ' . $e->getMessage());
-            // Si même le fallback échoue, on retourne false pour remonter l'échec
-            return false;
+        $m->addCustomHeader('Auto-Submitted', 'auto-generated');
+        $m->addCustomHeader('X-Auto-Response-Suppress', 'All');
+
+        $luParts = [];
+        $luUrl = $this->env('LIST_UNSUBSCRIBE_URL');
+        $luMailto = $this->env('LIST_UNSUBSCRIBE_MAILTO');
+
+        if (is_string($luUrl) && $luUrl !== '') {
+            $luParts[] = '<' . $luUrl . '>';
         }
+        if (is_string($luMailto) && $luMailto !== '') {
+            $luParts[] = '<mailto:' . $luMailto . '>';
+        }
+        if ($luParts) {
+            $m->addCustomHeader('List-Unsubscribe', implode(', ', $luParts));
+            $luPost = $this->env('LIST_UNSUBSCRIBE_POST');
+            if ((string)$luPost === '1') {
+                $m->addCustomHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
+            }
+        }
+    }
+
+    private function buildSmtpConfig(): ?array
+    {
+        $host = $this->env('SMTP_HOST');
+        if (!$host) {
+            return null;
+        }
+
+        return [
+            'host' => $host,
+            'port' => (int) ($this->env('SMTP_PORT') ?: 587),
+            'user' => $this->env('SMTP_USER'),
+            'pass' => $this->env('SMTP_PASS'),
+            'secure' => (string) ($this->env('SMTP_SECURE') ?? ''),
+        ];
+    }
+
+    private function buildPhpMailHeaders(): string
+    {
+        $headers = [
+            'MIME-Version: 1.0',
+            'Content-type: text/html; charset=UTF-8',
+            'From: ' . $this->fromName . ' <' . $this->from . '>',
+        ];
+        return implode("\r\n", $headers);
+    }
+
+    private function detectEnv(): string
+    {
+        $env = $this->env('APP_ENV');
+        if (!$env) {
+            $env = (defined('SITE_URL') && str_contains((string)SITE_URL, 'localhost')) ? 'dev' : 'prod';
+        }
+        return (string) $env;
     }
 
     /**
-     * Expose le fichier de log utilisé (utile pour les diagnostics/tests CLI)
+     * Lecture env robuste: d'abord $_ENV, puis getenv()
      */
+    private function env(string $key, mixed $default = null): mixed
+    {
+        if (array_key_exists($key, $_ENV)) {
+            return $_ENV[$key];
+        }
+        $v = getenv($key);
+        if ($v !== false) {
+            return $v;
+        }
+        return $default;
+    }
+
+    private function logFallback(string $to, string $subject, string $htmlBody): bool
+    {
+        $entry = sprintf("[%s] TO:%s SUBJECT:%s\n%s\n\n", date('Y-m-d H:i:s'), $to, $subject, $htmlBody);
+
+        $bytes = @file_put_contents($this->logFile, $entry, FILE_APPEND | LOCK_EX);
+        if ($bytes === false) {
+            error_log('[Mailer] fallback log failed: unable to write ' . $this->logFile);
+            return false;
+        }
+        return true;
+    }
+
     public function getLogFile(): string
     {
-        // Permet de connaître le chemin du fichier de log utilisé
         return $this->logFile;
     }
 }
