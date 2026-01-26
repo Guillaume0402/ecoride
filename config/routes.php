@@ -53,7 +53,7 @@ return [
     // Profil de l'utilisateur actuellement connecté (espace privé)
     '/my-profil' => [
         'GET' => [
-            'controller' => 'App\\Controller\\PageController',
+            'controller' => 'App\\Controller\\ProfilController',
             'action' => 'profil'
         ]
     ],
