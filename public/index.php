@@ -12,9 +12,11 @@
 // --- (1) Serveur PHP intégré : laisser servir les fichiers statiques ---
 // Avec `php -S`, si on retourne false, PHP renvoie le fichier tel quel (css, img, js...)
 // IMPORTANT : doit être exécuté avant le routeur.
-if (php_sapi_name() === 'cli-server') {
-    $path = __DIR__ . parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
-    if (is_file($path)) {
+if (PHP_SAPI === 'cli-server') {
+    $uriPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '';
+    $path = __DIR__ . $uriPath;
+
+    if ($uriPath !== '' && is_file($path)) {
         return false;
     }
 }
@@ -73,6 +75,7 @@ require_once APP_ROOT . '/vendor/autoload.php';
 // --- (8) Charger les variables d'environnement (.env + .env.local) ---
 // Permet de sortir les secrets/config du code (DB, SMTP, clés, etc.)
 use Dotenv\Dotenv;
+
 $dotenv = Dotenv::createMutable(dirname(__DIR__), ['.env', '.env.local']);
 $dotenv->safeLoad(); // charge si présent, sans planter si absent
 
@@ -99,7 +102,7 @@ try {
     $router->handleRequest($_SERVER["REQUEST_URI"]);
 } catch (\Throwable $e) {
     // En dev : laisser remonter l’erreur (debug)
-    if (($_ENV['APP_ENV'] ?? $__appEnv) === 'dev') {
+    if ($__appEnv === 'dev') {
         throw $e;
     }
     // En prod : afficher une page 500 propre

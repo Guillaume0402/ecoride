@@ -11,10 +11,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link " href="/admin/stats">📊 Statistiques</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-danger" id="logoutBtn" href="/logout">🚪 Déconnexion</a>
-            </li>
+            </li>            
         </ul>
     </nav>
 
