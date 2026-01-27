@@ -9,30 +9,44 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => alert.classList.add("fade-out"), 3000);
     });
 
-    // Demande de confirmation avant suppression
-    document.querySelectorAll(".delete-btn").forEach((button) => {
-        button.addEventListener("click", (e) => {
-            e.preventDefault();
-            const url = button.getAttribute("href");
-            const type = button.dataset.type || "élément";
-            const action = button.dataset.action || "supprimer";
+// Demande de confirmation avant suppression (soumet le form POST)
+document.querySelectorAll(".delete-btn").forEach((button) => {
+    button.addEventListener("click", (e) => {
+        e.preventDefault();
 
-            document.querySelector(
-                "#deleteConfirmModal .modal-body"
-            ).textContent = `Voulez-vous vraiment ${action} cet ${type} ?`;
+        const formId = button.dataset.formId;
+        if (!formId) return;
 
-            const confirmBtn = document.getElementById("confirmDeleteBtn");
-            // Met à jour le libellé du bouton de confirmation
-            confirmBtn.textContent =
-                action.charAt(0).toUpperCase() + action.slice(1);
-            confirmBtn.setAttribute("href", url);
+        const type = button.dataset.type || "élément";
+        const action = button.dataset.action || "supprimer";
 
-            const modal = new bootstrap.Modal(
-                document.getElementById("deleteConfirmModal")
-            );
-            modal.show();
-        });
+        document.querySelector(
+            "#deleteConfirmModal .modal-body"
+        ).textContent = `Voulez-vous vraiment ${action} cet ${type} ?`;
+
+        const confirmBtn = document.getElementById("confirmDeleteBtn");
+        confirmBtn.textContent =
+            action.charAt(0).toUpperCase() + action.slice(1);
+
+        // On n'utilise plus href (sinon /admin/null)
+        confirmBtn.removeAttribute("href");
+
+        // Submit le form lié (une seule fois)
+        confirmBtn.addEventListener("click", (ev) => {
+            ev.preventDefault();
+            const form = document.getElementById(formId);
+            if (form) form.submit();
+        }, { once: true });
+
+        const modal = new bootstrap.Modal(
+            document.getElementById("deleteConfirmModal")
+        );
+        modal.show();
     });
+});
+
+
+
 
     // Demande de confirmation pour activer/désactiver (soumet le formulaire)
     document.querySelectorAll(".toggle-btn").forEach((button) => {

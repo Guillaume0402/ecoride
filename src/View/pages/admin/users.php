@@ -69,6 +69,7 @@
                         <?php endif; ?>
 
                         <form action="/admin/users/create" method="POST">
+                            <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
                             <div class="mb-3">
                                 <label for="pseudo" class="form-label">Pseudo</label>
                                 <input type="text" class="form-control" id="pseudo" name="pseudo"
@@ -121,18 +122,22 @@
                                                                         : '' ?></td>
                                         <td class="actions-col-user">
                                             <!-- Supprimer -->
-                                            <a href="/admin/users/delete/<?= $employee->getId() ?>"
-                                                class="btn btn-sm btn-danger delete-btn"
-                                                data-type="employé"
-                                                data-action="supprimer">
-
-                                                <i class="bi bi-trash"></i>
-                                            </a>
+                                            <form id="del-user-<?= (int)$employee->getId() ?>" action="/admin/users/delete/<?= (int)$employee->getId() ?>" method="POST" class="d-inline">
+                                                <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+                                                <button type="button"
+                                                    class="btn btn-sm btn-danger delete-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#deleteConfirmModal"
+                                                    data-form-id="del-user-<?= (int)$employee->getId() ?>">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
 
                                             <!-- Activer / Désactiver -->
                                             <form action="/admin/users/toggle/<?= $employee->getId() ?>"
                                                 method="POST"
                                                 class="d-inline">
+                                                <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
                                                 <button type="submit"
                                                     class="btn btn-sm <?= $employee->getIsActive() ? 'btn-success' : 'btn-warning' ?> toggle-btn"
                                                     data-type="employé"
@@ -174,10 +179,16 @@
                                     <td data-label="Crédits"><?= $user->getCredits() ?></td>
                                     <td data-label="Créé le"><?= $user->getCreatedAt() ? $user->getCreatedAt()->format('d/m/Y') : '' ?></td>
                                     <td class="actions-col-user">
-                                        <a href="/admin/users/delete/<?= $user->getId() ?>" class="btn btn-sm btn-danger delete-btn"
-                                            data-type="utilisateur">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
+                                        <form id="del-user-<?= (int)$user->getId() ?>" action="/admin/users/delete/<?= (int)$user->getId() ?>" method="POST" class="d-inline">
+                                            <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+                                            <button type="button"
+                                                class="btn btn-sm btn-danger delete-btn"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteConfirmModal"
+                                                data-form-id="del-user-<?= (int)$user->getId() ?>">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             <?php endforeach ?>

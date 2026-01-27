@@ -165,7 +165,7 @@ return [
     // Suppression d'un employé par son id
     '/admin/users/delete/{id}' => [
         // {id} = identifiant numérique de l'utilisateur ciblé
-        'GET' => [
+        'POST' => [
             'controller' => 'App\\Controller\\AdminController',
             'action' => 'deleteEmployee'
         ]

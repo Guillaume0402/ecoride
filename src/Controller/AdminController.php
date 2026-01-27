@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\UserEntity;
 use App\Service\Flash;
+use App\Security\Csrf;
+
 
 // Contrôleur admin: gardes d'accès + dashboard, stats, gestion comptes
 class AdminController extends Controller
@@ -11,19 +13,19 @@ class AdminController extends Controller
     // Initialise les dépendances et applique les gardes d'accès (authentification + rôle admin).
 
     public function __construct()
-{
-    parent::__construct();
+    {
+        parent::__construct();
 
-    if (!isset($_SESSION['user'])) {
-        Flash::add("Veuillez vous connecter.", 'danger');
-        redirect('/login');
-        exit;
-    }
+        if (!isset($_SESSION['user'])) {
+            Flash::add("Veuillez vous connecter.", 'danger');
+            redirect('/login');
+            exit;
+        }
 
-    if ((int)($_SESSION['user']['role_id'] ?? 0) !== 3) {
-        abort(403, "Accès interdit");
+        if ((int)($_SESSION['user']['role_id'] ?? 0) !== 3) {
+            abort(403, "Accès interdit");
+        }
     }
-}
 
     // Page d'accueil du tableau de bord administrateur.     
     public function dashboard(): void
@@ -201,6 +203,10 @@ class AdminController extends Controller
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             abort(405, "Méthode non autorisée");
         }
+        if (!Csrf::check($_POST['csrf'] ?? null)) {
+            abort(400, 'Requête invalide (CSRF).');
+        }
+
 
         // Récupération et normalisation des champs
         $pseudo = trim($_POST['pseudo'] ?? '');
@@ -264,6 +270,9 @@ class AdminController extends Controller
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             abort(405, "Méthode non autorisée");
+        }
+        if (!Csrf::check($_POST['csrf'] ?? null)) {
+            abort(400, 'Requête invalide (CSRF).');
         }
 
         if ($this->userRepository->toggleActive($id)) {
