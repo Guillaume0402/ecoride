@@ -37,6 +37,7 @@ class CovoiturageController extends Controller
         if (!isset($_SESSION['user'])) {
             Flash::add('Veuillez vous connecter.', 'danger');
             redirect('/login');
+            return;
         }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -46,6 +47,7 @@ class CovoiturageController extends Controller
         if (!Csrf::check($_POST['csrf'] ?? null)) {
             Flash::add('Requête invalide (CSRF).', 'danger');
             redirect('/');
+            return;
         }
 
         $userId = (int) $_SESSION['user']['id'];
@@ -62,28 +64,33 @@ class CovoiturageController extends Controller
         if ($vehicleId <= 0 || $villeDepart === '' || $villeArrivee === '' || $date === '' || $time === '' || $timeArrivee === '' || $prix < 0 || $places === false) {
             Flash::add('Champs requis manquants ou invalides.', 'danger');
             redirect('/');
+            return;
         }
 
         $vehicle = $this->vehicleRepository->findById($vehicleId);
         if (!$vehicle || $vehicle->getUserId() !== $userId) {
             Flash::add('Véhicule introuvable ou non autorisé.', 'danger');
             redirect('/');
+            return;
         }
         if ($places > $vehicle->getPlacesDispo()) {
             Flash::add("Le nombre de places demandées dépasse la capacité du véhicule.", 'danger');
             redirect('/');
+            return;
         }
 
         $departDt = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time);
         if (!$departDt) {
             Flash::add('Date/heure invalides.', 'danger');
             redirect('/');
+            return;
         }
         // Interdit une date de départ passée (tolère la minute courante)
         $now = new \DateTime('now');
         if ($departDt < $now) {
             Flash::add('La date/heure de départ ne peut pas être dans le passé.', 'danger');
             redirect('/');
+            return;
         }
 
         // Arrivée: si l'heure d'arrivée est inférieure ou égale à l'heure de départ,
@@ -92,6 +99,7 @@ class CovoiturageController extends Controller
         if (!$arriveeDt) {
             Flash::add('Date/heure invalides.', 'danger');
             redirect('/');
+            return;
         }
         if ($arriveeDt <= $departDt) {
             $arriveeDt->modify('+1 day');
@@ -113,6 +121,7 @@ class CovoiturageController extends Controller
             if (!$this->userRepository->debitIfEnough($userId, $fee)) {
                 Flash::add("Crédits insuffisants: il faut au moins {$fee} crédit(s) pour créer un trajet.", 'warning');
                 redirect('/');
+                return;
             }
             // Rafraîchir le solde en session si besoin
             if (!empty($_SESSION['user']) && (int)$_SESSION['user']['id'] === $userId) {
@@ -130,6 +139,7 @@ class CovoiturageController extends Controller
             }
             Flash::add('Covoiturage créé avec succès.', 'success');
             redirect('/liste-covoiturages');
+            return;
         } else {
             // Rembourser le frais si l'insertion a échoué
             if ($fee > 0) {
@@ -144,6 +154,7 @@ class CovoiturageController extends Controller
             }
             Flash::add("Erreur lors de la création du covoiturage.", 'danger');
             redirect('/');
+            return;
         }
     }
     // POST /api/covoiturages/create
@@ -264,6 +275,7 @@ class CovoiturageController extends Controller
     {
         if (!isset($_SESSION['user'])) {
             redirect('/login');
+            return;
         }
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
             abort(405);
@@ -271,6 +283,7 @@ class CovoiturageController extends Controller
         if (!Csrf::check($_POST['csrf'] ?? null)) {
             Flash::add('Requête invalide (CSRF).', 'danger');
             redirect('/mes-covoiturages');
+            return;
         }
 
         $userId = (int) $_SESSION['user']['id'];
@@ -278,19 +291,23 @@ class CovoiturageController extends Controller
         if (!$ride) {
             Flash::add('Trajet introuvable.', 'danger');
             redirect('/mes-covoiturages');
+            return;
         }
         // Autorisation: seul le conducteur peut annuler
         if ((int)$ride['driver_id'] !== $userId) {
             Flash::add('Action non autorisée.', 'danger');
             redirect('/mes-covoiturages');
+            return;
         }
         // Interdire si déjà terminé/annulé
         if (in_array(($ride['status'] ?? ''), ['annule', 'termine'], true)) {
             Flash::add('Trajet déjà clôturé.', 'warning');
             redirect('/mes-covoiturages');
+            return;
         }
 
         // Annule le covoiturage et les participations associées + remboursements
+        $pdo = null;
         try {
             $pdo = \App\Db\Mysql::getInstance()->getPDO();
             $pdo->beginTransaction();
@@ -350,14 +367,16 @@ class CovoiturageController extends Controller
             $pdo->commit();
             Flash::add('Trajet annulé. Les passagers ont été prévenus.', 'success');
         } catch (\Throwable $e) {
-            if ($pdo->inTransaction()) {
+            if ($pdo instanceof \PDO && $pdo->inTransaction()) {
                 $pdo->rollBack();
             }
+
             error_log('[cancel covoit] ' . $e->getMessage());
             Flash::add('Erreur lors de l\'annulation.', 'danger');
         }
 
         redirect('/mes-covoiturages');
+        return;
     }
 
     // POST /covoiturages/start/{id}
@@ -365,6 +384,7 @@ class CovoiturageController extends Controller
     {
         if (!isset($_SESSION['user'])) {
             redirect('/login');
+            return;
         }
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
             abort(405);
@@ -372,24 +392,29 @@ class CovoiturageController extends Controller
         if (!Csrf::check($_POST['csrf'] ?? null)) {
             Flash::add('Requête invalide (CSRF).', 'danger');
             redirect('/mes-covoiturages');
+            return;
         }
         $userId = (int) $_SESSION['user']['id'];
         $ride = $this->covoiturageRepository->findOneWithVehicleById($id);
         if (!$ride) {
             Flash::add('Trajet introuvable.', 'danger');
             redirect('/mes-covoiturages');
+            return;
         }
         if ((int)$ride['driver_id'] !== $userId) {
             Flash::add('Action non autorisée.', 'danger');
             redirect('/mes-covoiturages');
+            return;
         }
         if (in_array(($ride['status'] ?? ''), ['annule', 'termine'], true)) {
             Flash::add('Trajet déjà clôturé.', 'warning');
             redirect('/mes-covoiturages');
+            return;
         }
         if (($ride['status'] ?? 'en_attente') === 'demarre') {
             Flash::add('Trajet déjà démarré.', 'info');
             redirect('/mes-covoiturages');
+            return;
         }
         if ($this->covoiturageRepository->updateStatus($id, 'demarre')) {
             Flash::add('Trajet démarré. Bonne route !', 'success');
@@ -397,6 +422,7 @@ class CovoiturageController extends Controller
             Flash::add('Impossible de démarrer le trajet.', 'danger');
         }
         redirect('/mes-covoiturages');
+        return;
     }
 
     // POST /covoiturages/finish/{id}
@@ -404,6 +430,7 @@ class CovoiturageController extends Controller
     {
         if (!isset($_SESSION['user'])) {
             redirect('/login');
+            return;
         }
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
             abort(405);
@@ -411,34 +438,39 @@ class CovoiturageController extends Controller
         if (!Csrf::check($_POST['csrf'] ?? null)) {
             Flash::add('Requête invalide (CSRF).', 'danger');
             redirect('/mes-covoiturages');
+            return;
         }
+
         $userId = (int) $_SESSION['user']['id'];
         $ride = $this->covoiturageRepository->findOneWithVehicleById($id);
         if (!$ride) {
             Flash::add('Trajet introuvable.', 'danger');
             redirect('/mes-covoiturages');
+            return;
         }
         if ((int)$ride['driver_id'] !== $userId) {
             Flash::add('Action non autorisée.', 'danger');
             redirect('/mes-covoiturages');
+            return;
         }
         if (($ride['status'] ?? '') === 'termine') {
             Flash::add('Trajet déjà terminé.', 'info');
             redirect('/mes-covoiturages');
+            return;
         }
         if (($ride['status'] ?? '') === 'annule') {
             Flash::add('Trajet annulé.', 'warning');
             redirect('/mes-covoiturages');
+            return;
         }
 
-        // Passage à terminé
         if ($this->covoiturageRepository->updateStatus($id, 'termine')) {
             Flash::add('Arrivée à destination. Les passagers vont recevoir un e-mail de validation.', 'success');
-            // envoyer un email à chaque passager confirmé avec un lien vers /mes-covoiturages
-            // On peut trouver les passagers via ParticipationRepository::findConfirmedByCovoiturageId
+
             try {
                 $confirmed = $this->participationRepository->findConfirmedByCovoiturageId($id);
                 $mailer = new \App\Service\Mailer();
+
                 foreach ($confirmed as $row) {
                     $passagerId = (int)$row['passager_id'];
                     $u = $this->localUserRepository->findById($passagerId);
@@ -446,10 +478,12 @@ class CovoiturageController extends Controller
                         $to = $u->getEmail();
                         $subject = 'Validez votre trajet EcoRide';
                         $link = (defined('SITE_URL') ? SITE_URL : '/') . 'participations/validate/' . (int)$row['participation_id'];
+
                         $body = '<p>Bonjour ' . htmlspecialchars($u->getPseudo()) . ',</p>'
                             . '<p>Votre trajet vient de se terminer. Merci de confirmer que tout s\'est bien passé ou de signaler un souci.</p>'
                             . '<p><a href="' . htmlspecialchars($link) . '">Valider mon voyage</a></p>'
                             . '<p>— L\'équipe EcoRide</p>';
+
                         $mailer->send($to, $subject, $body);
                     }
                 }
@@ -459,6 +493,7 @@ class CovoiturageController extends Controller
         } else {
             Flash::add('Impossible de terminer le trajet.', 'danger');
         }
+
         redirect('/mes-covoiturages');
     }
 }
