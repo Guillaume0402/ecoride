@@ -12,14 +12,33 @@ Utilisation: <form class="js-confirm" data-confirm-text="..." data-confirm-steps
     function createAlert(message, variant = "warning") {
         const div = document.createElement("div");
         div.className = `custom-alert alert-${variant}`;
-        div.innerHTML = `
-      <button type="button" class="btn-close" aria-label="Close"></button>
-      <div class="content">${message}</div>
-            <div class="actions">
-                <button type="button" class="btn-cancel" data-role="cancel">Annuler</button>
-                <button type="button" class="btn-ok" data-role="ok">OK</button>
-            </div>
-    `;
+
+        const close = document.createElement("button");
+        close.type = "button";
+        close.className = "btn-close";
+        close.setAttribute("aria-label", "Close");
+
+        const content = document.createElement("div");
+        content.className = "content";
+        content.textContent = message; // ✅ pas de HTML injecté
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const cancel = document.createElement("button");
+        cancel.type = "button";
+        cancel.className = "btn-cancel";
+        cancel.dataset.role = "cancel";
+        cancel.textContent = "Annuler";
+
+        const ok = document.createElement("button");
+        ok.type = "button";
+        ok.className = "btn-ok";
+        ok.dataset.role = "ok";
+        ok.textContent = "OK";
+
+        actions.append(cancel, ok);
+        div.append(close, content, actions);
         return div;
     }
 
@@ -46,10 +65,8 @@ Utilisation: <form class="js-confirm" data-confirm-text="..." data-confirm-steps
                     btn.classList.contains("btn-close") ||
                     btn.dataset.role === "cancel"
                 ) {
-                    // Fermeture/Annulation => réponse false
                     cleanup(false);
                 } else if (btn.dataset.role === "ok") {
-                    // Validation => réponse true
                     cleanup(true);
                 }
             });
