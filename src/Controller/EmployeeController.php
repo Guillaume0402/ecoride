@@ -12,14 +12,13 @@ class EmployeeController extends Controller
     {
         parent::__construct();
 
-        // Vérifie qu'un utilisateur est authentifié, sinon redirige vers la connexion
         if (!isset($_SESSION['user'])) {
-            $_SESSION['error'] = "Veuillez vous connecter.";
+            Flash::add("Veuillez vous connecter.", "danger");
             redirect('/login');
+            exit;
         }
 
-        // Vérifie que l'utilisateur a le rôle employé (role_id = 2)
-        if ($_SESSION['user']['role_id'] !== 2) { // Correction de l'indice
+        if ((int)($_SESSION['user']['role_id'] ?? 0) !== 2) {
             abort(403, "Accès interdit");
         }
     }
@@ -114,11 +113,13 @@ class EmployeeController extends Controller
         if (!\App\Security\Csrf::check($_POST['csrf'] ?? null)) {
             Flash::add('Requête invalide (CSRF).', 'danger');
             redirect('/employe');
+            return;
         }
         $id = (string)($_POST['review_id'] ?? '');
         if ($id === '') {
             Flash::add('Avis introuvable (ID manquant).', 'danger');
             redirect('/employe');
+            return;
         }
         $action = (string)($_POST['action'] ?? 'reject');
         try {
@@ -128,6 +129,7 @@ class EmployeeController extends Controller
             if (!$doc) {
                 Flash::add('Avis introuvable ou déjà traité.', 'warning');
                 redirect('/employe');
+                return;
             }
             $decision = $action === 'approve' ? 'approved' : 'rejected';
             $ok = $mod->updateStatus($id, $decision);
@@ -177,5 +179,6 @@ class EmployeeController extends Controller
             Flash::add('Erreur lors de la mise à jour.', 'danger');
         }
         redirect('/employe');
+        return;
     }
 }
