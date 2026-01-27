@@ -285,17 +285,30 @@ class AdminController extends Controller
     }
 
     // Supprime un compte et positionne l'onglet actif selon le rôle
+
     public function deleteEmployee(int $id): void
     {
         $user = $this->userRepository->findById($id);
 
-        if ($this->userRepository->delete($id)) {
-            $_SESSION['success'] = "Compte supprimé avec succès.";
-            $_SESSION['active_tab'] = ($user->getRoleId() === 1) ? 'utilisateurs' : 'employes';
-        } else {
+        try {
+            $ok = $this->userRepository->delete($id);
+
+            if ($ok) {
+                $_SESSION['success'] = "Compte supprimé avec succès.";
+                $_SESSION['active_tab'] = ($user && (int)$user->getRoleId() === 1) ? 'utilisateurs' : 'employes';
+            } else {
+                $_SESSION['error'] = "Erreur lors de la suppression.";
+            }
+        } catch (\PDOException $e) {
+            // FK bloquante: l'utilisateur est référencé (covoiturages, participations...)
+            $_SESSION['error'] = "Impossible de supprimer : ce compte est lié à des trajets/participations. Désactive-le plutôt.";
+            error_log('[AdminController::deleteEmployee] ' . $e->getMessage());
+        } catch (\Throwable $e) {
             $_SESSION['error'] = "Erreur lors de la suppression.";
+            error_log('[AdminController::deleteEmployee] ' . $e->getMessage());
         }
 
         redirect('/admin/users');
+        return;
     }
 }
