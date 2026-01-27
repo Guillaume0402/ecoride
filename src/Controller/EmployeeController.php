@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Service\Flash;
+use App\Security\Csrf;
+
 
 // Contrôleur employé (role_id = 2): gardes d'accès + dashboard
 class EmployeeController extends Controller
@@ -104,13 +106,15 @@ class EmployeeController extends Controller
     // POST /employee/review/validate
     public function validateReview(): void
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role_id'] !== 2) {
+        if ((int)($_SESSION['user']['role_id'] ?? 0) !== 2) {
             abort(403);
+            return;
         }
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
             abort(405);
+            return;
         }
-        if (!\App\Security\Csrf::check($_POST['csrf'] ?? null)) {
+        if (!Csrf::check($_POST['csrf'] ?? null)) {
             Flash::add('Requête invalide (CSRF).', 'danger');
             redirect('/employe');
             return;
@@ -121,7 +125,12 @@ class EmployeeController extends Controller
             redirect('/employe');
             return;
         }
-        $action = (string)($_POST['action'] ?? 'reject');
+        $action = $_POST['action'] ?? 'reject';
+        if (!in_array($action, ['approve', 'reject'], true)) {
+            Flash::add('Action invalide.', 'danger');
+            redirect('/employe');
+            return;
+        }
         try {
             $mod = new \App\Service\ReviewModerationService();
             // Charger le document pour connaître son type et les acteurs
