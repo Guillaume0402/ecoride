@@ -18,6 +18,7 @@
     <title><?= htmlspecialchars($metaTitle, ENT_QUOTES, 'UTF-8') ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="<?= htmlspecialchars($metaDescription, ENT_QUOTES, 'UTF-8') ?>">
+    <meta name="csrf-token" content="<?= htmlspecialchars(\App\Security\Csrf::token(), ENT_QUOTES, 'UTF-8') ?>">
     <link rel="canonical" href="<?= htmlspecialchars($canonical, ENT_QUOTES, 'UTF-8') ?>">
     <meta name="robots" content="<?= $noindex ? 'noindex,nofollow,noarchive' : 'index,follow' ?>">
     <meta name="theme-color" content="#0a7c66">
