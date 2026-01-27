@@ -128,10 +128,18 @@ async function handleAuth(endpoint, payload) {
             body: JSON.stringify(payload),
         });
 
-        const data = await response.json();
+        let data = null;
 
-        if (!data.success) {
-            showAlert(data.message || "Erreur.", "danger");
+        try {
+            data = await response.json();
+        } catch {
+            // Si le serveur ne renvoie pas du JSON (HTML/erreur), on gère proprement
+            showAlert("Réponse serveur invalide. Réessayez.", "danger");
+            return false;
+        }
+
+        if (!response.ok || !data?.success) {
+            showAlert(data?.message || "Erreur.", "danger");
             return false;
         }
 
