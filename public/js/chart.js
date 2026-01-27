@@ -4,16 +4,32 @@ Rôle: Instancier les graphiques Chart.js si les canvas cibles sont présents.
 Utilisation: Fournir labels/values via data-attributes ou valeurs par défaut.
 */
 document.addEventListener("DOMContentLoaded", () => {
+    // Si Chart.js n'est pas chargé sur la page, on ne fait rien
+    if (typeof Chart === "undefined") return;
+
+    function safeJsonParse(str, fallback) {
+        try {
+            return JSON.parse(str);
+        } catch {
+            return fallback;
+        }
+    }
+
     const chartCovoiturages = document.getElementById("chartCovoiturages");
     const chartCredits = document.getElementById("chartCredits");
 
     if (chartCovoiturages) {
+        const defaultLabels = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+        const defaultValues = [3, 5, 7, 6, 4, 2, 1];
+
         const labels1 = chartCovoiturages.dataset.labels
-            ? JSON.parse(chartCovoiturages.dataset.labels)
-            : ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+            ? safeJsonParse(chartCovoiturages.dataset.labels, defaultLabels)
+            : defaultLabels;
+
         const values1 = chartCovoiturages.dataset.values
-            ? JSON.parse(chartCovoiturages.dataset.values)
-            : [3, 5, 7, 6, 4, 2, 1];
+            ? safeJsonParse(chartCovoiturages.dataset.values, defaultValues)
+            : defaultValues;
+
         new Chart(chartCovoiturages, {
             type: "bar",
             data: {
@@ -29,13 +45,19 @@ document.addEventListener("DOMContentLoaded", () => {
             },
         });
     }
+
     if (chartCredits) {
+        const defaultLabels = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+        const defaultValues = [40, 55, 60, 38, 80, 20, 15];
+
         const labels2 = chartCredits.dataset.labels
-            ? JSON.parse(chartCredits.dataset.labels)
-            : ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+            ? safeJsonParse(chartCredits.dataset.labels, defaultLabels)
+            : defaultLabels;
+
         const values2 = chartCredits.dataset.values
-            ? JSON.parse(chartCredits.dataset.values)
-            : [40, 55, 60, 38, 80, 20, 15];
+            ? safeJsonParse(chartCredits.dataset.values, defaultValues)
+            : defaultValues;
+
         new Chart(chartCredits, {
             type: "line",
             data: {
