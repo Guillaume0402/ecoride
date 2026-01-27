@@ -1,10 +1,29 @@
 /*
-Module: Auth Modal (version simplifiée DWWM)
-Rôle: onglets, submit AJAX (login/register), affichage messages, redirection, logout.
-Sécurité: CSRF envoyé via header X-CSRF-Token (si présent) + cookies session same-origin.
+====================================================
+ Module : Auth Modal (DWWM – pédagogique)
+----------------------------------------------------
+ Rôle :
+ - Gérer la modale d’authentification (inscription / connexion)
+ - Envoyer les formulaires en AJAX (fetch)
+ - Afficher les messages d’erreur ou de succès
+ - Gérer la redirection après connexion
+ - Gérer la déconnexion via l’API
+
+ Sécurité :
+ - CSRF envoyé via l’en-tête HTTP X-CSRF-Token
+ - Cookies de session envoyés avec credentials: "same-origin"
+====================================================
 */
 
-// --- UI helpers ---
+/* ==================================================
+   FONCTIONS UI (affichage / feedback utilisateur)
+   ================================================== */
+
+/**
+ * Affiche un message dans la modale (zone rouge/verte)
+ * @param {string} message
+ * @param {string} type (success | danger | warning)
+ */
 function showAlert(message, type = "danger") {
     const modalAlert = document.querySelector("#authModal #authAlert");
     if (!modalAlert) return;
@@ -13,9 +32,14 @@ function showAlert(message, type = "danger") {
     modalAlert.textContent = message;
     modalAlert.classList.remove("d-none");
 
+    // Masque automatiquement après 5 secondes
     setTimeout(() => modalAlert.classList.add("d-none"), 5000);
 }
 
+/**
+ * Affiche une alerte globale (en haut de la page)
+ * Utilisé surtout après logout
+ */
 function showGlobalAlert(message, type = "success") {
     const stack = document.getElementById("alerts");
     if (!stack) return;
@@ -26,16 +50,24 @@ function showGlobalAlert(message, type = "success") {
 
     stack.appendChild(el);
 
+    // Animation + suppression
     setTimeout(() => el.classList.add("fade-out"), 3500);
     setTimeout(() => el.remove(), 4300);
 }
 
+/**
+ * Cache le message de la modale
+ */
 function hideAlert() {
     const alertDiv = document.getElementById("authAlert");
     if (!alertDiv) return;
     alertDiv.classList.add("d-none");
 }
 
+/**
+ * Active/désactive l’état "chargement" d’un formulaire
+ * (désactive le bouton + affiche le spinner)
+ */
 function setLoading(form, isLoading) {
     const button = form?.querySelector('button[type="submit"]');
     if (!button) return;
@@ -48,6 +80,9 @@ function setLoading(form, isLoading) {
     if (spinner) spinner.classList.toggle("d-none", !isLoading);
 }
 
+/**
+ * Active l’onglet Connexion ou Inscription
+ */
 function setActiveTab(tab) {
     hideAlert();
 
@@ -57,7 +92,8 @@ function setActiveTab(tab) {
     const showRegister = document.getElementById("showRegister");
     const title = document.getElementById("authModalLabel");
 
-    if (!loginForm || !registerForm || !showLogin || !showRegister || !title) return;
+    if (!loginForm || !registerForm || !showLogin || !showRegister || !title)
+        return;
 
     const isLogin = tab === "login";
 
@@ -70,23 +106,22 @@ function setActiveTab(tab) {
     title.innerText = isLogin ? "Connexion" : "Inscription";
 }
 
-// --- API call (login/register) ---
-async function handleAuth(endpoint, formDataObj) {
-    const csrf =
-        formDataObj.csrf || document.querySelector('input[name="csrf"]')?.value;
+/* ==================================================
+   APPEL API AUTH (LOGIN / REGISTER)
+   ================================================== */
 
-    const fallbackRedirect = (() => {
-        try {
-            return window.location.pathname + window.location.search;
-        } catch (_) {
-            return "/";
-        }
-    })();
+/**
+ * Envoie une requête AJAX vers l’API d’authentification
+ * @param {string} endpoint  login | register
+ * @param {object} formDataObj données du formulaire
+ */
+async function handleAuth(endpoint, payload) {
+    // Récupération du token CSRF depuis le formulaire
+    const csrf = document.querySelector('input[name="csrf"]')?.value;
+    if (csrf) payload.csrf = csrf;
 
-    // si pas de redirect dans le form, on met la page courante
-    if (!formDataObj.redirect) {
-        formDataObj.redirect = fallbackRedirect;
-    }
+    // URL de retour par défaut
+    payload.redirect = payload.redirect || window.location.pathname || "/";
 
     try {
         const response = await fetch(`/api/auth/${endpoint}`, {
@@ -96,51 +131,57 @@ async function handleAuth(endpoint, formDataObj) {
                 ...(csrf ? { "X-CSRF-Token": csrf } : {}),
             },
             credentials: "same-origin",
-            body: JSON.stringify(formDataObj),
+            body: JSON.stringify(payload),
         });
 
         const data = await response.json();
 
-        if (!data?.success) {
-            showAlert(data?.message || "Erreur.", "danger");
-            return { ok: false };
+        if (!data.success) {
+            showAlert(data.message || "Erreur.", "danger");
+            return false;
         }
 
         showAlert(data.message || "Succès.", "success");
 
         if (endpoint === "login") {
             setTimeout(() => {
-                const to = data.redirect || formDataObj.redirect || fallbackRedirect || "/";
-                window.location.href = to;
+                window.location.href = data.redirect || payload.redirect || "/";
             }, 800);
         } else {
-            // register
-            setTimeout(() => {
-                setActiveTab("login");
-                const emailLogin = document.getElementById("emailLogin");
-                if (emailLogin && formDataObj.email) emailLogin.value = formDataObj.email;
-            }, 800);
+            setTimeout(() => setActiveTab("login"), 800);
         }
 
-        return { ok: true, data };
-    } catch (err) {
-        console.error(err);
-        showAlert("Erreur de connexion au serveur", "danger");
-        return { ok: false };
+        return true;
+    } catch (error) {
+        console.error(error);
+        showAlert("Erreur de communication avec le serveur", "danger");
+        return false;
     }
 }
 
-// --- Minimal validation helpers (simple + jury-friendly) ---
+/* ==================================================
+   OUTILS DE VALIDATION SIMPLE
+   ================================================== */
+
+/**
+ * Transforme un formulaire en objet JS
+ */
 function formToObject(form) {
     return Object.fromEntries(new FormData(form));
 }
 
+/**
+ * Focus le premier champ invalide HTML5
+ */
 function focusFirstInvalid(form) {
     const first = form.querySelector(":invalid");
     if (first) first.focus();
 }
 
-// --- DOM init ---
+/* ==================================================
+   INITIALISATION AU CHARGEMENT DU DOM
+   ================================================== */
+
 document.addEventListener("DOMContentLoaded", () => {
     const authModal = document.getElementById("authModal");
     const showLogin = document.getElementById("showLogin");
@@ -150,40 +191,63 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!authModal || !loginForm || !registerForm) return;
 
-    // Tabs
+    /* --- Afficher / masquer les mots de passe --- */
+    authModal.addEventListener("click", (e) => {
+        const btn = e.target.closest(".toggle-password");
+        if (!btn) return;
+
+        const targetId = btn.getAttribute("data-target");
+        const input = document.getElementById(targetId);
+        if (!input) return;
+
+        const isPassword = input.type === "password";
+        input.type = isPassword ? "text" : "password";
+
+        const icon = btn.querySelector("i");
+        if (icon) {
+            icon.classList.toggle("bi-eye", !isPassword);
+            icon.classList.toggle("bi-eye-slash", isPassword);
+        }
+    });
+
+    /* --- Onglets Connexion / Inscription --- */
     showLogin?.addEventListener("click", () => setActiveTab("login"));
     showRegister?.addEventListener("click", () => setActiveTab("register"));
 
-    // Register submit (validation minimale)
+    /* --- Soumission INSCRIPTION --- */
     registerForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         hideAlert();
 
-        // HTML5 validation (required/email/minlength/pattern)
         if (!registerForm.checkValidity()) {
             registerForm.reportValidity();
             focusFirstInvalid(registerForm);
             return;
         }
 
-        const pwd = registerForm.querySelector("#passwordRegister")?.value || "";
-        const confirm = registerForm.querySelector("#confirmPassword")?.value || "";
+        const pwd =
+            registerForm.querySelector("#passwordRegister")?.value || "";
+        const confirm =
+            registerForm.querySelector("#confirmPassword")?.value || "";
+
         if (pwd !== confirm) {
             showAlert("Les mots de passe ne correspondent pas.", "danger");
-            registerForm.querySelector("#confirmPassword")?.focus();
             return;
         }
 
         setLoading(registerForm, true);
 
-        const payload = formToObject(registerForm);
-        const result = await handleAuth("register", payload);
+        const success = await handleAuth(
+            "register",
+            formToObject(registerForm)
+        );
 
-        if (!result.ok) setLoading(registerForm, false);
-        // si ok, on laisse tel quel (tu changes d’onglet)
+        if (!success) {
+            setLoading(registerForm, false);
+        }
     });
 
-    // Login submit (validation minimale)
+    /* --- Soumission CONNEXION --- */
     loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         hideAlert();
@@ -196,42 +260,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
         setLoading(loginForm, true);
 
-        const payload = formToObject(loginForm);
-        const result = await handleAuth("login", payload);
+        const success = await handleAuth("login", formToObject(loginForm));
 
-        if (!result.ok) setLoading(loginForm, false);
-        // si ok, redirection arrive
+        if (!success) {
+            setLoading(loginForm, false);
+        }
     });
 
-    // Modal opening (buttons data-bs-target="#authModal")
+    /* --- Ouverture de la modale --- */
     const modal = new bootstrap.Modal(authModal);
 
-    document.querySelectorAll('[data-bs-target="#authModal"]').forEach((btn) => {
-        btn.addEventListener("click", () => {
-            const start = btn.getAttribute("data-start") || "register";
-            setActiveTab(start);
+    document
+        .querySelectorAll('[data-bs-target="#authModal"]')
+        .forEach((btn) => {
+            btn.addEventListener("click", () => {
+                setActiveTab(btn.getAttribute("data-start") || "register");
 
-            // Pré-remplir redirect dans le loginForm
-            try {
                 const red = loginForm.querySelector('input[name="redirect"]');
-                if (red) red.value = window.location.pathname + window.location.search;
-            } catch (_) {}
+                if (red)
+                    red.value =
+                        window.location.pathname + window.location.search;
 
-            modal.show();
+                modal.show();
+            });
         });
-    });
 
-    // Auto open on /login
-    try {
-        if (window.location.pathname === "/login") {
-            setActiveTab("login");
-            const red = loginForm.querySelector('input[name="redirect"]');
-            if (red) red.value = "/";
-            modal.show();
-        }
-    } catch (_) {}
+    /* --- Ouverture auto sur /login --- */
+    if (window.location.pathname === "/login") {
+        setActiveTab("login");
+        modal.show();
+    }
 
-    // Reset on close
+    /* --- Reset à la fermeture --- */
     authModal.addEventListener("hidden.bs.modal", () => {
         registerForm.reset();
         loginForm.reset();
@@ -239,29 +299,33 @@ document.addEventListener("DOMContentLoaded", () => {
         setLoading(registerForm, false);
         setLoading(loginForm, false);
     });
-});
 
-// Logout via API (AJAX)
-const logoutBtn = document.getElementById("logoutBtn");
-if (logoutBtn) {
-    logoutBtn.addEventListener("click", async (e) => {
-        e.preventDefault();
-        try {
-            const response = await fetch("/api/auth/logout", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "same-origin",
-            });
-            const data = await response.json();
+    /* --- Déconnexion AJAX --- */
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
 
-            if (data?.success) {
-                showGlobalAlert("Vous êtes bien déconnecté(e) !", "success");
-                setTimeout(() => (window.location.href = "/"), 700);
-            } else {
+            try {
+                const res = await fetch("/api/auth/logout", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "same-origin",
+                });
+                const data = await res.json();
+
+                if (data?.success) {
+                    showGlobalAlert(
+                        "Vous êtes bien déconnecté(e) !",
+                        "success",
+                    );
+                    setTimeout(() => (window.location.href = "/"), 700);
+                } else {
+                    showGlobalAlert("Erreur lors de la déconnexion", "danger");
+                }
+            } catch {
                 showGlobalAlert("Erreur lors de la déconnexion", "danger");
             }
-        } catch (err) {
-            showGlobalAlert("Erreur lors de la déconnexion", "danger");
-        }
-    });
-}
+        });
+    }
+});
