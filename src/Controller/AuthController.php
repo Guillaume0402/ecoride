@@ -211,15 +211,22 @@ class AuthController extends Controller
         redirect('/login');
     }
 
-    // Déconnexion (HTML) + redirection
+    // API logout JSON: détruit la session et renvoie success
     public function logout(): void
     {
-        // Ne PAS détruire la session avant le flash
-        unset($_SESSION['user']);              // on déconnecte l’utilisateur
-        Flash::add('Vous êtes bien déconnecté(e).', 'success');  // on stocke le message
-        session_regenerate_id(true);                        // hygiène de session
-        redirect('/');                                                     // le flash s’affichera sur la page d’arrivée
+        $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
+
+        if (!Csrf::check($token)) {
+            http_response_code(403);
+            $this->json(['success' => false, 'message' => 'CSRF invalide']);
+            return;
+        }
+        unset($_SESSION['user']);       // déconnecte l’utilisateur
+        session_regenerate_id(true);    // hygiène (anti fixation)
+        $this->json(['success' => true]);
     }
+
+
 
 
 
