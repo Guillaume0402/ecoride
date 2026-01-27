@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Repository\CovoiturageRepository;
 use App\Repository\ParticipationRepository;
 use App\Repository\TransactionRepository;
-use App\Repository\UserRepository;
 use App\Security\Csrf;
 use App\Service\Flash;
 
@@ -29,6 +28,7 @@ class ParticipationController extends Controller
         if (!isset($_SESSION['user'])) {
             Flash::add('Veuillez vous connecter pour participer.', 'warning');
             redirect('/login');
+            return;
         }
 
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
@@ -38,6 +38,7 @@ class ParticipationController extends Controller
         if (!Csrf::check($_POST['csrf'] ?? null)) {
             Flash::add('Requête invalide (CSRF).', 'danger');
             redirect('/liste-covoiturages');
+            return;
         }
 
         $userId = (int) $_SESSION['user']['id'];
@@ -46,6 +47,7 @@ class ParticipationController extends Controller
         if (!in_array($roleId, [1, 2, 3], true)) {
             Flash::add('Action non autorisée pour votre rôle.', 'warning');
             redirect('/liste-covoiturages');
+            return;
         }
         // Exiger un profil apte à voyager en tant que passager
         try {
@@ -54,6 +56,7 @@ class ParticipationController extends Controller
             if (!in_array($travelRole, ['passager', 'les-deux'], true)) {
                 Flash::add("Votre profil n'est pas configuré comme passager. Mettez à jour votre rôle de voyage dans votre profil.", 'warning');
                 redirect('/creation-profil');
+                return;
             }
         } catch (\Throwable $e) {
             error_log('[participations.create] Travel role check failed: ' . $e->getMessage());
@@ -62,6 +65,7 @@ class ParticipationController extends Controller
         if ($covoiturageId <= 0) {
             Flash::add('Covoiturage invalide.', 'danger');
             redirect('/liste-covoiturages');
+            return;
         }
 
         // Récup covoiturage + véhicule pour capacité
@@ -69,12 +73,14 @@ class ParticipationController extends Controller
         if (!$ride) {
             Flash::add('Covoiturage introuvable.', 'danger');
             redirect('/liste-covoiturages');
+            return;
         }
 
         // Interdire au conducteur de participer à son propre trajet
         if ((int)$ride['driver_id'] === $userId) {
             Flash::add('Vous êtes le conducteur de ce trajet.', 'warning');
             redirect('/liste-covoiturages');
+            return;
         }
 
         // Interdire si départ passé
@@ -83,11 +89,13 @@ class ParticipationController extends Controller
             if ($depart < new \DateTime()) {
                 Flash::add('Ce trajet est déjà passé.', 'warning');
                 redirect('/liste-covoiturages');
+                return;
             }
         } catch (\Throwable $e) {
             // si problème de parsing, sécurité
             Flash::add('Date de départ invalide.', 'danger');
             redirect('/liste-covoiturages');
+            return;
         }
 
         // Sécurité: empêcher de participer à deux trajets qui se chevauchent
@@ -97,6 +105,7 @@ class ParticipationController extends Controller
             if ($this->participationRepository->hasConfirmedConflictAround($userId, $depart, 120)) {
                 Flash::add('Vous avez déjà une participation confirmée à proximité de cet horaire. Choisissez un autre trajet.', 'warning');
                 redirect('/liste-covoiturages');
+                return;
             }
         } catch (\Throwable $e) {
             error_log('[participations.create] conflict check failed: ' . $e->getMessage());
@@ -106,6 +115,7 @@ class ParticipationController extends Controller
         if ($this->participationRepository->findByCovoiturageAndPassager($covoiturageId, $userId)) {
             Flash::add('Vous avez déjà une demande pour ce trajet.', 'info');
             redirect('/liste-covoiturages');
+            return;
         }
 
         // Capacité restante: places du véhicule - participations confirmées
@@ -115,6 +125,7 @@ class ParticipationController extends Controller
         if ($restantes <= 0) {
             Flash::add('Plus aucune place disponible.', 'warning');
             redirect('/liste-covoiturages');
+            return;
         }
         // Tente de créer la participation en attente de validation par le conducteur
         $created = $this->participationRepository->create($covoiturageId, $userId, 'en_attente_validation');
@@ -143,10 +154,12 @@ class ParticipationController extends Controller
             }
             Flash::add('Votre demande a été envoyée au conducteur. Vous serez notifié(e) après sa réponse.', 'success');
             redirect('/mes-covoiturages');
+            return;
         }
 
         Flash::add('Une erreur est survenue lors de la création de la demande.', 'danger');
         redirect('/liste-covoiturages');
+        return;
     }
 
     // GET /mes-demandes : liste des demandes en attente pour les trajets du conducteur
@@ -154,6 +167,7 @@ class ParticipationController extends Controller
     {
         if (!isset($_SESSION['user'])) {
             redirect('/login');
+            return;
         }
         $userId = (int) $_SESSION['user']['id'];
         $pending = $this->participationRepository->findPendingByDriverId($userId);
@@ -178,6 +192,7 @@ class ParticipationController extends Controller
     {
         if (!isset($_SESSION['user'])) {
             redirect('/login');
+            return;
         }
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
             abort(405);
@@ -185,6 +200,7 @@ class ParticipationController extends Controller
         if (!Csrf::check($_POST['csrf'] ?? null)) {
             Flash::add('Requête invalide (CSRF).', 'danger');
             redirect('/mes-demandes');
+            return;
         }
 
         $userId = (int) $_SESSION['user']['id'];
@@ -192,11 +208,13 @@ class ParticipationController extends Controller
         if (!$p) {
             Flash::add('Participation introuvable.', 'danger');
             redirect('/mes-demandes');
+            return;
         }
         // Autorisation: uniquement le conducteur du covoiturage
         if ((int)($p['driver_user_id'] ?? 0) !== $userId) {
             Flash::add('Action non autorisée.', 'danger');
             redirect('/mes-demandes');
+            return;
         }
         // Si on confirme, vérifier la capacité et débiter maintenant le passager
         if ($newStatus === 'confirmee') {
@@ -206,6 +224,7 @@ class ParticipationController extends Controller
             if ($restantes <= 0) {
                 Flash::add('Plus de place disponible pour confirmer.', 'warning');
                 redirect('/mes-demandes');
+                return;
             }
 
             // Débiter le prix (arrondi) au passager avant de confirmer
@@ -215,6 +234,7 @@ class ParticipationController extends Controller
             if (!$this->userRepository->debitIfEnough($passagerId, $cost)) {
                 Flash::add('Crédits insuffisants pour confirmer. Demandez au passager de recharger son solde.', 'warning');
                 redirect('/mes-demandes');
+                return;
             }
             // Journaliser la transaction
             $this->transactionRepository->create($passagerId, $cost, 'debit', 'Participation trajet #' . (int)$p['covoiturage_id']);
@@ -262,6 +282,7 @@ class ParticipationController extends Controller
             Flash::add('Mise à jour impossible.', 'danger');
         }
         redirect('/mes-demandes');
+        return;
     }
 
     // POST /participations/validate/{id}
@@ -269,6 +290,7 @@ class ParticipationController extends Controller
     {
         if (!isset($_SESSION['user'])) {
             redirect('/login');
+            return;
         }
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
             abort(405);
@@ -276,6 +298,7 @@ class ParticipationController extends Controller
         if (!Csrf::check($_POST['csrf'] ?? null)) {
             Flash::add('Requête invalide (CSRF).', 'danger');
             redirect('/mes-covoiturages');
+            return;
         }
 
         $userId = (int) $_SESSION['user']['id'];
@@ -283,16 +306,19 @@ class ParticipationController extends Controller
         if (!$p) {
             Flash::add('Participation introuvable.', 'danger');
             redirect('/mes-covoiturages');
+            return;
         }
         if ((int)$p['passager_id'] !== $userId) {
             Flash::add('Action non autorisée.', 'danger');
             redirect('/mes-covoiturages');
+            return;
         }
         // Exiger que le covoiturage soit terminé
         $covoitStatus = (string)($p['covoit_status'] ?? '');
         if ($covoitStatus !== 'termine') {
             Flash::add('Ce trajet n\'est pas encore terminé.', 'warning');
             redirect('/mes-covoiturages');
+            return;
         }
 
         $driverId = (int)($p['driver_user_id'] ?? 0);
@@ -332,6 +358,7 @@ class ParticipationController extends Controller
 
         Flash::add('Merci pour votre validation. Le conducteur a été crédité.', 'success');
         redirect('/mes-covoiturages');
+        return;
     }
 
     // GET /participations/validate/{id}
@@ -339,20 +366,24 @@ class ParticipationController extends Controller
     {
         if (!isset($_SESSION['user'])) {
             redirect('/login');
+            return;
         }
         $userId = (int) $_SESSION['user']['id'];
         $p = $this->participationRepository->findWithCovoiturageById($id);
         if (!$p) {
             Flash::add('Participation introuvable.', 'danger');
             redirect('/mes-covoiturages');
+            return;
         }
         if ((int)$p['passager_id'] !== $userId) {
             Flash::add('Action non autorisée.', 'danger');
             redirect('/mes-covoiturages');
+            return;
         }
         if (($p['covoit_status'] ?? '') !== 'termine') {
             Flash::add('Ce trajet n\'est pas encore terminé.', 'warning');
             redirect('/mes-covoiturages');
+            return;
         }
 
         $this->render('pages/participations/validate', [
@@ -365,6 +396,7 @@ class ParticipationController extends Controller
     {
         if (!isset($_SESSION['user'])) {
             redirect('/login');
+            return;
         }
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
             abort(405);
@@ -372,6 +404,7 @@ class ParticipationController extends Controller
         if (!Csrf::check($_POST['csrf'] ?? null)) {
             Flash::add('Requête invalide (CSRF).', 'danger');
             redirect('/mes-covoiturages');
+            return;
         }
 
         $userId = (int) $_SESSION['user']['id'];
@@ -379,15 +412,18 @@ class ParticipationController extends Controller
         if (!$p) {
             Flash::add('Participation introuvable.', 'danger');
             redirect('/mes-covoiturages');
+            return;
         }
         if ((int)$p['passager_id'] !== $userId) {
             Flash::add('Action non autorisée.', 'danger');
             redirect('/mes-covoiturages');
+            return;
         }
         $covoitStatus = (string)($p['covoit_status'] ?? '');
         if ($covoitStatus !== 'termine') {
             Flash::add('Vous pourrez signaler un problème quand le trajet sera terminé.', 'warning');
             redirect('/mes-covoiturages');
+            return;
         }
 
         $driverId = (int)($p['driver_user_id'] ?? 0);
@@ -409,5 +445,6 @@ class ParticipationController extends Controller
 
         Flash::add('Merci, votre signalement a été transmis à nos équipes.', 'success');
         redirect('/mes-covoiturages');
+        return;
     }
 }
