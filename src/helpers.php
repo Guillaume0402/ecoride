@@ -6,11 +6,18 @@ use App\Controller\ErrorController;
 if (!function_exists('redirect')) {
     function redirect(string $url, int $statusCode = 302): void
     {
-        // Définit le code de statut HTTP (302 = redirection par défaut)
+        $url = trim($url);
+
+        // Anti header injection
+        if (preg_match("/[\r\n]/", $url)) {
+            abort(400, 'Redirection invalide');
+        }
+        // Anti open-redirect : autoriser uniquement les chemins internes
+        if ($url === '' || $url[0] !== '/') {
+            abort(400, 'Redirection invalide');
+        }
         http_response_code($statusCode);
-        // Envoie l'en-tête de redirection vers l'URL passée en paramètre
         header("Location: $url");
-        // Arrête immédiatement l'exécution du script
         exit;
     }
 }
