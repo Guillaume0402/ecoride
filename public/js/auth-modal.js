@@ -20,7 +20,7 @@
    ================================================== */
 
 //Affiche un message dans la modale (zone rouge/verte)
- 
+
 function showAlert(message, type = "danger") {
     const modalAlert = document.querySelector("#authModal #authAlert");
     if (!modalAlert) return;
@@ -108,7 +108,7 @@ function setActiveTab(tab) {
    ================================================== */
 
 //Envoie une requête AJAX vers l’API d’authentification
- 
+
 async function handleAuth(endpoint, payload) {
     // Récupération du token CSRF depuis le formulaire
     const csrf = document.querySelector('input[name="csrf"]')?.value;
@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const success = await handleAuth(
             "register",
-            formToObject(registerForm)
+            formToObject(registerForm),
         );
 
         if (!success) {
@@ -300,12 +300,21 @@ document.addEventListener("DOMContentLoaded", () => {
         logoutBtn.addEventListener("click", async (e) => {
             e.preventDefault();
 
+            // CSRF depuis le <meta> du layout
+            const csrf = document
+                .querySelector('meta[name="csrf-token"]')
+                ?.getAttribute("content");
+
             try {
                 const res = await fetch("/api/auth/logout", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        ...(csrf ? { "X-CSRF-Token": csrf } : {}),
+                    },
                     credentials: "same-origin",
                 });
+
                 const data = await res.json();
 
                 if (data?.success) {
