@@ -13,12 +13,15 @@ Utilisation: Créer des alertes .auto-dismiss et laisser ce module les gérer.
     // delayMs: délai avant démarrage de l'animation
     // i: index pour décaler légèrement (stagger) les disparitions si plusieurs alertes
     function fadeAndRemove(el, delayMs, i = 0) {
-        setTimeout(() => {
-            el.style.transition = "opacity .5s ease, transform .5s ease";
-            el.style.opacity = "0";
-            el.style.transform = "translateY(-6px)";
-            setTimeout(() => el.remove(), 500);
-        }, delayMs + i * 120);
+        setTimeout(
+            () => {
+                el.style.transition = "opacity .5s ease, transform .5s ease";
+                el.style.opacity = "0";
+                el.style.transform = "translateY(-6px)";
+                setTimeout(() => el.remove(), 500);
+            },
+            delayMs + i * 120
+        );
     }
 
     // Cherche toutes les alertes .auto-dismiss dans 'scope' et les planifie
@@ -68,13 +71,11 @@ Utilisation: Créer des alertes .auto-dismiss et laisser ce module les gérer.
     // 2) tentative d’attache immédiate (si #alerts existe déjà)
     // Permet de gérer le cas où #alerts est présent avant DOMContentLoaded
     attachObserver(document.getElementById(STACK_ID));
-})();
 
-// Fermer au clic sur la croix
-// Écoute globale: si on clique sur .custom-alert .btn-close,
-// on supprime simplement l'alerte du DOM.
-document.addEventListener("click", (e) => {
-    if (e.target.matches(".custom-alert .btn-close")) {
-        e.target.closest(".custom-alert")?.remove();
-    }
-});
+    // Fermeture manuelle au clic sur la croix (robuste)
+    document.addEventListener("click", (e) => {
+        const btn = e.target.closest(".custom-alert .btn-close");
+        if (!btn) return;
+        btn.closest(".custom-alert")?.remove();
+    });
+})();
