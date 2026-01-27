@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\UserEntity;
+use App\Service\Flash;
 
 // Contrôleur admin: gardes d'accès + dashboard, stats, gestion comptes
 class AdminController extends Controller
@@ -10,20 +11,19 @@ class AdminController extends Controller
     // Initialise les dépendances et applique les gardes d'accès (authentification + rôle admin).
 
     public function __construct()
-    {
-        parent::__construct();
+{
+    parent::__construct();
 
-        // Vérifie qu'un utilisateur est authentifié
-        if (!isset($_SESSION['user'])) {
-            $_SESSION['error'] = "Veuillez vous connecter.";
-            redirect('/login');
-        }
-
-        // Vérifie que l'utilisateur a le rôle administrateur (role_id = 3)
-        if ($_SESSION['user']['role_id'] !== 3) {
-            abort(403, "Accès interdit");
-        }
+    if (!isset($_SESSION['user'])) {
+        Flash::add("Veuillez vous connecter.", 'danger');
+        redirect('/login');
+        exit;
     }
+
+    if ((int)($_SESSION['user']['role_id'] ?? 0) !== 3) {
+        abort(403, "Accès interdit");
+    }
+}
 
     // Page d'accueil du tableau de bord administrateur.     
     public function dashboard(): void
