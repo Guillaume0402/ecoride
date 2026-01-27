@@ -1,27 +1,29 @@
 const themeToggleBtn = document.getElementById("themeToggleBtn");
 if (themeToggleBtn) {
-    // Initialisation: prendre en compte <html> ou <body> (layout applique tôt sur les deux)
+    function setIcon(isAlt) {
+        const icon = document.createElement("i");
+        icon.className = isAlt ? "bi bi-brightness-high" : "bi bi-moon-stars";
+        themeToggleBtn.replaceChildren(icon);
+    }
+    function applyTheme(isAlt) {
+        document.documentElement.classList.toggle("theme-alt", isAlt);
+        document.body.classList.toggle("theme-alt", isAlt);
+        localStorage.setItem("theme", isAlt ? "alt" : "default");
+        setIcon(isAlt);
+    }
     const stored = localStorage.getItem("theme");
-    const hasAlt =
-        document.documentElement.classList.contains("theme-alt") ||
-        document.body.classList.contains("theme-alt") ||
-        stored === "alt";
+    const isAltInitial =
+        stored === "alt"
+            ? true
+            : stored === "default"
+            ? false
+            : document.documentElement.classList.contains("theme-alt") ||
+              document.body.classList.contains("theme-alt");
 
-    document.documentElement.classList.toggle("theme-alt", hasAlt);
-    document.body.classList.toggle("theme-alt", hasAlt);
-    themeToggleBtn.innerHTML = hasAlt
-        ? '<i class="bi bi-brightness-high"></i>'
-        : '<i class="bi bi-moon-stars"></i>';
+    applyTheme(isAltInitial);
 
-    // Au clic: bascule et synchronise html/body + stockage
     themeToggleBtn.addEventListener("click", () => {
-        const isAltNow =
-            !document.documentElement.classList.contains("theme-alt");
-        document.documentElement.classList.toggle("theme-alt", isAltNow);
-        document.body.classList.toggle("theme-alt", isAltNow);
-        localStorage.setItem("theme", isAltNow ? "alt" : "default");
-        themeToggleBtn.innerHTML = isAltNow
-            ? '<i class="bi bi-brightness-high"></i>'
-            : '<i class="bi bi-moon-stars"></i>';
+        const isAltNow = !document.documentElement.classList.contains("theme-alt");
+        applyTheme(isAltNow);
     });
 }
