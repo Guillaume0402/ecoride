@@ -19,11 +19,8 @@
    FONCTIONS UI (affichage / feedback utilisateur)
    ================================================== */
 
-/**
- * Affiche un message dans la modale (zone rouge/verte)
- * @param {string} message
- * @param {string} type (success | danger | warning)
- */
+//Affiche un message dans la modale (zone rouge/verte)
+ 
 function showAlert(message, type = "danger") {
     const modalAlert = document.querySelector("#authModal #authAlert");
     if (!modalAlert) return;
@@ -110,11 +107,8 @@ function setActiveTab(tab) {
    APPEL API AUTH (LOGIN / REGISTER)
    ================================================== */
 
-/**
- * Envoie une requête AJAX vers l’API d’authentification
- * @param {string} endpoint  login | register
- * @param {object} formDataObj données du formulaire
- */
+//Envoie une requête AJAX vers l’API d’authentification
+ 
 async function handleAuth(endpoint, payload) {
     // Récupération du token CSRF depuis le formulaire
     const csrf = document.querySelector('input[name="csrf"]')?.value;
