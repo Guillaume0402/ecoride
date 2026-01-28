@@ -141,8 +141,8 @@ class Mailer
         $m->Sender = $this->from;
 
         $this->configureReplyTo($m);
-        $this->configureDkim($m);
-        $this->configureDeliverabilityHeaders($m);
+        // $this->configureDkim($m);
+        // $this->configureDeliverabilityHeaders($m);
 
         return $m;
     }
