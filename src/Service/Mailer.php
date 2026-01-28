@@ -20,25 +20,29 @@ class Mailer
     private string $appEnv;
     private ?array $smtp;
 
+    // Constructeur avec options d'expéditeur (sinon variables d'environnement) 
     public function __construct(?string $from = null, ?string $fromName = null)
     {
+        // Adresse et nom de l'expéditeur
         $this->from     = $from     ?: ($this->env('MAIL_FROM') ?: 'no-reply@example.com');
         $this->fromName = $fromName ?: ($this->env('MAIL_FROM_NAME') ?: 'EcoRide');
-
+        // Détecte l'environnement et la config SMTP
         $this->appEnv = $this->detectEnv();
         $this->smtp   = $this->buildSmtpConfig();
 
-        // /tmp est writable sur Heroku
+        // Fichier de log pour le fallback
         $this->logFile = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . '/ecoride-mail.log';
     }
 
+    // Envoie un email HTML, retourne true si succès (SMTP ou log)
     public function send(string $to, string $subject, string $htmlBody): bool
     {
+        // Vérifier la validité de l'adresse email du destinataire
         if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
             error_log('[Mailer] Invalid recipient: ' . $to);
             return false;
         }
-        // Anti header injection
+        // nettoyer le sujet des retours à la ligne pour éviter l'injection d'en-têtes
         $subject = trim(str_replace(["\r", "\n"], ' ', $subject));
 
         // 1) SMTP si configuré
@@ -52,6 +56,7 @@ class Mailer
         return $this->logFallback($to, $subject, $htmlBody);
     }
 
+    // Envoi via SMTP avec PHPMailer, retourne true si succès
     private function sendViaSmtp(string $to, string $subject, string $htmlBody): bool
     {
         $mailer = null;
@@ -68,16 +73,19 @@ class Mailer
 
             $mailer->send();
             return true;
+            // Si échec, log dans le fichier de fallback
         } catch (MailException $e) {
             $errInfo = '';
             if (($mailer instanceof PHPMailer) && !empty($mailer->ErrorInfo)) {
                 $errInfo = ' ErrorInfo=' . $mailer->ErrorInfo;
             }
+            // Log l'erreur SMTP et utilise le fallback pour journaliser le message
             error_log('[Mailer][SMTP] ' . $e->getMessage() . $errInfo);
             return $this->logFallback($to, $subject, $htmlBody);
         }
     }
 
+    // Construire et configurer une instance de PHPMailer
     private function buildPhpMailer(): PHPMailer
     {
         $m = new PHPMailer(true);
@@ -97,18 +105,19 @@ class Mailer
         $m->Host = $this->smtp['host'];
         $m->Port = $this->smtp['port'];
 
+        // Authentification si utilisateur défini
         if (!empty($this->smtp['user'])) {
             $m->SMTPAuth = true;
             $m->Username = $this->smtp['user'];
             $m->Password = $this->smtp['pass'] ?? '';
         }
-
+        // Sécurité (tls/ssl) si définie
         $secure = strtolower((string)($this->smtp['secure'] ?? ''));
         if (in_array($secure, ['tls', 'ssl'], true)) {
             $m->SMTPSecure = $secure;
         }
 
-        // Optionnel: Hostname (Message-ID / Received)
+        // Hostname personnalisé si défini dans les variables d'environnement (Mailpit, Mailhog, etc.)
         $hostname = $this->env('MAIL_HOSTNAME');
         if (is_string($hostname) && $hostname !== '') {
             $m->Hostname = $hostname;
@@ -123,6 +132,7 @@ class Mailer
         return $m;
     }
 
+    // Configure l'adresse Reply-To si définie dans les variables d'environnement
     private function configureReplyTo(PHPMailer $m): void
     {
         $replyTo = $this->env('MAIL_REPLY_TO');
@@ -135,6 +145,7 @@ class Mailer
         }
     }
 
+    // Construit la configuration SMTP depuis les variables d'environnement
     private function buildSmtpConfig(): ?array
     {
         $host = $this->env('SMTP_HOST');
@@ -149,6 +160,7 @@ class Mailer
         ];
     }
 
+    // Détecte l'environnement d'exécution (dev/prod)
     private function detectEnv(): string
     {
         $env = (string)($this->env('APP_ENV') ?? '');
@@ -158,6 +170,7 @@ class Mailer
         return $env;
     }
 
+    // Récupère une variable d'environnement de manière robuste
     private function env(string $key, mixed $default = null): mixed
     {
         if (array_key_exists($key, $_ENV)) {
@@ -167,6 +180,7 @@ class Mailer
         return ($v !== false) ? $v : $default;
     }
 
+    // Journalise le mail dans un fichier de log, retourne true si succès
     private function logFallback(string $to, string $subject, string $htmlBody): bool
     {
         $entry = sprintf("[%s] TO:%s SUBJECT:%s\n%s\n\n", date('Y-m-d H:i:s'), $to, $subject, $htmlBody);
@@ -179,6 +193,7 @@ class Mailer
         return true;
     }
 
+    // Retourne le chemin du fichier de log utilisé pour le fallback
     public function getLogFile(): string
     {
         return $this->logFile;
