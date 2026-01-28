@@ -158,74 +158,8 @@ class Mailer
                 // ignore
             }
         }
-    }
-
-    // Configure DKIM si les variables d'environnement sont définies
-    private function configureDkim(PHPMailer $m): void
-    {
-        // Avec SendGrid, DKIM est normalement géré côté SendGrid (Domain Authentication).
-        // Donc on le coupe automatiquement, sauf si tu forces DKIM_ENABLE=1.
-        $force = (string)($this->env('DKIM_ENABLE') ?? '0');
-        $host = (string)($this->smtp['host'] ?? '');
-        if ($force !== '1' && stripos($host, 'sendgrid.net') !== false) {
-            return;
-        }
-
-        $dkimDomain = $this->env('DKIM_DOMAIN');
-        $dkimSelector = $this->env('DKIM_SELECTOR');
-        $dkimPrivateKey = $this->env('DKIM_PRIVATE_KEY');
-        $dkimPassphrase = $this->env('DKIM_PASSPHRASE');
-
-        if (!is_string($dkimDomain) || $dkimDomain === '') return;
-        if (!is_string($dkimSelector) || $dkimSelector === '') return;
-        if (!is_string($dkimPrivateKey) || $dkimPrivateKey === '') return;
-
-        $keyContent = $dkimPrivateKey;
-        if (str_starts_with($dkimPrivateKey, 'file://')) {
-            $path = substr($dkimPrivateKey, 7);
-            if (is_readable($path)) {
-                $keyContent = @file_get_contents($path) ?: $dkimPrivateKey;
-            }
-        }
-
-        $m->DKIM_domain = $dkimDomain;
-        $m->DKIM_selector = $dkimSelector;
-        $m->DKIM_private = $keyContent;
-
-        if (is_string($dkimPassphrase) && $dkimPassphrase !== '') {
-            $m->DKIM_passphrase = $dkimPassphrase;
-        }
-
-        // Identité DKIM alignée sur From
-        $m->DKIM_identity = $this->from;
-    }
-
-    // Configure les en-têtes pour améliorer la délivrabilité
-    private function configureDeliverabilityHeaders(PHPMailer $m): void
-    {
-        // Ajoute des en-têtes pour améliorer la délivrabilité et la gestion des réponses automatiques
-        $m->addCustomHeader('Auto-Submitted', 'auto-generated');
-        $m->addCustomHeader('X-Auto-Response-Suppress', 'All');
-
-        $luParts = [];
-        $luUrl = $this->env('LIST_UNSUBSCRIBE_URL');
-        $luMailto = $this->env('LIST_UNSUBSCRIBE_MAILTO');
-
-        if (is_string($luUrl) && $luUrl !== '') {
-            $luParts[] = '<' . $luUrl . '>';
-        }
-        if (is_string($luMailto) && $luMailto !== '') {
-            $luParts[] = '<mailto:' . $luMailto . '>';
-        }
-        if ($luParts) {
-            $m->addCustomHeader('List-Unsubscribe', implode(', ', $luParts));
-            $luPost = $this->env('LIST_UNSUBSCRIBE_POST');
-            if ((string)$luPost === '1') {
-                $m->addCustomHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
-            }
-        }
-    }
-
+    }  
+   
     // Configure les paramètres SMTP depuis les variables d'environnement
     private function buildSmtpConfig(): ?array
     {
