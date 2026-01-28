@@ -234,8 +234,9 @@ class MaintenanceService
         foreach ($rows as $row) {
             $rideId = (int)$row['covoiturage_id'];
             $passagerId = (int)$row['passager_id'];
-            $refund = max(1, (int) ceil((float)($row['prix'] ?? 0)));
-            $motif = 'Remboursement annulation trajet #' . $rideId;
+            if ($rideId <= 0 || $passagerId <= 0) continue;
+            $refund = $this->computeRefund($row);
+            $motif = $this->refundMotif($rideId);
             try {
                 // Si aucune transaction n'existe pour ce motif, on crédite les crédits manquants
                 if (!$this->txRepo->existsForMotif($passagerId, $motif)) {
