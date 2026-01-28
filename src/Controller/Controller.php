@@ -59,6 +59,7 @@ class Controller
 
     private function buildLayoutGlobals(): array
     {
+        // Initialisation des compteurs et données utilisateur
         $pendingCount = 0;
         $myTripsCount = 0;
         $employeeModPendingCount = 0;
@@ -66,8 +67,9 @@ class Controller
         $hasVehicle = false;
         $userVehicles = [];
 
+        // Si l'utilisateur est connecté, rafraîchit ses données et prépare les compteurs
         if (isset($_SESSION['user']) && !empty($_SESSION['user']['id'])) {
-
+        
             try {
                 $currentUser = $this->userRepository->findById((int) $_SESSION['user']['id']);
                 if ($currentUser) {

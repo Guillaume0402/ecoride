@@ -5,12 +5,9 @@ namespace App\Service;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception as MailException;
 
-/**
- * Service d'envoi d'e-mails.
- * - Priorité: SMTP (PHPMailer) si configuré (dev/prod)
- * - Sinon: dev -> log, prod -> log (évite mail() souvent bloqué sur PaaS)
- * - Fallback: log en cas d'échec SMTP/mail()
- */
+// Service d'envoi d'e-mails avec support SMTP, fallback logging, et configuration flexible via variables d'environnement.
+// Utilise PHPMailer pour la gestion SMTP avancée.
+// Supporte Mailpit en dev et SendGrid en prod.
 class Mailer
 {
     private string $from;
@@ -19,6 +16,7 @@ class Mailer
     private string $appEnv;
     private ?array $smtp = null;
 
+    // Constructeur avec options d'expéditeur personnalisées (sinon depuis MAIL_FROM / MAIL_FROM_NAME)
     public function __construct(?string $from = null, ?string $fromName = null)
     {
         $envFrom = $this->env('MAIL_FROM');
@@ -34,6 +32,7 @@ class Mailer
         $this->logFile = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . '/ecoride-mail.log';
     }
 
+    // Envoie un e-mail HTML, retourne true si OK, false sinon
     public function send(string $to, string $subject, string $htmlBody): bool
     {
         // Validation minimale
@@ -66,6 +65,7 @@ class Mailer
         return $ok ? true : $this->logFallback($to, $subject, $htmlBody);
     }
 
+    // Envoi via SMTP avec PHPMailer
     private function sendViaSmtp(string $to, string $subject, string $htmlBody): bool
     {
         $mailer = null;
@@ -93,6 +93,7 @@ class Mailer
         }
     }
 
+    // Configure et retourne une instance PHPMailer prête à l'emploi
     private function buildPhpMailer(): PHPMailer
     {
         $m = new PHPMailer(true);
@@ -146,6 +147,7 @@ class Mailer
         return $m;
     }
 
+    // Configure l'adresse Reply-To si définie via MAIL_REPLY_TO
     private function configureReplyTo(PHPMailer $m): void
     {
         $replyTo = $this->env('MAIL_REPLY_TO');
@@ -158,6 +160,7 @@ class Mailer
         }
     }
 
+    // Configure DKIM si les variables d'environnement sont définies
     private function configureDkim(PHPMailer $m): void
     {
         // Avec SendGrid, DKIM est normalement géré côté SendGrid (Domain Authentication).
@@ -197,8 +200,10 @@ class Mailer
         $m->DKIM_identity = $this->from;
     }
 
+    // Configure les en-têtes pour améliorer la délivrabilité
     private function configureDeliverabilityHeaders(PHPMailer $m): void
     {
+        // Ajoute des en-têtes pour améliorer la délivrabilité et la gestion des réponses automatiques
         $m->addCustomHeader('Auto-Submitted', 'auto-generated');
         $m->addCustomHeader('X-Auto-Response-Suppress', 'All');
 
@@ -221,6 +226,7 @@ class Mailer
         }
     }
 
+    // Configure les paramètres SMTP depuis les variables d'environnement
     private function buildSmtpConfig(): ?array
     {
         $host = $this->env('SMTP_HOST');
@@ -237,6 +243,7 @@ class Mailer
         ];
     }
 
+    // En-têtes pour la fonction mail() native
     private function buildPhpMailHeaders(): string
     {
         $headers = [
@@ -247,6 +254,7 @@ class Mailer
         return implode("\r\n", $headers);
     }
 
+    // Détecte l'environnement d'exécution (dev/prod) via APP_ENV ou SITE_URL
     private function detectEnv(): string
     {
         $env = $this->env('APP_ENV');
@@ -256,9 +264,7 @@ class Mailer
         return (string) $env;
     }
 
-    /**
-     * Lecture env robuste: d'abord $_ENV, puis getenv()
-     */
+   // Lecture env robuste: d'abord $_ENV, puis getenv()
     private function env(string $key, mixed $default = null): mixed
     {
         if (array_key_exists($key, $_ENV)) {
@@ -271,6 +277,7 @@ class Mailer
         return $default;
     }
 
+    // Journalise l'e-mail dans un fichier de log (fallback)
     private function logFallback(string $to, string $subject, string $htmlBody): bool
     {
         $entry = sprintf("[%s] TO:%s SUBJECT:%s\n%s\n\n", date('Y-m-d H:i:s'), $to, $subject, $htmlBody);
@@ -283,6 +290,7 @@ class Mailer
         return true;
     }
 
+    // Retourne le chemin du fichier de log utilisé en fallback
     public function getLogFile(): string
     {
         return $this->logFile;
