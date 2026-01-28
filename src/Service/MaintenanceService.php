@@ -171,7 +171,7 @@ class MaintenanceService
         $rows = $stmtList->fetchAll(\PDO::FETCH_ASSOC) ?: [];
         foreach ($rows as $ride) {
             $rideId = (int)$ride['id'];
-            $refund = max(1, (int) ceil((float)($ride['prix'] ?? 0)));
+            $refund = $this->computeRefund($ride);
             try {
                 // On commence une transaction pour annuler proprement le trajet et rembourser
                 $this->pdo->beginTransaction();
@@ -192,7 +192,7 @@ class MaintenanceService
                 foreach ($confirmed as $row) {
                     $passagerId = (int)($row['passager_id'] ?? 0);
                     if ($passagerId <= 0) continue;
-                    $motif = 'Remboursement annulation trajet #' . $rideId;
+                    $motif = $this->refundMotif($rideId);
                     if (!$this->txRepo->existsForMotif($passagerId, $motif)) {
                         $stmtCred = $this->pdo->prepare("UPDATE users SET credits = credits + :amt WHERE id = :uid");
                         $stmtCred->execute([':amt' => $refund, ':uid' => $passagerId]);
@@ -200,32 +200,15 @@ class MaintenanceService
                         $stmtTx->execute([':uid' => $passagerId, ':m' => $refund, ':motif' => $motif]);
                     }
                 }
-
                 $this->pdo->commit();
 
                 // Notifie les passagers que le trajet a été clôturé automatiquement
-                try {
-                    if (!empty($confirmed)) {
-                        $mailer = new Mailer();
-                        foreach ($confirmed as $row) {
-                            $passagerId = (int)$row['passager_id'];
-                            $u = $this->userRepo->findById($passagerId);
-                            if ($u) {
-                                $to = $u->getEmail();
-                                $subject = 'Trajet clos automatiquement';
-                                $trajet = htmlspecialchars((string)$ride['adresse_depart'] . ' → ' . (string)$ride['adresse_arrivee']);
-                                $when = htmlspecialchars(date('d/m/Y H:i', strtotime((string)$ride['depart'])));
-                                $body = '<p>Bonjour ' . htmlspecialchars($u->getPseudo()) . ',</p>'
-                                    . '<p>Le trajet ' . $trajet . ' (départ ' . $when . ') a été clôturé automatiquement.</p>'
-                                    . '<p>Votre compte a été crédité de <strong>' . number_format($refund, 0, ',', ' ') . ' crédit(s)</strong>.</p>'
-                                    . '<p>— L\'équipe EcoRide</p>';
-                                $mailer->send($to, $subject, $body);
-                            }
-                        }
-                    }
-                } catch (\Throwable $e) {
-                    error_log('[MaintenanceService notify auto-expire-started] ' . $e->getMessage());
-                }
+                $this->notifyPassengersRefunded(
+                    $ride,
+                    $confirmed,
+                    $refund,
+                    'Trajet clos automatiquement'
+                );
             } catch (\Throwable $e) {
                 // Rollback en cas de problème pendant la mise à jour
                 if ($this->pdo->inTransaction()) {
