@@ -18,25 +18,31 @@ class Router
         }
     }
 
-    // Point d'entrée: fait correspondre l'URI à une route et invoque le contrôleur
+  
+    // transforme URL en appel de contrôleur + action - cherche la route correspondante - instancie le contrôleur et appelle l'action
     public function handleRequest(string $uri): void
     {
-        // Normalise le chemin et détermine la méthode HTTP courante
+        // Normalise le chemin de l'URI et récupère la méthode HTTP
         $path = $this->normalizePath($uri);
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-        $appEnv = $_ENV['APP_ENV'] ?? (getenv('APP_ENV') ?: 'prod');
+
+        // Log de debug uniquement en environnement de développement
+        $appEnv = $_ENV['APP_ENV'] ?? (getenv('APP_ENV') ?: 'prod');        
         if ($appEnv === 'dev') {
             error_log("Recherche de la route : $path");
         }
 
+        // je prépare mes variables(controller+action) et les paramètres dynamiques (ex ['id' => 12]) 
         $matchedRoute = null;
         $params = [];
 
+        // je boucle pour chercher une route correspondante
         foreach ($this->routes as $routePath => $routeConfig) {
-            // Convertit /admin/users/toggle/{id} → regex
-            // NOTE: ici, les paramètres sont limités à des chiffres (\d+). Adapter si besoin (ex: [^/]+).
+            
+            // Je transforme le chemin de la route en expression régulière {id} en (\d+)regex
             $pattern = preg_replace('#\{[a-zA-Z_]+\}#', '(\d+)', $routePath);
 
+            // Je teste si la route correspond au chemin demandé
             if (preg_match("#^$pattern$#", $path, $matches)) {
                 // Sélectionne la config spécifique à la méthode si définie, sinon la config par défaut
                 $matchedRoute = $routeConfig[$method] ?? $routeConfig;
@@ -48,8 +54,8 @@ class Router
             }
         }
 
-        if (!$matchedRoute) {
-            // Pas de route trouvée → 404
+        // Si aucune route ne correspond → 404
+        if (!$matchedRoute) {            
             (new \App\Controller\ErrorController())->show404("Route non trouvée : $path");
             return;
         }
@@ -60,16 +66,20 @@ class Router
             return;
         }
 
+        // Récupère le contrôleur et l'action à appeler
         $controllerPath = $matchedRoute['controller'];
         $action = $matchedRoute['action'];
 
 
+        // Vérifie que le contrôleur et l'action existent
         if (!class_exists($controllerPath)) {
             abort(500, "Controller introuvable : $controllerPath");
         }
 
+        // Instancie le contrôleur
         $controller = new $controllerPath();
 
+        
         if (!method_exists($controller, $action)) {
             abort(500, "Méthode $action introuvable dans $controllerPath");
         }

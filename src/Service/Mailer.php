@@ -5,12 +5,9 @@ namespace App\Service;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception as MailException;
 
-/**
- * Service d'envoi d'e-mails.
- * - Priorité: SMTP (PHPMailer) si configuré (dev/prod)
- * - Sinon: dev -> log, prod -> log (évite mail() souvent bloqué sur PaaS)
- * - Fallback: log en cas d'échec SMTP/mail()
- */
+// Service d'envoi d'e-mails avec support SMTP, fallback logging, et configuration flexible via variables d'environnement.
+// Utilise PHPMailer pour la gestion SMTP avancée.
+// Supporte Mailpit en dev et SendGrid en prod.
 class Mailer
 {
     private string $from;
@@ -19,6 +16,7 @@ class Mailer
     private string $appEnv;
     private ?array $smtp = null;
 
+    // Constructeur avec options d'expéditeur personnalisées (sinon depuis MAIL_FROM / MAIL_FROM_NAME)
     public function __construct(?string $from = null, ?string $fromName = null)
     {
         $envFrom = $this->env('MAIL_FROM');
@@ -34,6 +32,7 @@ class Mailer
         $this->logFile = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . '/ecoride-mail.log';
     }
 
+    // Envoie un e-mail HTML, retourne true si OK, false sinon
     public function send(string $to, string $subject, string $htmlBody): bool
     {
         // Validation minimale
@@ -66,6 +65,7 @@ class Mailer
         return $ok ? true : $this->logFallback($to, $subject, $htmlBody);
     }
 
+    // Envoi via SMTP avec PHPMailer
     private function sendViaSmtp(string $to, string $subject, string $htmlBody): bool
     {
         $mailer = null;
@@ -93,6 +93,7 @@ class Mailer
         }
     }
 
+    // Configure et retourne une instance PHPMailer prête à l'emploi
     private function buildPhpMailer(): PHPMailer
     {
         $m = new PHPMailer(true);
@@ -140,12 +141,13 @@ class Mailer
         $m->Sender = $this->from;
 
         $this->configureReplyTo($m);
-        $this->configureDkim($m);
-        $this->configureDeliverabilityHeaders($m);
+        // $this->configureDkim($m);
+        // $this->configureDeliverabilityHeaders($m);
 
         return $m;
     }
 
+    // Configure l'adresse Reply-To si définie via MAIL_REPLY_TO
     private function configureReplyTo(PHPMailer $m): void
     {
         $replyTo = $this->env('MAIL_REPLY_TO');
@@ -156,71 +158,9 @@ class Mailer
                 // ignore
             }
         }
-    }
-
-    private function configureDkim(PHPMailer $m): void
-    {
-        // Avec SendGrid, DKIM est normalement géré côté SendGrid (Domain Authentication).
-        // Donc on le coupe automatiquement, sauf si tu forces DKIM_ENABLE=1.
-        $force = (string)($this->env('DKIM_ENABLE') ?? '0');
-        $host = (string)($this->smtp['host'] ?? '');
-        if ($force !== '1' && stripos($host, 'sendgrid.net') !== false) {
-            return;
-        }
-
-        $dkimDomain = $this->env('DKIM_DOMAIN');
-        $dkimSelector = $this->env('DKIM_SELECTOR');
-        $dkimPrivateKey = $this->env('DKIM_PRIVATE_KEY');
-        $dkimPassphrase = $this->env('DKIM_PASSPHRASE');
-
-        if (!is_string($dkimDomain) || $dkimDomain === '') return;
-        if (!is_string($dkimSelector) || $dkimSelector === '') return;
-        if (!is_string($dkimPrivateKey) || $dkimPrivateKey === '') return;
-
-        $keyContent = $dkimPrivateKey;
-        if (str_starts_with($dkimPrivateKey, 'file://')) {
-            $path = substr($dkimPrivateKey, 7);
-            if (is_readable($path)) {
-                $keyContent = @file_get_contents($path) ?: $dkimPrivateKey;
-            }
-        }
-
-        $m->DKIM_domain = $dkimDomain;
-        $m->DKIM_selector = $dkimSelector;
-        $m->DKIM_private = $keyContent;
-
-        if (is_string($dkimPassphrase) && $dkimPassphrase !== '') {
-            $m->DKIM_passphrase = $dkimPassphrase;
-        }
-
-        // Identité DKIM alignée sur From
-        $m->DKIM_identity = $this->from;
-    }
-
-    private function configureDeliverabilityHeaders(PHPMailer $m): void
-    {
-        $m->addCustomHeader('Auto-Submitted', 'auto-generated');
-        $m->addCustomHeader('X-Auto-Response-Suppress', 'All');
-
-        $luParts = [];
-        $luUrl = $this->env('LIST_UNSUBSCRIBE_URL');
-        $luMailto = $this->env('LIST_UNSUBSCRIBE_MAILTO');
-
-        if (is_string($luUrl) && $luUrl !== '') {
-            $luParts[] = '<' . $luUrl . '>';
-        }
-        if (is_string($luMailto) && $luMailto !== '') {
-            $luParts[] = '<mailto:' . $luMailto . '>';
-        }
-        if ($luParts) {
-            $m->addCustomHeader('List-Unsubscribe', implode(', ', $luParts));
-            $luPost = $this->env('LIST_UNSUBSCRIBE_POST');
-            if ((string)$luPost === '1') {
-                $m->addCustomHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
-            }
-        }
-    }
-
+    }  
+   
+    // Configure les paramètres SMTP depuis les variables d'environnement
     private function buildSmtpConfig(): ?array
     {
         $host = $this->env('SMTP_HOST');
@@ -237,6 +177,7 @@ class Mailer
         ];
     }
 
+    // En-têtes pour la fonction mail() native
     private function buildPhpMailHeaders(): string
     {
         $headers = [
@@ -247,6 +188,7 @@ class Mailer
         return implode("\r\n", $headers);
     }
 
+    // Détecte l'environnement d'exécution (dev/prod) via APP_ENV ou SITE_URL
     private function detectEnv(): string
     {
         $env = $this->env('APP_ENV');
@@ -256,9 +198,7 @@ class Mailer
         return (string) $env;
     }
 
-    /**
-     * Lecture env robuste: d'abord $_ENV, puis getenv()
-     */
+   // Lecture env robuste: d'abord $_ENV, puis getenv()
     private function env(string $key, mixed $default = null): mixed
     {
         if (array_key_exists($key, $_ENV)) {
@@ -271,6 +211,7 @@ class Mailer
         return $default;
     }
 
+    // Journalise l'e-mail dans un fichier de log (fallback)
     private function logFallback(string $to, string $subject, string $htmlBody): bool
     {
         $entry = sprintf("[%s] TO:%s SUBJECT:%s\n%s\n\n", date('Y-m-d H:i:s'), $to, $subject, $htmlBody);
@@ -283,6 +224,7 @@ class Mailer
         return true;
     }
 
+    // Retourne le chemin du fichier de log utilisé en fallback
     public function getLogFile(): string
     {
         return $this->logFile;

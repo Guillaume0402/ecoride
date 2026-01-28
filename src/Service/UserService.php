@@ -97,6 +97,7 @@ class UserService
         return $user->getRoleId() === 3;
     }
 
+    // Aide pour l'affichage (initiales, photo, etc.)
     public function getInitiales(UserEntity $user): string
     {
         // Prend les premières lettres de chaque mot du pseudo (max 2)
@@ -155,7 +156,7 @@ class UserService
         return $user->getPhoto() ?? '/assets/images/default-avatar.png';
     }
 
-    // Conversion en tableau (pour API / vues)
+    
     public function toArray(UserEntity $user, bool $includePassword = false): array
     {
         // Sérialise l'entité en tableau pour la vue/API (password optionnel)
