@@ -48,14 +48,17 @@ class MaintenanceService
     {
         // Durée à partir de laquelle un trajet en attente est considéré comme expiré
         $minutes = defined('AUTO_CANCEL_MINUTES') ? (int) AUTO_CANCEL_MINUTES : 60;
+
         // Date/heure limite de départ pour être considéré comme expiré
         $threshold = (new \DateTime())->modify("-{$minutes} minutes")->format('Y-m-d H:i:s');
+
         // Sélectionne les trajets encore en attente mais dont l'heure de départ est déjà passée
         $stmtList = $this->pdo->prepare("SELECT id, prix, adresse_depart, adresse_arrivee, depart FROM covoiturages 
             WHERE status = 'en_attente' AND depart < :threshold
             ORDER BY depart ASC LIMIT 100");
         $stmtList->execute([':threshold' => $threshold]);
         $rows = $stmtList->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+
         foreach ($rows as $ride) {
             // Identifiant du trajet
             $rideId = (int)$ride['id'];
@@ -95,30 +98,7 @@ class MaintenanceService
                 $this->pdo->commit();
 
                 // Envoie un e-mail d'information aux passagers après le commit (best effort)
-                try {
-                    if (!empty($confirmed)) {
-                        $mailer = new Mailer();
-                        foreach ($confirmed as $row) {
-                            $passagerId = (int)$row['passager_id'];
-                            $u = $this->userRepo->findById($passagerId);
-                            if ($u) {
-                                $to = $u->getEmail();
-                                $subject = 'Trajet expiré - remboursement effectué';
-                                $trajet = htmlspecialchars((string)$ride['adresse_depart'] . ' → ' . (string)$ride['adresse_arrivee']);
-                                $when = htmlspecialchars(date('d/m/Y H:i', strtotime((string)$ride['depart'])));
-                                // Corps de l'e-mail HTML envoyé au passager
-                                $body = '<p>Bonjour ' . htmlspecialchars($u->getPseudo()) . ',</p>'
-                                    . '<p>Le trajet ' . $trajet . ' (départ ' . $when . ') n\'a pas eu lieu et a été annulé automatiquement.</p>'
-                                    . '<p>Votre compte a été crédité de <strong>' . number_format($refund, 0, ',', ' ') . ' crédit(s)</strong>.</p>'
-                                    . '<p><a href="' . (defined('SITE_URL') ? SITE_URL : '/') . 'mes-credits">Voir mes crédits</a></p>'
-                                    . '<p>— L\'équipe EcoRide</p>';
-                                $mailer->send($to, $subject, $body);
-                            }
-                        }
-                    }
-                } catch (\Throwable $e) {
-                    error_log('[MaintenanceService notify auto-cancel] ' . $e->getMessage());
-                }
+                $this->notifyPassengersRefunded($ride, $confirmed, $refund, 'Trajet expiré - remboursement effectué');
             } catch (\Throwable $e) {
                 // En cas d'erreur, on annule la transaction pour éviter un état partiel
                 if ($this->pdo->inTransaction()) {
@@ -139,6 +119,41 @@ class MaintenanceService
     private function refundMotif(int $rideId): string
     {
         return 'Remboursement annulation trajet #' . $rideId;
+    }
+
+    // Notifie les passagers remboursés (best effort, après commit)
+    private function notifyPassengersRefunded(array $ride, array $confirmed, int $refund, string $subject): void
+    {
+        if (empty($confirmed)) {
+            return;
+        }
+
+        try {
+            $mailer = new Mailer();
+
+            $trajet = htmlspecialchars((string)($ride['adresse_depart'] ?? '') . ' → ' . (string)($ride['adresse_arrivee'] ?? ''));
+            $when = htmlspecialchars(date('d/m/Y H:i', strtotime((string)($ride['depart'] ?? ''))));
+
+            foreach ($confirmed as $row) {
+                $passagerId = (int)($row['passager_id'] ?? 0);
+                if ($passagerId <= 0) continue;
+
+                $u = $this->userRepo->findById($passagerId);
+                if (!$u) continue;
+
+                $to = $u->getEmail();
+
+                $body = '<p>Bonjour ' . htmlspecialchars($u->getPseudo()) . ',</p>'
+                    . '<p>Le trajet ' . $trajet . ' (départ ' . $when . ') a été annulé automatiquement.</p>'
+                    . '<p>Votre compte a été crédité de <strong>' . number_format($refund, 0, ',', ' ') . ' crédit(s)</strong>.</p>'
+                    . '<p><a href="' . (defined('SITE_URL') ? SITE_URL : '/') . 'mes-credits">Voir mes crédits</a></p>'
+                    . '<p>— L\'équipe EcoRide</p>';
+
+                $mailer->send($to, $subject, $body);
+            }
+        } catch (\Throwable $e) {
+            error_log('[MaintenanceService notifyPassengersRefunded] ' . $e->getMessage());
+        }
     }
 
 
