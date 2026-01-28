@@ -17,6 +17,7 @@ class MaintenanceService
     // Repository pour récupérer les utilisateurs
     private UserRepository $userRepo;
 
+
     // Le constructeur prépare la connexion et les repositories
     public function __construct()
     {
@@ -59,7 +60,7 @@ class MaintenanceService
             // Identifiant du trajet
             $rideId = (int)$ride['id'];
             // Montant à rembourser : au moins 1 crédit, arrondi au supérieur
-            $refund = max(1, (int) ceil((float)($ride['prix'] ?? 0)));
+            $refund = $this->computeRefund($ride);
             try {
                 // On commence une transaction SQL pour garantir la cohérence
                 $this->pdo->beginTransaction();
@@ -80,7 +81,7 @@ class MaintenanceService
                 foreach ($confirmed as $row) {
                     $passagerId = (int)($row['passager_id'] ?? 0);
                     if ($passagerId <= 0) continue;
-                    $motif = 'Remboursement annulation trajet #' . $rideId;
+                    $motif = $this->refundMotif($rideId);
                     if (!$this->txRepo->existsForMotif($passagerId, $motif)) {
                         // Crédit SQL direct (même transaction) sur le compte de l'utilisateur
                         $stmtCred = $this->pdo->prepare("UPDATE users SET credits = credits + :amt WHERE id = :uid");
@@ -127,6 +128,19 @@ class MaintenanceService
             }
         }
     }
+
+    // Calcule le montant de remboursement (au moins 1, arrondi supérieur)
+    private function computeRefund(array $ride): int
+    {
+        return max(1, (int) ceil((float) ($ride['prix'] ?? 0)));
+    }
+
+    // Motif standardisé pour éviter les variations de texte
+    private function refundMotif(int $rideId): string
+    {
+        return 'Remboursement annulation trajet #' . $rideId;
+    }
+
 
     // Annule les trajets "demarre" depuis trop longtemps et jamais terminés; rembourse les passagers confirmés
     private function autoExpireStuckStartedRides(): void
@@ -206,6 +220,7 @@ class MaintenanceService
             }
         }
     }
+
 
     // Rattrapage: si des trajets sont déjà en statut annulé mais sans transaction de remboursement pour certains passagers
     private function backfillMissingRefundsForCancelled(): void
