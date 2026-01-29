@@ -22,6 +22,19 @@ class ParticipationController extends Controller
         $this->transactionRepository = new TransactionRepository();
     }
 
+    private function requirePostAndCsrf(string $redirectTo): bool
+{
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+        abort(405);
+    }
+    if (!Csrf::check($_POST['csrf'] ?? null)) {
+        Flash::add('Requête invalide (CSRF).', 'danger');
+        redirect($redirectTo);
+        return false;
+    }
+    return true;
+}
+
     // POST /participations/create
     public function create(): void
     {
@@ -31,16 +44,10 @@ class ParticipationController extends Controller
             return;
         }
 
-        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-            abort(405);
-        }
+        if (!$this->requirePostAndCsrf('/liste-covoiturages')) return;
 
-        if (!Csrf::check($_POST['csrf'] ?? null)) {
-            Flash::add('Requête invalide (CSRF).', 'danger');
-            redirect('/liste-covoiturages');
-            return;
-        }
 
+        // Vérifications d'autorisation
         $userId = (int) $_SESSION['user']['id'];
         // Rôles autorisés: Utilisateur (1), Employé (2), Admin (3)
         $roleId = (int) ($_SESSION['user']['role_id'] ?? 0);
@@ -176,32 +183,27 @@ class ParticipationController extends Controller
         ]);
     }
 
-    // POST /participations/accept/{id}
+    // POST /participations/accept/{id} 
     public function accept(int $id): void
     {
         $this->handleStatusChange($id, 'confirmee');
     }
 
-    // POST /participations/reject/{id}
+    // POST /participations/reject/{id} 
     public function reject(int $id): void
     {
         $this->handleStatusChange($id, 'annulee');
     }
 
+    // Gestion commune des changements de statut (acceptation/refus)
     private function handleStatusChange(int $participationId, string $newStatus): void
     {
         if (!isset($_SESSION['user'])) {
             redirect('/login');
             return;
         }
-        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-            abort(405);
-        }
-        if (!Csrf::check($_POST['csrf'] ?? null)) {
-            Flash::add('Requête invalide (CSRF).', 'danger');
-            redirect('/mes-demandes');
-            return;
-        }
+        if (!$this->requirePostAndCsrf('/mes-demandes')) return;
+
 
         $userId = (int) $_SESSION['user']['id'];
         $p = $this->participationRepository->findWithCovoiturageById($participationId);
@@ -247,6 +249,7 @@ class ParticipationController extends Controller
             }
         }
 
+        // Met à jour le statut de la participation et notifie le passager par e-mail 
         if ($this->participationRepository->updateStatus($participationId, $newStatus)) {
             $msg = $newStatus === 'confirmee' ? 'Participation confirmée.' : 'Demande refusée.';
             Flash::add($msg, 'success');
@@ -285,21 +288,15 @@ class ParticipationController extends Controller
         return;
     }
 
-    // POST /participations/validate/{id}
+    // POST /participations/validate/{id} 
     public function validateTrip(int $id): void
     {
         if (!isset($_SESSION['user'])) {
             redirect('/login');
             return;
         }
-        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-            abort(405);
-        }
-        if (!Csrf::check($_POST['csrf'] ?? null)) {
-            Flash::add('Requête invalide (CSRF).', 'danger');
-            redirect('/mes-covoiturages');
-            return;
-        }
+        if (!$this->requirePostAndCsrf('/mes-covoiturages')) return;
+
 
         $userId = (int) $_SESSION['user']['id'];
         $p = $this->participationRepository->findWithCovoiturageById($id);
@@ -361,7 +358,7 @@ class ParticipationController extends Controller
         return;
     }
 
-    // GET /participations/validate/{id}
+    // GET /participations/validate/{id} 
     public function showValidationForm(int $id): void
     {
         if (!isset($_SESSION['user'])) {
@@ -391,21 +388,15 @@ class ParticipationController extends Controller
         ]);
     }
 
-    // POST /participations/report/{id}
+    // POST /participations/report/{id} 
     public function reportIssue(int $id): void
     {
         if (!isset($_SESSION['user'])) {
             redirect('/login');
             return;
         }
-        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-            abort(405);
-        }
-        if (!Csrf::check($_POST['csrf'] ?? null)) {
-            Flash::add('Requête invalide (CSRF).', 'danger');
-            redirect('/mes-covoiturages');
-            return;
-        }
+        if (!$this->requirePostAndCsrf('/mes-covoiturages')) return;
+
 
         $userId = (int) $_SESSION['user']['id'];
         $p = $this->participationRepository->findWithCovoiturageById($id);
