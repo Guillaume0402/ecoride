@@ -23,17 +23,17 @@ class ParticipationController extends Controller
     }
 
     private function requirePostAndCsrf(string $redirectTo): bool
-{
-    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-        abort(405);
+    {
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            abort(405);
+        }
+        if (!Csrf::check($_POST['csrf'] ?? null)) {
+            Flash::add('Requête invalide (CSRF).', 'danger');
+            redirect($redirectTo);
+            return false;
+        }
+        return true;
     }
-    if (!Csrf::check($_POST['csrf'] ?? null)) {
-        Flash::add('Requête invalide (CSRF).', 'danger');
-        redirect($redirectTo);
-        return false;
-    }
-    return true;
-}
 
     // POST /participations/create
     public function create(): void
@@ -43,7 +43,7 @@ class ParticipationController extends Controller
             redirect('/login');
             return;
         }
-
+        // Vérification de la méthode et du token CSRF
         if (!$this->requirePostAndCsrf('/liste-covoiturages')) return;
 
 
@@ -138,27 +138,7 @@ class ParticipationController extends Controller
         $created = $this->participationRepository->create($covoiturageId, $userId, 'en_attente_validation');
         if ($created) {
             // Notifier le conducteur par e-mail
-            try {
-                $driver = $this->userRepository->findById((int)$ride['driver_id']);
-                if ($driver) {
-                    $passengerName = htmlspecialchars((string)($_SESSION['user']['pseudo'] ?? 'Un passager'));
-                    $when = htmlspecialchars(date('d/m/Y H:i', strtotime((string)$ride['depart'])));
-                    $trajet = htmlspecialchars((string)$ride['adresse_depart'] . ' → ' . (string)$ride['adresse_arrivee']);
-                    $link = SITE_URL . 'mes-demandes';
-                    $subject = 'Nouvelle demande de participation pour votre trajet #' . $covoiturageId;
-                    $body = '<p>Bonjour ' . htmlspecialchars($driver->getPseudo()) . ',</p>'
-                        . '<p><strong>' . $passengerName . '</strong> souhaite participer à votre trajet :</p>'
-                        . '<ul>'
-                        . '<li>Trajet : ' . $trajet . '</li>'
-                        . '<li>Départ : ' . $when . '</li>'
-                        . '</ul>'
-                        . '<p>Vous pouvez accepter ou refuser la demande depuis votre tableau de bord : <a href="' . htmlspecialchars($link) . '">Mes demandes</a>.</p>'
-                        . '<p>— L’équipe EcoRide</p>';
-                    (new \App\Service\Mailer())->send($driver->getEmail(), $subject, $body);
-                }
-            } catch (\Throwable $e) {
-                error_log('[participations.create] Mail to driver failed: ' . $e->getMessage());
-            }
+            $this->notifyDriverNewRequest($ride, $covoiturageId);
             Flash::add('Votre demande a été envoyée au conducteur. Vous serez notifié(e) après sa réponse.', 'success');
             redirect('/mes-covoiturages');
             return;
@@ -167,6 +147,68 @@ class ParticipationController extends Controller
         Flash::add('Une erreur est survenue lors de la création de la demande.', 'danger');
         redirect('/liste-covoiturages');
         return;
+    }
+
+    // Notifier le conducteur d'une nouvelle demande de participation
+    private function notifyDriverNewRequest(array $ride, int $covoiturageId): void
+    {
+        try {
+            $driver = $this->userRepository->findById((int)($ride['driver_id'] ?? 0));
+            if (!$driver) return;
+
+            $passengerName = htmlspecialchars((string)($_SESSION['user']['pseudo'] ?? 'Un passager'));
+            $when = htmlspecialchars(date('d/m/Y H:i', strtotime((string)($ride['depart'] ?? ''))));
+            $trajet = htmlspecialchars((string)($ride['adresse_depart'] ?? '') . ' → ' . (string)($ride['adresse_arrivee'] ?? ''));
+            $link = SITE_URL . 'mes-demandes';
+
+            $subject = 'Nouvelle demande de participation pour votre trajet #' . $covoiturageId;
+            $body = '<p>Bonjour ' . htmlspecialchars($driver->getPseudo()) . ',</p>'
+                . '<p><strong>' . $passengerName . '</strong> souhaite participer à votre trajet :</p>'
+                . '<ul>'
+                . '<li>Trajet : ' . $trajet . '</li>'
+                . '<li>Départ : ' . $when . '</li>'
+                . '</ul>'
+                . '<p>Vous pouvez accepter ou refuser la demande depuis votre tableau de bord : <a href="' . htmlspecialchars($link) . '">Mes demandes</a>.</p>'
+                . '<p>— L’équipe EcoRide</p>';
+
+            (new \App\Service\Mailer())->send($driver->getEmail(), $subject, $body);
+        } catch (\Throwable $e) {
+            error_log('[participations.notifyDriverNewRequest] ' . $e->getMessage());
+        }
+    }
+
+    // Notifier le passager de la décision du conducteur
+    private function notifyPassengerDecision(array $p, string $newStatus): void
+    {
+        try {
+            $passenger = $this->userRepository->findById((int)($p['passager_id'] ?? 0));
+            if (!$passenger) return;
+
+            $driverName = htmlspecialchars((string)($_SESSION['user']['pseudo'] ?? 'Le conducteur'));
+            $trajet = htmlspecialchars((string)($p['adresse_depart'] ?? '') . ' → ' . (string)($p['adresse_arrivee'] ?? ''));
+            $when = htmlspecialchars(date('d/m/Y H:i', strtotime((string)($p['depart'] ?? ''))));
+            $link = SITE_URL . 'mes-covoiturages';
+
+            if ($newStatus === 'confirmee') {
+                $subject = 'Votre participation a été acceptée';
+                $body = '<p>Bonjour ' . htmlspecialchars($passenger->getPseudo()) . ',</p>'
+                    . '<p>Votre demande de participation a été <strong>acceptée</strong> par ' . $driverName . '.</p>'
+                    . '<ul><li>Trajet : ' . $trajet . '</li><li>Départ : ' . $when . '</li></ul>'
+                    . '<p>Consultez vos trajets : <a href="' . htmlspecialchars($link) . '">Mes covoiturages</a>.</p>'
+                    . '<p>— L’équipe EcoRide</p>';
+            } else {
+                $subject = 'Votre participation a été refusée';
+                $body = '<p>Bonjour ' . htmlspecialchars($passenger->getPseudo()) . ',</p>'
+                    . '<p>Votre demande de participation a été <strong>refusée</strong> par ' . $driverName . '.</p>'
+                    . '<ul><li>Trajet : ' . $trajet . '</li><li>Départ : ' . $when . '</li></ul>'
+                    . '<p>Vous pouvez rechercher un autre trajet sur EcoRide.</p>'
+                    . '<p>— L’équipe EcoRide</p>';
+            }
+
+            (new \App\Service\Mailer())->send($passenger->getEmail(), $subject, $body);
+        } catch (\Throwable $e) {
+            error_log('[participations.notifyPassengerDecision] ' . $e->getMessage());
+        }
     }
 
     // GET /mes-demandes : liste des demandes en attente pour les trajets du conducteur
@@ -203,7 +245,6 @@ class ParticipationController extends Controller
             return;
         }
         if (!$this->requirePostAndCsrf('/mes-demandes')) return;
-
 
         $userId = (int) $_SESSION['user']['id'];
         $p = $this->participationRepository->findWithCovoiturageById($participationId);
@@ -254,33 +295,7 @@ class ParticipationController extends Controller
             $msg = $newStatus === 'confirmee' ? 'Participation confirmée.' : 'Demande refusée.';
             Flash::add($msg, 'success');
             // Notification e-mail côté passager selon la décision
-            try {
-                $passenger = $this->userRepository->findById((int)$p['passager_id']);
-                if ($passenger) {
-                    $driverName = htmlspecialchars((string)($_SESSION['user']['pseudo'] ?? 'Le conducteur'));
-                    $trajet = htmlspecialchars((string)$p['adresse_depart'] . ' → ' . (string)$p['adresse_arrivee']);
-                    $when = htmlspecialchars(date('d/m/Y H:i', strtotime((string)$p['depart'])));
-                    $link = SITE_URL . 'mes-covoiturages';
-                    if ($newStatus === 'confirmee') {
-                        $subject = 'Votre participation a été acceptée';
-                        $body = '<p>Bonjour ' . htmlspecialchars($passenger->getPseudo()) . ',</p>'
-                            . '<p>Votre demande de participation a été <strong>acceptée</strong> par ' . $driverName . '.</p>'
-                            . '<ul><li>Trajet : ' . $trajet . '</li><li>Départ : ' . $when . '</li></ul>'
-                            . '<p>Consultez vos trajets : <a href="' . htmlspecialchars($link) . '">Mes covoiturages</a>.</p>'
-                            . '<p>— L’équipe EcoRide</p>';
-                    } else {
-                        $subject = 'Votre participation a été refusée';
-                        $body = '<p>Bonjour ' . htmlspecialchars($passenger->getPseudo()) . ',</p>'
-                            . '<p>Votre demande de participation a été <strong>refusée</strong> par ' . $driverName . '.</p>'
-                            . '<ul><li>Trajet : ' . $trajet . '</li><li>Départ : ' . $when . '</li></ul>'
-                            . '<p>Vous pouvez rechercher un autre trajet sur EcoRide.</p>'
-                            . '<p>— L’équipe EcoRide</p>';
-                    }
-                    (new \App\Service\Mailer())->send($passenger->getEmail(), $subject, $body);
-                }
-            } catch (\Throwable $e) {
-                error_log('[participations.statusChange] Mail to passenger failed: ' . $e->getMessage());
-            }
+            $this->notifyPassengerDecision($p, $newStatus);
         } else {
             Flash::add('Mise à jour impossible.', 'danger');
         }
@@ -296,7 +311,6 @@ class ParticipationController extends Controller
             return;
         }
         if (!$this->requirePostAndCsrf('/mes-covoiturages')) return;
-
 
         $userId = (int) $_SESSION['user']['id'];
         $p = $this->participationRepository->findWithCovoiturageById($id);
@@ -396,7 +410,6 @@ class ParticipationController extends Controller
             return;
         }
         if (!$this->requirePostAndCsrf('/mes-covoiturages')) return;
-
 
         $userId = (int) $_SESSION['user']['id'];
         $p = $this->participationRepository->findWithCovoiturageById($id);
