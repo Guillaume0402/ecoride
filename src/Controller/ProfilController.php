@@ -12,8 +12,10 @@ use App\Service\MaintenanceService;
 use App\Service\ReviewService;
 
 
+// Contrôleur pour la gestion du profil utilisateur
 class ProfilController extends Controller
 {
+    // Vérification de l'authentification dans le constructeur
     public function __construct()
     {
         parent::__construct();
@@ -62,12 +64,14 @@ class ProfilController extends Controller
         $currentPassword = $_POST['current_password'] ?? '';
         $newPassword     = $_POST['new_password'] ?? '';
 
+        // Si un nouveau mot de passe est fourni, vérifier l'actuel
         if ($newPassword !== '') {
             if ($currentPassword === '' || !$this->userService->verifyPassword($user, $currentPassword)) {
                 Flash::add('Mot de passe actuel incorrect.', 'danger');
                 redirect('/creation-profil');
                 return;
             }
+            // Hasher et mettre à jour
             $this->userService->hashPassword($user, $newPassword);
         }
 
@@ -97,7 +101,7 @@ class ProfilController extends Controller
         header('Location: /my-profil', true, 303);
         exit;
     }
-    // GET /creation-profil
+    // GET /creation-profil affiche le formulaire de création/modification du profil
     public function creationProfil(): void
     {
         $user = $_SESSION['user'];
@@ -116,7 +120,7 @@ class ProfilController extends Controller
         ]);
     }
 
-    // GET /my-profil
+    // GET /my-profil affiche le profil utilisateur
     public function profil(): void
     {
         $user = $_SESSION['user'];
@@ -135,10 +139,7 @@ class ProfilController extends Controller
 
             $reviews = $svc->getApprovedDriverReviews((int)$user['id'], 100);
 
-            // BONUS (garde ton ancien enrich pseudo passager) :
-            // si tu veux garder le pseudo passager dans la vue,
-            // il faut soit l'enrichir ici, soit ajouter une méthode au service.
-            // Pour rester minimal, on le fait ici comme avant.
+            // Récupérer les pseudos des passagers pour chaque avis
             foreach ($reviews as &$r) {
                 $pseudo = null;
                 try {
@@ -163,7 +164,6 @@ class ProfilController extends Controller
             error_log('[profil] load reviews failed: ' . $e->getMessage());
         }
 
-
         $this->render('pages/my-profil', [
             'user' => $user,
             'vehicles' => $vehicles,
@@ -173,7 +173,7 @@ class ProfilController extends Controller
         ]);
     }
 
-    // Sauvegarde l’upload et renvoie le chemin web ou null
+    // Sauvegarde l’upload et renvoie le chemin web ou null 
     private function handlePhotoUpload(array $file): ?string
     {
         $dir = PUBLIC_ROOT . '/uploads/';
@@ -190,7 +190,7 @@ class ProfilController extends Controller
                 return null;
             }
             $ext  = $allowed[$mime];
-            // Upload Cloudinary si configuré (persistant prod)
+            // Upload Cloudinary configuré (persistant prod)
             $cloudUrl = $this->uploadToCloudinary($file);
             if ($cloudUrl) {
                 return $cloudUrl;
@@ -205,7 +205,7 @@ class ProfilController extends Controller
 
         return $ok ? '/uploads/' . $name : null;
     }
-    // GET /mes-credits
+    // GET /mes-credits affiche l’historique des transactions
     public function mesCredits(): void
     {
         $user = $_SESSION['user'];
@@ -224,6 +224,7 @@ class ProfilController extends Controller
         ]);
     }
 
+    // Configuration Cloudinary à partir de CLOUDINARY_URL
     private function getCloudinaryConfig(): ?array
     {
         $url = $_ENV['CLOUDINARY_URL'] ?? (getenv('CLOUDINARY_URL') ?: null);
@@ -243,6 +244,7 @@ class ProfilController extends Controller
         return ['cloud' => $cloud, 'key' => $key, 'secret' => $secret];
     }
 
+    // Upload vers Cloudinary; retourne l’URL ou null en cas d’échec
     private function uploadToCloudinary(array $file, string $folder = 'ecoride/avatars'): ?string
     {
         $cfg = $this->getCloudinaryConfig();
@@ -293,7 +295,7 @@ class ProfilController extends Controller
     }
 
 
-    // GET /mes-covoiturages
+    // GET /mes-covoiturages affiche les covoiturages de l’utilisateur
     public function mesCovoiturages(): void
     {
         // Balayage léger de maintenance (annulations auto + rattrapage remboursements)
@@ -353,7 +355,7 @@ class ProfilController extends Controller
                 && !in_array($cStatus, ['annule', 'termine'], true);
         }));
 
-        // Historique
+        // Historique 
         $historyDriver = array_values(array_filter($asDriverAll, function ($c) use ($now, $graceMinutes) {
             try {
                 $depart = new \DateTime($c['depart']);

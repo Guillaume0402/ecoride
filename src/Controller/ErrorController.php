@@ -4,6 +4,7 @@ namespace App\Controller;
 
 class ErrorController extends Controller
 {
+    // Affiche une page d'erreur générique
     public function show(string $message = "Une erreur est survenue"): void
     {
         $this->render("errors/default", ['message' => $message]);

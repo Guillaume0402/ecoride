@@ -6,10 +6,10 @@ use App\Service\Flash;
 use App\Security\Csrf;
 
 
-// Contrôleur employé (role_id = 2): gardes d'accès + dashboard
+// Contrôleur employé (role_id = 2): gardes d'accès + dashboard modération Mongo 
 class EmployeeController extends Controller
 {
-    // Initialise les dépendances et applique les gardes d'accès (authentification + rôle employé).     
+    // Initialise les dépendances et applique les gardes d'accès (authentification + rôle employé).      
     public function __construct()
     {
         parent::__construct();
@@ -25,7 +25,7 @@ class EmployeeController extends Controller
         }
     }
 
-    // Dashboard employé (modération Mongo)
+    // Dashboard employé (modération Mongo) 
     public function dashboard(): void
     {
         $pendingReviews = [];
@@ -33,7 +33,7 @@ class EmployeeController extends Controller
         try {
             $mod = new \App\Service\ReviewModerationService();
             $pending = $mod->listPending();
-            // Cache simple pour éviter des requêtes répétées
+            // Cache simple pour éviter des requêtes répétées à UserRepository
             $userNameCache = [];
             $getName = function (?int $uid) use (&$userNameCache) {
                 if (!$uid) return null;
@@ -43,7 +43,7 @@ class EmployeeController extends Controller
                 $userNameCache[$uid] = $name;
                 return $name;
             };
-            // Sépare reviews et reports, et enrichit avec infos trajet (si dispo)
+            // Sépare reviews et reports, et enrichit avec infos trajet (si dispo) 
             $covoitRepo = new \App\Repository\CovoiturageRepository();
             foreach ($pending as $doc) {
                 if (($doc['kind'] ?? '') === 'report') {
@@ -103,7 +103,7 @@ class EmployeeController extends Controller
         ]);
     }
 
-    // POST /employee/review/validate
+    // POST /employee/review/validate (validation d’un avis ou signalement)
     public function validateReview(): void
     {
         if ((int)($_SESSION['user']['role_id'] ?? 0) !== 2) {
@@ -133,7 +133,7 @@ class EmployeeController extends Controller
         }
         try {
             $mod = new \App\Service\ReviewModerationService();
-            // Charger le document pour connaître son type et les acteurs
+            // Charger le document pour connaître son type et les acteurs 
             $doc = $mod->getById($id);
             if (!$doc) {
                 Flash::add('Avis introuvable ou déjà traité.', 'warning');
@@ -143,7 +143,7 @@ class EmployeeController extends Controller
             $decision = $action === 'approve' ? 'approved' : 'rejected';
             $ok = $mod->updateStatus($id, $decision);
 
-            // Si un report est approuvé → notifier conducteur et passager par email
+            // Si un report est approuvé → notifier conducteur et passager par email 
             if ($ok && $decision === 'approved' && is_array($doc) && (($doc['kind'] ?? '') === 'report')) {
                 try {
                     $driverId = (int)($doc['driver_id'] ?? 0);

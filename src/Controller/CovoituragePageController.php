@@ -15,7 +15,7 @@ class CovoituragePageController extends Controller
         parent::__construct();
     }
 
-    // GET /liste-covoiturages
+    // GET /liste-covoiturages (liste publique avec filtres)
     public function index(): void
     {
         $depart = isset($_GET['depart']) ? trim((string)$_GET['depart']) : null;
@@ -56,8 +56,8 @@ class CovoituragePageController extends Controller
             'metaDescription' => 'Parcourez les annonces de covoiturage EcoRide et trouvez un conducteur ou un passager correspondant à vos critères.',
         ]);
     }
-    // Détail d'un covoiturage (public)
-    // GET /covoiturages/{id}
+
+    // GET /covoiturages/{id} (détail d'un covoiturage)
     public function show(int $id): void
     {
         $repo = new CovoiturageRepository();

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Service\Flash;
 
+// Contrôleur pour les tests d’envoi d’e-mails (dev uniquement)
 class MailController extends Controller
 {
     public function testForm(): void
@@ -21,6 +22,7 @@ class MailController extends Controller
         ]);
     }
 
+    // POST /mail/test (envoi d’un e-mail de test)
     public function sendTest(): void
     {
         $appEnv = $_ENV['APP_ENV'] ?? 'prod';

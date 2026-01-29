@@ -31,11 +31,11 @@ class CovoiturageController extends Controller
         $this->participationRepository = new ParticipationRepository();
         $this->transactionRepository = new TransactionRepository();
         // Attention: CovoiturageController hérite déjà d'un userRepository via Controller.
-        // On garde une référence locale si besoin pour clarté.
+        // On garde une référence locale si besoin pour la clarté.
         $this->localUserRepository = $this->userRepository;
     }
 
-    // POST /covoiturages/create (soumission classique)
+    // POST /covoiturages/create (soumission classique) 
     public function create(): void
     {
         if (!isset($_SESSION['user'])) {
@@ -161,7 +161,7 @@ class CovoiturageController extends Controller
             return;
         }
     }
-    // POST /api/covoiturages/create
+    // POST /api/covoiturages/create (création via API AJAX)
     public function apiCreate(): void
     {
         header('Content-Type: application/json');
@@ -274,7 +274,7 @@ class CovoiturageController extends Controller
         }
     }
 
-    // POST /covoiturages/cancel/{id}
+    // POST /covoiturages/cancel/{id} (annulation par le conducteur)
     public function cancel(int $id): void
     {
         if (!isset($_SESSION['user'])) {
@@ -383,7 +383,7 @@ class CovoiturageController extends Controller
         return;
     }
 
-    // POST /covoiturages/start/{id}
+    // POST /covoiturages/start/{id} (démarrer le trajet)
     public function start(int $id): void
     {
         if (!isset($_SESSION['user'])) {
@@ -429,7 +429,7 @@ class CovoiturageController extends Controller
         return;
     }
 
-    // POST /covoiturages/finish/{id}
+    // POST /covoiturages/finish/{id} (finir le trajet)
     public function finish(int $id): void
     {
         if (!isset($_SESSION['user'])) {
