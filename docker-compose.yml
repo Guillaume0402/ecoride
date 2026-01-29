@@ -30,7 +30,7 @@ services:
       - MAIL_FROM_NAME=EcoRide
       - SMTP_DEBUG=2
 
-      - CLOUDINARY_URL=cloudinary://464185618435238:SPDAdUYRBk0DSH8M1-Nza7cSocY@dfsxwho3x
+      - CLOUDINARY_URL=${CLOUDINARY_URL}
 
     networks:
       - ecoride_network
