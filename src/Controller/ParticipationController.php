@@ -26,6 +26,7 @@ class ParticipationController extends Controller
     {
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
             abort(405);
+            return false;
         }
         if (!Csrf::check($_POST['csrf'] ?? null)) {
             Flash::add('Requête invalide (CSRF).', 'danger');
@@ -211,6 +212,39 @@ class ParticipationController extends Controller
         }
     }
 
+    // Débite le passager pour une participation confirmée + crée la transaction + refresh session si besoin
+    private function debitPassengerForRide(array $p): bool
+    {
+        $passagerId = (int)($p['passager_id'] ?? 0);
+        if ($passagerId <= 0) {
+            Flash::add('Passager invalide.', 'danger');
+            return false;
+        }
+
+        $prix = (float)($p['prix'] ?? 0);
+        $cost = max(1, (int) ceil($prix));
+
+        // Débiter le passager (refuse si crédits insuffisants)
+        if (!$this->userRepository->debitIfEnough($passagerId, $cost)) {
+            Flash::add('Crédits insuffisants pour confirmer. Demandez au passager de recharger son solde.', 'warning');
+            return false;
+        }
+
+        // Journaliser la transaction
+        $covoiturageId = (int)($p['covoiturage_id'] ?? 0);
+        $this->transactionRepository->create($passagerId, $cost, 'debit', 'Participation trajet #' . $covoiturageId);
+
+        // Rafraîchir le solde en session si c'est l'utilisateur courant
+        if (!empty($_SESSION['user']) && (int)$_SESSION['user']['id'] === $passagerId) {
+            $u = $this->userRepository->findById($passagerId);
+            if ($u) {
+                $_SESSION['user']['credits'] = $u->getCredits();
+            }
+        }
+
+        return true;
+    }
+
     // GET /mes-demandes : liste des demandes en attente pour les trajets du conducteur
     public function driverRequests(): void
     {
@@ -270,23 +304,9 @@ class ParticipationController extends Controller
                 return;
             }
 
-            // Débiter le prix (arrondi) au passager avant de confirmer
-            $passagerId = (int)($p['passager_id'] ?? 0);
-            $prix = (float)($p['prix'] ?? 0);
-            $cost = max(1, (int) ceil($prix));
-            if (!$this->userRepository->debitIfEnough($passagerId, $cost)) {
-                Flash::add('Crédits insuffisants pour confirmer. Demandez au passager de recharger son solde.', 'warning');
+            if (!$this->debitPassengerForRide($p)) {
                 redirect('/mes-demandes');
                 return;
-            }
-            // Journaliser la transaction
-            $this->transactionRepository->create($passagerId, $cost, 'debit', 'Participation trajet #' . (int)$p['covoiturage_id']);
-            // Rafraîchir le solde éventuel en session si c'est l'utilisateur courant
-            if (!empty($_SESSION['user']) && (int)$_SESSION['user']['id'] === $passagerId) {
-                $u = $this->userRepository->findById($passagerId);
-                if ($u) {
-                    $_SESSION['user']['credits'] = $u->getCredits();
-                }
             }
         }
 
