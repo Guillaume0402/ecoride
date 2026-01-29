@@ -40,7 +40,7 @@
                                     style="width: 40px; height: 40px; object-fit: cover;">
                                 <span class="d-none d-lg-inline"><?= $_SESSION['user']['pseudo'] ?? '' ?></span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end animate__animated animate__fadeIn">
+                            <ul class="dropdown-menu dropdown-menu-end">
                                 <?php $__credits = isset($_SESSION['user']['credits']) ? (int)$_SESSION['user']['credits'] : 0; ?>
                                 <li>
                                     <a class="dropdown-item d-flex align-items-center justify-content-between" href="/mes-credits">
