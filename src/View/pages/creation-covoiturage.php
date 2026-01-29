@@ -8,36 +8,43 @@
         <h3 class="text-white fw-bold text-center mb-4">Voyage</h3>
         <form method="post">
             <div class="mb-3">
-                <label class="form-label text-white">Ville de départ</label>
-                <input type="text" class="form-control" name="ville_depart" required>
+                <label class="form-label text-white" for="createRide-depart">Ville de départ</label>
+                <input type="text" class="form-control" id="createRide-depart" name="ville_depart" required>
             </div>
+
             <div class="mb-3">
-                <label class="form-label text-white">Ville d'arrivée</label>
-                <input type="text" class="form-control" name="ville_arrivee" required>
+                <label class="form-label text-white" for="createRide-arrivee">Ville d'arrivée</label>
+                <input type="text" class="form-control" id="createRide-arrivee" name="ville_arrivee" required>
             </div>
+
             <div class="mb-3">
-                <label class="form-label text-white">Crédits du trajet</label>
-                <input type="number" class="form-control" name="prix" min="0" required>
+                <label class="form-label text-white" for="createRide-prix">Crédits du trajet</label>
+                <input type="number" class="form-control" id="createRide-prix" name="prix" min="0" required>
             </div>
+
             <div class="mb-3">
-                <label class="form-label text-white">Choix du véhicule</label>
-                <select class="form-select" name="vehicule" required>
+                <label class="form-label text-white" for="createRide-vehicule">Choix du véhicule</label>
+                <select class="form-select" id="createRide-vehicule" name="vehicule" required>
                     <option value="">Sélectionner</option>
                     <option value="Nissan Micra">Nissan Micra</option>
                     <option value="Renault Zoé">Renault Zoé</option>
                 </select>
             </div>
+
             <div class="mb-3">
-                <label class="form-label text-white">Date du départ</label>
-                <input type="date" class="form-control" name="date_depart" required>
+                <label class="form-label text-white" for="createRide-date">Date du départ</label>
+                <input type="date" class="form-control" id="createRide-date" name="date_depart" required>
             </div>
+
             <div class="mb-3">
-                <label class="form-label text-white">Heure du départ</label>
-                <input type="time" class="form-control" name="heure_depart" required>
+                <label class="form-label text-white" for="createRide-heure">Heure du départ</label>
+                <input type="time" class="form-control" id="createRide-heure" name="heure_depart" required>
             </div>
+
             <div class="text-center">
                 <button type="submit" class="btn btn-inscription">Créer le voyage</button>
             </div>
         </form>
+
     </div>
 </div>

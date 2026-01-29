@@ -34,15 +34,31 @@
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <form action="/participations/accept/<?= (int)$row['participation_id'] ?>" method="POST" class="d-inline">
+                                <form
+                                    action="/participations/accept/<?= (int)$row['participation_id'] ?>"
+                                    method="POST"
+                                    class="d-inline js-confirm"
+                                    data-confirm-text="Accepter cette demande de participation ?"
+                                    data-confirm-variant="success">
                                     <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
-                                    <button class="btn btn-success btn-sm" type="submit" <?= !$enough ? 'disabled' : '' ?>>Accepter</button>
+                                    <button class="btn btn-success btn-sm" type="submit" <?= !$enough ? 'disabled' : '' ?>>
+                                        Accepter
+                                    </button>
                                 </form>
-                                <form action="/participations/reject/<?= (int)$row['participation_id'] ?>" method="POST" class="d-inline ms-2">
+
+                                <form
+                                    action="/participations/reject/<?= (int)$row['participation_id'] ?>"
+                                    method="POST"
+                                    class="d-inline ms-2 js-confirm"
+                                    data-confirm-text="Refuser cette demande ?"
+                                    data-confirm-variant="danger">
                                     <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
-                                    <button class="btn btn-outline-danger btn-sm" type="submit">Refuser</button>
+                                    <button class="btn btn-outline-danger btn-sm" type="submit">
+                                        Refuser
+                                    </button>
                                 </form>
                             </td>
+
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

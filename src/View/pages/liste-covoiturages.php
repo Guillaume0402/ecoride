@@ -9,23 +9,41 @@
             <div class="form-box rounded p-4 w-100 ">
                 <form method="get" action="/liste-covoiturages">
                     <div class="mb-3">
-                        <label class="form-label">Ville de départ :</label>
-                        <input type="text" name="depart" class="form-control" placeholder="Ex : Fleurance" value="<?= htmlspecialchars($criteria['depart'] ?? '') ?>">
+                        <label class="form-label" for="list-depart">Ville de départ :</label>
+                        <input
+                            id="list-depart"
+                            type="text"
+                            name="depart"
+                            class="form-control"
+                            placeholder="Ex : Fleurance"
+                            value="<?= htmlspecialchars($criteria['depart'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Ville d’arrivée :</label>
-                        <input type="text" name="arrivee" class="form-control" placeholder="Ex : Auch" value="<?= htmlspecialchars($criteria['arrivee'] ?? '') ?>">
+                        <label class="form-label" for="list-arrivee">Ville d’arrivée :</label>
+                        <input
+                            id="list-arrivee"
+                            type="text"
+                            name="arrivee"
+                            class="form-control"
+                            placeholder="Ex : Auch"
+                            value="<?= htmlspecialchars($criteria['arrivee'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Date de départ :</label>
-                        <input type="date" name="date" class="form-control" value="<?= htmlspecialchars($criteria['date'] ?? '') ?>">
+                        <label class="form-label" for="list-date">Date de départ :</label>
+                        <input
+                            id="list-date"
+                            type="date"
+                            name="date"
+                            class="form-control"
+                            value="<?= htmlspecialchars($criteria['date'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                     </div>
-                    <!-- On repasse ici d'éventuelles préférences déjà choisies pour ne pas les perdre -->
+
                     <?php if (!empty($criteria['pref']) && is_array($criteria['pref'])): ?>
                         <?php foreach ($criteria['pref'] as $p): ?>
-                            <input type="hidden" name="pref[]" value="<?= htmlspecialchars($p) ?>">
+                            <input type="hidden" name="pref[]" value="<?= htmlspecialchars($p, ENT_QUOTES, 'UTF-8') ?>">
                         <?php endforeach; ?>
                     <?php endif; ?>
+
                     <button type="submit" class="btn btn-inscription fw-semibold d-block m-auto">Rechercher</button>
                     <a href="/liste-covoiturages" class="btn btn-secondary fw-semibold d-block m-auto mt-2">Réinitialiser</a>
                 </form>
@@ -54,31 +72,39 @@
                         ?>
                         <li>
                             <form method="get" action="/liste-covoiturages" class="px-3 py-2">
-                                <!-- Re-crée des champs cachés pour chaque critère déjà saisi -->
                                 <?php foreach ($baseParams as $k => $v): ?>
                                     <?php if ($v !== '' && $v !== null): ?>
-                                        <input type="hidden" name="<?= htmlspecialchars($k) ?>" value="<?= htmlspecialchars($v) ?>">
+                                        <input
+                                            type="hidden"
+                                            name="<?= htmlspecialchars($k, ENT_QUOTES, 'UTF-8') ?>"
+                                            value="<?= htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8') ?>">
                                     <?php endif; ?>
                                 <?php endforeach; ?>
+
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="pref_animaux" name="pref[]" value="animaux" <?= in_array('animaux', $selected, true) ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="pref_animaux">Animaux acceptés</label>
+                                    <input class="form-check-input" type="checkbox" id="list-pref-animaux" name="pref[]" value="animaux" <?= in_array('animaux', $selected, true) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="list-pref-animaux">Animaux acceptés</label>
                                 </div>
+
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="pref_pas_animaux" name="pref[]" value="pas-animaux" <?= in_array('pas-animaux', $selected, true) ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="pref_pas_animaux">Pas d'animaux</label>
+                                    <input class="form-check-input" type="checkbox" id="list-pref-pas-animaux" name="pref[]" value="pas-animaux" <?= in_array('pas-animaux', $selected, true) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="list-pref-pas-animaux">Pas d'animaux</label>
                                 </div>
+
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="pref_fumeur" name="pref[]" value="fumeur" <?= in_array('fumeur', $selected, true) ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="pref_fumeur">Fumeur</label>
+                                    <input class="form-check-input" type="checkbox" id="list-pref-fumeur" name="pref[]" value="fumeur" <?= in_array('fumeur', $selected, true) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="list-pref-fumeur">Fumeur</label>
                                 </div>
+
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="pref_non_fumeur" name="pref[]" value="non-fumeur" <?= in_array('non-fumeur', $selected, true) ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="pref_non_fumeur">Non-fumeur</label>
+                                    <input class="form-check-input" type="checkbox" id="list-pref-non-fumeur" name="pref[]" value="non-fumeur" <?= in_array('non-fumeur', $selected, true) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="list-pref-non-fumeur">Non-fumeur</label>
                                 </div>
+
                                 <button type="submit" class="btn btn-sm btn-primary mt-2">Appliquer</button>
                                 <a class="btn btn-sm btn-link mt-2" href="/liste-covoiturages">Réinitialiser</a>
                             </form>
+
                         </li>
                     </ul>
                 </div>

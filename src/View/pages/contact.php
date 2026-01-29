@@ -3,35 +3,43 @@
     <div class="contact-card-wrapper w-100 d-flex justify-content-center px-3 mb-5">
         <form class="form-box w-100" action="/contact" method="POST">
             <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+
             <div class="m-3">
-                <label for="name" class="form-label">Name</label>
+                <label for="name" class="form-label">Nom</label>
                 <input
                     type="text"
                     id="name"
                     name="name"
                     class="form-control"
                     value="<?= htmlspecialchars($_SESSION['user']['pseudo'] ?? '') ?>"
+                    autocomplete="name"
                     required>
             </div>
+
             <div class="m-3">
-                <label for="email" class="form-label">Email</label>
+                <label for="email" class="form-label">E-mail</label>
                 <input
                     type="email"
                     id="email"
                     name="email"
                     class="form-control"
                     value="<?= htmlspecialchars($_SESSION['user']['email'] ?? '') ?>"
+                    autocomplete="email"
                     required>
             </div>
+
             <div class="m-3">
-                <label for="subject" class="form-label">Subject</label>
+                <label for="subject" class="form-label">Objet</label>
                 <input
                     type="text"
                     id="subject"
                     name="subject"
                     class="form-control"
+                    aria-describedby="subjectHelp"
                     placeholder="(optionnel)">
+                <small id="subjectHelp" class="form-text">Optionnel</small>
             </div>
+
             <div class="m-4">
                 <label for="message" class="form-label">Message</label>
                 <textarea
@@ -39,12 +47,14 @@
                     name="message"
                     rows="5"
                     class="form-control"
-                    placeholder="Ex: Bonjour, je vous contacte pour…"
+                    placeholder="Ex : Bonjour, je vous contacte pour…"
                     required></textarea>
             </div>
+
             <div class="text-center mt-5">
                 <button type="submit" class="btn btn-inscription">Envoyer</button>
             </div>
         </form>
+
     </div>
 </section>

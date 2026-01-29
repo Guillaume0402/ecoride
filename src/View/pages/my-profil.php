@@ -53,7 +53,7 @@ if (!isset($avgRating)) {
                                     <li>Sans les mains</li>
                                 </ul>
                                 <div class="d-flex flex-md-row gap-2">
-                                    <a href="#" class="btn btn-custom-outline px-4">Historique</a>
+                                    <a href="/mes-covoiturages" class="btn btn-custom-outline px-4">Historique</a>
                                     <a href="/creation-profil" class="btn btn-custom-outline px-4">Modifier Profil</a>
                                 </div>
                                 <div class="text-center">

@@ -92,27 +92,44 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                 $canStart = ($status === 'en_attente') && $isPast;
                                                 $canFinish = $status === 'demarre';
                                                 ?>
+                                                <?php $csrf = \App\Security\Csrf::token(); ?>
+
                                                 <?php if ($canStart): ?>
-                                                    <form action="/covoiturages/start/<?= (int)$c['id'] ?>" method="POST" class="d-inline js-confirm" data-confirm-text="Démarrer ce trajet maintenant ?" data-confirm-variant="primary">
-                                                        <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+                                                    <form action="/covoiturages/start/<?= (int)$c['id'] ?>" method="POST"
+                                                        class="d-inline js-confirm"
+                                                        data-confirm-text="Démarrer ce trajet maintenant ?"
+                                                        data-confirm-variant="primary">
+                                                        <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                                         <button type="submit" class="btn btn-primary btn-sm me-1">Démarrer</button>
                                                     </form>
+
                                                     <?php if (isset($departDt) && $departDt instanceof DateTime && $nowDt < $departDt): ?>
-                                                        <small class="text-muted d-block">Départ prévu à <?= $departDt->format('H\hi') ?> — démarrage anticipé autorisé</small>
+                                                        <small class="text-muted d-block">
+                                                            Départ prévu à <?= $departDt->format('H\hi') ?> — démarrage anticipé autorisé
+                                                        </small>
                                                     <?php endif; ?>
                                                 <?php endif; ?>
+
                                                 <?php if ($canFinish): ?>
-                                                    <form action="/covoiturages/finish/<?= (int)$c['id'] ?>" method="POST" class="d-inline js-confirm" data-confirm-text="Marquer comme terminé ? Les passagers seront invités à valider." data-confirm-variant="success">
-                                                        <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+                                                    <form action="/covoiturages/finish/<?= (int)$c['id'] ?>" method="POST"
+                                                        class="d-inline js-confirm"
+                                                        data-confirm-text="Marquer comme terminé ? Les passagers seront invités à valider."
+                                                        data-confirm-variant="success">
+                                                        <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                                         <button type="submit" class="btn btn-success btn-sm me-1">Arrivée à destination</button>
                                                     </form>
                                                 <?php endif; ?>
+
                                                 <?php if ($canCancel): ?>
-                                                    <form action="/covoiturages/cancel/<?= (int)$c['id'] ?>" method="POST" class="d-inline js-confirm" data-confirm-text="Annuler ce trajet ? Les passagers seront informés." data-confirm-variant="danger">
-                                                        <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+                                                    <form action="/covoiturages/cancel/<?= (int)$c['id'] ?>" method="POST"
+                                                        class="d-inline js-confirm"
+                                                        data-confirm-text="Annuler ce trajet ? Les passagers seront informés."
+                                                        data-confirm-variant="danger">
+                                                        <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                                         <button type="submit" class="btn btn-outline-danger btn-sm">Annuler</button>
                                                     </form>
                                                 <?php endif; ?>
+
                                                 <?php if (!$canStart && !$canFinish && !$canCancel): ?>
                                                     <button class="btn btn-secondary btn-sm" disabled>Aucune action</button>
                                                 <?php endif; ?>
@@ -191,18 +208,37 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                         <div class="collapse mt-2" id="reportForm<?= (int)$p['participation_id'] ?>">
                                                             <form action="/participations/report/<?= (int)$p['participation_id'] ?>" method="POST">
                                                                 <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+
                                                                 <div class="row g-2 align-items-end">
                                                                     <div class="col-auto">
-                                                                        <input type="text" name="reason" class="form-control form-control-sm" placeholder="Raison">
+                                                                        <label for="reason-<?= (int)$p['participation_id'] ?>" class="form-label visually-hidden">Raison</label>
+                                                                        <input
+                                                                            type="text"
+                                                                            id="reason-<?= (int)$p['participation_id'] ?>"
+                                                                            name="reason"
+                                                                            class="form-control form-control-sm"
+                                                                            placeholder="Raison"
+                                                                            required
+                                                                            maxlength="120">
                                                                     </div>
+
                                                                     <div class="col">
-                                                                        <input type="text" name="comment" class="form-control form-control-sm" placeholder="Commentaire (optionnel)">
+                                                                        <label for="comment-<?= (int)$p['participation_id'] ?>" class="form-label visually-hidden">Commentaire</label>
+                                                                        <input
+                                                                            type="text"
+                                                                            id="comment-<?= (int)$p['participation_id'] ?>"
+                                                                            name="comment"
+                                                                            class="form-control form-control-sm"
+                                                                            placeholder="Commentaire (optionnel)"
+                                                                            maxlength="250">
                                                                     </div>
+
                                                                     <div class="col-auto">
                                                                         <button type="submit" class="btn btn-danger btn-sm">Envoyer</button>
                                                                     </div>
                                                                 </div>
                                                             </form>
+
                                                         </div>
                                                     </div>
                                                 <?php endif; ?>
@@ -322,19 +358,38 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                                                             <div class="collapse mt-2" id="reportFormH<?= (int)$p['participation_id'] ?>">
                                                                 <form action="/participations/report/<?= (int)$p['participation_id'] ?>" method="POST">
                                                                     <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+
                                                                     <div class="row g-2 align-items-end">
                                                                         <div class="col-auto">
-                                                                            <input type="text" name="reason" class="form-control form-control-sm" placeholder="Raison">
+                                                                            <label for="reason-<?= (int)$p['participation_id'] ?>" class="form-label visually-hidden">Raison</label>
+                                                                            <input
+                                                                                type="text"
+                                                                                id="reason-<?= (int)$p['participation_id'] ?>"
+                                                                                name="reason"
+                                                                                class="form-control form-control-sm"
+                                                                                placeholder="Raison"
+                                                                                required
+                                                                                maxlength="120">
                                                                         </div>
+
                                                                         <div class="col">
-                                                                            <input type="text" name="comment" class="form-control form-control-sm" placeholder="Commentaire (optionnel)">
+                                                                            <label for="comment-<?= (int)$p['participation_id'] ?>" class="form-label visually-hidden">Commentaire</label>
+                                                                            <input
+                                                                                type="text"
+                                                                                id="comment-<?= (int)$p['participation_id'] ?>"
+                                                                                name="comment"
+                                                                                class="form-control form-control-sm"
+                                                                                placeholder="Commentaire (optionnel)"
+                                                                                maxlength="250">
                                                                         </div>
+
                                                                         <div class="col-auto">
                                                                             <button type="submit" class="btn btn-danger btn-sm">Envoyer</button>
                                                                         </div>
                                                                     </div>
                                                                 </form>
                                                             </div>
+
                                                         </div>
                                                     <?php endif; ?>
                                                 </td>
