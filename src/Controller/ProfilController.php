@@ -222,11 +222,17 @@ class ProfilController extends Controller
     public function mesCovoiturages(): void
     {
         // Balayage léger de maintenance (annulations auto + rattrapage remboursements)
-        try {
-            (new MaintenanceService())->sweep();
-        } catch (\Throwable $e) {
-            error_log('[mesCovoiturages maintenance sweep] ' . $e->getMessage());
+        // Limité à 1 exécution toutes les 5 minutes par session pour éviter de relancer à chaque refresh.
+        $lastSweep = (int)($_SESSION['maintenance_last_sweep'] ?? 0);
+        if (time() - $lastSweep > 300) { // 300s = 5 min
+            try {
+                (new MaintenanceService())->sweep();
+                $_SESSION['maintenance_last_sweep'] = time();
+            } catch (\Throwable $e) {
+                error_log('[mesCovoiturages maintenance sweep] ' . $e->getMessage());
+            }
         }
+
 
         $userId = (int) $_SESSION['user']['id'];
 
