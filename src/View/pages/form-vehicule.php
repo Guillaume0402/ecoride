@@ -19,50 +19,78 @@ $prefs = isset($vehicle['preferences']) ? explode(',', $vehicle['preferences']) 
 
     <form method="POST" action="<?= !empty($vehicle['id']) ? '/vehicle/update' : '/vehicle/create' ?>" class="p-4">
         <input type="hidden" name="csrf" value="<?= \App\Security\Csrf::token() ?>">
+
         <?php if (!empty($vehicle['id'])): ?>
-            <input type="hidden" name="vehicle_id" value="<?= htmlspecialchars($vehicle['id']) ?>">
+            <input type="hidden" name="vehicle_id" value="<?= htmlspecialchars((string)$vehicle['id'], ENT_QUOTES, 'UTF-8') ?>">
         <?php endif; ?>
+
         <!-- Plaque -->
         <div class="mb-3">
             <label for="immatriculation" class="form-label">Plaque d'immatriculation</label>
-            <input type="text" class="form-control" id="immatriculation" name="immatriculation"
-                value="<?= htmlspecialchars($vehicle['immatriculation'] ?? '') ?>" required>
+            <input
+                type="text"
+                class="form-control"
+                id="immatriculation"
+                name="immatriculation"
+                value="<?= htmlspecialchars((string)($vehicle['immatriculation'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                required>
         </div>
 
         <!-- Date -->
         <div class="mb-3">
             <label for="date_premiere_immatriculation" class="form-label">Date de première immatriculation</label>
-            <input type="date" class="form-control" id="date_premiere_immatriculation" name="date_premiere_immatriculation"
-                value="<?= $dateFormatted ?>" max="<?= $today ?>" required>
+            <input
+                type="date"
+                class="form-control"
+                id="date_premiere_immatriculation"
+                name="date_premiere_immatriculation"
+                value="<?= htmlspecialchars((string)$dateFormatted, ENT_QUOTES, 'UTF-8') ?>"
+                max="<?= htmlspecialchars((string)$today, ENT_QUOTES, 'UTF-8') ?>"
+                required>
         </div>
 
         <!-- Marque, modèle, couleur -->
         <div class="mb-3">
             <label for="marque" class="form-label">Marque</label>
-            <input type="text" class="form-control" id="marque" name="marque"
-                value="<?= htmlspecialchars($vehicle['marque'] ?? '') ?>" required>
+            <input
+                type="text"
+                class="form-control"
+                id="marque"
+                name="marque"
+                value="<?= htmlspecialchars((string)($vehicle['marque'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                required>
         </div>
 
         <div class="mb-3">
             <label for="modele" class="form-label">Modèle</label>
-            <input type="text" class="form-control" id="modele" name="modele"
-                value="<?= htmlspecialchars($vehicle['modele'] ?? '') ?>" required>
+            <input
+                type="text"
+                class="form-control"
+                id="modele"
+                name="modele"
+                value="<?= htmlspecialchars((string)($vehicle['modele'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                required>
         </div>
 
         <div class="mb-3">
             <label for="couleur" class="form-label">Couleur</label>
-            <input type="text" class="form-control" id="couleur" name="couleur"
-                value="<?= htmlspecialchars($vehicle['couleur'] ?? '') ?>" required>
+            <input
+                type="text"
+                class="form-control"
+                id="couleur"
+                name="couleur"
+                value="<?= htmlspecialchars((string)($vehicle['couleur'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                required>
         </div>
 
         <!-- Motorisation -->
         <div class="mb-3">
             <label for="fuel_type_id" class="form-label">Type de motorisation</label>
             <select class="form-select" id="fuel_type_id" name="fuel_type_id" required>
-                <option value="1" <?= ($vehicle['fuel_type_id'] ?? '') == 1 ? 'selected' : '' ?>>Essence</option>
-                <option value="2" <?= ($vehicle['fuel_type_id'] ?? '') == 2 ? 'selected' : '' ?>>Diesel</option>
-                <option value="3" <?= ($vehicle['fuel_type_id'] ?? '') == 3 ? 'selected' : '' ?>>Électrique</option>
-                <option value="4" <?= ($vehicle['fuel_type_id'] ?? '') == 4 ? 'selected' : '' ?>>Hybride</option>
+                <option value="1" <?= ((int)($vehicle['fuel_type_id'] ?? 0) === 1) ? 'selected' : '' ?>>Essence</option>
+                <option value="2" <?= ((int)($vehicle['fuel_type_id'] ?? 0) === 2) ? 'selected' : '' ?>>Diesel</option>
+                <option value="3" <?= ((int)($vehicle['fuel_type_id'] ?? 0) === 3) ? 'selected' : '' ?>>Électrique</option>
+                <option value="4" <?= ((int)($vehicle['fuel_type_id'] ?? 0) === 4) ? 'selected' : '' ?>>Hybride</option>
             </select>
         </div>
 
@@ -70,50 +98,53 @@ $prefs = isset($vehicle['preferences']) ? explode(',', $vehicle['preferences']) 
         <div class="mb-3">
             <label for="places_dispo" class="form-label">Nombre de places disponibles</label>
             <select class="form-select" id="places_dispo" name="places_dispo" required>
-                <option value="1" <?= ($vehicle['places_dispo'] ?? '') == '1' ? 'selected' : '' ?>>1</option>
-                <option value="2" <?= ($vehicle['places_dispo'] ?? '') == '2' ? 'selected' : '' ?>>2</option>
-                <option value="3" <?= ($vehicle['places_dispo'] ?? '') == '3' ? 'selected' : '' ?>>3</option>
-                <option value="4" <?= ($vehicle['places_dispo'] ?? '') == '4' ? 'selected' : '' ?>>4</option>
-                <option value="5" <?= ($vehicle['places_dispo'] ?? '') == '5' ? 'selected' : '' ?>>5</option>
-                <option value="6" <?= ($vehicle['places_dispo'] ?? '') == '6' ? 'selected' : '' ?>>6</option>
-                <option value="7" <?= ($vehicle['places_dispo'] ?? '') == '7' ? 'selected' : '' ?>>7</option>
-                <option value="8" <?= ($vehicle['places_dispo'] ?? '') == '8' ? 'selected' : '' ?>>8</option>
-
-
+                <?php for ($i = 1; $i <= 8; $i++): ?>
+                    <option value="<?= $i ?>" <?= ((int)($vehicle['places_dispo'] ?? 0) === $i) ? 'selected' : '' ?>>
+                        <?= $i ?>
+                    </option>
+                <?php endfor; ?>
             </select>
         </div>
 
         <!-- Préférences -->
-        <div class="mb-3">
-            <label class="form-label">Préférences</label>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="fumeur" name="preferences[]"
-                    <?= in_array('fumeur', $prefs) ? 'checked' : '' ?>>
-                <label class="form-check-label">Fumeur</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="non-fumeur" name="preferences[]"
-                    <?= in_array('non-fumeur', $prefs) ? 'checked' : '' ?>>
-                <label class="form-check-label">Non-fumeur</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="animaux" name="preferences[]"
-                    <?= in_array('animaux', $prefs) ? 'checked' : '' ?>>
-                <label class="form-check-label">Animaux acceptés</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="pas-animaux" name="preferences[]"
-                    <?= in_array('pas-animaux', $prefs) ? 'checked' : '' ?>>
-                <label class="form-check-label">Pas d'animal</label>
-            </div>
-        </div>
+        <fieldset class="mb-3">
+            <legend class="form-label mb-2">Préférences</legend>
+
+            <?php
+            $prefOptions = [
+                'fumeur'      => 'Fumeur',
+                'non-fumeur'  => 'Non-fumeur',
+                'animaux'     => 'Animaux acceptés',
+                'pas-animaux' => "Pas d'animal",
+            ];
+            ?>
+
+            <?php foreach ($prefOptions as $value => $label): ?>
+                <?php $id = 'pref_' . $value; ?>
+                <div class="form-check">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>"
+                        name="preferences[]"
+                        value="<?= htmlspecialchars($value, ENT_QUOTES, 'UTF-8') ?>"
+                        <?= in_array($value, $prefs ?? [], true) ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>">
+                        <?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?>
+                    </label>
+                </div>
+            <?php endforeach; ?>
+        </fieldset>
 
         <!-- Ajout personnalisé -->
         <div class="mb-3">
             <label for="custom_preferences" class="form-label">Ajouter vos préférences personnalisées</label>
-            <textarea class="form-control" id="custom_preferences" name="custom_preferences"
-                rows="3" maxlength="250"><?= htmlspecialchars($vehicle['custom_preferences'] ?? '') ?></textarea>
-
+            <textarea
+                class="form-control"
+                id="custom_preferences"
+                name="custom_preferences"
+                rows="3"
+                maxlength="250"><?= htmlspecialchars((string)($vehicle['custom_preferences'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
         </div>
 
         <!-- Boutons -->
@@ -122,36 +153,37 @@ $prefs = isset($vehicle['preferences']) ? explode(',', $vehicle['preferences']) 
             <button type="submit" class="btn btn-inscription">Enregistrer</button>
         </div>
     </form>
+
 </div>
 
 <!-- Conflits de préférences: Fumeur vs Non-fumeur, Animaux vs Pas d'animal -->
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const sel = (val) => document.querySelector('input[name="preferences[]"][value="' + val + '"]');
-    const fumeur = sel('fumeur');
-    const nonFumeur = sel('non-fumeur');
-    const animaux = sel('animaux');
-    const pasAnimaux = sel('pas-animaux');
+    document.addEventListener('DOMContentLoaded', function() {
+        const sel = (val) => document.querySelector('input[name="preferences[]"][value="' + val + '"]');
+        const fumeur = sel('fumeur');
+        const nonFumeur = sel('non-fumeur');
+        const animaux = sel('animaux');
+        const pasAnimaux = sel('pas-animaux');
 
-    function bindExclusive(a, b) {
-        if (!a || !b) return;
-        const sync = () => {
-            if (a.checked && b.checked) {
-                // Par défaut, on garde celui qui vient d'être coché
-                // et on décoche l'autre
-                // L'événement 'change' se déclenchant sur l'élément modifié,
-                // on peut simplement décocher l'autre
-            }
-            if (a.checked) b.checked = false;
-            if (b.checked) a.checked = false;
-        };
-        a.addEventListener('change', sync);
-        b.addEventListener('change', sync);
-        // Sync initial (cas où le serveur a coché les deux par erreur)
-        sync();
-    }
+        function bindExclusive(a, b) {
+            if (!a || !b) return;
+            const sync = () => {
+                if (a.checked && b.checked) {
+                    // Par défaut, on garde celui qui vient d'être coché
+                    // et on décoche l'autre
+                    // L'événement 'change' se déclenchant sur l'élément modifié,
+                    // on peut simplement décocher l'autre
+                }
+                if (a.checked) b.checked = false;
+                if (b.checked) a.checked = false;
+            };
+            a.addEventListener('change', sync);
+            b.addEventListener('change', sync);
+            // Sync initial (cas où le serveur a coché les deux par erreur)
+            sync();
+        }
 
-    bindExclusive(fumeur, nonFumeur);
-    bindExclusive(animaux, pasAnimaux);
-});
+        bindExclusive(fumeur, nonFumeur);
+        bindExclusive(animaux, pasAnimaux);
+    });
 </script>
