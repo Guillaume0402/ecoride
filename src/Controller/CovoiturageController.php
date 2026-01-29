@@ -11,6 +11,10 @@ use App\Entity\CovoiturageEntity;
 use App\Security\Csrf;
 use App\Service\Flash;
 
+// Contrôleur pour la gestion des covoiturages
+// - création, annulation, démarrage, fin de trajets
+// - actions réservées aux conducteurs
+
 class CovoiturageController extends Controller
 {
     private VehicleRepository $vehicleRepository;

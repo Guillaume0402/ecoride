@@ -4,6 +4,10 @@ namespace App\Controller;
 
 use App\Repository\CovoiturageRepository;
 
+// Contrôleur pour les pages publiques de covoiturage
+// - liste des covoiturages avec filtres et tris
+// - détail d'un covoiturage
+
 class CovoituragePageController extends Controller
 {
     public function __construct()
