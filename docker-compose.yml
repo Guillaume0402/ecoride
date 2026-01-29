@@ -7,6 +7,7 @@ services:
       - "8080:80"
     volumes:
       - .:/var/www/html
+      - ./public/uploads:/var/www/html/public/uploads
     depends_on:
       - db
     environment:
@@ -28,6 +29,9 @@ services:
       - MAIL_FROM=no-reply@ecoride.local
       - MAIL_FROM_NAME=EcoRide
       - SMTP_DEBUG=2
+
+      - CLOUDINARY_URL=cloudinary://464185618435238:SPDAdUYRBk0DSH8M1-Nza7cSocY@dfsxwho3x
+
     networks:
       - ecoride_network
 

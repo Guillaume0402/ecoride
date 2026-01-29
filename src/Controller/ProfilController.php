@@ -190,6 +190,11 @@ class ProfilController extends Controller
                 return null;
             }
             $ext  = $allowed[$mime];
+            // Upload Cloudinary si configuré (persistant prod)
+            $cloudUrl = $this->uploadToCloudinary($file);
+            if ($cloudUrl) {
+                return $cloudUrl;
+            }
         } else {
             // fallback simple
             $ext = pathinfo($file['name'], PATHINFO_EXTENSION) ?: 'jpg';
@@ -218,6 +223,76 @@ class ProfilController extends Controller
             'transactions' => $transactions,
         ]);
     }
+
+    private function getCloudinaryConfig(): ?array
+    {
+        $url = $_ENV['CLOUDINARY_URL'] ?? (getenv('CLOUDINARY_URL') ?: null);
+        if (!is_string($url) || $url === '' || !str_starts_with($url, 'cloudinary://')) {
+            return null;
+        }
+
+        $parsed = parse_url($url);
+        if (!$parsed) return null;
+
+        $cloud  = $parsed['host'] ?? null;
+        $key    = $parsed['user'] ?? null;
+        $secret = $parsed['pass'] ?? null;
+
+        if (!$cloud || !$key || !$secret) return null;
+
+        return ['cloud' => $cloud, 'key' => $key, 'secret' => $secret];
+    }
+
+    private function uploadToCloudinary(array $file, string $folder = 'ecoride/avatars'): ?string
+    {
+        $cfg = $this->getCloudinaryConfig();
+        if (!$cfg) return null;
+
+        if (!function_exists('curl_init')) {
+            error_log('[Cloudinary] cURL extension not available');
+            return null;
+        }
+
+        $timestamp = time();
+        $toSign = 'folder=' . $folder . '&timestamp=' . $timestamp . $cfg['secret'];
+        $signature = sha1($toSign);
+
+        $endpoint = 'https://api.cloudinary.com/v1_1/' . rawurlencode($cfg['cloud']) . '/image/upload';
+
+        $post = [
+            'file' => new \CURLFile($file['tmp_name']),
+            'api_key' => $cfg['key'],
+            'timestamp' => $timestamp,
+            'folder' => $folder,
+            'signature' => $signature,
+        ];
+
+        $ch = curl_init($endpoint);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+
+        $raw = curl_exec($ch);
+        $err = curl_error($ch);
+        $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($raw === false) {
+            error_log('[Cloudinary] curl error: ' . $err);
+            return null;
+        }
+
+        $json = json_decode($raw, true);
+        if ($code >= 200 && $code < 300 && is_array($json)) {
+            return isset($json['secure_url']) ? (string)$json['secure_url'] : null;
+        }
+
+        error_log('[Cloudinary] upload failed HTTP ' . $code . ' body=' . $raw);
+        return null;
+    }
+
+
     // GET /mes-covoiturages
     public function mesCovoiturages(): void
     {
