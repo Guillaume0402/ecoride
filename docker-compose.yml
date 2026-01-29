@@ -11,27 +11,30 @@ services:
     depends_on:
       - db
     environment:
-      - DB_HOST=db
-      - DB_NAME=ecoride
-      - DB_USER=ecoride_user
-      - DB_PASSWORD=ecoride_password
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PORT=${DB_PORT}
 
-      - APP_ENV=dev
+      - APP_ENV=${APP_ENV}
+      - SITE_URL=${SITE_URL}
+      - APP_TZ=${APP_TZ}
 
-      - CONTACT_TO=maignaut.g@gmail.com
+      - CONTACT_TO=${CONTACT_TO}
 
-      - SMTP_HOST=mailpit
-      - SMTP_PORT=1025
-      - SMTP_SECURE=
-      - SMTP_USER=
-      - SMTP_PASS=
-      
-      - MAIL_FROM=no-reply@ecoride.local
-      - MAIL_FROM_NAME=EcoRide
-      - SMTP_DEBUG=2
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_SECURE=${SMTP_SECURE}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_DEBUG=${SMTP_DEBUG}
+
+      - MAIL_FROM=${MAIL_FROM}
+      - MAIL_FROM_NAME=${MAIL_FROM_NAME}
 
       - CLOUDINARY_URL=${CLOUDINARY_URL}
-
+   
     networks:
       - ecoride_network
 
@@ -40,10 +43,10 @@ services:
     image: mysql:8.0
     container_name: ecoride_db
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: ecoride
-      MYSQL_USER: ecoride_user
-      MYSQL_PASSWORD: ecoride_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3307:3306"  # Port 3307 pour éviter conflits avec WAMP
     volumes:
@@ -59,10 +62,10 @@ services:
     ports:
       - "8081:80"
     environment:
-      PMA_HOST: db
-      PMA_USER: ecoride_user
-      PMA_PASSWORD: ecoride_password
-      PMA_ROOT_PASSWORD: root_password
+      PMA_HOST: ${DB_HOST}
+      PMA_USER: ${DB_USER}
+      PMA_PASSWORD: ${DB_PASSWORD}
+      PMA_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     depends_on:
       - db
     networks:
