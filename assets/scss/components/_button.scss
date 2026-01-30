@@ -51,7 +51,7 @@
     @extend %btn-base;
     background: transparent;
     color: var(--text-black);
-    border-color: $color-primary !important;
+    border-color: $color-secondary !important;
     &:hover {
         background-color: $color-primary;
         color: $text-black !important; // Texte noir demandé en light theme

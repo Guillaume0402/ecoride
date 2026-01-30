@@ -275,7 +275,9 @@
                                             <?php if (!in_array($roleId, [1, 2, 3], true)): ?>
                                                 <button class="btn btn-secondary" disabled>Réservé aux Utilisateurs</button>
                                             <?php elseif ($myCredits < $cost): ?>
-                                                <a class="btn btn-secondary" href="/mes-credits" title="Solde: <?= (int)$myCredits ?>">Crédits insuffisants (<?= (int)$cost ?>)</a>
+                                                <a class="btn btn-warning" href="/mes-credits" title="Solde: <?= (int)$myCredits ?>">
+                                                    Crédits insuffisants (<?= (int)$cost ?>) — Recharger
+                                                </a>
                                             <?php else: ?>
                                                 <!-- Formulaire de participation : un clic enverra une demande de réservation -->
                                                 <form action="/participations/create" method="POST" class="d-inline js-confirm"

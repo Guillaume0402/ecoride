@@ -9,6 +9,15 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
 
 <div class="container py-4 page-mes-trajets">
     <h1>Mes trajets</h1>
+    <div class="d-flex gap-2 mt-2">
+        <a href="/my-profil" class="btn btn-custom-outline">
+            <i class="bi bi-person"></i> Mon profil
+        </a>
+
+        <a href="/liste-covoiturages" class="btn btn-inscription">
+            Rechercher un trajet
+        </a>
+    </div>
 
     <?php if (!empty($pendingValidations) && (int)$pendingValidations > 0): ?>
         <div class="alert alert-warning d-flex align-items-center gap-2 mt-2" role="alert">
@@ -405,9 +414,5 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="mt-3">
-        <a href="/liste-covoiturages" class="btn btn-inscription">Rechercher un trajet</a>
     </div>
 </div>
