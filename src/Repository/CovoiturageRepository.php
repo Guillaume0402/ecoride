@@ -45,7 +45,7 @@ class CovoiturageRepository
         }
         return $ok;
     }
-    
+
     // Recherche de covoiturages par ville de départ, d'arrivée, date, préférences, tri…
     // Retourne un tableau de lignes SQL (array associatif)
     public function search(?string $depart = null, ?string $arrivee = null, ?string $date = null, array $prefs = [], ?string $sort = null, ?string $dir = null, ?int $currentUserId = null): array
@@ -135,27 +135,36 @@ class CovoiturageRepository
         $stmt->execute($params);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
-  
+
     // Récupère un covoiturage (une seule ligne) avec infos véhicule et conducteur
     public function findOneWithVehicleById(int $id): ?array
     {
-        $sql = "SELECT c.*, 
-                       v.places_dispo AS vehicle_places,
-                       v.marque AS vehicle_marque, v.modele AS vehicle_modele, v.couleur AS vehicle_couleur,
-                       v.immatriculation AS vehicle_immatriculation,
-                       u.pseudo AS driver_pseudo, u.photo AS driver_photo
-                FROM {$this->table} c
-                LEFT JOIN vehicles v ON v.id = c.vehicle_id
-                LEFT JOIN users u ON u.id = c.driver_id
-                WHERE c.id = :id
-                LIMIT 1";
+        $sql = "SELECT c.*,
+                   v.places_dispo AS vehicle_places,
+                   v.marque AS vehicle_marque,
+                   v.modele AS vehicle_modele,
+                   v.couleur AS vehicle_couleur,
+                   v.immatriculation AS vehicle_immatriculation,
+
+                   v.preferences AS vehicle_preferences,
+                   v.custom_preferences AS vehicle_prefs_custom,
+
+                   u.pseudo AS driver_pseudo,
+                   u.photo AS driver_photo
+            FROM {$this->table} c
+            LEFT JOIN vehicles v ON v.id = c.vehicle_id
+            LEFT JOIN users u ON u.id = c.driver_id
+            WHERE c.id = :id
+            LIMIT 1";
+
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([':id' => $id]);
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        // Retourne null si aucun covoiturage trouvé
+
         return $row ?: null;
     }
-    
+
+
     // Liste les covoiturages dont l'utilisateur est le conducteur
     public function findByDriverId(int $driverId): array
     {
@@ -182,7 +191,7 @@ class CovoiturageRepository
         $stmt->execute([':d' => $driverId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
-   
+
     // Met à jour le statut d'un covoiturage (avec contrôle sur les valeurs autorisées)
     public function updateStatus(int $id, string $status): bool
     {
@@ -214,7 +223,7 @@ class CovoiturageRepository
         $stmt = $this->conn->query("SELECT COUNT(*) FROM {$this->table} WHERE DATE(depart) = CURDATE()");
         return (int) $stmt->fetchColumn();
     }
-   
+
     // Retourne, pour chaque jour, le nombre de covoiturages sur une période donnée
     public function seriesByDay(int $days = 7): array
     {
@@ -235,7 +244,7 @@ class CovoiturageRepository
         }
         return $out;
     }
-    
+
     // Calcule la somme des prix par jour sur une période donnée
     public function sumPrixByDay(int $days = 7): array
     {
@@ -256,7 +265,7 @@ class CovoiturageRepository
         }
         return $out;
     }
-   
+
     // Liste pour l'admin : tous les covoiturages avec quelques stats simples
     public function findAllAdmin(string $scope = 'all', int $limit = 500): array
     {

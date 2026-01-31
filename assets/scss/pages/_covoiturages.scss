@@ -64,7 +64,7 @@
     // ----- Header -----
     .card-header {
         .card-info {
-            margin-left: 6rem;
+            margin-left: 1rem;
             display: flex;
             flex-wrap: wrap;
             align-items: center;
@@ -236,10 +236,10 @@ body:not(.theme-alt) {
 
 // -------------------- Rides Grid --------------------
 @media (min-width: 2330px) {
-  .rides-grid > * {
-    flex: 0 0 auto;
-    width: 25%;
-  }
+    .rides-grid > * {
+        flex: 0 0 auto;
+        width: 25%;
+    }
 }
 
 // Mobile & tablette : layout inside card
@@ -250,13 +250,14 @@ body:not(.theme-alt) {
 
         // ------- HEADER -------
         .card-header {
-            display: grid;
-            grid-template-columns: 1fr auto;
+            display: grid !important; // bat .d-flex { display:flex !important; }
+            grid-template-columns: minmax(0, 1fr) max-content;
             grid-template-areas:
                 "date time"
                 "price price";
-            gap: 0.35rem 0.75rem;
             align-items: start;
+            column-gap: 0.5rem;
+            row-gap: 0.35rem;
 
             .card-info {
                 margin-left: 0;
@@ -424,5 +425,26 @@ body:not(.theme-alt) {
         max-width: 100%;
         font-size: 0.85rem !important; // petit sur mobile
         padding: 0.45rem 0.6rem !important;
+    }
+}
+// Très petits écrans (320px) : on “compacte”
+@media (max-width: 360px) {
+    .carpool-card {
+        .card-header {
+            column-gap: 0.35rem;
+        }
+
+        // Réduit la taille des badges date/heure sans toucher aux autres badges (prefs)
+        .card-header .date,
+        .card-header .card-time {
+            padding: 0.15rem 0.45rem; // avant: badge bootstrap plus gros
+            font-size: 0.8rem; // gagne de la place
+            line-height: 1.1;
+        }
+
+        // Bonus l’icône saute sur 320px
+        .card-header .card-time i {
+            display: none;
+        }
     }
 }

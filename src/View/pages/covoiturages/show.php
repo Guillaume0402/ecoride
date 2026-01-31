@@ -62,8 +62,45 @@
                         </dd>
                         <dt class="col-sm-4">Départ</dt>
                         <dd class="col-sm-8"><?= htmlspecialchars((string)($ride['adresse_depart'] ?? '')) ?></dd>
-                        <dt class="col-sm-4">Destination</dt>
+                        <dt class="col-sm-4">Destination</dt>                                      
                         <dd class="col-sm-8"><?= htmlspecialchars((string)($ride['adresse_arrivee'] ?? '')) ?></dd>
+                        <?php
+                        // --- Préférences véhicule : mêmes règles que la liste ---
+                        $prefsRaw = (string)($ride['vehicle_preferences'] ?? '');
+                        $prefs = explode(',', $prefsRaw);
+
+                        $allowedPrefs = ['fumeur', 'non-fumeur', 'animaux', 'pas-animaux'];
+                        $badges = [];
+
+                        foreach ($prefs as $pref) {
+                            $prefClean = strtolower(trim($pref));
+                            if ($prefClean !== '' && in_array($prefClean, $allowedPrefs, true)) {
+                                $badges[] = $prefClean;
+                            }
+                        }
+
+                        $customPref = trim((string)($ride['vehicle_prefs_custom'] ?? ''));
+                        ?>
+
+                        <?php if (!empty($badges) || $customPref !== ''): ?>
+                            <dt class="col-sm-4">Préférences</dt>
+                            <dd class="col-sm-8">
+                                <div class="ride-prefs">
+                                    <?php foreach ($badges as $b): ?>
+                                        <span class="badge badge-pref <?= htmlspecialchars($b) ?> me-2">
+                                            <?= htmlspecialchars($b) ?>
+                                        </span>
+                                    <?php endforeach; ?>
+
+                                    <?php if ($customPref !== ''): ?>
+                                        <span class="badge badge-pref custom">
+                                            <?= htmlspecialchars($customPref) ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
+                            </dd>
+                        <?php endif; ?>
+
                     </dl>
                     <div class="mt-4 d-flex gap-2">
                         <a class="btn btn-outline-success" href="/liste-covoiturages">Retour à la liste</a>

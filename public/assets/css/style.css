@@ -12445,7 +12445,7 @@ footer a:hover {
   box-shadow: var(--shadow-box);
 }
 .carpool-card .card-header .card-info {
-  margin-left: 6rem;
+  margin-left: 1rem;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -12593,11 +12593,12 @@ body:not(.theme-alt) .carpool-card .btn-outline-light:hover, body:not(.theme-alt
     padding: 1rem;
   }
   .carpool-card .card-header {
-    display: grid;
-    grid-template-columns: 1fr auto;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) max-content;
     grid-template-areas: "date time" "price price";
-    gap: 0.35rem 0.75rem;
     align-items: start;
+    column-gap: 0.5rem;
+    row-gap: 0.35rem;
   }
   .carpool-card .card-header .card-info {
     margin-left: 0;
@@ -12733,6 +12734,20 @@ body:not(.theme-alt) .carpool-card .btn-outline-light:hover, body:not(.theme-alt
     max-width: 100%;
     font-size: 0.85rem !important;
     padding: 0.45rem 0.6rem !important;
+  }
+}
+@media (max-width: 360px) {
+  .carpool-card .card-header {
+    column-gap: 0.35rem;
+  }
+  .carpool-card .card-header .date,
+  .carpool-card .card-header .card-time {
+    padding: 0.15rem 0.45rem;
+    font-size: 0.8rem;
+    line-height: 1.1;
+  }
+  .carpool-card .card-header .card-time i {
+    display: none;
   }
 }
 h1 {
@@ -13802,6 +13817,15 @@ ul li {
 }
 .ride-show .ride-detail .mt-4 {
   margin-top: 1.25rem !important;
+}
+.ride-show .ride-prefs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+.ride-show .ride-prefs .badge-pref.custom {
+  max-width: 100%;
 }
 
 :root {

@@ -74,4 +74,14 @@
             margin-top: 1.25rem !important;
         }
     }
+    .ride-prefs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        align-items: center;
+
+        .badge-pref.custom {
+            max-width: 100%;
+        }
+    }
 }

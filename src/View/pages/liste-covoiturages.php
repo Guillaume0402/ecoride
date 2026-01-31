@@ -179,10 +179,10 @@
                                         $d = new DateTime($ride['depart']);
                                         $price = number_format((float)$ride['prix'], 2, ',', ' ');
                                         ?>
-                                        <span class="date"><?= $d->format('d/m/Y') ?></span>
+                                        <span class="date badge bg-success-subtle text-success border border-success"><?= $d->format('d/m/Y') ?></span>
                                         <span class="price"><?= $price ?> crédits</span>
                                     </div>
-                                    <div class="card-time">
+                                    <div class="card-time badge bg-success-subtle text-success border border-success">
                                         <i class="bi bi-clock-fill"></i>
                                         <span><?= $d->format('H\hi') ?></span>
                                     </div>
