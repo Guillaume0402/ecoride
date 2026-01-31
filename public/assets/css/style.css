@@ -13283,10 +13283,10 @@ html:not(.theme-alt) .auth-form input.form-control::-webkit-calendar-picker-indi
 .upload-label {
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.25);
-  color: white;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
+  border: 2px dashed var(--color-border);
 }
 .upload-label:hover {
   background: rgba(255, 255, 255, 0.25);
@@ -13299,6 +13299,13 @@ html:not(.theme-alt) .auth-form input.form-control::-webkit-calendar-picker-indi
   background: #f0f0f0;
   color: #444;
   font-size: 1.3rem;
+}
+
+.my-profil-page .upload-label #photo-name {
+  color: var(--text-black);
+}
+.my-profil-page .upload-label .upload-icon {
+  color: var(--text-black);
 }
 
 :root .card-header.bg-primary {

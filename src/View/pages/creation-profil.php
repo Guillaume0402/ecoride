@@ -30,7 +30,7 @@
                     <div class="upload-icon rounded-circle d-flex align-items-center justify-content-center">
                         <i class="bi bi-file-earmark-arrow-up-fill"></i>
                     </div>
-                    <span id="photo-name" class="text-white">Télécharger votre photo</span>
+                    <span id="photo-name">Télécharger votre photo</span>
                 </label>
             </div>
 
