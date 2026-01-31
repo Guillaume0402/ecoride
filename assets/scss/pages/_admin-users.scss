@@ -1,161 +1,143 @@
 @use "../abstracts" as *;
 
-// Headers de cartes: cohérence light/dark
-:root .card-header.bg-primary {
-    color: #111 !important;
-}
-.theme-alt .card-header.bg-primary {
-    color: #ffffff !important;
-}
+/* -------------------------------------------------------
+   Admin Users / Employees - Tables + Mobile Cards   
+-------------------------------------------------------- */
 
-.nav-tabs .nav-link.active {
+/* Card headers: cohérence light/dark */
+:root .card-header.bg-primary { color: #111 !important; }
+.theme-alt .card-header.bg-primary { color: #fff !important; }
+
+/* Tabs */
+.nav-tabs {
+  .nav-link.active {
     background-color: $color-primary !important;
     color: #fff !important;
     border-color: $color-secondary !important;
-    font-weight: bold;
-}
+    font-weight: 700;
+  }
 
-.nav-tabs .nav-link:hover {
+  .nav-link:hover {
     background-color: #2ecc71 !important;
-    color: #000000 !important;
+    color: #000 !important;
+  }
 }
 
-.actions-col {
-    width: 150px;
-    white-space: nowrap;
-    text-align: center;
-    vertical-align: middle;
-}
-
+/* Colonnes actions (desktop) */
+.actions-col,
 .actions-col-user {
-    width: 100px;
-    white-space: nowrap;
-    text-align: center;
-    vertical-align: middle;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
 }
+.actions-col { width: 150px; }
+.actions-col-user { width: 100px; }
 
-/* Wrapper responsive pour tableau */
-.table-responsive {
+/* ------------
+   Scope admin
+--------------- */
+.admin-side ~ section {
+  overflow-x: hidden;
+
+  /* Wrapper responsive : on neutralise le scroll horizontal bootstrap en admin */
+  .table-responsive {
     width: 100%;
-    overflow-x: auto;
+    overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch;
 
+    /* Table: couleurs via variables admin */
     .table {
-        min-width: 400px;
-        background-color: var(--table-bg);
-        color: var(--table-text);
-        border-color: var(--table-border);
+      width: 100%;
+      min-width: 0 !important;
+      border-color: var(--admin-card-border) !important;
+      color: var(--admin-card-text) !important;
+      background: var(--admin-card-bg) !important;
 
-        th,
-        td {
-            background-color: var(--table-bg);
-            color: var(--table-text);
-            border-color: var(--table-border);
-        }
+      th,
+      td {
+        border-color: var(--admin-card-border) !important;
+        color: var(--admin-card-text) !important;
+        background: var(--admin-card-bg) !important;
 
-        thead {
-            background-color: var(--table-bg);
-            color: var(--text-black);
-            border-color: var(--table-border);
-        }
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
     }
-}
-/* ADMIN: tables always readable (light look even in dark theme) */
-.admin-side ~ section .table-responsive .table {
-    background: #fff !important;
-    color: #111 !important;
-    border-color: rgba(0, 0, 0, 0.2) !important;
+
+    /* Thead: thème clair vs dark */
+    html:not(.theme-alt) & .table thead th {
+      background: #eaf2e3 !important;
+      color: #111 !important;
+    }
+    .theme-alt & .table thead th {
+      background: var(--color-primary) !important;
+      color: #fff !important;
+    }
+  }
 }
 
-.admin-side ~ section .table-responsive .table th,
-.admin-side ~ section .table-responsive .table td {
-    background: transparent !important;
-    color: #111 !important;
-    border-color: rgba(0, 0, 0, 0.2) !important;
-}
-html:not(.theme-alt) .admin-side ~ section .table-responsive .table thead th {
-    background: #eaf2e3 !important; /* clair */
-    color: #111 !important;
-}
-.theme-alt .admin-side ~ section .table-responsive .table thead th {
-    background: var(--color-primary) !important;
-    color: #fff !important;
+/* ---------------------------------------
+   Desktop / tablette : table classique 
+--------------------------------------- */
+@media (min-width: 769px) {
+  .admin-side ~ section .table-responsive .table {
+    table-layout: auto;
+  }
 }
 
-/* Stripe lisible */
-.admin-side
-    ~ section
-    .table-responsive
-    .table.table-striped
-    > tbody
-    > tr:nth-of-type(odd)
-    > * {
-    background: rgba(0, 0, 0, 0.03) !important;
-}
-
+/* -------------------------------------------------------
+   Mobile : table -> cartes + suppression du “carré blanc”
+-------------------------------------------------------- */
 @media (max-width: 768px) {
-    .table-responsive .table {
-        min-width: unset !important;
-        width: 100%;
+  .admin-side ~ section .table-responsive {
+    /* tue le rectangle blanc global (table/table-striped) */
+    background: transparent !important;
+
+    .table,
+    .table tbody {
+      background: transparent !important;
+      table-layout: auto !important;
+      min-width: 0 !important;
     }
 
-    .admin-side {
-        position: fixed;
-        top: 0;
-        left: -250px;
-        width: 250px;
-        height: 100%;
-        background: $color-primary;
-        transition: left 0.3s ease;
-        z-index: 1050;
+    .table thead { display: none; }
+
+    .table tbody,
+    .table tr,
+    .table td {
+      display: block;
+      width: 100%;
     }
 
-    .admin-side.open {
-        left: 0;
+    .table tbody tr {
+      margin: 0 0 1rem 0;
+      border: 1px solid var(--admin-card-border);
+      border-radius: 10px;
+      padding: 0.75rem;
+      background: var(--admin-card-bg) !important;
     }
 
-    .container.py-5 {
-        margin-left: 0 !important;
-        width: 100% !important;
-        padding-top: 80px;
+    .table tbody td {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 0.5rem 0;
+
+      border: 0;
+      border-bottom: 1px solid var(--admin-card-sep);
     }
 
-    table.table thead {
-        display: none;
+    .table tbody td::before {
+      content: attr(data-label);
+      font-weight: 700;
+      min-width: 90px;
+      color: var(--admin-card-text) !important;
     }
 
-    table.table tbody tr {
-        display: block;
-        margin-bottom: 1rem;
-        border: 1px solid var(--table-border);
-        border-radius: 5px;
-        padding: 0.5rem;
-        background-color: var(--table-bg);
-        color: var(--table-text);
-        box-shadow: var(--shadow-box);
+    /* Neutralise les bandes de table-striped si je la gardes dans le HTML */
+    .table.table-striped > tbody > tr:nth-of-type(odd) > * {
+      background: transparent !important;
     }
-
-    table.table tbody td {
-        display: flex;
-        justify-content: flex-start;
-        gap: 8px;
-        padding: 0.5rem;
-        border: none;
-        border-bottom: 1px solid var(--table-border);
-        color: var(--table-text);
-    }
-
-    td.actions-col-user {
-        justify-content: center;
-    }
-
-    table.table tbody td:last-child {
-        border-bottom: none;
-    }
-
-    table.table tbody td::before {
-        content: attr(data-label);
-        font-weight: bold;
-        color: var(--table-text);
-    }
+  }
 }

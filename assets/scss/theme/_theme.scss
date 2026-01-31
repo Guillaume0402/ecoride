@@ -1,5 +1,5 @@
 :root {
-    --color-primary: #215732;   
+    --color-primary: #215732;
     --color-secondary: #1f7a3a;
     --color-white: #000000;
     --color-fade-white: #eaf2e3;
@@ -14,7 +14,12 @@
     --table-text: var(--list-text);
     --table-border: var(--color-border);
 
-   
+    --admin-card-bg: #ffffff;
+    --admin-card-text: #111111;
+    --admin-card-border: rgba(0, 0, 0, 0.2);
+    --admin-card-sep: rgba(0, 0, 0, 0.12);
+    --admin-card-stripe: rgba(0, 0, 0, 0.03);
+
     --bg-gradient: linear-gradient(
         135deg,
         #eafff5 0%,
@@ -30,7 +35,7 @@
         #35a342 80%
     );
     --shadow-box: 0 10px 30px rgba(0, 0, 0, 0.3);
-    --shadow-text: 1px 1px 3px rgba(0, 0, 0, 0.2);   
+    --shadow-text: 1px 1px 3px rgba(0, 0, 0, 0.2);
     --muted-color: #6c757d;
 }
 
@@ -53,19 +58,24 @@ html:not(.theme-alt) {
 
 /* Thème sombre (activé via .theme-alt sur <body>) */
 .theme-alt {
-    --color-primary: #215732;    
+    --color-primary: #215732;
     --color-secondary: #05ff1a;
-    --color-white: #e6ebdf; 
+    --color-white: #e6ebdf;
     --color-fade-white: #c8cec1;
     --text-black: #ffffff;
     --text-white: #ffffff;
     --list-bg: #0f2511;
     --list-hover: #1a8f2a;
-    --list-text: #e9fff0; 
+    --list-text: #e9fff0;
     --color-border: #34d132;
     --table-bg: rgba(255, 255, 255, 0.06);
     --table-text: #e9fff0;
     --table-border: #34d132;
+    --admin-card-bg: rgba(255, 255, 255, 0.06);
+    --admin-card-text: #e9fff0;
+    --admin-card-border: rgba(52, 209, 50, 0.45);
+    --admin-card-sep: rgba(52, 209, 50, 0.25);
+    --admin-card-stripe: rgba(255, 255, 255, 0.03);
 
     --bg-gradient: linear-gradient(
         135deg,
@@ -82,6 +92,6 @@ html:not(.theme-alt) {
         #0a2d08 80%
     );
     --shadow-box: 0 10px 30px rgba(255, 255, 255, 0.22);
-    --shadow-text: 1px 1px 3px rgba(255, 255, 255, 0.35);    
+    --shadow-text: 1px 1px 3px rgba(255, 255, 255, 0.35);
     --muted-color: #a8b8a8;
 }
