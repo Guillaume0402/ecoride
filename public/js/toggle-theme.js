@@ -10,20 +10,23 @@ if (themeToggleBtn) {
         document.body.classList.toggle("theme-alt", isAlt);
         localStorage.setItem("theme", isAlt ? "alt" : "default");
         setIcon(isAlt);
+        window.updateChartsTheme?.();
     }
+
     const stored = localStorage.getItem("theme");
     const isAltInitial =
         stored === "alt"
             ? true
             : stored === "default"
-            ? false
-            : document.documentElement.classList.contains("theme-alt") ||
-              document.body.classList.contains("theme-alt");
+              ? false
+              : document.documentElement.classList.contains("theme-alt") ||
+                document.body.classList.contains("theme-alt");
 
     applyTheme(isAltInitial);
 
     themeToggleBtn.addEventListener("click", () => {
-        const isAltNow = !document.documentElement.classList.contains("theme-alt");
+        const isAltNow =
+            !document.documentElement.classList.contains("theme-alt");
         applyTheme(isAltNow);
     });
 }
