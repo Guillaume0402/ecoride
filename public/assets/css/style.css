@@ -13361,8 +13361,38 @@ html:not(.theme-alt) .auth-form input.form-control::-webkit-calendar-picker-indi
   border-color: var(--table-border);
 }
 .table-responsive .table thead {
-  background-color: var(--color-primary);
-  color: var(--text-white);
+  background-color: var(--table-bg);
+  color: var(--text-black);
+  border-color: var(--table-border);
+}
+
+/* ADMIN: tables always readable (light look even in dark theme) */
+.admin-side ~ section .table-responsive .table {
+  background: #fff !important;
+  color: #111 !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.admin-side ~ section .table-responsive .table th,
+.admin-side ~ section .table-responsive .table td {
+  background: transparent !important;
+  color: #111 !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+html:not(.theme-alt) .admin-side ~ section .table-responsive .table thead th {
+  background: #eaf2e3 !important; /* clair */
+  color: #111 !important;
+}
+
+.theme-alt .admin-side ~ section .table-responsive .table thead th {
+  background: var(--color-primary) !important;
+  color: #fff !important;
+}
+
+/* Stripe lisible */
+.admin-side ~ section .table-responsive .table.table-striped > tbody > tr:nth-of-type(odd) > * {
+  background: rgba(0, 0, 0, 0.03) !important;
 }
 
 @media (max-width: 768px) {

@@ -97,7 +97,7 @@
 
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover align-middle bg-white text-dark table-striped">
-                        <thead class="table-dark">
+                        <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Pseudo</th>
@@ -158,7 +158,7 @@
             <div class="tab-pane fade <?= (($_SESSION['active_tab'] ?? '') === 'utilisateurs') ? 'show active' : '' ?>" id="utilisateurs">
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover align-middle bg-white text-dark table-striped">
-                        <thead class="table-dark">
+                        <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Pseudo</th>
