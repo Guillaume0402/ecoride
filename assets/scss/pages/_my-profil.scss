@@ -2,8 +2,20 @@
 
 .my-profil-page {
     color: var(--text-black);
-    h1, h2, h3, h4, h5, h6 { color: var(--text-black); }
-    .card, .nav-tabs .nav-link, .blockquote, .small { color: var(--text-black); }
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        color: var(--text-black);
+    }
+    .card,
+    .nav-tabs .nav-link,
+    .blockquote,
+    .small {
+        color: var(--text-black);
+    }
 }
 
 .badge-pref {
@@ -14,38 +26,43 @@
     color: var(--text-white);
     text-transform: capitalize;
     display: inline-block;
-    margin: 0.2rem; 
-    max-width: 150px; 
+    margin: 0.2rem;
+    max-width: 150px;
     white-space: normal;
     word-wrap: break-word;
     overflow-wrap: break-word;
     text-align: center;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+
 }
 
 .badge-pref.fumeur {
-    background: linear-gradient(to right, #ff5f6d, #ffc371);
+    background: rgba(220, 53, 69, 0.75); // rouge “warning”
+    border: 1px solid rgba(220, 53, 69, 1);
 }
 .badge-pref.non-fumeur {
-    background: linear-gradient(to right, #4ca1af, #2c3e50);
+    background: rgba(25, 135, 84, 0.75); // vert “success”
+    border: 1px solid rgba(25, 135, 84, 1);
 }
 .badge-pref.animaux {
-    background: linear-gradient(to right, #00c6ff, #0072ff);
+    background: rgba(13, 110, 253, 0.75); // bleu “primary”
+    border: 1px solid rgba(13, 110, 253, 1);
 }
 .badge-pref.pas-animaux {
-    background: linear-gradient(to right, #636363, #a2ab58);
+    background: rgba(108, 117, 125, 0.75); // gris “secondary”
+    border: 1px solid rgba(108, 117, 125, 1);
 }
 .badge-pref.custom {
-    background: linear-gradient(to right, #6a11cb, #2575fc);
-    font-style: italic;
-    display: block; 
+    background: rgba(111, 66, 193, 0.75); // violet propre
+    border: 1px solid rgba(111, 66, 193, 1);
+    display: block;
     width: fit-content;
-    margin-top: 0.5rem; 
-    max-width: 100%; 
+    margin-top: 0.5rem;
+    max-width: 100%;
     white-space: normal;
     word-wrap: break-word;
     overflow-wrap: break-word;
 }
-
 
 .btn-custom-outline {
     border: 1px solid var(--color-secondary);
@@ -61,7 +78,7 @@
 }
 
 .btn-delete {
-    background-color: rgba(255, 77, 77, 0.12); 
+    background-color: rgba(255, 77, 77, 0.12);
     color: #ff4d4d;
     border: 1px solid #ff4d4d;
     font-weight: 500;

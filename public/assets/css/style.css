@@ -11932,7 +11932,7 @@ table {
 }
 
 h1 {
-  font-size: clamp(1.5rem, 5vw, 3rem) !important;
+  font-size: clamp(1.4rem, 3.5vw, 2.4rem) !important;
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 1rem;
@@ -11940,7 +11940,7 @@ h1 {
 }
 
 h2 {
-  font-size: clamp(1.25rem, 3.125vw, 3.5rem);
+  font-size: clamp(1.2rem, 3vw, 2rem);
   font-weight: 600;
   line-height: 1.2;
   margin-bottom: 1rem;
@@ -11948,31 +11948,33 @@ h2 {
 }
 
 h3 {
-  font-size: clamp(1rem, 2.85vw, 3rem);
+  font-size: clamp(1.05rem, 2.4vw, 1.6rem);
   font-weight: 600;
   line-height: 1.2;
   text-shadow: -1px -1px 0 rgba(121, 121, 121, 0.7529411765), 1px -1px 0 797979c0, -1px 1px 0 797979c0, 1px 1px 0 rgba(121, 121, 121, 0.7529411765);
 }
 
 h4 {
-  font-size: clamp(0.8rem, 2.5vw, 2rem);
+  font-size: clamp(0.95rem, 2vw, 1.25rem);
   font-weight: 600;
   line-height: 1.2;
   text-shadow: -1px -1px 0 rgba(121, 121, 121, 0.7529411765), 1px -1px 0 797979c0, -1px 1px 0 797979c0, 1px 1px 0 rgba(121, 121, 121, 0.7529411765);
 }
 
 p {
-  font-size: clamp(0.8rem, 2vw, 1.25rem);
+  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
   font-weight: 500;
   line-height: 1.6;
   margin-bottom: 2rem;
-  text-shadow: -1px -1px 0 rgba(121, 121, 121, 0.7529411765), 1px -1px 0 797979c0, -1px 1px 0 797979c0, 1px 1px 0 rgba(121, 121, 121, 0.7529411765);
+  text-shadow: none;
 }
 
 a {
-  font-size: clamp(0.8rem, 2vw, 1.25rem);
+  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
   font-family: "Poppins", sans-serif;
   text-decoration: none;
+  text-shadow: none;
+  line-height: 1.6;
   font-weight: 600;
   color: var(--text-black);
   transition: all 0.3s ease-out;
@@ -12436,6 +12438,7 @@ footer a:hover {
   justify-content: space-between;
   transition: transform 0.2s, box-shadow 0.2s;
   border: 1px solid #1f7a3a;
+  height: 100%;
 }
 .carpool-card:hover {
   transform: translateY(-4px);
@@ -12517,25 +12520,29 @@ footer a:hover {
   margin-top: 0.5rem;
   padding: 1.5rem;
 }
+.carpool-card .details {
+  min-width: 0;
+}
 .carpool-card .card-footer {
   display: flex;
   justify-content: space-between;
+  margin-top: auto;
+  gap: 0.75rem;
 }
-.carpool-card .card-footer .stars {
+.carpool-card .card-footer > a.btn,
+.carpool-card .card-footer > div {
+  min-width: 0;
+}
+.carpool-card .card-footer > div {
   display: flex;
-  gap: 0.3rem;
-  margin-left: 6rem;
+  justify-content: flex-end;
+  min-width: 0;
 }
-.carpool-card .card-footer .stars .star {
-  font-size: 1.8rem;
-  color: var(--text-black);
-  text-shadow: -1px -1px 0 rgba(121, 121, 121, 0.7529411765), 1px -1px 0 797979c0, -1px 1px 0 797979c0, 1px 1px 0 rgba(121, 121, 121, 0.7529411765);
-  cursor: pointer;
-  transition: transform 0.2s, color 0.2s;
-}
-.carpool-card .card-footer .stars .star:hover {
-  transform: scale(1.2);
-  color: #ffc107;
+.carpool-card .card-footer > div .btn {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
 }
 
 body:not(.theme-alt) .carpool-card .card-header {
@@ -12575,31 +12582,10 @@ body:not(.theme-alt) .carpool-card .btn-outline-light:hover, body:not(.theme-alt
   border-left: 1px solid rgba(255, 255, 255, 0.35);
 }
 
-@media (max-width: 767px) {
-  .carpool-card {
-    padding: 1rem;
-  }
-  .carpool-card .card-header {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center !important;
-  }
-  .carpool-card .card-header .card-info {
-    justify-content: center;
-    margin-bottom: 0.75rem;
-  }
-  .carpool-card .card-body {
-    flex-direction: column !important;
-    align-items: center !important;
-    text-align: center;
-  }
-  .carpool-card .card-body .btn-participate {
-    margin: 1rem auto 0 !important;
-  }
-  .carpool-card .card-footer {
-    text-align: center;
-    margin-top: 1rem;
+@media (min-width: 2330px) {
+  .rides-grid > * {
+    flex: 0 0 auto;
+    width: 25%;
   }
 }
 @media (max-width: 992px) {
@@ -12607,37 +12593,146 @@ body:not(.theme-alt) .carpool-card .btn-outline-light:hover, body:not(.theme-alt
     padding: 1rem;
   }
   .carpool-card .card-header {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "date time" "price price";
+    gap: 0.35rem 0.75rem;
+    align-items: start;
   }
   .carpool-card .card-header .card-info {
-    margin-bottom: 0.75rem;
     margin-left: 0;
+    display: contents;
+  }
+  .carpool-card .card-header .price {
+    padding-left: 0.75rem !important;
+    margin-left: 0.5rem !important;
+    border-left: 0 !important;
+  }
+  .carpool-card .card-header .card-info .date {
+    grid-area: date;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-shadow: none;
+    white-space: nowrap;
+  }
+  .carpool-card .card-header .card-info .price {
+    grid-area: price;
+    font-size: 0.95rem;
+    font-weight: 800;
+    padding-left: 0;
+    margin-left: 0;
+    border-left: 0;
+    text-shadow: none;
+    white-space: normal;
+  }
+  .carpool-card .card-header .card-time {
+    grid-area: time;
+    justify-self: end;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    text-shadow: none;
   }
   .carpool-card .card-body {
-    flex-direction: column !important;
-    align-items: center !important;
-    text-align: center;
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    grid-template-areas: "avatar title" "avatar meta";
+    gap: 0.5rem 0.75rem;
+    align-items: start;
   }
-  .carpool-card .card-body .btn-participate {
-    margin: 1rem auto 0 !important;
+  .carpool-card .card-body .avatar {
+    grid-area: avatar;
+    width: 52px;
+    height: 52px;
+  }
+  .carpool-card .card-body .details {
+    margin-left: 0;
+    padding: 0 !important;
+    text-align: left;
+  }
+  .carpool-card .card-body .details h5 {
+    grid-area: title;
+    font-size: 1.1rem;
+    line-height: 1.25;
+    margin: 0 0 0.35rem 0;
+  }
+  .carpool-card .card-body .details ul {
+    grid-area: meta;
+  }
+  .carpool-card .card-body .details ul li {
+    font-size: 0.95rem;
+    margin-bottom: 0.2rem;
+  }
+  .carpool-card .card-body .details ul .prefs-line {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.35rem 0.5rem;
+    align-items: start;
+    margin-top: 0.35rem;
+  }
+  .carpool-card .card-body .details ul .prefs-line .prefs-label {
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .carpool-card .card-body .details ul .prefs-line .prefs-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+  .carpool-card .card-body .details ul .prefs-line .prefs-badges .badge-pref.custom {
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .carpool-card .card-footer {
-    margin-left: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    align-items: stretch;
   }
-  .carpool-card .card-footer .stars {
-    display: flex;
-    gap: 0.3rem;
-    margin-left: 0;
+  .carpool-card .card-footer a.btn,
+  .carpool-card .card-footer button.btn,
+  .carpool-card .card-footer form .btn {
+    width: 100%;
   }
-  .carpool-card .card-footer .stars .star {
-    font-size: 1.4rem;
-    cursor: pointer;
-    transition: transform 0.2s, color 0.2s;
+  .carpool-card .card-footer form.d-inline {
+    display: block !important;
   }
-  .carpool-card .card-footer .stars .star:hover {
-    transform: scale(1.2);
-    color: #ffc107;
+  .carpool-card .card-footer > :only-child {
+    grid-column: 1/-1;
+  }
+}
+/* Desktop / tablette : Détails largeur stable */
+@media (min-width: 577px) {
+  .carpool-card .card-footer > a.btn {
+    flex: 0 0 140px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+  }
+}
+/* Mobile : 2 colonnes fluides (plus de largeur fixe) */
+@media (max-width: 576px) {
+  .carpool-card .card-footer {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+  .carpool-card .card-footer > a.btn,
+  .carpool-card .card-footer > div {
+    width: 100%;
+  }
+  .carpool-card .card-footer > a.btn {
+    flex: initial;
+  }
+  .carpool-card .card-footer > div .btn {
+    width: 100%;
+    max-width: 100%;
+    font-size: 0.85rem !important;
+    padding: 0.45rem 0.6rem !important;
   }
 }
 h1 {
@@ -13056,10 +13151,18 @@ html:not(.theme-alt) .auth-form input.form-control::-webkit-calendar-picker-indi
 .my-profil-page {
   color: var(--text-black);
 }
-.my-profil-page h1, .my-profil-page h2, .my-profil-page h3, .my-profil-page h4, .my-profil-page h5, .my-profil-page h6 {
+.my-profil-page h1,
+.my-profil-page h2,
+.my-profil-page h3,
+.my-profil-page h4,
+.my-profil-page h5,
+.my-profil-page h6 {
   color: var(--text-black);
 }
-.my-profil-page .card, .my-profil-page .nav-tabs .nav-link, .my-profil-page .blockquote, .my-profil-page .small {
+.my-profil-page .card,
+.my-profil-page .nav-tabs .nav-link,
+.my-profil-page .blockquote,
+.my-profil-page .small {
   color: var(--text-black);
 }
 
@@ -13077,27 +13180,32 @@ html:not(.theme-alt) .auth-form input.form-control::-webkit-calendar-picker-indi
   word-wrap: break-word;
   overflow-wrap: break-word;
   text-align: center;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 }
 
 .badge-pref.fumeur {
-  background: linear-gradient(to right, #ff5f6d, #ffc371);
+  background: rgba(220, 53, 69, 0.75);
+  border: 1px solid rgb(220, 53, 69);
 }
 
 .badge-pref.non-fumeur {
-  background: linear-gradient(to right, #4ca1af, #2c3e50);
+  background: rgba(25, 135, 84, 0.75);
+  border: 1px solid rgb(25, 135, 84);
 }
 
 .badge-pref.animaux {
-  background: linear-gradient(to right, #00c6ff, #0072ff);
+  background: rgba(13, 110, 253, 0.75);
+  border: 1px solid rgb(13, 110, 253);
 }
 
 .badge-pref.pas-animaux {
-  background: linear-gradient(to right, #636363, #a2ab58);
+  background: rgba(108, 117, 125, 0.75);
+  border: 1px solid rgb(108, 117, 125);
 }
 
 .badge-pref.custom {
-  background: linear-gradient(to right, #6a11cb, #2575fc);
-  font-style: italic;
+  background: rgba(111, 66, 193, 0.75);
+  border: 1px solid rgb(111, 66, 193);
   display: block;
   width: fit-content;
   margin-top: 0.5rem;

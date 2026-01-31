@@ -1,5 +1,5 @@
 <!-- Page de liste des covoiturages avec formulaires de recherche/filtre et cartes de résultats -->
-<div class="container">
+<div class="container-fluid px-3 px-xxl-5">
     <div class="text-center mt-3">
         <h1>Liste des covoiturages</h1>
     </div>
@@ -166,8 +166,8 @@
     </section>
     <!-- Section d'affichage des cartes de covoiturages -->
     <section class="rides-section pb-5">
-        <div class="container">
-            <div class="row row-cols-1 row-cols-md-2 g-4">
+        <div class="container-fluid px-3 px-xxl-5">
+            <div class="row rides-grid row-cols-1 row-cols-md-2 g-3 g-lg-4 ">
                 <?php if (!empty($results)): ?>
                     <?php foreach ($results as $ride): ?>
                         <div class="col">
@@ -195,7 +195,7 @@
                                     <a href="/profil/<?= (int)$ride['driver_id'] ?>" title="Voir le profil du conducteur">
                                         <img src="<?= htmlspecialchars($avatar) ?>" alt="Avatar conducteur" class="avatar rounded-circle" style="width:48px;height:48px;object-fit:cover;" onerror="this.onerror=null;this.src='<?= defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg' ?>';">
                                     </a>
-                                    <div class="details flex-grow-1 px-3 m-auto">
+                                    <div class="details flex-grow-1 px-3">
                                         <h5><?= htmlspecialchars($ride['adresse_depart']) ?> → <?= htmlspecialchars($ride['adresse_arrivee']) ?></h5>
                                         <ul class="mb-0">
                                             <li>Conducteur : <strong><?= htmlspecialchars($ride['driver_pseudo'] ?? ('#' . (int)$ride['driver_id'])) ?></strong></li>
@@ -212,16 +212,33 @@
                                             <?php endif; ?>
                                             <?php
                                             // Construit la liste des préférences du véhicule (liste + texte libre)
-                                            $prefs = [];
-                                            if (!empty($ride['vehicle_preferences'])) {
-                                                $prefs = array_filter(array_map('trim', explode(',', (string)$ride['vehicle_preferences'])));
+                                            $prefsRaw = (string)($ride['vehicle_preferences'] ?? '');
+                                            $prefs = explode(',', $prefsRaw);
+
+                                            $allowedPrefs = ['fumeur', 'non-fumeur', 'animaux', 'pas-animaux'];
+                                            $badges = [];
+
+                                            foreach ($prefs as $pref) {
+                                                $prefClean = strtolower(trim($pref));
+                                                if ($prefClean !== '' && in_array($prefClean, $allowedPrefs, true)) {
+                                                    $badges[] = $prefClean;
+                                                }
                                             }
-                                            if (!empty($ride['vehicle_prefs_custom'])) {
-                                                $prefs[] = trim((string)$ride['vehicle_prefs_custom']);
-                                            }
-                                            if (!empty($prefs)):
+
+                                            $customPref = trim((string)($ride['vehicle_prefs_custom'] ?? ''));
                                             ?>
-                                                <li>Préférences : <?= htmlspecialchars(implode(' • ', $prefs)) ?></li>
+
+                                            <?php if (!empty($badges) || $customPref !== ''): ?>
+                                                <li>
+                                                    Préférences :
+                                                    <?php foreach ($badges as $b): ?>
+                                                        <span class="badge badge-pref <?= htmlspecialchars($b) ?> me-2"><?= htmlspecialchars($b) ?></span>
+                                                    <?php endforeach; ?>
+
+                                                    <?php if ($customPref !== ''): ?>
+                                                        <span class="badge badge-pref custom"><?= htmlspecialchars($customPref) ?></span>
+                                                    <?php endif; ?>
+                                                </li>
                                             <?php endif; ?>
                                         </ul>
                                     </div>
@@ -247,24 +264,25 @@
 
                                         <?php if (!$isLogged): ?>
                                             <!-- Non connecté : on propose d'ouvrir la modale de connexion -->
-                                            <button type="button" class="btn btn-inscription" data-bs-toggle="modal" data-bs-target="#authModal" data-start="login">Se connecter pour participer</button>
+                                            <button type="button" class="btn btn-inscription btn-sm" data-bs-toggle="modal" data-bs-target="#authModal" data-start="login">Se connecter pour participer</button>
                                         <?php elseif ($isDriver): ?>
-                                            <button class="btn btn-secondary" disabled>Vous êtes le conducteur</button>
+                                            <button class="btn btn-secondary btn-sm" disabled>Vous êtes le conducteur</button>
                                         <?php elseif ($isPast): ?>
-                                            <button class="btn btn-secondary" disabled>Trajet passé</button>
+                                            <button class="btn btn-secondary btn-sm" disabled>Trajet passé</button>
                                         <?php elseif ($placesRestantes <= 0): ?>
-                                            <button class="btn btn-secondary" disabled>Complet</button>
+                                            <button class="btn btn-secondary btn-sm" disabled>Complet</button>
                                         <?php elseif (!empty($ride['has_my_participation']) && (int)$ride['has_my_participation'] === 1): ?>
                                             <!-- L'utilisateur a déjà une participation associée à ce trajet -->
                                             <?php $status = (string)($ride['my_participation_status'] ?? ''); ?>
                                             <?php if ($status === 'confirmee'): ?>
-                                                <button class="btn btn-secondary" disabled>Participation confirmée</button>
+                                                <button class="btn btn-secondary btn-sm" disabled>Participation confirmée</button>
                                             <?php elseif ($status === 'en_attente_validation' || $status === ''): ?>
-                                                <button class="btn btn-secondary" disabled>Demande envoyée</button>
+                                                <button class="btn btn-secondary btn-sm" disabled>Demande envoyée</button>
                                             <?php else: ?>
-                                                <button class="btn btn-secondary" disabled>Participation en cours</button>
+                                                <button class="btn btn-secondary btn-sm" disabled>Participation en cours</button>
                                             <?php endif; ?>
                                         <?php else: ?>
+
                                             <?php
                                             // Autoriser Utilisateur (1), Employé (2) et Admin (3)
                                             $roleId = (int)($_SESSION['user']['role_id'] ?? 0);
@@ -276,7 +294,7 @@
                                                 <button class="btn btn-secondary" disabled>Réservé aux Utilisateurs</button>
                                             <?php elseif ($myCredits < $cost): ?>
                                                 <a class="btn btn-warning" href="/mes-credits" title="Solde: <?= (int)$myCredits ?>">
-                                                    Crédits insuffisants (<?= (int)$cost ?>) — Recharger
+                                                    Crédits insuffisants (<?= (int)$cost ?>)
                                                 </a>
                                             <?php else: ?>
                                                 <!-- Formulaire de participation : un clic enverra une demande de réservation -->

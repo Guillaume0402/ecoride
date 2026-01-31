@@ -1,7 +1,7 @@
 @use "../abstracts" as *;
 
 h1 {
-    font-size: clamp(1.5rem, 5vw, 3rem) !important;
+    font-size: clamp(1.4rem, 3.5vw, 2.4rem) !important;
     font-weight: 700;
     line-height: 1.2;
     margin-bottom: 1rem;
@@ -9,7 +9,7 @@ h1 {
 }
 
 h2 {
-    font-size: clamp(1.25rem, 3.125vw, 3.5rem);
+    font-size: clamp(1.2rem, 3vw, 2rem);
     font-weight: 600;
     line-height: 1.2;
     margin-bottom: 1rem;
@@ -17,14 +17,14 @@ h2 {
 
 }
 h3 {
-    font-size: clamp(1rem, 2.85vw, 3rem);
+    font-size: clamp(1.05rem, 2.4vw, 1.6rem);
     font-weight: 600;
     line-height: 1.2;    
     text-shadow: $shadow-text;
 
 }
 h4 {
-    font-size: clamp(0.8rem, 2.5vw, 2rem);
+    font-size: clamp(0.95rem, 2vw, 1.25rem);
     font-weight: 600;
     line-height: 1.2;    
     text-shadow: $shadow-text;
@@ -32,17 +32,19 @@ h4 {
 }
 
 p {
-    font-size: clamp(0.8rem, 2vw, 1.25rem);
+    font-size: clamp(0.95rem, 1.3vw, 1.05rem);
     font-weight: 500;
     line-height: 1.6;
     margin-bottom: 2rem;
-    text-shadow: $shadow-text;    
+    text-shadow: none;    
 }
 
 a {
-    font-size: clamp(0.8rem, 2vw, 1.25rem);
+    font-size: clamp(0.95rem, 1.3vw, 1.05rem);
     font-family: $font-primary;
     text-decoration: none;
+    text-shadow: none; 
+    line-height: 1.6;
     font-weight: 600;
     color: var(--text-black);
     transition: all 0.3s ease-out;

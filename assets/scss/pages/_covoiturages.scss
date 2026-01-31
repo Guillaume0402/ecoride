@@ -50,8 +50,11 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
     border: 1px solid $color-secondary;
+    height: 100%;
 
     &:hover {
         transform: translateY(-4px);
@@ -150,27 +153,35 @@
             padding: 1.5rem;
         }
     }
+    .details {
+        min-width: 0;
+    }
 
     // ----- Footer -----
     .card-footer {
         display: flex;
         justify-content: space-between;
-        .stars {
-            display: flex;
-            gap: 0.3rem;
-            margin-left: 6rem;
-            .star {
-                font-size: 1.8rem;
-                color: var(--text-black);
-                text-shadow: $shadow-text;
+        margin-top: auto;
+        gap: 0.75rem;
 
-                cursor: pointer;
-                transition: transform 0.2s, color 0.2s;
-                &:hover {
-                    transform: scale(1.2);
-                    color: #ffc107;
-                }
-            }
+        // anti overflow par défaut
+        > a.btn,
+        > div {
+            min-width: 0;
+        }
+
+        > div {
+            display: flex;
+            justify-content: flex-end;
+            min-width: 0;
+        }
+
+        // bouton droit (long) : il peut shrink
+        > div .btn {
+            min-width: 0;
+            max-width: 100%;
+            white-space: normal;
+            text-align: center;
         }
     }
 }
@@ -223,76 +234,195 @@ body:not(.theme-alt) {
     }
 }
 
-// ==== Mobile : empilement parfait (< 768px) ====
-
-@media (max-width: 767px) {
-    .carpool-card {
-        padding: 1rem;
-
-        .card-header {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center !important;
-            .card-info {
-                justify-content: center;
-                margin-bottom: 0.75rem;
-            }
-        }
-
-        .card-body {
-            flex-direction: column !important;
-            align-items: center !important;
-            text-align: center;
-            .btn-participate {
-                margin: 1rem auto 0 !important;
-            }
-        }
-
-        .card-footer {
-            text-align: center;
-            margin-top: 1rem;
-        }
-    }
+// -------------------- Rides Grid --------------------
+@media (min-width: 2330px) {
+  .rides-grid > * {
+    flex: 0 0 auto;
+    width: 25%;
+  }
 }
+
+// Mobile & tablette : layout inside card
+
 @media (max-width: 992px) {
     .carpool-card {
         padding: 1rem;
 
+        // ------- HEADER -------
         .card-header {
-            display: flex;
-            align-items: center;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            grid-template-areas:
+                "date time"
+                "price price";
+            gap: 0.35rem 0.75rem;
+            align-items: start;
+
             .card-info {
-                margin-bottom: 0.75rem;
                 margin-left: 0;
+                display: contents;
+            }
+            .price {
+                padding-left: 0.75rem !important;
+                margin-left: 0.5rem !important;
+                border-left: 0 !important;
+            }
+
+            // IMPORTANT : override même spécificité que le desktop clamp
+            .card-info {
+                .date {
+                    grid-area: date;
+                    font-size: 0.95rem;
+                    font-weight: 600;
+                    text-shadow: none;
+                    white-space: nowrap;
+                }
+
+                .price {
+                    grid-area: price;
+                    font-size: 0.95rem;
+                    font-weight: 800;
+                    padding-left: 0;
+                    margin-left: 0;
+                    border-left: 0;
+                    text-shadow: none;
+                    white-space: normal; // le prix a le droit d'être sur sa ligne
+                }
+            }
+
+            .card-time {
+                grid-area: time;
+                justify-self: end;
+                font-size: 0.95rem;
+                white-space: nowrap;
+                text-shadow: none;
             }
         }
 
+        // ------- BODY -------
         .card-body {
-            flex-direction: column !important;
-            align-items: center !important;
-            text-align: center;
-            .btn-participate {
-                margin: 1rem auto 0 !important;
-            }
-        }
+            display: grid;
+            grid-template-columns: 52px 1fr;
+            grid-template-areas:
+                "avatar title"
+                "avatar meta";
+            gap: 0.5rem 0.75rem;
+            align-items: start;
 
-        .card-footer {
-            margin-left: 0;
-            .stars {
-                display: flex;
-                gap: 0.3rem;
+            .avatar {
+                grid-area: avatar;
+                width: 52px;
+                height: 52px;
+            }
+
+            .details {
                 margin-left: 0;
-                .star {
-                    font-size: 1.4rem;
-                    cursor: pointer;
-                    transition: transform 0.2s, color 0.2s;
-                    &:hover {
-                        transform: scale(1.2);
-                        color: #ffc107;
+                padding: 0 !important;
+                text-align: left;
+
+                h5 {
+                    grid-area: title;
+                    font-size: 1.1rem;
+                    line-height: 1.25;
+                    margin: 0 0 0.35rem 0;
+                }
+
+                ul {
+                    grid-area: meta;
+
+                    li {
+                        font-size: 0.95rem;
+                        margin-bottom: 0.2rem;
+                    }
+
+                    .prefs-line {
+                        display: grid;
+                        grid-template-columns: auto 1fr;
+                        gap: 0.35rem 0.5rem;
+                        align-items: start;
+                        margin-top: 0.35rem;
+
+                        .prefs-label {
+                            white-space: nowrap;
+                            font-weight: 600;
+                        }
+
+                        .prefs-badges {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 0.35rem;
+                            min-width: 0;
+
+                            .badge-pref.custom {
+                                max-width: 100%;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                            }
+                        }
                     }
                 }
             }
         }
+
+        // ------- FOOTER -------
+        .card-footer {
+            display: grid;
+            grid-template-columns: 1fr 1fr; // 2 boutons propres
+            gap: 0.5rem;
+            align-items: stretch;
+
+            a.btn,
+            button.btn,
+            form .btn {
+                width: 100%;
+            }
+
+            form.d-inline {
+                display: block !important;
+            }
+
+            // si un seul élément dans le footer, il prend toute la largeur
+            > :only-child {
+                grid-column: 1 / -1;
+            }
+        }
+    }
+}
+
+/* Desktop / tablette : Détails largeur stable */
+@media (min-width: 577px) {
+    .carpool-card .card-footer > a.btn {
+        flex: 0 0 140px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.4rem;
+    }
+}
+
+/* Mobile : 2 colonnes fluides (plus de largeur fixe) */
+@media (max-width: 576px) {
+    .carpool-card .card-footer {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+
+    .carpool-card .card-footer > a.btn,
+    .carpool-card .card-footer > div {
+        width: 100%;
+    }
+
+    .carpool-card .card-footer > a.btn {
+        flex: initial; // annule le 140px
+    }
+
+    .carpool-card .card-footer > div .btn {
+        width: 100%;
+        max-width: 100%;
+        font-size: 0.85rem !important; // petit sur mobile
+        padding: 0.45rem 0.6rem !important;
     }
 }
