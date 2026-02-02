@@ -19,46 +19,51 @@
    FONCTIONS UI (affichage / feedback utilisateur)
    ================================================== */
 
-//Affiche un message dans la modale (zone rouge/verte)
+// Affiche un message global (pile #alerts en haut de page)
 
-function showAlert(message, type = "danger") {
-    const modalAlert = document.querySelector("#authModal #authAlert");
-    if (!modalAlert) return;
-
-    modalAlert.className = `custom-alert alert-${type} auto-dismiss fade-in`;
-    modalAlert.textContent = message;
-    modalAlert.classList.remove("d-none");
-
-    // Masque automatiquement après 5 secondes
-    setTimeout(() => modalAlert.classList.add("d-none"), 5000);
-}
-
-/**
- * Affiche une alerte globale (en haut de la page)
- * Utilisé surtout après logout
- */
-function showGlobalAlert(message, type = "success") {
+function showGlobalAlert(message, type = "success", timeout = 4500) {
     const stack = document.getElementById("alerts");
     if (!stack) return;
 
     const el = document.createElement("div");
-    el.className = `custom-alert alert-${type} auto-dismiss fade-in`;
-    el.textContent = message;
+    el.className = `custom-alert alert-${type} auto-dismiss`;
+    el.setAttribute("role", "alert");
+    el.dataset.timeout = String(timeout);
+
+    el.innerHTML = `<div class="content"></div>`;
+
+    el.querySelector(".content").textContent = message;
 
     stack.appendChild(el);
+}
 
-    // Animation + suppression
-    setTimeout(() => el.classList.add("fade-out"), 3500);
-    setTimeout(() => el.remove(), 4300);
+let authAlertTimer = null;
+
+function showAlert(message, type = "danger", timeout = 5000) {
+    const el = document.getElementById("authAlert");
+    if (!el) return;
+
+    // même style que les alertes globales
+    el.className = `custom-alert alert-${type} mx-3`;
+
+    el.innerHTML = `<div class="content"></div>`;
+
+    el.querySelector(".content").textContent = message;
+
+    el.classList.remove("d-none");
+
+    if (authAlertTimer) clearTimeout(authAlertTimer);
+    authAlertTimer = setTimeout(() => el.classList.add("d-none"), timeout);
 }
 
 /**
  * Cache le message de la modale
  */
 function hideAlert() {
-    const alertDiv = document.getElementById("authAlert");
-    if (!alertDiv) return;
-    alertDiv.classList.add("d-none");
+    const el = document.getElementById("authAlert");
+    if (!el) return;
+    el.className = "custom-alert d-none mx-3";
+    el.innerHTML = "";
 }
 
 /**
@@ -111,8 +116,7 @@ function setActiveTab(tab) {
 
 async function handleAuth(endpoint, payload) {
     // Récupération du token CSRF depuis le formulaire
-    const csrf = document.querySelector('input[name="csrf"]')?.value;
-    if (csrf) payload.csrf = csrf;
+    const csrf = payload?.csrf;
 
     // URL de retour par défaut
     payload.redirect = payload.redirect || window.location.pathname || "/";
@@ -192,7 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const registerForm = document.getElementById("registerForm");
 
     if (!authModal || !loginForm || !registerForm) return;
-
+   
     /* --- Afficher / masquer les mots de passe --- */
     authModal.addEventListener("click", (e) => {
         const btn = e.target.closest(".toggle-password");
@@ -238,13 +242,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         setLoading(registerForm, true);
-
-        const success = await handleAuth(
-            "register",
-            formToObject(registerForm),
-        );
-
-        if (!success) {
+        try {
+            await handleAuth("register", formToObject(registerForm));
+        } finally {
             setLoading(registerForm, false);
         }
     });
@@ -261,10 +261,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         setLoading(loginForm, true);
-
-        const success = await handleAuth("login", formToObject(loginForm));
-
-        if (!success) {
+        try {
+            await handleAuth("login", formToObject(loginForm));
+        } finally {
             setLoading(loginForm, false);
         }
     });
