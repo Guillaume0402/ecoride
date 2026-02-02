@@ -1,17 +1,12 @@
 /*
 Module: JS Alerts
-Rôle: Gérer les alertes front (auto-fermeture, animation, observer, fermeture manuelle).
+Rôle: Gérer les alertes globales (#alerts) : auto-fermeture, animation, observer.
 Prérequis: Conteneur #alerts, classes .custom-alert et .auto-dismiss.
-Utilisation: Créer des alertes .auto-dismiss et laisser ce module les gérer.
 */
 (function () {
-    // Auto-fermeture, animation et observation des nouvelles alertes
     const STACK_ID = "alerts";
     const DEFAULT_DELAY = 12000;
 
-    // Programme la disparition d'un élément avec une petite animation
-    // delayMs: délai avant démarrage de l'animation
-    // i: index pour décaler légèrement (stagger) les disparitions si plusieurs alertes
     function fadeAndRemove(el, delayMs, i = 0) {
         setTimeout(
             () => {
@@ -23,58 +18,46 @@ Utilisation: Créer des alertes .auto-dismiss et laisser ce module les gérer.
         );
     }
 
-    // Cherche toutes les alertes .auto-dismiss dans 'scope' et les planifie
-    // Une alerte n'est planifiée qu'une seule fois (flag data-dismiss-scheduled)
-    function scheduleAll(scope = document) {
-        const alerts = Array.from(scope.querySelectorAll(".auto-dismiss"));
+    function scheduleAll(stack) {
+        if (!stack) return;
+
+        const alerts = Array.from(stack.querySelectorAll(".auto-dismiss"));
         alerts.forEach((el, idx) => {
             if (el.dataset.dismissScheduled) return;
             el.dataset.dismissScheduled = "1";
+
             const delay =
                 parseInt(el.dataset.timeout || "", 10) || DEFAULT_DELAY;
+
             fadeAndRemove(el, delay, idx);
         });
     }
 
-    // nouvelle fonction
-    // Attache un MutationObserver sur la pile d'alertes (#alerts) afin que
-    // toute nouvelle alerte ajoutée soit automatiquement planifiée.
     function attachObserver(stack) {
         if (!stack || stack.dataset.observer) return;
+
         const mo = new MutationObserver((muts) => {
             muts.forEach((m) => {
                 m.addedNodes.forEach((n) => {
-                    if (n.nodeType === 1) {
-                        if (n.matches?.(".auto-dismiss")) {
-                            scheduleAll(n.parentNode || document);
-                        } else {
-                            scheduleAll(n);
-                        }
-                    }
+                    if (n.nodeType !== 1) return;
+                    // Dès qu'une alerte est ajoutée dans #alerts, on planifie
+                    scheduleAll(stack);
                 });
             });
         });
-        mo.observe(stack, { childList: true, subtree: true });
+
+        mo.observe(stack, { childList: true });
         stack.dataset.observer = "1";
     }
 
-    // au chargement
-    // À la fin du chargement du DOM, on planifie les alertes déjà présentes
-    // et on s'assure que #alerts est bien observé.
     document.addEventListener("DOMContentLoaded", () => {
-        scheduleAll();
-        // (re)trouve #alerts même si le script a tourné avant que le DOM soit prêt
-        attachObserver(document.getElementById(STACK_ID));
+        const stack = document.getElementById(STACK_ID);
+        attachObserver(stack);
+        scheduleAll(stack);
     });
 
-    // 2) tentative d’attache immédiate (si #alerts existe déjà)
-    // Permet de gérer le cas où #alerts est présent avant DOMContentLoaded
-    attachObserver(document.getElementById(STACK_ID));
-
-    // Fermeture manuelle au clic sur la croix (robuste)
-    document.addEventListener("click", (e) => {
-        const btn = e.target.closest(".custom-alert .btn-close");
-        if (!btn) return;
-        btn.closest(".custom-alert")?.remove();
-    });
+    // si le script est chargé après le HTML, ça marche aussi
+    const earlyStack = document.getElementById(STACK_ID);
+    attachObserver(earlyStack);
+    scheduleAll(earlyStack);
 })();

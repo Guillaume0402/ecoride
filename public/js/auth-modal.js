@@ -19,7 +19,7 @@
    FONCTIONS UI (affichage / feedback utilisateur)
    ================================================== */
 
-//Affiche un message dans la modale (zone rouge/verte)
+// Affiche un message global (pile #alerts en haut de page)
 
 function showGlobalAlert(message, type = "success", timeout = 4500) {
     const stack = document.getElementById("alerts");
@@ -30,10 +30,8 @@ function showGlobalAlert(message, type = "success", timeout = 4500) {
     el.setAttribute("role", "alert");
     el.dataset.timeout = String(timeout);
 
-    el.innerHTML = `
-        <button type="button" class="btn-close" aria-label="Close"></button>
-        <div class="content"></div>
-    `;
+    el.innerHTML = `<div class="content"></div>`;
+
     el.querySelector(".content").textContent = message;
 
     stack.appendChild(el);
@@ -46,14 +44,10 @@ function showAlert(message, type = "danger", timeout = 5000) {
     if (!el) return;
 
     // même style que les alertes globales
-    el.className = `custom-alert alert-${type} auto-dismiss mx-3`;
-    el.dataset.timeout = String(timeout);
+    el.className = `custom-alert alert-${type} mx-3`;
 
-    // même HTML que flash.php / showGlobalAlert
-    el.innerHTML = `
-        <button type="button" class="btn-close" aria-label="Close"></button>
-        <div class="content"></div>
-    `;
+    el.innerHTML = `<div class="content"></div>`;
+
     el.querySelector(".content").textContent = message;
 
     el.classList.remove("d-none");
@@ -68,8 +62,8 @@ function showAlert(message, type = "danger", timeout = 5000) {
 function hideAlert() {
     const el = document.getElementById("authAlert");
     if (!el) return;
-    el.className = "alert d-none mx-3";
-    el.textContent = "";
+    el.className = "custom-alert d-none mx-3";
+    el.innerHTML = "";
 }
 
 /**
@@ -202,7 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const registerForm = document.getElementById("registerForm");
 
     if (!authModal || !loginForm || !registerForm) return;
-
+   
     /* --- Afficher / masquer les mots de passe --- */
     authModal.addEventListener("click", (e) => {
         const btn = e.target.closest(".toggle-password");

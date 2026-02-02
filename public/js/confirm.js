@@ -13,14 +13,9 @@ Utilisation: <form class="js-confirm" data-confirm-text="..." data-confirm-steps
         const div = document.createElement("div");
         div.className = `custom-alert alert-${variant}`;
 
-        const close = document.createElement("button");
-        close.type = "button";
-        close.className = "btn-close";
-        close.setAttribute("aria-label", "Close");
-
         const content = document.createElement("div");
         content.className = "content";
-        content.textContent = message; // ✅ pas de HTML injecté
+        content.textContent = message;
 
         const actions = document.createElement("div");
         actions.className = "actions";
@@ -35,10 +30,11 @@ Utilisation: <form class="js-confirm" data-confirm-text="..." data-confirm-steps
         ok.type = "button";
         ok.className = "btn-ok";
         ok.dataset.role = "ok";
-        ok.textContent = "OK";
+        ok.textContent = "Valider";
 
         actions.append(cancel, ok);
-        div.append(close, content, actions);
+        div.append(content, actions);
+
         return div;
     }
 
@@ -61,10 +57,8 @@ Utilisation: <form class="js-confirm" data-confirm-text="..." data-confirm-steps
             alert.addEventListener("click", (e) => {
                 const btn = e.target.closest("button");
                 if (!btn) return;
-                if (
-                    btn.classList.contains("btn-close") ||
-                    btn.dataset.role === "cancel"
-                ) {
+
+                if (btn.dataset.role === "cancel") {
                     cleanup(false);
                 } else if (btn.dataset.role === "ok") {
                     cleanup(true);
