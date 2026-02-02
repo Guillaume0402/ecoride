@@ -15,12 +15,11 @@ Utilisation: Créer des alertes .auto-dismiss et laisser ce module les gérer.
     function fadeAndRemove(el, delayMs, i = 0) {
         setTimeout(
             () => {
-                el.style.transition = "opacity .5s ease, transform .5s ease";
-                el.style.opacity = "0";
-                el.style.transform = "translateY(-6px)";
-                setTimeout(() => el.remove(), 500);
+                if (!el.isConnected) return;
+                el.classList.add("fade-out");
+                setTimeout(() => el.remove(), 650);
             },
-            delayMs + i * 120
+            delayMs + i * 120,
         );
     }
 

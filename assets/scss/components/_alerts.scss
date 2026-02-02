@@ -1,21 +1,41 @@
 @use "../abstracts" as *;
 
+@use "../abstracts" as *;
+
 .custom-alert {
-    // La position et le centrage sont gérés par le conteneur #alerts
     padding: 1rem 1.5rem;
     border-radius: 10px;
     font-size: clamp(1rem, 1vw + 0.5rem, 1.2rem);
     font-weight: 600;
     width: auto;
     max-width: 450px;
-    text-align: center;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
     opacity: 1;
-    // Le z-index est géré par #alerts
     text-shadow: $shadow-text;
     animation: fadeIn 0.4s ease-in-out;
 
-    // Zone d'actions pour confirmations
+    // Layout croix + contenu
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .content {
+        flex: 1;
+        text-align: center;
+    }
+
+    .btn-close {
+        flex: 0 0 auto;
+        margin-left: auto;
+        opacity: 0.9;
+        filter: invert(1);
+    }
+
+    &.alert-warning .btn-close {
+        filter: none;
+    }
+
+    // Zone d'actions (si tu en as) : tu la gardes, elle ne casse pas tout
     .actions {
         display: flex;
         justify-content: center;
@@ -23,6 +43,7 @@
         margin-top: 0.75rem;
         flex-wrap: wrap;
     }
+
     .btn-cancel,
     .btn-ok {
         appearance: none;
@@ -32,15 +53,18 @@
         font-size: 0.95rem;
         line-height: 1.1;
         cursor: pointer;
-        transition: transform 0.08s ease, opacity 0.2s ease,
-            background-color 0.2s ease, color 0.2s ease;
+        transition:
+            transform 0.08s ease,
+            opacity 0.2s ease,
+            background-color 0.2s ease,
+            color 0.2s ease;
     }
+
     .btn-cancel:active,
     .btn-ok:active {
         transform: translateY(1px) scale(0.995);
     }
 
-    // Par défaut: fond de la bannière contrasté avec boutons lisibles
     .btn-cancel {
         background: transparent;
         border: 2px solid rgba(255, 255, 255, 0.9);
@@ -49,6 +73,7 @@
     .btn-cancel:hover {
         background: rgba(255, 255, 255, 0.12);
     }
+
     .btn-ok {
         background: #fff;
         border: 2px solid #fff;
