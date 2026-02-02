@@ -183,10 +183,19 @@ class AuthController extends Controller
     // API logout JSON: détruit la session et renvoie success
     public function apiLogout(): void
     {
-        unset($_SESSION['user']);       // déconnecte l’utilisateur
-        session_regenerate_id(true);    // hygiène (anti fixation)
+        $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
+
+        if (!Csrf::check($token)) {
+            http_response_code(403);
+            $this->json(['success' => false, 'message' => 'Requête invalide (CSRF)']);
+            return;
+        }
+
+        unset($_SESSION['user']);
+        session_regenerate_id(true);
         $this->json(['success' => true]);
     }
+
 
     // Vérifie l'email à partir d'un lien de confirmation
     public function verifyEmail(): void
