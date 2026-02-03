@@ -20,12 +20,17 @@ class Controller
     // Initialise la session et les services/dépôts communs.     
     public function __construct()
     {
-        // Démarre la session PHP si elle n'est pas déjà active
-        if (session_status() === PHP_SESSION_NONE) {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_set_cookie_params([
+                'lifetime' => 0,
+                'path'     => '/',
+                'secure'   => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'),
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]);
             session_start();
         }
 
-        // Initialisation des services communs
         $this->userRepository = new UserRepository();
         $this->userService = new UserService();
     }
@@ -69,7 +74,7 @@ class Controller
 
         // Si l'utilisateur est connecté, rafraîchit ses données et prépare les compteurs
         if (isset($_SESSION['user']) && !empty($_SESSION['user']['id'])) {
-        
+
             try {
                 // récupère les données utilisateur à jour depuis la base
                 $currentUser = $this->userRepository->findById((int) $_SESSION['user']['id']);
