@@ -91,11 +91,21 @@ class UserRepository
     public function verifyEmailByToken(string $email, string $token): bool
     {
         $sql = "UPDATE {$this->table}
-                SET email_verified = 1, email_verification_token = NULL, email_verification_expires = NULL
-                WHERE LOWER(email) = :email AND email_verification_token = :t AND (email_verification_expires IS NULL OR email_verification_expires >= NOW())";
+            SET email_verified = 1, email_verification_token = NULL, email_verification_expires = NULL
+            WHERE LOWER(email) = :email
+              AND email_verification_token = :t
+              AND (email_verification_expires IS NULL OR email_verification_expires >= NOW())";
+
         $stmt = $this->conn->prepare($sql);
-        return $stmt->execute([':email' => mb_strtolower($email), ':t' => $token]);
+        $stmt->execute([
+            ':email' => mb_strtolower($email),
+            ':t'     => $token
+        ]);
+
+        //  La seule vérité : est-ce qu'une ligne a réellement été mise à jour ?
+        return $stmt->rowCount() === 1;
     }
+
 
     // Recherche par identifiant
     public function findById(int $id): ?UserEntity
