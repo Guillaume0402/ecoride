@@ -71,8 +71,10 @@ class Controller
         if (isset($_SESSION['user']) && !empty($_SESSION['user']['id'])) {
         
             try {
+                // récupère les données utilisateur à jour depuis la base
                 $currentUser = $this->userRepository->findById((int) $_SESSION['user']['id']);
                 if ($currentUser) {
+                    // Mets a jour les crédits et autres données dans la session
                     $_SESSION['user']['credits'] = $currentUser->getCredits();
                     if (empty($_SESSION['user']['photo'])) {
                         $_SESSION['user']['photo'] = defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg';
@@ -83,6 +85,7 @@ class Controller
                 error_log('[render] User refresh failed: ' . $e->getMessage());
             }
 
+            // Précharge les véhicules de l'utilisateur
             try {
                 $vehicleRepo = new VehicleRepository();
                 $userVehicles = $vehicleRepo->findAllByUserId((int) $_SESSION['user']['id']);
@@ -92,6 +95,7 @@ class Controller
             }
 
             try {
+                // stocke l'ID utilisateur dans une variable locale
                 $userId = (int) $_SESSION['user']['id'];
 
                 $partRepo = new \App\Repository\ParticipationRepository();
