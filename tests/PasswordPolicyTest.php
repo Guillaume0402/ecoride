@@ -21,5 +21,14 @@ class PasswordPolicyTest extends TestCase
         // Le mot de passe est fort, le tableau d'erreurs est vide
         $this->assertEmpty($errors);
     }
-}
 
+    public function testRejectsPasswordWith11Characters(): void
+    {
+        // 11 caractères
+        $pwd = 'Abcdef123!@';
+        $errors = PasswordPolicy::validate($pwd);
+
+        $this->assertNotEmpty($errors);
+        $this->assertContains('Le mot de passe doit contenir au moins 12 caractères.', $errors);
+    }
+}

@@ -99,4 +99,16 @@ class UserServiceTest extends TestCase
         $this->assertSame('bob@email.fr', $arr['email']);
         $this->assertSame(1, $arr['role_id']);
     }
+
+    public function testDebitCreditsSucceedsWhenExactBalance(): void
+    {
+        $user = new UserEntity();
+        $user->setCredits(50);
+
+        $service = new UserService();
+        $result = $service->debitCredits($user, 50);
+
+        $this->assertTrue($result);
+        $this->assertEquals(0, $user->getCredits());
+    }
 }

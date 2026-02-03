@@ -16,18 +16,22 @@ Ce projet utilise PHPUnit pour les tests unitaires.
 
 ## Ce que couvrent les tests actuels
 
--   `getRideCreateFee()` (helpers):
-    -   Vérifie que la valeur retournée est un entier.
-    -   Vérifie qu'elle est supérieure ou égale à zéro.
--   `VehicleRepository::normalizePlate()`:
-    -   Vérifie la normalisation d'immatriculation sur plusieurs formats (espaces, tirets, points, casse), avec un data provider.
--   `PasswordPolicy`:
-    -   Vérifie la robustesse des mots de passe (validation de règles complexes).
+-   getRideCreateFee() (helpers) :
+-   Vérifie que la valeur retournée est de type entier et qu’elle est supérieure ou égale à zéro.
 
--   `UserService`:
-    -   Validation des données utilisateur (pseudos, emails, rôles, crédits).
-    -   Gestion des crédits et notes des utilisateurs.
-    -   Sérialisation des données utilisateur en tableau.
+-   VehicleRepository::normalizePlate() :
+-   Vérifie la normalisation des immatriculations sur différents formats (espaces, tirets, points, casse), à l’aide d’un data provider.
+
+-   PasswordPolicy :
+-   Vérifie qu’un mot de passe trop faible est refusé (notamment sur la longueur minimale) et qu’un mot de passe conforme est accepté.
+-   vérifie le refus d’un mot de passe trop court (incluant le cas frontière 11/12 caractères) et l’acceptation d’un mot de passe conforme.
+
+-   UserService :
+-   Vérifie la validation basique des données utilisateur (pseudo et email).
+-   Vérifie la gestion des crédits (ajout, débit avec contrôle du solde).
+-   Vérifie la mise à jour de la note utilisateur (arrondi et bornage).
+-   Vérifie la sérialisation des données utilisateur en tableau via toArray().
+-   vérifie la gestion des crédits, y compris le cas frontière “débit exactement égal au solde”, et la mise à jour de la note avec tests aux bornes.'
 
 ## Ajouter de nouveaux tests
 
