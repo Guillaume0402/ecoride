@@ -81,7 +81,7 @@
     </div>
 
     <main class="flex-fill">
-        <?= $content ?>
+        <?= $__content ?>
     </main>
 
     <?php require_once __DIR__ . '/partials/footer.php'; ?>

@@ -36,22 +36,22 @@ class Controller
     {
 
         // Expose les clés de $data comme variables accessibles dans la vue
-        extract($data);
+        extract($data, EXTR_SKIP);
 
-        // Variables globales du layout (navbar, badges, etc.)
+        // Variables globales du layout (navbar, badges, etc.) 
         $globals = $this->buildLayoutGlobals();
         extract($globals, EXTR_SKIP);
 
-        // Construit le chemin absolu de la vue et vérifie son existence
+        // Construit le chemin absolu de la vue et vérifie son existence 
         $viewPath = APP_ROOT . '/src/View/' . ltrim($view, '/') . '.php';
         if (!file_exists($viewPath)) {
             throw new \Exception("Le fichier de vue {$viewPath} n'existe pas.");
         }
 
-        // Capture le rendu de la vue dans $content
+        // Capture le rendu de la vue dans $__content
         ob_start();
         require $viewPath;
-        $content = ob_get_clean();
+        $__content = ob_get_clean();
 
         // Inclut le layout qui utilise $content pour afficher la page complète
         require APP_ROOT . '/src/View/layout.php';
