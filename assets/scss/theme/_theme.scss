@@ -28,6 +28,8 @@
     --review-muted: rgba(10, 20, 14, 0.55);
     --review-accent: #1f9d55; // vert lisible sur fond clair
 
+    --rating-value-color: rgba(10, 20, 14, 0.75);
+
     --bg-gradient: linear-gradient(
         135deg,
         #eafff5 0%,
@@ -93,6 +95,8 @@ html:not(.theme-alt) {
     --review-muted: rgba(255, 255, 255, 0.7);
     --review-accent: #2ecc71; // vert clair lisible sur fond sombre
 
+    --rating-value-color: rgba(255, 255, 255, 0.85);
+    
     --bg-gradient: linear-gradient(
         135deg,
         #051f02 0%,

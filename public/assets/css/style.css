@@ -12411,6 +12411,39 @@ footer a:hover {
   margin: 0;
 }
 
+/* =========================
+   Component: rating-stars
+   ========================= */
+.rating-stars {
+  display: inline-flex;
+  gap: 2px;
+  line-height: 1;
+  user-select: none;
+}
+.rating-stars__star {
+  font-size: 1rem;
+  letter-spacing: -0.05em;
+  transform: translateY(-1px);
+}
+.rating-stars .is-full {
+  color: #2ecc71;
+  text-shadow: 0 6px 18px rgba(46, 204, 113, 0.22);
+  filter: drop-shadow(0 0 6px rgba(46, 204, 113, 0.4));
+}
+.rating-stars .is-empty {
+  color: rgba(10, 20, 14, 0.18);
+}
+.rating-stars__value {
+  margin-left: 0.5rem;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--rating-value-color);
+}
+
+.theme-alt .rating-stars .is-empty {
+  color: rgba(255, 255, 255, 0.25);
+}
+
 .filter-section .filter-bar {
   background: var(--list-bg);
   backdrop-filter: blur(6px);
@@ -12942,36 +12975,6 @@ p {
 .review-card__date {
   color: var(--review-muted) !important;
   font-size: 0.9rem;
-}
-
-.rating-stars {
-  display: inline-flex;
-  gap: 2px;
-  line-height: 1;
-  user-select: none;
-}
-.rating-stars__star {
-  font-size: 1rem;
-  letter-spacing: -0.05em;
-  transform: translateY(-1px);
-}
-.rating-stars .is-full {
-  color: #2ecc71;
-  text-shadow: 0 6px 18px rgba(46, 204, 113, 0.22);
-  filter: drop-shadow(0 0 6px rgba(46, 204, 113, 0.4));
-}
-.rating-stars .is-empty {
-  color: rgba(10, 20, 14, 0.18);
-}
-.rating-stars__value {
-  margin-left: 0.5rem;
-  font-weight: 800;
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.theme-alt .rating-stars .is-empty {
-  color: rgba(255, 255, 255, 0.25);
 }
 
 @keyframes reviewFadeIn {
@@ -14021,6 +14024,7 @@ ul li {
   --review-text: rgba(10, 20, 14, 0.92);
   --review-muted: rgba(10, 20, 14, 0.55);
   --review-accent: #1f9d55;
+  --rating-value-color: rgba(10, 20, 14, 0.75);
   --bg-gradient: linear-gradient(
       135deg,
       #eafff5 0%,
@@ -14088,6 +14092,7 @@ html:not(.theme-alt) input[type=week]::-webkit-outer-spin-button {
   --review-text: rgba(255, 255, 255, 0.92);
   --review-muted: rgba(255, 255, 255, 0.7);
   --review-accent: #2ecc71;
+  --rating-value-color: rgba(255, 255, 255, 0.85);
   --bg-gradient: linear-gradient(
       135deg,
       #051f02 0%,

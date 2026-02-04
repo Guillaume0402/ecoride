@@ -33,12 +33,9 @@ if (!isset($avgRating)) {
                         <div class="d-flex flex-column align-items-center align-items-md-start gap-2 w-100" style="min-width:0;">
                             <div class="d-flex align-items-center gap-2 mb-2">
                                 <span class="fs-5">
-                                    <?php $fill = (int) round(min(5, max(0, (float)$avgRating)));
-                                    for ($i = 0; $i < 5; $i++): ?>
-                                        <i class="bi bi-star-fill <?= $i < $fill ? 'text-warning' : 'text-secondary' ?>"></i>
-                                    <?php endfor; ?>
+                                    <?= renderStars($avgRating ?? 0, 5, true) ?>
                                 </span>
-                                <span class="ms-2">(<?= (int)$reviewsCount ?>)</span>
+                                <span class="ms-2">(<?= (int)($reviewsCount ?? 0) ?>)</span>
                             </div>
                             <?php if (isset($_SESSION['user'])): ?>
                                 <h2 class="fw-bold mb-2 text-break" style="word-break:break-word;overflow-wrap:anywhere;max-width:100%;line-height:1.2;">

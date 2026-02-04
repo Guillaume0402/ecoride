@@ -1,0 +1,39 @@
+/* =========================
+   Component: rating-stars
+   ========================= */
+
+.rating-stars {
+    display: inline-flex;
+    gap: 2px;
+    line-height: 1;
+    user-select: none;
+
+    &__star {
+        font-size: 1rem;
+        letter-spacing: -0.05em;
+        transform: translateY(-1px);
+    }
+
+    .is-full {
+        color: #2ecc71;
+        text-shadow: 0 6px 18px rgba(46, 204, 113, 0.22);
+        filter: drop-shadow(0 0 6px rgba(46, 204, 113, 0.4));
+    }
+
+    .is-empty {
+        color: rgba(10, 20, 14, 0.18); // visible en light
+    }
+
+    &__value {
+        margin-left: 0.5rem;
+        font-weight: 800;
+        font-size: 0.9rem;
+        color: var(--rating-value-color);
+    }
+}
+
+.theme-alt .rating-stars {
+    .is-empty {
+        color: rgba(255, 255, 255, 0.25); // ok en dark
+    }
+}

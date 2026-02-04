@@ -1,3 +1,5 @@
+@use "../components/rating-stars" as *;
+
 .profil-public-page {
     // Ajustements spécifiques pour md (768–991px)
     @media (min-width: 768px) and (max-width: 991.98px) {
