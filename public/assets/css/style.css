@@ -12450,6 +12450,38 @@ footer a:hover {
   color: rgba(255, 255, 255, 0.25);
 }
 
+.table {
+  --bs-table-color: var(--table-text);
+  --bs-table-bg: var(--table-bg);
+  --bs-table-border-color: var(--table-border);
+  --bs-table-striped-color: var(--table-text);
+  --bs-table-striped-bg: color-mix(
+      in srgb,
+      var(--table-bg) 92%,
+      var(--table-text) 8%
+  );
+  --bs-table-hover-color: var(--table-text);
+  --bs-table-hover-bg: color-mix(
+      in srgb,
+      var(--table-bg) 85%,
+      var(--table-text) 15%
+  );
+}
+
+.table thead th {
+  --bs-table-bg: color-mix(
+      in srgb,
+      var(--table-bg) 70%,
+      var(--table-text) 30%
+  );
+  color: var(--table-text);
+}
+
+.table th,
+.table td {
+  color: var(--table-text);
+}
+
 .table-theme {
   /* Base */
   --bs-table-bg: var(--table-bg);
@@ -13764,45 +13796,31 @@ ul li {
     width: 100%;
   }
 }
-.page-mes-trajets .badge {
-  font-weight: 700;
-  padding: 0.3rem 0.55rem;
-  border-radius: 999px;
-}
-.page-mes-trajets .badge.bg-warning.text-dark {
-  color: #1b1b1b !important;
-}
 .page-mes-trajets .nav-tabs {
-  border-bottom: 1px solid var(--table-border, rgba(255, 255, 255, 0.1));
+  border-bottom: 1px solid var(--table-border);
 }
 .page-mes-trajets .nav-tabs .nav-link {
-  color: var(--text-white, #fff);
+  color: var(--table-text);
+  background: color-mix(in srgb, var(--table-bg) 85%, var(--table-text) 15%);
   border: 1px solid transparent;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
   margin-right: 0.4rem;
-  background: rgba(255, 255, 255, 0.03);
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.06s ease;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 .page-mes-trajets .nav-tabs .nav-link:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: color-mix(in srgb, var(--table-bg) 75%, var(--table-text) 25%);
 }
 .page-mes-trajets .nav-tabs .nav-link.active {
-  background: rgba(0, 0, 0, 0.2);
-  border-color: #1f7a3a;
-  color: #fff;
+  background: color-mix(in srgb, var(--table-bg) 65%, var(--table-text) 35%);
+  border-color: var(--color-secondary);
+  color: var(--table-text);
   font-weight: 800;
-  transform: translateY(-1px);
 }
 .page-mes-trajets .nav-tabs .badge {
-  background: #1f7a3a;
+  background: var(--color-secondary);
   color: #111;
   font-weight: 800;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-}
-.page-mes-trajets .card {
-  border-radius: 16px;
 }
 .page-mes-trajets .table {
   background-color: var(--table-bg);
@@ -13815,22 +13833,31 @@ ul li {
   border-color: var(--table-border);
 }
 .page-mes-trajets .table thead th {
-  color: var(--text-white);
-  background-color: color-mix(in srgb, var(--color-white) 5%, transparent);
+  color: var(--table-text);
+  background: color-mix(in srgb, var(--table-bg) 70%, var(--table-text) 30%);
 }
-.page-mes-trajets .table-striped > tbody > tr:nth-of-type(odd) {
-  background-color: color-mix(in srgb, var(--color-white) 4%, transparent);
+.page-mes-trajets .table-striped > tbody > tr:nth-of-type(odd) > * {
+  background: color-mix(in srgb, var(--table-bg) 90%, var(--table-text) 10%);
+  color: var(--table-text);
 }
-.page-mes-trajets .table-hover > tbody > tr:hover {
-  background-color: color-mix(in srgb, var(--color-white) 8%, transparent);
+.page-mes-trajets .table-hover > tbody > tr:hover > * {
+  background: color-mix(in srgb, var(--table-bg) 80%, var(--table-text) 20%);
 }
-.page-mes-trajets .text-status-meta {
-  color: var(--list-text);
-  opacity: 0.9;
+.theme-alt .page-mes-trajets .table {
+  background-color: transparent;
 }
-.theme-alt .page-mes-trajets .text-status-meta {
-  color: var(--text-white);
-  opacity: 0.8;
+.theme-alt .page-mes-trajets .table thead th {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--text-white) !important;
+}
+.theme-alt .page-mes-trajets .table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+.theme-alt .page-mes-trajets .table-striped > tbody > tr:nth-of-type(even) > * {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+.theme-alt .page-mes-trajets .table-hover > tbody > tr:hover > * {
+  background-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 @media (min-width: 768px) and (max-width: 991.98px) {

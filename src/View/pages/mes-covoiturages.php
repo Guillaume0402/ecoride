@@ -26,6 +26,7 @@ $activeTab = $driverCount > 0 ? 'driver' : ($passengerCount > 0 ? 'passenger' : 
         </div>
     <?php endif; ?>
 
+    
     <div class="card mt-2">
         <div class="card-header pb-0">
             <ul class="nav nav-tabs card-header-tabs" id="mesTrajetsTabs" role="tablist">
