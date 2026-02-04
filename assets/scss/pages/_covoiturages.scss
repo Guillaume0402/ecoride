@@ -4,7 +4,14 @@
 
 // -------------------- Filter Bar --------------------
 .filter-section {
+    position: relative;
+    z-index: 50; // au-dessus des cards
+
     .filter-bar {
+        position: relative;
+        z-index: 50;
+        overflow: visible;
+
         background: var(--list-bg);
         backdrop-filter: blur(6px);
         border: 1px solid var(--color-secondary);
@@ -17,16 +24,20 @@
             align-items: center;
             color: var(--text-black);
         }
+
         .btn-sort {
             border: 1px solid var(--color-secondary);
             color: var(--text-black);
         }
     }
-}
-.dropdown-menu {
-    background: var(--list-bg);
-    a {
-        color: var(--text-black);
+    // IMPORTANT : scoped uniquement à filter-section
+    .dropdown-menu {
+        z-index: 60;
+        background: var(--list-bg);
+
+        a {
+            color: var(--text-black);
+        }
     }
 }
 
@@ -35,18 +46,20 @@
     .filter-section {
         .filter-bar {
             flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: stretch;
             gap: 0.5rem;
         }
     }
 }
 
+// -------------------- Carpool Cards --------------------
+
 .carpool-card {
     background: rgba(255, 255, 255, 0.082);
     border-radius: 12px;
     padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba($text-black, 0.1);
+    box-shadow: 0 2px 8px rgba(var(--text-black), 0.1);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
