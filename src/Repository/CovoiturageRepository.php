@@ -14,6 +14,17 @@ class CovoiturageRepository
     // Nom de la table des covoiturages
     private string $table = 'covoiturages';
 
+    // Whitelists (sécurité + lisibilité)
+    private const PREF_ALLOWED = ['fumeur', 'non-fumeur', 'animaux', 'pas-animaux'];
+    private const FUEL_ALLOWED = ['essence', 'diesel', 'hybride', 'electrique'];
+    private const SORT_MAP = [
+        'date'          => 'c.depart',
+        'price'         => 'c.prix',
+        'driver_rating' => 'COALESCE(u.note, 0)',
+    ];
+    private const STATUS_ALLOWED = ['en_attente', 'demarre', 'termine', 'annule'];
+
+
     // Au constructeur, on récupère l'instance unique de connexion MySQL
     public function __construct()
     {
@@ -59,60 +70,60 @@ class CovoiturageRepository
         ?int $currentUserId = null
     ): array {
         $sql = "SELECT
-                c.*,
-                u.pseudo AS driver_pseudo,
-                u.photo  AS driver_photo,
-                u.note   AS driver_note,
+            c.*,
+            u.pseudo AS driver_pseudo,
+            u.photo  AS driver_photo,
+            u.note   AS driver_note,
 
-                v.marque  AS vehicle_marque,
-                v.modele  AS vehicle_modele,
-                v.couleur AS vehicle_couleur,
-                v.places_dispo AS vehicle_places,
-                v.preferences AS vehicle_preferences,
-                v.custom_preferences AS vehicle_prefs_custom,
+            v.marque  AS vehicle_marque,
+            v.modele  AS vehicle_modele,
+            v.couleur AS vehicle_couleur,
+            v.places_dispo AS vehicle_places,
+            v.preferences AS vehicle_preferences,
+            v.custom_preferences AS vehicle_prefs_custom,
 
-                ft.type_name AS vehicle_fuel,
+            ft.type_name AS vehicle_fuel,
 
-                COALESCE(v.places_dispo, 0) - COALESCE(pc.confirmed_count, 0) AS places_restantes,
-                COALESCE(pc.confirmed_count, 0) AS reservations_count";
+            COALESCE(v.places_dispo, 0) - COALESCE(pc.confirmed_count, 0) AS places_restantes,
+            COALESCE(pc.confirmed_count, 0) AS reservations_count";
 
         // champs UX pour l'utilisateur connecté
         if ($currentUserId !== null) {
             $sql .= ",
-                (
-                    SELECT ps.status
-                    FROM participations ps
-                    WHERE ps.covoiturage_id = c.id
-                      AND ps.passager_id = :me
-                    ORDER BY ps.date_participation DESC
-                    LIMIT 1
-                ) AS my_participation_status,
+            (
+                SELECT ps.status
+                FROM participations ps
+                WHERE ps.covoiturage_id = c.id
+                  AND ps.passager_id = :me
+                ORDER BY ps.date_participation DESC
+                LIMIT 1
+            ) AS my_participation_status,
 
-                EXISTS (
-                    SELECT 1
-                    FROM participations ps2
-                    WHERE ps2.covoiturage_id = c.id
-                      AND ps2.passager_id = :me
-                      AND ps2.status <> 'annulee'
-                ) AS has_my_participation";
+            EXISTS (
+                SELECT 1
+                FROM participations ps2
+                WHERE ps2.covoiturage_id = c.id
+                  AND ps2.passager_id = :me
+                  AND ps2.status <> 'annulee'
+            ) AS has_my_participation";
         }
 
         $sql .= "
-            FROM {$this->table} c
-            LEFT JOIN users u        ON u.id = c.driver_id
-            LEFT JOIN vehicles v     ON v.id = c.vehicle_id
-            LEFT JOIN fuel_types ft  ON ft.id = v.fuel_type_id
+        FROM {$this->table} c
+        LEFT JOIN users u       ON u.id = c.driver_id
+        LEFT JOIN vehicles v    ON v.id = c.vehicle_id
+        LEFT JOIN fuel_types ft ON ft.id = v.fuel_type_id
 
-            LEFT JOIN (
-                SELECT covoiturage_id, COUNT(*) AS confirmed_count
-                FROM participations
-                WHERE status = 'confirmee'
-                GROUP BY covoiturage_id
-            ) pc ON pc.covoiturage_id = c.id
+        LEFT JOIN (
+            SELECT covoiturage_id, COUNT(*) AS confirmed_count
+            FROM participations
+            WHERE status = 'confirmee'
+            GROUP BY covoiturage_id
+        ) pc ON pc.covoiturage_id = c.id
 
-            WHERE 1=1
-              AND c.status NOT IN ('annule','termine')
-              AND c.depart >= NOW()
+        WHERE 1=1
+          AND c.status NOT IN ('annule','termine')
+          AND c.depart >= NOW()
     ";
 
         $params = [];
@@ -132,9 +143,9 @@ class CovoiturageRepository
             $params[':date'] = $date;
         }
 
+        // Prefs (whitelist)
         if (!empty($prefs)) {
-            $allowed = ['fumeur', 'non-fumeur', 'animaux', 'pas-animaux'];
-            $prefs = array_values(array_intersect($allowed, array_map('strval', (array) $prefs)));
+            $prefs = array_values(array_intersect(self::PREF_ALLOWED, array_map('strval', (array) $prefs)));
 
             foreach ($prefs as $idx => $p) {
                 $ph = ":pref$idx";
@@ -143,22 +154,18 @@ class CovoiturageRepository
             }
         }
 
+        // Fuel (whitelist)
         if ($fuel !== null && $fuel !== '') {
-            $allowedFuel = ['essence', 'diesel', 'hybride', 'electrique'];
             $fuel = mb_strtolower((string) $fuel);
 
-            if (in_array($fuel, $allowedFuel, true)) {
+            if (in_array($fuel, self::FUEL_ALLOWED, true)) {
                 $sql .= " AND LOWER(ft.type_name) = :fuel";
                 $params[':fuel'] = $fuel;
             }
         }
 
-        $allowedSort = [
-            'date'          => 'c.depart',
-            'price'         => 'c.prix',
-            'driver_rating' => 'COALESCE(u.note, 0)',
-        ];
-        $orderBy = $allowedSort[$sort ?? 'date'] ?? 'c.depart';
+        // Tri sécurisé via map
+        $orderBy = self::SORT_MAP[$sort ?? 'date'] ?? self::SORT_MAP['date'];
 
         $direction = strtoupper($dir ?? 'ASC');
         if (!in_array($direction, ['ASC', 'DESC'], true)) {
@@ -175,6 +182,7 @@ class CovoiturageRepository
         $stmt->execute($params);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+
 
 
     // Récupère un covoiturage (une seule ligne) avec infos véhicule et conducteur
@@ -236,12 +244,16 @@ class CovoiturageRepository
     // Met à jour le statut d'un covoiturage (avec contrôle sur les valeurs autorisées)
     public function updateStatus(int $id, string $status): bool
     {
-        $allowed = ['en_attente', 'demarre', 'termine', 'annule'];
-        if (!in_array($status, $allowed, true)) return false;
+        if (!in_array($status, self::STATUS_ALLOWED, true)) {
+            return false;
+        }
+
         $sql = "UPDATE {$this->table} SET status = :s WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
+
         return $stmt->execute([':s' => $status, ':id' => $id]);
     }
+
 
     // === Stats ===
     // Retourne le nombre total de covoiturages en base
