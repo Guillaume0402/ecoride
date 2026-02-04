@@ -12,7 +12,7 @@
             <button class="btn btn-inscription me-2" data-bs-toggle="modal" data-bs-target="#authModal" data-start="register">
                 Inscrivez-vous
             </button>
-            <a href="/liste-covoiturages" class="btn btn-inscription">Rechercher un trajet</a>
+            <button class="btn btn-inscription" data-bs-toggle="modal" data-bs-target="#searchCovoitModal">Rechercher un trajet</button>
         </div>
     </section>
 
@@ -77,15 +77,13 @@
                 <i class="bi bi-car-front text-success"></i>
             </h3>
             <div class="text-center mt-3 mb-3">
-                <button class="btn btn-inscription" data-bs-toggle="modal" data-bs-target="#searchCovoitModal">Rechercher un trajet</button>
+                <a href="/liste-covoiturages" class="btn btn-inscription">Rechercher un trajet</a>
             </div>
         </div>
     </div>
 </div>
 
 
-
-<!-- TEXTE EN BAS -->
 <section class="text-center px-4 mt-5 mb-5">
     <h2 class="fw-bold mb-3">Partageons la route,<br>préservons la planète ensemble</h2>
     <p>
@@ -93,4 +91,46 @@
         Trouvez votre itinéraire en quelques clics, partagez vos trajets et réduisez votre empreinte carbone tout en rencontrant des personnes partageant les mêmes valeurs.
     </p>
 </section>
-</div>
+<?php if (!empty($randomReviews)): ?>
+    <section class="container mb-5 reviews-home">
+        <h3 class="text-center mb-4 reviews-home__title">Ils parlent d’EcoRide</h3>
+
+        <div class="row g-4">
+            <?php foreach ($randomReviews as $r): ?>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card shadow-lg h-100 border-0 review-card">
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="review-card__who">
+                                    <span class="review-card__user">
+                                        <?= htmlspecialchars((string)($r['passager_pseudo'] ?? 'Passager')) ?>
+                                    </span>
+                                    <span class="review-card__arrow">→</span>
+                                    <span class="review-card__driver">
+                                        <?= htmlspecialchars((string)($r['driver_pseudo'] ?? 'Chauffeur')) ?>
+                                    </span>
+                                </div>
+
+                                <div class="review-card__rating">
+                                    <?= renderStars($r['rating'] ?? 0, 5, true) ?>
+                                </div>
+                            </div>
+
+                            <p class="mb-0 review-card__text">
+                                “<?= nl2br(htmlspecialchars((string)($r['comment'] ?? ''))) ?>”
+                            </p>
+
+                            <?php if (!empty($r['created_at_ms']) && is_numeric($r['created_at_ms'])): ?>
+                                <small class="review-card__date d-block mt-2">
+                                    Publié le <?= date('d/m/Y', (int)($r['created_at_ms'] / 1000)) ?>
+                                </small>
+                            <?php endif; ?>
+
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </section>
+<?php endif; ?>

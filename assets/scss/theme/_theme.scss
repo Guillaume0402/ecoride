@@ -20,6 +20,14 @@
     --admin-card-sep: rgba(0, 0, 0, 0.12);
     --admin-card-stripe: rgba(0, 0, 0, 0.03);
 
+    --review-card-bg: rgba(255, 255, 255, 0.82);
+    --review-card-border: rgba(0, 0, 0, 0.06);
+    --review-card-border-hover: rgba(46, 204, 113, 0.25);
+
+    --review-text: rgba(10, 20, 14, 0.92);
+    --review-muted: rgba(10, 20, 14, 0.55);
+    --review-accent: #1f9d55; // vert lisible sur fond clair
+
     --bg-gradient: linear-gradient(
         135deg,
         #eafff5 0%,
@@ -76,6 +84,14 @@ html:not(.theme-alt) {
     --admin-card-border: rgba(52, 209, 50, 0.45);
     --admin-card-sep: rgba(52, 209, 50, 0.25);
     --admin-card-stripe: rgba(255, 255, 255, 0.03);
+
+    --review-card-bg: rgba(15, 60, 28, 0.55);
+    --review-card-border: rgba(46, 204, 113, 0.18);
+    --review-card-border-hover: rgba(46, 204, 113, 0.35);
+
+    --review-text: rgba(255, 255, 255, 0.92);
+    --review-muted: rgba(255, 255, 255, 0.7);
+    --review-accent: #2ecc71; // vert clair lisible sur fond sombre
 
     --bg-gradient: linear-gradient(
         135deg,

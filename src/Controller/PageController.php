@@ -10,7 +10,7 @@ use App\Repository\CovoiturageRepository;
 
 class PageController extends Controller
 {
-       
+
 
     // Page d'accueil.
     public function home(): void
@@ -18,13 +18,16 @@ class PageController extends Controller
         $popular = [];
         try {
             $repo = new CovoiturageRepository();
-            $popular = $repo->popularDestinations(6, 4, 30);
+            $popular = $repo->popularDestinations(3, 3, 30);
+            $reviewService = new \App\Service\ReviewService();
+            $randomReviews = $reviewService->getRandomApprovedReviews(3);
         } catch (\Throwable $e) {
             error_log('[home] popular destinations failed: ' . $e->getMessage());
         }
 
         $this->render('home', [
             'popularDestinations' => $popular,
+            'randomReviews' => $randomReviews,
             'pageTitle' => 'Accueil',
             'metaDescription' => "EcoRide, la plateforme de covoiturage responsable pour vos trajets du quotidien. Trouvez ou proposez un trajet en quelques clics.",
             'metaImage' => SITE_URL . 'assets/images/logo-share.png',
@@ -38,8 +41,8 @@ class PageController extends Controller
             'pageTitle' => 'Contact',
             'metaDescription' => "Contactez l'équipe EcoRide pour toute question sur le covoiturage, votre compte ou l'application.",
         ]);
-    }          
-    
+    }
+
     // Page "À propos".
     public function about(): void
     {
@@ -63,6 +66,4 @@ class PageController extends Controller
     {
         $this->render('pages/mentions-legales');
     }
-
-
 }

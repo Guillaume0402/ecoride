@@ -1,15 +1,19 @@
 // specific pages
 @use "../abstracts" as *;
 
-h1 {
-    color: var(--color-white);
-}
+/* =========================
+   Base
+   ========================= */
 
+h1,
 p {
     color: var(--color-white);
 }
 
-// IMAGE COLLAGE POUR DESKTOP
+/* =========================
+   Home - Collage images (desktop)
+   ========================= */
+
 .image-collage {
     position: relative;
     height: 450px;
@@ -50,57 +54,71 @@ p {
     z-index: 3;
 }
 
+/* =========================
+   Home - Popular destinations
+   ========================= */
+
 .popular-destinations {
     box-shadow: var(--shadow-box);
 }
 
-.card-list-item {
-
-    background: var(--list-bg);
-    color: var(--list-text);
-    transition: background 0.2s, box-shadow 0.2s;
-    box-shadow: none;
-    padding: 20px;
-    &:hover {
-        background: var(--list-hover);
-        box-shadow: 2px 2px 8px 0 #1e90340a;
-    }
-    span {
-        flex: 1 1 0;
-        text-align: left;
-        font-size: 1rem;
-        font-weight: 700;
-    }
-    .fw-bold {
-        flex: 0 0 100px;
-        text-align: right;
-        font-size: 1.05rem;
-        color: var(--text-black) !important;
-    }
-    button {
-        flex: 0 0 auto;
-        margin-left: 16px;
-    }
-}
 .card-header {
     background: transparent !important;
     border-bottom: 2.5px solid var(--color-primary, #215732) !important;
     font-size: 1.18rem;
     letter-spacing: 0.02em;
 }
+
 .card {
     border-radius: 1.2rem !important;
 }
 
-// IMAGES POUR MOBILE UNIQUEMENT
+.card-list-item {
+    background: var(--list-bg);
+    color: var(--list-text);
+    box-shadow: none;
+    padding: 20px;
+    transition:
+        background 0.2s,
+        box-shadow 0.2s;
+
+    &:hover {
+        background: var(--list-hover);
+        box-shadow: 2px 2px 8px 0 #1e90340a;
+    }
+
+    span {
+        flex: 1 1 0;
+        text-align: left;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .fw-bold {
+        flex: 0 0 100px;
+        text-align: right;
+        font-size: 1.05rem;
+        color: var(--text-black) !important;
+    }
+
+    button {
+        flex: 0 0 auto;
+        margin-left: 16px;
+    }
+}
+
+/* =========================
+   Home - Images mobile only
+   ========================= */
+
 .image-mobile {
     img {
         width: 90%;
         max-width: 400px;
         height: auto;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        border-radius: 8px;
         margin: auto;
+        border-radius: 8px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
     }
 }
 
@@ -108,9 +126,136 @@ p {
     margin-top: 180px;
 }
 
-// RESPONSIVE MOBILE
+/* =========================
+   HOME - Reviews random
+   ========================= */
+
+.reviews-home {
+    margin-top: 2.5rem;
+
+    &__title {
+        color: var(--color-white);
+        letter-spacing: 0.02em;
+        text-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+}
+
+.review-card {
+    border-radius: 1.35rem !important;
+
+    // Fond compatible light/dark
+    background: var(--review-card-bg);
+    border: 1px solid var(--review-card-border) !important;
+
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.25) !important;
+    backdrop-filter: blur(10px);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+
+    // animation
+    opacity: 0;
+    transform: translateY(8px);
+    animation: reviewFadeIn 0.4s ease forwards;
+
+    &:hover {
+        transform: translateY(-4px);
+        border-color: var(--review-card-border-hover) !important;
+        box-shadow: 0 18px 55px rgba(0, 0, 0, 0.35) !important;
+    }
+
+    .card-body {
+        padding: 1.25rem;
+    }
+
+    &__who {
+        color: var(--review-text);
+        font-size: 1.02rem;
+        line-height: 1.2;
+        text-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    }
+
+    &__user {
+        color: var(--review-text);
+        font-weight: 700;
+    }
+
+    &__arrow {
+        margin: 0 0.35rem;
+        color: var(--review-muted);
+        font-weight: 400;
+    }
+
+    // IMPORTANT : couleur dédiée, pas --color-primary
+    &__driver {
+        color: var(--review-accent);
+        font-weight: 900;
+    }
+
+    &__rating {
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-end;
+    }
+
+    &__text {
+        margin-top: 0.65rem;
+        color: var(--review-text);
+        font-size: 1rem;
+        line-height: 1.45;
+    }
+
+    &__date {
+        color: var(--review-muted) !important;
+        font-size: 0.9rem;
+    }
+}
+
+
+.rating-stars {
+    display: inline-flex;
+    gap: 2px;
+    line-height: 1;
+    user-select: none;
+
+    &__star {
+        font-size: 1rem;
+        letter-spacing: -0.05em;
+        transform: translateY(-1px);
+    }
+
+    .is-full {
+        color: #2ecc71;
+        text-shadow: 0 6px 18px rgba(46, 204, 113, 0.22);
+        filter: drop-shadow(0 0 6px rgba(46, 204, 113, 0.4));
+    }
+
+    .is-empty {
+        color: rgba(10, 20, 14, 0.18); // visible en light
+    }
+
+    &__value {
+        margin-left: 0.5rem;
+        font-weight: 800;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.85);
+    }
+}
+.theme-alt .rating-stars {
+    .is-empty {
+        color: rgba(255, 255, 255, 0.25); // ok en dark
+    }
+}
+@keyframes reviewFadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================
+   Responsive (mobile)
+   ========================= */
+
 @media (max-width: 991.98px) {
-    // Cacher le collage d’images desktop
     .image-collage {
         display: none !important;
         visibility: hidden;
@@ -125,22 +270,41 @@ p {
     .row.align-items-center {
         margin-top: 10px;
     }
+
     .popular-destinations {
         width: 100%;
         margin-top: 0;
         padding: 10px !important;
     }
+
     .card-list-item {
         padding: 10px;
+
         span {
             font-size: 0.9rem;
         }
+
         .fw-bold {
             font-size: 1rem;
         }
+
         button {
             padding: 0.2rem;
             font-size: 1rem;
+        }
+    }
+
+    .review-card {
+        .card-body {
+            padding: 1rem;
+        }
+
+        &__who {
+            font-size: 0.98rem;
+        }
+
+        &__text {
+            font-size: 0.98rem;
         }
     }
 }
