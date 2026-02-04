@@ -43,7 +43,7 @@ class CovoituragePageController extends Controller
             // IMPORTANT: ordre conforme à la signature du repository
             $results = $repo->search($depart, $arrivee, $date, $prefs, $fuel, $sort, $dir, $currentUserId);
         } catch (\Throwable $e) {
-            error_log('Search error: ' . $e->getMessage());
+            error_log('Search error: ' . $e->getMessage());           
         }
 
         $this->render('pages/liste-covoiturages', [
