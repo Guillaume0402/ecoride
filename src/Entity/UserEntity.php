@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+// Entité utilisateur mappée à la table users
+// Contient les getters/setters et l'hydratation depuis un tableau associatif
 class UserEntity
 {
     // Champs mappés à la table users (valeurs par défaut pour un compte standard)

@@ -5,6 +5,11 @@ namespace App\Repository;
 use App\Db\Mysql;
 use App\Entity\VehicleEntity;
 
+// Repository pour la gestion des véhicules utilisateurs
+// CRUD + recherches + utilitaires
+// Utilise une connexion PDO partagée via le singleton Mysql
+
+
 class VehicleRepository
 {
     private \PDO $conn; // connexion PDO partagée

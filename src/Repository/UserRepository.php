@@ -5,6 +5,11 @@ namespace App\Repository;
 use App\Entity\UserEntity;
 use App\Db\Mysql;
 
+// Repository pour la gestion des utilisateurs
+// CRUD + recherches + gestion des crédits et de la note
+// Utilise une connexion PDO partagée via le singleton Mysql
+// Gère la table 'users' et les rôles associés
+
 class UserRepository
 {
     private \PDO $conn; // connexion PDO partagée

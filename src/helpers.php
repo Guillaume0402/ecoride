@@ -62,3 +62,38 @@ if (!function_exists('getRideCreateFee')) {
         return (int) (defined('RIDE_CREATE_FEE_CREDITS') ? RIDE_CREATE_FEE_CREDITS : 2);
     }
 }
+
+// Rend des étoiles HTML pour une note (0..5)
+if (!function_exists('renderStars')) {
+    function renderStars($rating, int $max = 5, bool $showValue = false): string
+    {
+        if (!is_numeric($rating)) {
+            $rating = 0;
+        }
+        $rating = (float) $rating;
+
+        // clamp 0..max
+        if ($rating < 0) $rating = 0;
+        if ($rating > $max) $rating = $max;
+
+        $filled = (int) floor($rating);
+        $empty  = $max - $filled;
+
+        $html = '<span class="rating-stars" aria-label="Note ' . $filled . ' sur ' . $max . '">';
+
+        for ($i = 0; $i < $filled; $i++) {
+            $html .= '<span class="rating-stars__star is-full">★</span>';
+        }
+        for ($i = 0; $i < $empty; $i++) {
+            $html .= '<span class="rating-stars__star is-empty">★</span>';
+        }
+
+        $html .= '</span>';
+
+        if ($showValue) {
+            $html .= '<span class="rating-stars__value">' . $filled . '/' . $max . '</span>';
+        }
+
+        return $html;
+    }
+}

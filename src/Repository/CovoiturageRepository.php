@@ -330,7 +330,7 @@ class CovoiturageRepository
      */
     // Retourne les destinations les plus demandées avec, pour chaque destination,
     // les villes de départ les plus fréquentes (et quelques stats de prix)
-    public function popularDestinations(int $destLimit = 6, int $perDestDepartLimit = 4, int $daysBack = 30): array
+    public function popularDestinations(int $destLimit = 3, int $perDestDepartLimit = 3, int $daysBack = 30): array
     {
         // Sécurise les paramètres pour éviter des requêtes trop lourdes
         $destLimit = max(1, min(24, $destLimit));

@@ -10,6 +10,8 @@ use App\Security\PasswordPolicy;
 // - validation des données
 // - gestion des crédits et de la note
 // - aide pour l'affichage (photo, initiales, rôle, etc.)
+// - sérialisation en tableau pour API/vue
+
 class UserService
 {
     // Gestion des mots de passe 
@@ -41,6 +43,7 @@ class UserService
         return PasswordPolicy::hash($plainPassword);
     }
 
+    // Validation simple de l’email
     public function isValidEmail(UserEntity $user): bool
     {
         // Validation simple via filter_var
@@ -91,9 +94,9 @@ class UserService
         };
     }
 
+    // Vérifie si l'utilisateur est un administrateur
     public function isAdmin(UserEntity $user): bool
-    {
-        // Raccourci pour vérifier le rôle admin
+    {       
         return $user->getRoleId() === 3;
     }
 
@@ -118,9 +121,9 @@ class UserService
         }
     }
 
+    // Débite des crédits si le solde est suffisant
     public function debitCredits(UserEntity $user, int $amount): bool
-    {
-        // Débite si le solde est suffisant; retourne true si succès
+    {        
         if ($amount > 0 && $user->getCredits() >= $amount) {
             $user->setCredits($user->getCredits() - $amount);
             return true;
@@ -128,6 +131,7 @@ class UserService
         return false;
     }
 
+    // Vérifie si l'utilisateur a assez de crédits
     public function hasEnoughCredits(UserEntity $user, int $amount): bool
     {
         // Vérifie le solde par rapport à un montant donné
@@ -150,13 +154,13 @@ class UserService
         return !empty($user->getPhoto());
     }
 
+    // Retourne l'URL de la photo de profil ou un avatar par défaut
     public function getPhotoUrl(UserEntity $user): string
-    {
-        // Retourne l'URL de la photo ou un avatar par défaut
+    {        
         return $user->getPhoto() ?? '/assets/images/default-avatar.png';
     }
 
-    
+    // Sérialisation en tableau pour API/vue
     public function toArray(UserEntity $user, bool $includePassword = false): array
     {
         // Sérialise l'entité en tableau pour la vue/API (password optionnel)
