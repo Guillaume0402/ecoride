@@ -1,0 +1,22 @@
+// Styles pour les tables en fonction du thème
+.table-theme {
+  /* Base */
+  --bs-table-bg: var(--table-bg);
+  --bs-table-color: var(--table-text);
+  --bs-table-border-color: var(--table-border);
+
+  /* Stripes Bootstrap (sinon ça reste trop clair / incohérent) */
+  --bs-table-striped-bg: rgba(0, 0, 0, 0.04);
+  --bs-table-striped-color: var(--table-text);
+
+  /* Hover si tu l’utilises */
+  --bs-table-hover-bg: rgba(0, 0, 0, 0.06);
+  --bs-table-hover-color: var(--table-text);
+
+  color: var(--table-text);
+}
+
+.theme-alt .table-theme {
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.04);
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.06);
+}
