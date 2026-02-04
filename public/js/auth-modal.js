@@ -20,7 +20,6 @@
    ================================================== */
 
 // Affiche un message global (pile #alerts en haut de page)
-
 function showGlobalAlert(message, type = "success", timeout = 4500) {
     const stack = document.getElementById("alerts");
     if (!stack) return;
@@ -37,28 +36,26 @@ function showGlobalAlert(message, type = "success", timeout = 4500) {
     stack.appendChild(el);
 }
 
+// Timer pour l’alerte de la modale
 let authAlertTimer = null;
 
+// Affiche un message dans la modale d’authentification
 function showAlert(message, type = "danger", timeout = 5000) {
     const el = document.getElementById("authAlert");
     if (!el) return;
 
     // même style que les alertes globales
     el.className = `custom-alert alert-${type} mx-3`;
-
     el.innerHTML = `<div class="content"></div>`;
-
     el.querySelector(".content").textContent = message;
-
     el.classList.remove("d-none");
 
+    // si un timeout est défini, on masque l’alerte après ce délai
     if (authAlertTimer) clearTimeout(authAlertTimer);
     authAlertTimer = setTimeout(() => el.classList.add("d-none"), timeout);
 }
 
-/**
- * Cache le message de la modale
- */
+//Cache le message de la modale
 function hideAlert() {
     const el = document.getElementById("authAlert");
     if (!el) return;
@@ -97,11 +94,12 @@ function setActiveTab(tab) {
     if (!loginForm || !registerForm || !showLogin || !showRegister || !title)
         return;
 
+    // Détermine l’onglet actif
     const isLogin = tab === "login";
 
+    // Affiche/masque les formulaires
     loginForm.classList.toggle("d-none", !isLogin);
     registerForm.classList.toggle("d-none", isLogin);
-
     showLogin.classList.toggle("active-tab", isLogin);
     showRegister.classList.toggle("active-tab", !isLogin);
 
@@ -196,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const registerForm = document.getElementById("registerForm");
 
     if (!authModal || !loginForm || !registerForm) return;
-   
+
     /* --- Afficher / masquer les mots de passe --- */
     authModal.addEventListener("click", (e) => {
         const btn = e.target.closest(".toggle-password");

@@ -5,6 +5,10 @@ namespace App\Repository;
 use App\Db\Mysql;
 use PDO;
 
+// Repository pour la gestion des transactions utilisateur
+// CRUD + recherches + utilitaires
+// Utilise une connexion PDO partagée via le singleton Mysql
+
 class TransactionRepository
 {
     private PDO $db;

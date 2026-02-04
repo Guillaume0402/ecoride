@@ -26,7 +26,7 @@ $transactions = $transactions ?? [];
             <div class="text-muted">Aucune transaction pour le moment.</div>
         <?php else: ?>
             <div class="table-responsive">
-                <table class="table table-sm table-dark table-striped align-middle">
+                <table class="table table-sm table-striped align-middle table-theme">
                     <thead>
                         <tr>
                             <th>Date</th>

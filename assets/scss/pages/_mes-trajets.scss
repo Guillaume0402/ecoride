@@ -1,95 +1,86 @@
 @use "../abstracts" as *;
 
 .page-mes-trajets {
-    // Badges de statut lisibles
-    .badge {
-        font-weight: 700;
-        padding: 0.3rem 0.55rem;
-        border-radius: 999px;
-    }
-    .badge.bg-warning.text-dark {
-        color: #1b1b1b !important;
-    }
+  // Onglets (light/dark via variables)
+  .nav-tabs {
+    border-bottom: 1px solid var(--table-border);
+  }
 
-    // Onglets
-    .nav-tabs {
-        border-bottom: 1px solid var(--table-border, rgba(255, 255, 255, 0.1));
-    }
-    .nav-tabs .nav-link {
-        color: var(--text-white, #fff);
-        border: 1px solid transparent;
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
-        margin-right: 0.4rem;
-        background: rgba(255, 255, 255, 0.03);
-        transition: background 0.2s ease, color 0.2s ease,
-            border-color 0.2s ease, transform 0.06s ease;
-    }
-    .nav-tabs .nav-link:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
-    }
-    .nav-tabs .nav-link.active {
-        background: rgba(0, 0, 0, 0.2);
-        border-color: $color-secondary;
-        color: #fff;
-        font-weight: 800;
-        transform: translateY(-1px);
-    }
-    .nav-tabs .badge {
-        background: $color-secondary;
-        color: #111;
-        font-weight: 800;
-        border: 1px solid rgba(0, 0, 0, 0.2);
-    }
+  .nav-tabs .nav-link {
+    color: var(--table-text);
+    background: color-mix(in srgb, var(--table-bg) 85%, var(--table-text) 15%);
+    border: 1px solid transparent;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    margin-right: 0.4rem;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
 
-    .card {
-        border-radius: 16px;
-    }
+  .nav-tabs .nav-link:hover {
+    background: color-mix(in srgb, var(--table-bg) 75%, var(--table-text) 25%);
+  }
 
-    // Tables: lisibilité renforcée via variables de thème
+  .nav-tabs .nav-link.active {
+    background: color-mix(in srgb, var(--table-bg) 65%, var(--table-text) 35%);
+    border-color: var(--color-secondary);
+    color: var(--table-text);
+    font-weight: 800;
+  }
+
+  .nav-tabs .badge {
+    background: var(--color-secondary);
+    color: #111;
+    font-weight: 800;
+  }
+
+  // Tables (light/dark via variables)
+  .table {
+    background-color: var(--table-bg);
+    color: var(--table-text);
+    border-color: var(--table-border);
+  }
+
+  .table th,
+  .table td {
+    color: var(--table-text);
+    border-color: var(--table-border);
+  }
+
+  .table thead th {
+    color: var(--table-text);
+    background: color-mix(in srgb, var(--table-bg) 70%, var(--table-text) 30%);
+  }
+
+  .table-striped > tbody > tr:nth-of-type(odd) > * {
+    background: color-mix(in srgb, var(--table-bg) 90%, var(--table-text) 10%);
+    color: var(--table-text);
+  }
+
+  .table-hover > tbody > tr:hover > * {
+    background: color-mix(in srgb, var(--table-bg) 80%, var(--table-text) 20%);
+  }
+
+  // FIX lisibilité tables en dark (override)
+  .theme-alt & {
     .table {
-        background-color: var(--table-bg);
-        color: var(--table-text);
-        border-color: var(--table-border);
+      background-color: transparent;
     }
-    .table th,
-    .table td {
-        color: var(--table-text);
-        border-color: var(--table-border);
-    }
+
     .table thead th {
-        color: var(--text-white);
-        background-color: color-mix(
-            in srgb,
-            var(--color-white) 5%,
-            transparent
-        );
-    }
-    .table-striped > tbody > tr:nth-of-type(odd) {
-        background-color: color-mix(
-            in srgb,
-            var(--color-white) 4%,
-            transparent
-        );
-    }
-    .table-hover > tbody > tr:hover {
-        background-color: color-mix(
-            in srgb,
-            var(--color-white) 8%,
-            transparent
-        );
+      background-color: rgba(255, 255, 255, 0.10) !important;
+      color: var(--text-white) !important;
     }
 
-    // Texte méta à côté des badges de statut
-    .text-status-meta {
-        color: var(--list-text);
-        opacity: 0.9;
+    .table-striped > tbody > tr:nth-of-type(odd) > * {
+      background-color: rgba(255, 255, 255, 0.04) !important;
     }
 
-    // Thème alterné (dark)
-    .theme-alt & .text-status-meta {
-        color: var(--text-white);
-        opacity: 0.8;
+    .table-striped > tbody > tr:nth-of-type(even) > * {
+      background-color: rgba(255, 255, 255, 0.02) !important;
     }
+
+    .table-hover > tbody > tr:hover > * {
+      background-color: rgba(255, 255, 255, 0.08) !important;
+    }
+  }
 }

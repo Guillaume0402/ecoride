@@ -13,7 +13,7 @@
 }
 
 nav.sticky-top {
-    z-index: 1030;
+    z-index: 9999;
 }
 
 .fixed-height-80 {
@@ -57,15 +57,21 @@ nav.sticky-top {
 .dropdown-menu {
     min-width: 200px;
     padding: 0.5rem 0;
-    background-color: $color-primary;
-    color: var(--text-white);
+    background: var(--list-bg); // suit light/dark
+    color: var(--text-black);
     border: 1px solid $color-secondary;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     border-radius: 0.2rem;
+
     .dropdown-item {
         font-family: $font-primary;
         font-weight: 200;
         font-size: 1rem;
+        color: var(--text-black);
+    }
+    .dropdown-item:hover,
+    .dropdown-item:focus {
+        background:rgba(255, 255, 255, 0.10);
     }
 }
 .btn-outline {
@@ -85,7 +91,8 @@ nav.sticky-top {
     // Pas de styles appliqués par défaut (desktop)
 
     @media (max-width: 991.98px) {
-        background-color: rgba(0, 128, 0, 0.8);
+        background: color-mix(in srgb, var(--list-bg) 92%, transparent);
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
         backdrop-filter: blur(5px); // Effet flou derrière
         padding: 2rem;
         border-radius: 0 0 12px 12px;
@@ -95,12 +102,12 @@ nav.sticky-top {
         top: 80px;
         left: 0;
         right: 0;
-        bottom: 0; 
+        bottom: 0;
         overflow-y: auto; // scroll interne
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain; // évite “scroll du body” derrière
         padding-bottom: 2.5rem;
-        z-index: 1000;
+        z-index: 9999;
         transition: all 0.3s ease-in-out;
 
         .navbar-brand {
@@ -139,7 +146,7 @@ nav.sticky-top {
             position: absolute;
             top: 1rem;
             right: 1rem;
-            z-index: 1001;
+            z-index: 9999;
             margin: 0;
         }
 

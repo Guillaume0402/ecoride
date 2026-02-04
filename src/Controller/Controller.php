@@ -20,12 +20,17 @@ class Controller
     // Initialise la session et les services/dépôts communs.     
     public function __construct()
     {
-        // Démarre la session PHP si elle n'est pas déjà active
-        if (session_status() === PHP_SESSION_NONE) {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_set_cookie_params([
+                'lifetime' => 0,
+                'path'     => '/',
+                'secure'   => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'),
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]);
             session_start();
         }
 
-        // Initialisation des services communs
         $this->userRepository = new UserRepository();
         $this->userService = new UserService();
     }
@@ -36,22 +41,22 @@ class Controller
     {
 
         // Expose les clés de $data comme variables accessibles dans la vue
-        extract($data);
+        extract($data, EXTR_SKIP);
 
-        // Variables globales du layout (navbar, badges, etc.)
+        // Variables globales du layout (navbar, badges, etc.) 
         $globals = $this->buildLayoutGlobals();
         extract($globals, EXTR_SKIP);
 
-        // Construit le chemin absolu de la vue et vérifie son existence
+        // Construit le chemin absolu de la vue et vérifie son existence 
         $viewPath = APP_ROOT . '/src/View/' . ltrim($view, '/') . '.php';
         if (!file_exists($viewPath)) {
             throw new \Exception("Le fichier de vue {$viewPath} n'existe pas.");
         }
 
-        // Capture le rendu de la vue dans $content
+        // Capture le rendu de la vue dans $__content
         ob_start();
         require $viewPath;
-        $content = ob_get_clean();
+        $__content = ob_get_clean();
 
         // Inclut le layout qui utilise $content pour afficher la page complète
         require APP_ROOT . '/src/View/layout.php';
@@ -69,10 +74,12 @@ class Controller
 
         // Si l'utilisateur est connecté, rafraîchit ses données et prépare les compteurs
         if (isset($_SESSION['user']) && !empty($_SESSION['user']['id'])) {
-        
+
             try {
+                // récupère les données utilisateur à jour depuis la base
                 $currentUser = $this->userRepository->findById((int) $_SESSION['user']['id']);
                 if ($currentUser) {
+                    // Mets a jour les crédits et autres données dans la session
                     $_SESSION['user']['credits'] = $currentUser->getCredits();
                     if (empty($_SESSION['user']['photo'])) {
                         $_SESSION['user']['photo'] = defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg';
@@ -83,6 +90,7 @@ class Controller
                 error_log('[render] User refresh failed: ' . $e->getMessage());
             }
 
+            // Précharge les véhicules de l'utilisateur
             try {
                 $vehicleRepo = new VehicleRepository();
                 $userVehicles = $vehicleRepo->findAllByUserId((int) $_SESSION['user']['id']);
@@ -92,6 +100,7 @@ class Controller
             }
 
             try {
+                // stocke l'ID utilisateur dans une variable locale
                 $userId = (int) $_SESSION['user']['id'];
 
                 $partRepo = new \App\Repository\ParticipationRepository();

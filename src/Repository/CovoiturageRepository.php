@@ -14,6 +14,17 @@ class CovoiturageRepository
     // Nom de la table des covoiturages
     private string $table = 'covoiturages';
 
+    // Whitelists (sécurité + lisibilité)
+    private const PREF_ALLOWED = ['fumeur', 'non-fumeur', 'animaux', 'pas-animaux'];
+    private const FUEL_ALLOWED = ['essence', 'diesel', 'hybride', 'electrique'];
+    private const SORT_MAP = [
+        'date'          => 'c.depart',
+        'price'         => 'c.prix',
+        'driver_rating' => 'COALESCE(u.note, 0)',
+    ];
+    private const STATUS_ALLOWED = ['en_attente', 'demarre', 'termine', 'annule'];
+
+
     // Au constructeur, on récupère l'instance unique de connexion MySQL
     public function __construct()
     {
@@ -48,93 +59,131 @@ class CovoiturageRepository
 
     // Recherche de covoiturages par ville de départ, d'arrivée, date, préférences, tri…
     // Retourne un tableau de lignes SQL (array associatif)
-    public function search(?string $depart = null, ?string $arrivee = null, ?string $date = null, array $prefs = [], ?string $sort = null, ?string $dir = null, ?int $currentUserId = null): array
-    {
-        $sql = "SELECT c.*,
-               u.pseudo AS driver_pseudo, u.photo AS driver_photo, u.note AS driver_note,
-               v.marque AS vehicle_marque, v.modele AS vehicle_modele, v.couleur AS vehicle_couleur,
-               v.places_dispo AS vehicle_places,
-               v.preferences AS vehicle_preferences, v.custom_preferences AS vehicle_prefs_custom,
-               COALESCE(v.places_dispo, 0) - COALESCE(COUNT(p.id), 0) AS places_restantes,
-               COALESCE(COUNT(p.id), 0) AS reservations_count";
+    public function search(
+        ?string $depart = null,
+        ?string $arrivee = null,
+        ?string $date = null,
+        array $prefs = [],
+        ?string $fuel = null,
+        ?string $sort = null,
+        ?string $dir = null,
+        ?int $currentUserId = null
+    ): array {
+        $sql = "SELECT
+            c.*,
+            u.pseudo AS driver_pseudo,
+            u.photo  AS driver_photo,
+            u.note   AS driver_note,
 
-        // Participation personnelle (optionnelle)
+            v.marque  AS vehicle_marque,
+            v.modele  AS vehicle_modele,
+            v.couleur AS vehicle_couleur,
+            v.places_dispo AS vehicle_places,
+            v.preferences AS vehicle_preferences,
+            v.custom_preferences AS vehicle_prefs_custom,
+
+            ft.type_name AS vehicle_fuel,
+
+            COALESCE(v.places_dispo, 0) - COALESCE(pc.confirmed_count, 0) AS places_restantes,
+            COALESCE(pc.confirmed_count, 0) AS reservations_count";
+
+        // champs UX pour l'utilisateur connecté
         if ($currentUserId !== null) {
             $sql .= ",
-                                             (
-                                                 SELECT ps.status
-                                                 FROM participations ps
-                                                 WHERE ps.covoiturage_id = c.id AND ps.passager_id = :me
-                                                 ORDER BY ps.date_participation DESC
-                                                 LIMIT 1
-                                             ) AS my_participation_status,
-                                             EXISTS (
-                                                 SELECT 1
-                                                 FROM participations ps2
-                                                 WHERE ps2.covoiturage_id = c.id AND ps2.passager_id = :me AND ps2.status <> 'annulee'
-                                             ) AS has_my_participation";
+            (
+                SELECT ps.status
+                FROM participations ps
+                WHERE ps.covoiturage_id = c.id
+                  AND ps.passager_id = :me
+                ORDER BY ps.date_participation DESC
+                LIMIT 1
+            ) AS my_participation_status,
+
+            EXISTS (
+                SELECT 1
+                FROM participations ps2
+                WHERE ps2.covoiturage_id = c.id
+                  AND ps2.passager_id = :me
+                  AND ps2.status <> 'annulee'
+            ) AS has_my_participation";
         }
 
         $sql .= "
-                FROM {$this->table} c
-                LEFT JOIN users u ON u.id = c.driver_id
-                LEFT JOIN vehicles v ON v.id = c.vehicle_id
-        LEFT JOIN participations p ON p.covoiturage_id = c.id AND p.status = 'confirmee'
+        FROM {$this->table} c
+        LEFT JOIN users u       ON u.id = c.driver_id
+        LEFT JOIN vehicles v    ON v.id = c.vehicle_id
+        LEFT JOIN fuel_types ft ON ft.id = v.fuel_type_id
+
+        LEFT JOIN (
+            SELECT covoiturage_id, COUNT(*) AS confirmed_count
+            FROM participations
+            WHERE status = 'confirmee'
+            GROUP BY covoiturage_id
+        ) pc ON pc.covoiturage_id = c.id
+
+        WHERE 1=1
+          AND c.status NOT IN ('annule','termine')
+          AND c.depart >= NOW()
     ";
 
-        $sql .= " WHERE 1=1";
-        // N'afficher que les trajets actifs (exclut les trajets annulés/terminés)
-        $sql .= " AND c.status NOT IN ('annule','termine')";
-        // Cacher les trajets passés (uniquement les départs futurs ou en cours)
-        $sql .= " AND c.depart >= NOW()";
         $params = [];
-        // Filtre éventuel sur la ville/adresse de départ
+
         if ($depart !== null && $depart !== '') {
             $sql .= " AND c.adresse_depart LIKE :depart";
             $params[':depart'] = '%' . $depart . '%';
         }
-        // Filtre éventuel sur la ville/adresse d'arrivée
+
         if ($arrivee !== null && $arrivee !== '') {
             $sql .= " AND c.adresse_arrivee LIKE :arrivee";
             $params[':arrivee'] = '%' . $arrivee . '%';
         }
-        // Filtre éventuel sur le jour précis (date sans l'heure)
+
         if ($date !== null && $date !== '') {
             $sql .= " AND DATE(c.depart) = :date";
             $params[':date'] = $date;
         }
+
+        // Prefs (whitelist)
         if (!empty($prefs)) {
-            // Whitelist simple
-            $allowed = ['fumeur', 'non-fumeur', 'animaux', 'pas-animaux'];
-            $prefs = array_values(array_intersect($allowed, array_map('strval', (array) $prefs)));
+            $prefs = array_values(array_intersect(self::PREF_ALLOWED, array_map('strval', (array) $prefs)));
+
             foreach ($prefs as $idx => $p) {
                 $ph = ":pref$idx";
                 $sql .= " AND FIND_IN_SET($ph, v.preferences) > 0";
                 $params[$ph] = $p;
             }
         }
-        $sql .= " GROUP BY c.id";
 
-        // Tri sécurisé : on ne permet de trier que sur des colonnes connues
-        $allowedSort = [
-            'date'  => 'c.depart',
-            'price' => 'c.prix'
-        ];
-        $orderBy = $allowedSort[$sort ?? 'date'] ?? 'c.depart';
+        // Fuel (whitelist)
+        if ($fuel !== null && $fuel !== '') {
+            $fuel = mb_strtolower((string) $fuel);
+
+            if (in_array($fuel, self::FUEL_ALLOWED, true)) {
+                $sql .= " AND LOWER(ft.type_name) = :fuel";
+                $params[':fuel'] = $fuel;
+            }
+        }
+
+        // Tri sécurisé via map
+        $orderBy = self::SORT_MAP[$sort ?? 'date'] ?? self::SORT_MAP['date'];
+
         $direction = strtoupper($dir ?? 'ASC');
         if (!in_array($direction, ['ASC', 'DESC'], true)) {
             $direction = 'ASC';
         }
+
         $sql .= " ORDER BY $orderBy $direction LIMIT 100";
 
         if ($currentUserId !== null) {
             $params[':me'] = $currentUserId;
         }
-        // Prépare puis exécute la requête avec tous les paramètres
+
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+
+
 
     // Récupère un covoiturage (une seule ligne) avec infos véhicule et conducteur
     public function findOneWithVehicleById(int $id): ?array
@@ -195,12 +244,16 @@ class CovoiturageRepository
     // Met à jour le statut d'un covoiturage (avec contrôle sur les valeurs autorisées)
     public function updateStatus(int $id, string $status): bool
     {
-        $allowed = ['en_attente', 'demarre', 'termine', 'annule'];
-        if (!in_array($status, $allowed, true)) return false;
+        if (!in_array($status, self::STATUS_ALLOWED, true)) {
+            return false;
+        }
+
         $sql = "UPDATE {$this->table} SET status = :s WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
+
         return $stmt->execute([':s' => $status, ':id' => $id]);
     }
+
 
     // === Stats ===
     // Retourne le nombre total de covoiturages en base
@@ -312,25 +365,9 @@ class CovoiturageRepository
         return $stmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
     }
 
-    /**
-     * Destinations populaires basées sur le nombre de trajets à venir (non annulés/terminés).
-     * Retourne un tableau de destinations avec les départs les plus fréquents et prix min/moyen.
-     * Format:
-     * [
-     *   [
-     *     'arrivee' => 'Paris',
-     *     'count' => 42,
-     *     'departures' => [
-     *        ['depart' => 'Lille', 'count' => 12, 'min_prix' => 20.0, 'avg_prix' => 28.5],
-     *        ...
-     *     ]
-     *   ],
-     *   ...
-     * ]
-     */
     // Retourne les destinations les plus demandées avec, pour chaque destination,
     // les villes de départ les plus fréquentes (et quelques stats de prix)
-    public function popularDestinations(int $destLimit = 6, int $perDestDepartLimit = 4, int $daysBack = 30): array
+    public function popularDestinations(int $destLimit = 3, int $perDestDepartLimit = 3, int $daysBack = 30): array
     {
         // Sécurise les paramètres pour éviter des requêtes trop lourdes
         $destLimit = max(1, min(24, $destLimit));

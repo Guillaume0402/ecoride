@@ -1,0 +1,62 @@
+// _table.scss (global) OU .page-mes-trajets { ... } si tu veux scope la page
+
+.table {
+    // map tes variables de thème vers Bootstrap
+    --bs-table-color: var(--table-text);
+    --bs-table-bg: var(--table-bg);
+    --bs-table-border-color: var(--table-border);
+
+    --bs-table-striped-color: var(--table-text);
+    --bs-table-striped-bg: color-mix(
+        in srgb,
+        var(--table-bg) 92%,
+        var(--table-text) 8%
+    );
+
+    --bs-table-hover-color: var(--table-text);
+    --bs-table-hover-bg: color-mix(
+        in srgb,
+        var(--table-bg) 85%,
+        var(--table-text) 15%
+    );
+}
+
+// Optionnel: header un peu plus marqué
+.table thead th {
+    --bs-table-bg: color-mix(
+        in srgb,
+        var(--table-bg) 70%,
+        var(--table-text) 30%
+    );
+    color: var(--table-text);
+}
+
+// Sécurité: force la couleur des cells (au cas où)
+.table th,
+.table td {
+    color: var(--table-text);
+}
+
+// Styles pour les tables en fonction du thème
+
+.table-theme {
+    /* Base */
+    --bs-table-bg: var(--table-bg);
+    --bs-table-color: var(--table-text);
+    --bs-table-border-color: var(--table-border);
+
+    /* Stripes Bootstrap (sinon ça reste trop clair / incohérent) */
+    --bs-table-striped-bg: rgba(0, 0, 0, 0.04);
+    --bs-table-striped-color: var(--table-text);
+
+    /* Hover si tu l’utilises */
+    --bs-table-hover-bg: rgba(0, 0, 0, 0.06);
+    --bs-table-hover-color: var(--table-text);
+
+    color: var(--table-text);
+}
+
+.theme-alt .table-theme {
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.04);
+    --bs-table-hover-bg: rgba(255, 255, 255, 0.06);
+}

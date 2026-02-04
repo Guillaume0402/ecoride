@@ -12021,7 +12021,7 @@ body {
 }
 
 nav.sticky-top {
-  z-index: 1030;
+  z-index: 9999;
 }
 
 .fixed-height-80 {
@@ -12063,8 +12063,8 @@ nav.sticky-top {
 .dropdown-menu {
   min-width: 200px;
   padding: 0.5rem 0;
-  background-color: #215732;
-  color: var(--text-white);
+  background: var(--list-bg);
+  color: var(--text-black);
   border: 1px solid #1f7a3a;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   border-radius: 0.2rem;
@@ -12073,6 +12073,11 @@ nav.sticky-top {
   font-family: "Poppins", sans-serif;
   font-weight: 200;
   font-size: 1rem;
+  color: var(--text-black);
+}
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .btn-outline {
@@ -12091,7 +12096,8 @@ nav.sticky-top {
 
 @media (max-width: 991.98px) {
   .mobile-menu {
-    background-color: rgba(0, 128, 0, 0.8);
+    background: color-mix(in srgb, var(--list-bg) 92%, transparent);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
     backdrop-filter: blur(5px);
     padding: 2rem;
     border-radius: 0 0 12px 12px;
@@ -12106,7 +12112,7 @@ nav.sticky-top {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     padding-bottom: 2.5rem;
-    z-index: 1000;
+    z-index: 9999;
     transition: all 0.3s ease-in-out;
   }
   .mobile-menu .navbar-brand {
@@ -12139,7 +12145,7 @@ nav.sticky-top {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    z-index: 1001;
+    z-index: 9999;
     margin: 0;
   }
   .mobile-menu ul.navbar-nav {
@@ -12293,20 +12299,27 @@ footer a:hover {
   border-radius: 10px;
   font-size: clamp(1rem, 1vw + 0.5rem, 1.2rem);
   font-weight: 600;
-  width: auto;
+  width: 100%;
   max-width: 450px;
-  text-align: center;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  opacity: 1;
   text-shadow: -1px -1px 0 rgba(121, 121, 121, 0.7529411765), 1px -1px 0 797979c0, -1px 1px 0 797979c0, 1px 1px 0 rgba(121, 121, 121, 0.7529411765);
   animation: fadeIn 0.4s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+.custom-alert .content {
+  width: 100%;
+  text-align: center;
 }
 .custom-alert .actions {
   display: flex;
   justify-content: center;
   gap: 0.75rem;
-  margin-top: 0.75rem;
+  width: 100%;
   flex-wrap: wrap;
+  margin-top: 0.25rem;
 }
 .custom-alert .btn-cancel,
 .custom-alert .btn-ok {
@@ -12354,6 +12367,13 @@ footer a:hover {
   background: linear-gradient(135deg, #ffd166, #e09f3e);
   color: #1b1b1b;
 }
+.custom-alert.alert-warning .btn-cancel {
+  border-color: rgba(0, 0, 0, 0.6);
+  color: #111;
+}
+.custom-alert.alert-warning .btn-cancel:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
 .custom-alert.alert-info {
   background: linear-gradient(135deg, #56ccf2, #2f80ed);
   color: #fff;
@@ -12393,14 +12413,102 @@ footer a:hover {
   width: min(92vw, 450px);
 }
 
-/* Les alertes rendues dans la pile n'ont PAS besoin d'être fixed */
 #alerts .custom-alert {
-  position: relative;
-  width: 100%;
   margin: 0;
 }
 
+/* =========================
+   Component: rating-stars
+   ========================= */
+.rating-stars {
+  display: inline-flex;
+  gap: 2px;
+  line-height: 1;
+  user-select: none;
+}
+.rating-stars__star {
+  font-size: 1rem;
+  letter-spacing: -0.05em;
+  transform: translateY(-1px);
+}
+.rating-stars .is-full {
+  color: #2ecc71;
+  text-shadow: 0 6px 18px rgba(46, 204, 113, 0.22);
+  filter: drop-shadow(0 0 6px rgba(46, 204, 113, 0.4));
+}
+.rating-stars .is-empty {
+  color: rgba(10, 20, 14, 0.18);
+}
+.rating-stars__value {
+  margin-left: 0.5rem;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--rating-value-color);
+}
+
+.theme-alt .rating-stars .is-empty {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.table {
+  --bs-table-color: var(--table-text);
+  --bs-table-bg: var(--table-bg);
+  --bs-table-border-color: var(--table-border);
+  --bs-table-striped-color: var(--table-text);
+  --bs-table-striped-bg: color-mix(
+      in srgb,
+      var(--table-bg) 92%,
+      var(--table-text) 8%
+  );
+  --bs-table-hover-color: var(--table-text);
+  --bs-table-hover-bg: color-mix(
+      in srgb,
+      var(--table-bg) 85%,
+      var(--table-text) 15%
+  );
+}
+
+.table thead th {
+  --bs-table-bg: color-mix(
+      in srgb,
+      var(--table-bg) 70%,
+      var(--table-text) 30%
+  );
+  color: var(--table-text);
+}
+
+.table th,
+.table td {
+  color: var(--table-text);
+}
+
+.table-theme {
+  /* Base */
+  --bs-table-bg: var(--table-bg);
+  --bs-table-color: var(--table-text);
+  --bs-table-border-color: var(--table-border);
+  /* Stripes Bootstrap (sinon ça reste trop clair / incohérent) */
+  --bs-table-striped-bg: rgba(0, 0, 0, 0.04);
+  --bs-table-striped-color: var(--table-text);
+  /* Hover si tu l’utilises */
+  --bs-table-hover-bg: rgba(0, 0, 0, 0.06);
+  --bs-table-hover-color: var(--table-text);
+  color: var(--table-text);
+}
+
+.theme-alt .table-theme {
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.04);
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.06);
+}
+
+.filter-section {
+  position: relative;
+  z-index: 50;
+}
 .filter-section .filter-bar {
+  position: relative;
+  z-index: 50;
+  overflow: visible;
   background: var(--list-bg);
   backdrop-filter: blur(6px);
   border: 1px solid var(--color-secondary);
@@ -12417,19 +12525,19 @@ footer a:hover {
   border: 1px solid var(--color-secondary);
   color: var(--text-black);
 }
-
-.dropdown-menu {
+.filter-section .dropdown-menu {
+  z-index: 60;
   background: var(--list-bg);
 }
-.dropdown-menu a {
+.filter-section .dropdown-menu a {
   color: var(--text-black);
 }
 
 @media (max-width: 360px) {
   .filter-section .filter-bar {
     flex-direction: column;
-    align-items: center;
     justify-content: center;
+    align-items: stretch;
     gap: 0.5rem;
   }
 }
@@ -12437,7 +12545,7 @@ footer a:hover {
   background: rgba(255, 255, 255, 0.082);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(var(--text-black), 0.1);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -12755,14 +12863,17 @@ body:not(.theme-alt) .carpool-card .btn-outline-light:hover, body:not(.theme-alt
     display: none;
   }
 }
-h1 {
-  color: var(--color-white);
-}
-
+/* =========================
+   Base
+   ========================= */
+h1,
 p {
   color: var(--color-white);
 }
 
+/* =========================
+   Home - Collage images (desktop)
+   ========================= */
 .image-collage {
   position: relative;
   height: 450px;
@@ -12802,16 +12913,30 @@ p {
   z-index: 3;
 }
 
+/* =========================
+   Home - Popular destinations
+   ========================= */
 .popular-destinations {
   box-shadow: var(--shadow-box);
+}
+
+.card-header {
+  background: transparent !important;
+  border-bottom: 2.5px solid var(--color-primary, #215732) !important;
+  font-size: 1.18rem;
+  letter-spacing: 0.02em;
+}
+
+.card {
+  border-radius: 1.2rem !important;
 }
 
 .card-list-item {
   background: var(--list-bg);
   color: var(--list-text);
-  transition: background 0.2s, box-shadow 0.2s;
   box-shadow: none;
   padding: 20px;
+  transition: background 0.2s, box-shadow 0.2s;
 }
 .card-list-item:hover {
   background: var(--list-hover);
@@ -12834,30 +12959,97 @@ p {
   margin-left: 16px;
 }
 
-.card-header {
-  background: transparent !important;
-  border-bottom: 2.5px solid var(--color-primary, #215732) !important;
-  font-size: 1.18rem;
-  letter-spacing: 0.02em;
-}
-
-.card {
-  border-radius: 1.2rem !important;
-}
-
+/* =========================
+   Home - Images mobile only
+   ========================= */
 .image-mobile img {
   width: 90%;
   max-width: 400px;
   height: auto;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
   margin: auto;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 .section-form {
   margin-top: 180px;
 }
 
+/* =========================
+   HOME - Reviews random
+   ========================= */
+.reviews-home {
+  margin-top: 2.5rem;
+}
+.reviews-home__title {
+  color: var(--color-white);
+  letter-spacing: 0.02em;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.review-card {
+  border-radius: 1.35rem !important;
+  background: var(--review-card-bg);
+  border: 1px solid var(--review-card-border) !important;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.25) !important;
+  backdrop-filter: blur(10px);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: reviewFadeIn 0.4s ease forwards;
+}
+.review-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--review-card-border-hover) !important;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.35) !important;
+}
+.review-card .card-body {
+  padding: 1.25rem;
+}
+.review-card__who {
+  color: var(--review-text);
+  font-size: 1.02rem;
+  line-height: 1.2;
+  text-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+.review-card__user {
+  color: var(--review-text);
+  font-weight: 700;
+}
+.review-card__arrow {
+  margin: 0 0.35rem;
+  color: var(--review-muted);
+  font-weight: 400;
+}
+.review-card__driver {
+  color: var(--review-accent);
+  font-weight: 900;
+}
+.review-card__rating {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+.review-card__text {
+  margin-top: 0.65rem;
+  color: var(--review-text);
+  font-size: 1rem;
+  line-height: 1.45;
+}
+.review-card__date {
+  color: var(--review-muted) !important;
+  font-size: 0.9rem;
+}
+
+@keyframes reviewFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* =========================
+   Responsive (mobile)
+   ========================= */
 @media (max-width: 991.98px) {
   .image-collage {
     display: none !important;
@@ -12888,6 +13080,15 @@ p {
   .card-list-item button {
     padding: 0.2rem;
     font-size: 1rem;
+  }
+  .review-card .card-body {
+    padding: 1rem;
+  }
+  .review-card__who {
+    font-size: 0.98rem;
+  }
+  .review-card__text {
+    font-size: 0.98rem;
   }
 }
 .page-404 {
@@ -13595,45 +13796,31 @@ ul li {
     width: 100%;
   }
 }
-.page-mes-trajets .badge {
-  font-weight: 700;
-  padding: 0.3rem 0.55rem;
-  border-radius: 999px;
-}
-.page-mes-trajets .badge.bg-warning.text-dark {
-  color: #1b1b1b !important;
-}
 .page-mes-trajets .nav-tabs {
-  border-bottom: 1px solid var(--table-border, rgba(255, 255, 255, 0.1));
+  border-bottom: 1px solid var(--table-border);
 }
 .page-mes-trajets .nav-tabs .nav-link {
-  color: var(--text-white, #fff);
+  color: var(--table-text);
+  background: color-mix(in srgb, var(--table-bg) 85%, var(--table-text) 15%);
   border: 1px solid transparent;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
   margin-right: 0.4rem;
-  background: rgba(255, 255, 255, 0.03);
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.06s ease;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 .page-mes-trajets .nav-tabs .nav-link:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: color-mix(in srgb, var(--table-bg) 75%, var(--table-text) 25%);
 }
 .page-mes-trajets .nav-tabs .nav-link.active {
-  background: rgba(0, 0, 0, 0.2);
-  border-color: #1f7a3a;
-  color: #fff;
+  background: color-mix(in srgb, var(--table-bg) 65%, var(--table-text) 35%);
+  border-color: var(--color-secondary);
+  color: var(--table-text);
   font-weight: 800;
-  transform: translateY(-1px);
 }
 .page-mes-trajets .nav-tabs .badge {
-  background: #1f7a3a;
+  background: var(--color-secondary);
   color: #111;
   font-weight: 800;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-}
-.page-mes-trajets .card {
-  border-radius: 16px;
 }
 .page-mes-trajets .table {
   background-color: var(--table-bg);
@@ -13646,22 +13833,31 @@ ul li {
   border-color: var(--table-border);
 }
 .page-mes-trajets .table thead th {
-  color: var(--text-white);
-  background-color: color-mix(in srgb, var(--color-white) 5%, transparent);
+  color: var(--table-text);
+  background: color-mix(in srgb, var(--table-bg) 70%, var(--table-text) 30%);
 }
-.page-mes-trajets .table-striped > tbody > tr:nth-of-type(odd) {
-  background-color: color-mix(in srgb, var(--color-white) 4%, transparent);
+.page-mes-trajets .table-striped > tbody > tr:nth-of-type(odd) > * {
+  background: color-mix(in srgb, var(--table-bg) 90%, var(--table-text) 10%);
+  color: var(--table-text);
 }
-.page-mes-trajets .table-hover > tbody > tr:hover {
-  background-color: color-mix(in srgb, var(--color-white) 8%, transparent);
+.page-mes-trajets .table-hover > tbody > tr:hover > * {
+  background: color-mix(in srgb, var(--table-bg) 80%, var(--table-text) 20%);
 }
-.page-mes-trajets .text-status-meta {
-  color: var(--list-text);
-  opacity: 0.9;
+.theme-alt .page-mes-trajets .table {
+  background-color: transparent;
 }
-.theme-alt .page-mes-trajets .text-status-meta {
-  color: var(--text-white);
-  opacity: 0.8;
+.theme-alt .page-mes-trajets .table thead th {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--text-white) !important;
+}
+.theme-alt .page-mes-trajets .table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+.theme-alt .page-mes-trajets .table-striped > tbody > tr:nth-of-type(even) > * {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+.theme-alt .page-mes-trajets .table-hover > tbody > tr:hover > * {
+  background-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 @media (min-width: 768px) and (max-width: 991.98px) {
@@ -13881,6 +14077,13 @@ ul li {
   --admin-card-border: rgba(0, 0, 0, 0.2);
   --admin-card-sep: rgba(0, 0, 0, 0.12);
   --admin-card-stripe: rgba(0, 0, 0, 0.03);
+  --review-card-bg: rgba(255, 255, 255, 0.82);
+  --review-card-border: rgba(0, 0, 0, 0.06);
+  --review-card-border-hover: rgba(46, 204, 113, 0.25);
+  --review-text: rgba(10, 20, 14, 0.92);
+  --review-muted: rgba(10, 20, 14, 0.55);
+  --review-accent: #1f9d55;
+  --rating-value-color: rgba(10, 20, 14, 0.75);
   --bg-gradient: linear-gradient(
       135deg,
       #eafff5 0%,
@@ -13942,6 +14145,13 @@ html:not(.theme-alt) input[type=week]::-webkit-outer-spin-button {
   --admin-card-border: rgba(52, 209, 50, 0.45);
   --admin-card-sep: rgba(52, 209, 50, 0.25);
   --admin-card-stripe: rgba(255, 255, 255, 0.03);
+  --review-card-bg: rgba(15, 60, 28, 0.55);
+  --review-card-border: rgba(46, 204, 113, 0.18);
+  --review-card-border-hover: rgba(46, 204, 113, 0.35);
+  --review-text: rgba(255, 255, 255, 0.92);
+  --review-muted: rgba(255, 255, 255, 0.7);
+  --review-accent: #2ecc71;
+  --rating-value-color: rgba(255, 255, 255, 0.85);
   --bg-gradient: linear-gradient(
       135deg,
       #051f02 0%,

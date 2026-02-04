@@ -58,18 +58,31 @@
                     <button class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown">
                         Filtrer
                     </button>
+
                     <ul class="dropdown-menu dropdown-menu-end">
                         <?php
-                        // On conserve les autres critères pour ne modifier que les préférences
+                        $selected = (array)($criteria['pref'] ?? []);
+
+                        // On conserve les autres critères pour ne modifier que les prefs/fuel
                         $baseParams = [
                             'depart' => $criteria['depart'] ?? '',
                             'arrivee' => $criteria['arrivee'] ?? '',
                             'date'    => $criteria['date'] ?? '',
                             'sort'    => $criteria['sort'] ?? '',
-                            'dir'     => $criteria['dir'] ?? ''
+                            'dir'     => $criteria['dir'] ?? '',
+                            'fuel'    => $criteria['fuel'] ?? '',
                         ];
-                        $selected = (array)($criteria['pref'] ?? []);
+
+                        $fuel = (string)($criteria['fuel'] ?? '');
+                        $fuels = [
+                            '' => 'Tous carburants',
+                            'essence' => 'Essence',
+                            'diesel' => 'Diesel',
+                            'hybride' => 'Hybride',
+                            'electrique' => 'Électrique',
+                        ];
                         ?>
+
                         <li>
                             <form method="get" action="/liste-covoiturages" class="px-3 py-2">
                                 <?php foreach ($baseParams as $k => $v): ?>
@@ -101,25 +114,38 @@
                                     <label class="form-check-label" for="list-pref-non-fumeur">Non-fumeur</label>
                                 </div>
 
+                                <div class="mt-2">
+                                    <label class="form-label mb-1" for="list-fuel">Carburant</label>
+                                    <select class="form-select form-select-sm" id="list-fuel" name="fuel">
+                                        <?php foreach ($fuels as $val => $label): ?>
+                                            <option value="<?= htmlspecialchars($val, ENT_QUOTES, 'UTF-8') ?>" <?= $fuel === $val ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+
                                 <button type="submit" class="btn btn-sm btn-primary mt-2">Appliquer</button>
                                 <a class="btn btn-sm btn-link mt-2" href="/liste-covoiturages">Réinitialiser</a>
                             </form>
-
                         </li>
                     </ul>
                 </div>
+
                 <div class="dropdown">
                     <button class="btn btn-sort dropdown-toggle" data-bs-toggle="dropdown">Trier par</button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <?php
-                        // Conserve les critères de recherche; ne change que sort/dir
                         $baseParams = [
                             'depart' => $criteria['depart'] ?? '',
                             'arrivee' => $criteria['arrivee'] ?? '',
                             'date' => $criteria['date'] ?? '',
-                            'pref' => $criteria['pref'] ?? []
+                            'pref' => $criteria['pref'] ?? [],
+                            'fuel' => $criteria['fuel'] ?? '',
                         ];
                         ?>
+                        <li><a class="dropdown-item" href="/liste-covoiturages?<?= http_build_query($baseParams + ['sort' => 'driver_rating', 'dir' => 'desc']) ?>">Note conducteur décroissante</a></li>
+                        <li><a class="dropdown-item" href="/liste-covoiturages?<?= http_build_query($baseParams + ['sort' => 'driver_rating', 'dir' => 'asc']) ?>">Note conducteur croissante</a></li>
                         <li><a class="dropdown-item" href="/liste-covoiturages?<?= http_build_query($baseParams + ['sort' => 'price', 'dir' => 'asc']) ?>">Crédits croissants</a></li>
                         <li><a class="dropdown-item" href="/liste-covoiturages?<?= http_build_query($baseParams + ['sort' => 'price', 'dir' => 'desc']) ?>">Crédits décroissants</a></li>
                         <li><a class="dropdown-item" href="/liste-covoiturages?<?= http_build_query($baseParams + ['sort' => 'date', 'dir' => 'asc']) ?>">Date la plus proche</a></li>
@@ -127,8 +153,8 @@
                     </ul>
                 </div>
             </div>
-            <?php if (!empty($criteria['pref'])): ?>
-                <!-- Affiche les filtres de préférences actifs sous forme de badges cliquables -->
+
+            <?php if (!empty($criteria['pref']) || !empty($criteria['fuel'])): ?>
                 <div class="px-3 mt-2 d-flex flex-wrap gap-2">
                     <?php
                     $labels = [
@@ -137,16 +163,36 @@
                         'fumeur' => 'Fumeur',
                         'non-fumeur' => 'Non-fumeur',
                     ];
+                    $fuels = [
+                        '' => 'Tous carburants',
+                        'essence' => 'Essence',
+                        'diesel' => 'Diesel',
+                        'hybride' => 'Hybride',
+                        'electrique' => 'Électrique',
+                    ];
+
                     $baseParams = [
                         'depart' => $criteria['depart'] ?? '',
                         'arrivee' => $criteria['arrivee'] ?? '',
                         'date' => $criteria['date'] ?? '',
                         'sort' => $criteria['sort'] ?? '',
-                        'dir'  => $criteria['dir'] ?? ''
+                        'dir'  => $criteria['dir'] ?? '',
+                        'fuel' => $criteria['fuel'] ?? '',
                     ];
-                    $current = (array)$criteria['pref'];
+
+                    $current = (array)($criteria['pref'] ?? []);
+
+                    // Badge carburant
+                    if (!empty($criteria['fuel'])) {
+                        $params = $baseParams;
+                        $params['fuel'] = '';
+                        $url = '/liste-covoiturages?' . http_build_query(array_filter($params, fn($v) => $v !== '' && $v !== null));
+                        $labelFuel = $fuels[(string)$criteria['fuel']] ?? (string)$criteria['fuel'];
+                        echo '<a class="badge rounded-pill text-bg-success text-decoration-none" href="' . htmlspecialchars($url) . '">'
+                            . htmlspecialchars("Carburant: $labelFuel") . ' ×</a>';
+                    }
+                    // Badges prefs
                     foreach ($current as $rm) {
-                        // On construit une URL qui supprime une préférence à la fois
                         $remain = array_values(array_diff($current, [$rm]));
                         $params = $baseParams;
                         if (!empty($remain)) {
@@ -154,16 +200,17 @@
                         }
                         $url = '/liste-covoiturages?' . http_build_query($params);
                         $text = $labels[$rm] ?? $rm;
-                        echo '<a class="badge rounded-pill text-bg-success text-decoration-none" href="' . htmlspecialchars($url) . '">' . htmlspecialchars($text) . ' ×</a>';
+                        echo '<a class="badge rounded-pill text-bg-success text-decoration-none" href="' . htmlspecialchars($url) . '">'
+                            . htmlspecialchars($text) . ' ×</a>';
                     }
-                    // Lien pour tout retirer (préserve autres critères)
-                    $urlClear = '/liste-covoiturages?' . http_build_query($baseParams);
-                    echo '<a class="badge rounded-pill text-bg-secondary text-decoration-none" href="' . htmlspecialchars($urlClear) . '">Tout retirer</a>';
+                    // Tout retirer (clear total)
+                    echo '<a class="badge rounded-pill text-bg-secondary text-decoration-none" href="/liste-covoiturages">Tout retirer</a>';
                     ?>
                 </div>
             <?php endif; ?>
         </div>
     </section>
+
     <!-- Section d'affichage des cartes de covoiturages -->
     <section class="rides-section pb-5">
         <div class="container-fluid px-3 px-xxl-5">

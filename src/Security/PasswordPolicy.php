@@ -29,7 +29,7 @@ final class PasswordPolicy
             if ($u !== '' && mb_strlen($u) >= 3 && str_contains($lowerPwd, $u)) {
                 $errors[] = "Le mot de passe ne doit pas contenir votre pseudo.";
             }
-        }
+        }        
         if ($email && str_contains($email, '@')) {
             [$local] = explode('@', $email, 2);
             $local = mb_strtolower($local, 'UTF-8');

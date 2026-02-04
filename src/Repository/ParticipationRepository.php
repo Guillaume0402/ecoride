@@ -4,6 +4,9 @@ namespace App\Repository;
 
 use App\Db\Mysql;
 
+// Repository pour la gestion des participations aux covoiturages
+// CRUD + recherches + utilitaires
+// Utilise une connexion PDO partagée via le singleton Mysql
 class ParticipationRepository
 {
     private \PDO $conn;
@@ -37,6 +40,7 @@ class ParticipationRepository
         return $stmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
     }
 
+    // Compte le nombre de participations confirmées pour un covoiturage donné
     public function countConfirmedByCovoiturageId(int $covoiturageId): int
     {
         $sql = "SELECT COUNT(*) FROM {$this->table} WHERE covoiturage_id = :id AND status = 'confirmee'";
@@ -45,6 +49,7 @@ class ParticipationRepository
         return (int) $stmt->fetchColumn();
     }
 
+    // Récupère une participation par covoiturage + passager
     public function findByCovoiturageAndPassager(int $covoiturageId, int $passagerId): ?array
     {
         $sql = "SELECT * FROM {$this->table} WHERE covoiturage_id = :c AND passager_id = :p LIMIT 1";
@@ -54,6 +59,7 @@ class ParticipationRepository
         return $row ?: null;
     }
 
+    // Met à jour le statut d'une participation
     public function updateStatus(int $participationId, string $status): bool
     {
         $allowed = ['en_attente_validation', 'confirmee', 'annulee'];
@@ -63,9 +69,7 @@ class ParticipationRepository
         return $stmt->execute([':s' => $status, ':id' => $participationId]);
     }
 
-    /**
-     * Récupère une participation avec son covoiturage et infos véhicule/driver.
-     */
+    //Récupère une participation avec son covoiturage et infos véhicule/driver.    
     public function findWithCovoiturageById(int $participationId): ?array
     {
         $sql = "SELECT p.*, p.id AS participation_id, c.*, 
@@ -88,9 +92,7 @@ class ParticipationRepository
         return $row ?: null;
     }
 
-    /**
-     * Liste les demandes en attente pour tous les trajets d'un conducteur.
-     */
+    // Liste les demandes en attente pour tous les trajets d'un conducteur.     
     public function findPendingByDriverId(int $driverId): array
     {
         $sql = "SELECT p.*, p.id AS participation_id,
@@ -106,9 +108,7 @@ class ParticipationRepository
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Liste toutes les participations d'un passager avec info trajet et conducteur.
-     */
+    //Liste toutes les participations d'un passager avec info trajet et conducteur.     
     public function findByPassagerId(int $passagerId): array
     {
         $sql = "SELECT p.*, p.id AS participation_id,
@@ -126,13 +126,14 @@ class ParticipationRepository
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    // === Stats ===
+    // Compte le nombre total de participations
     public function countAll(): int
     {
         $stmt = $this->conn->query("SELECT COUNT(*) FROM {$this->table}");
         return (int) $stmt->fetchColumn();
     }
 
+    // Taux de confirmation des participations sur les derniers jours
     public function confirmationRateLastDays(int $days = 30): float
     {
         $days = max(1, min(90, $days));
@@ -146,11 +147,9 @@ class ParticipationRepository
         return round(($ok / $total) * 100, 2);
     }
 
-    /**
-     * Vérifie si un passager a déjà une participation CONFIRMÉE qui chevauche
-     * un horaire donné dans une fenêtre [depart - windowMin ; depart + windowMin].
-     * on évite les doubles réservations sur la même tranche.
-     */
+    // Vérifie si un passager a déjà une participation CONFIRMÉE qui chevauche
+    // un horaire donné dans une fenêtre [depart - windowMin ; depart + windowMin].
+    // on évite les doubles réservations sur la même tranche.
     public function hasConfirmedConflictAround(int $passagerId, \DateTime $depart, int $windowMinutes = 120): bool
     {
         $windowMinutes = max(15, min(480, $windowMinutes)); // borne 15min à 8h
