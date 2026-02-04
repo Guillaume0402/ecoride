@@ -18,9 +18,9 @@ class CovoituragePageController extends Controller
     // GET /liste-covoiturages (liste publique avec filtres)
     public function index(): void
     {
-        $depart = isset($_GET['depart']) ? trim((string)$_GET['depart']) : null;
-        $arrivee = isset($_GET['arrivee']) ? trim((string)$_GET['arrivee']) : null;
-        $date = isset($_GET['date']) ? trim((string)$_GET['date']) : null;
+        $depart  = isset($_GET['depart']) ? trim((string) $_GET['depart']) : null;
+        $arrivee = isset($_GET['arrivee']) ? trim((string) $_GET['arrivee']) : null;
+        $date    = isset($_GET['date']) ? trim((string) $_GET['date']) : null;
 
         $prefParam = $_GET['pref'] ?? null;
         $prefs = [];
@@ -30,14 +30,18 @@ class CovoituragePageController extends Controller
             $prefs = [$prefParam];
         }
 
-        $sort = isset($_GET['sort']) ? trim((string)$_GET['sort']) : null;
-        $dir  = isset($_GET['dir'])  ? trim((string)$_GET['dir'])  : null;
+        $fuel = isset($_GET['fuel']) ? trim((string) $_GET['fuel']) : null;
+
+        $sort = isset($_GET['sort']) ? trim((string) $_GET['sort']) : null;
+        $dir  = isset($_GET['dir'])  ? trim((string) $_GET['dir'])  : null;
 
         $results = [];
         try {
             $repo = new CovoiturageRepository();
-            $currentUserId = isset($_SESSION['user']) ? (int)$_SESSION['user']['id'] : null;
-            $results = $repo->search($depart, $arrivee, $date, $prefs, $sort, $dir, $currentUserId);
+            $currentUserId = isset($_SESSION['user']) ? (int) $_SESSION['user']['id'] : null;
+
+            // IMPORTANT: ordre conforme à la signature du repository
+            $results = $repo->search($depart, $arrivee, $date, $prefs, $fuel, $sort, $dir, $currentUserId);
         } catch (\Throwable $e) {
             error_log('Search error: ' . $e->getMessage());
         }
@@ -48,6 +52,7 @@ class CovoituragePageController extends Controller
                 'arrivee' => $arrivee,
                 'date' => $date,
                 'pref' => $prefs,
+                'fuel' => $fuel,
                 'sort' => $sort,
                 'dir' => $dir,
             ],

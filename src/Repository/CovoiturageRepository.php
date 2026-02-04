@@ -48,15 +48,25 @@ class CovoiturageRepository
 
     // Recherche de covoiturages par ville de départ, d'arrivée, date, préférences, tri…
     // Retourne un tableau de lignes SQL (array associatif)
-    public function search(?string $depart = null, ?string $arrivee = null, ?string $date = null, array $prefs = [], ?string $sort = null, ?string $dir = null, ?int $currentUserId = null): array
-    {
+    public function search(
+        ?string $depart = null,
+        ?string $arrivee = null,
+        ?string $date = null,
+        array $prefs = [],
+        ?string $fuel = null,
+        ?string $sort = null,
+        ?string $dir = null,
+        ?int $currentUserId = null
+    ): array {
         $sql = "SELECT c.*,
-               u.pseudo AS driver_pseudo, u.photo AS driver_photo, u.note AS driver_note,
-               v.marque AS vehicle_marque, v.modele AS vehicle_modele, v.couleur AS vehicle_couleur,
-               v.places_dispo AS vehicle_places,
-               v.preferences AS vehicle_preferences, v.custom_preferences AS vehicle_prefs_custom,
-               COALESCE(v.places_dispo, 0) - COALESCE(COUNT(p.id), 0) AS places_restantes,
-               COALESCE(COUNT(p.id), 0) AS reservations_count";
+                    u.pseudo AS driver_pseudo, u.photo AS driver_photo, u.note AS driver_note,
+                    v.marque AS vehicle_marque, v.modele AS vehicle_modele, v.couleur AS vehicle_couleur,
+                    v.places_dispo AS vehicle_places,
+                    v.preferences AS vehicle_preferences, v.custom_preferences AS vehicle_prefs_custom,
+                    ft.type_name AS vehicle_fuel,
+                    COALESCE(v.places_dispo, 0) - COALESCE(COUNT(p.id), 0) AS places_restantes,
+                    COALESCE(COUNT(p.id), 0) AS reservations_count";
+
 
         // Participation personnelle (optionnelle)
         if ($currentUserId !== null) {
@@ -79,7 +89,9 @@ class CovoiturageRepository
                 FROM {$this->table} c
                 LEFT JOIN users u ON u.id = c.driver_id
                 LEFT JOIN vehicles v ON v.id = c.vehicle_id
-        LEFT JOIN participations p ON p.covoiturage_id = c.id AND p.status = 'confirmee'
+                LEFT JOIN fuel_types ft ON ft.id = v.fuel_type_id
+                LEFT JOIN participations p ON p.covoiturage_id = c.id AND p.status = 'confirmee'
+
     ";
 
         $sql .= " WHERE 1=1";
@@ -113,12 +125,23 @@ class CovoiturageRepository
                 $params[$ph] = $p;
             }
         }
+        if ($fuel !== null && $fuel !== '') {
+            $allowedFuel = ['essence', 'diesel', 'hybride', 'electrique'];
+            $fuel = mb_strtolower((string) $fuel);
+
+            if (in_array($fuel, $allowedFuel, true)) {
+                $sql .= " AND LOWER(ft.type_name) = :fuel";
+                $params[':fuel'] = $fuel;
+            }
+        }
+
         $sql .= " GROUP BY c.id";
 
         // Tri sécurisé : on ne permet de trier que sur des colonnes connues
         $allowedSort = [
             'date'  => 'c.depart',
-            'price' => 'c.prix'
+            'price' => 'c.prix',
+            'driver_rating' => 'COALESCE(u.note, 0)'
         ];
         $orderBy = $allowedSort[$sort ?? 'date'] ?? 'c.depart';
         $direction = strtoupper($dir ?? 'ASC');
