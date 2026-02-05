@@ -128,7 +128,7 @@ $prefs = isset($vehicle['preferences']) ? explode(',', $vehicle['preferences']) 
                         id="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>"
                         name="preferences[]"
                         value="<?= htmlspecialchars($value, ENT_QUOTES, 'UTF-8') ?>"
-                        <?= in_array($value, $prefs ?? [], true) ? 'checked' : '' ?>>
+                        <?= in_array($value, $prefs, true) ? 'checked' : '' ?>>
                     <label class="form-check-label" for="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>">
                         <?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?>
                     </label>
