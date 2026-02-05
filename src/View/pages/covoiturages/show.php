@@ -1,5 +1,21 @@
 <?php
-// Variables: $ride (array from CovoiturageRepository::findOneWithVehicleById)
+// Prépare les données d'avis
+$reviewsCount = isset($reviewsCount) ? (int)$reviewsCount : (is_array($reviews ?? null) ? count($reviews) : 0);
+if (!isset($avgRating)) {
+    // Si non fourni, calcule à partir des avis
+    $s = 0;
+    $n = 0;
+    if (is_array($reviews ?? null)) {
+        foreach ($reviews as $r) {
+            if (isset($r['rating']) && is_numeric($r['rating'])) {
+                $s += (int)$r['rating'];
+                $n++;
+            }
+        }
+    }
+    $avgRating = $n ? round($s / $n, 1) : 0.0;
+}
+
 ?>
 <div class="ride-show container py-4">
     <?php
@@ -112,3 +128,39 @@
         </div>
     </div>
 </div>
+
+ <h2 class="text-center mb-5">Les avis des voyageurs</h2>
+    <?php if ($reviewsCount > 0 && is_array($reviews ?? null)): ?>
+        <div class="row justify-content-center g-4">
+            <?php foreach ($reviews as $r): ?>
+                <div class="col-sm-6 col-md-6 col-lg-4 col-xxl-3">
+                    <div class="card shadow border-0 rounded-4 p-4 h-100" style="background:rgba(0,0,0,0.10);backdrop-filter:blur(2px);">
+                        <div class="mb-2">
+                            <?php $rr = (int)($r['rating'] ?? 0);
+                            for ($j = 0; $j < 5; $j++): ?>
+                                <i class="bi bi-star-fill <?= $j < $rr ? 'text-warning' : 'text-secondary' ?>"></i>
+                            <?php endfor; ?>
+                        </div>
+                        <?php if (!empty($r['comment'])): ?>
+                            <blockquote class="blockquote mb-3">
+                                <p class="mb-0">"<?= htmlspecialchars($r['comment']) ?>"</p>
+                            </blockquote>
+                        <?php endif; ?>
+                        <div class="d-flex align-items-center gap-2 mt-3">
+                            <img src="<?= defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg' ?>" alt="Avatar" class="rounded-circle bg-white" style="width:40px;height:40px;object-fit:cover;">
+                            <div>
+                                <div class="fw-semibold"><?= htmlspecialchars($r['passager_pseudo'] ?? 'Voyageur') ?></div>
+                                <div class="small text-muted">
+                                    <?php if (isset($r['created_at_ms'])): ?>
+                                        Le <?= date('d/m/Y H:i', intdiv((int)$r['created_at_ms'], 1000)) ?>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php else: ?>
+        <div class="alert alert-secondary text-center">Pas encore d'avis publiés.</div>
+    <?php endif; ?>

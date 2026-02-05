@@ -186,10 +186,6 @@ return [
         ]
     ],
 
-    // (Point de debug Mongo retiré en prod; utiliser les scripts CLI sous scripts/)
-
-
-
     // Pages statiques (présentation, contenu légal, etc.)
     '/about' => [
         'GET' => [
