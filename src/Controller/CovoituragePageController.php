@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\CovoiturageRepository;
+use App\Service\ReviewService;
 
 // Contrôleur pour les pages publiques de covoiturage
 // - liste des covoiturages avec filtres et tris
@@ -43,7 +44,7 @@ class CovoituragePageController extends Controller
             // IMPORTANT: ordre conforme à la signature du repository
             $results = $repo->search($depart, $arrivee, $date, $prefs, $fuel, $sort, $dir, $currentUserId);
         } catch (\Throwable $e) {
-            error_log('Search error: ' . $e->getMessage());           
+            error_log('Search error: ' . $e->getMessage());
         }
 
         $this->render('pages/liste-covoiturages', [
@@ -90,11 +91,49 @@ class CovoituragePageController extends Controller
         $pageTitle = implode(' • ', $titleBits);
         $desc = 'Trajet de ' . $from . ' à ' . $to . ($when ? ' le ' . $when : '') . ' — trouvez votre place avec EcoRide.';
 
+        // avis Mongo (conducteur du trajet) via ReviewService
+        $reviews = [];
+        $avgRating = 0.0;
+        $reviewsCount = 0;
+
+        $driverId = (int)($ride['driver_id'] ?? $ride['user_id'] ?? $ride['chauffeur_id'] ?? 0);
+
+        try {
+            $svc = new ReviewService();
+
+            $reviews = $svc->getApprovedDriverReviews($driverId, 100);
+
+            foreach ($reviews as &$r) {
+                $pseudo = null;
+                try {
+                    $pid = isset($r['passager_id']) ? (int)$r['passager_id'] : 0;
+                    if ($pid > 0) {
+                        $uRepo = new \App\Repository\UserRepository();
+                        $u = $uRepo->findById($pid);
+                        if ($u) {
+                            $pseudo = $u->getPseudo();
+                        }
+                    }
+                } catch (\Throwable $e) {
+                }
+                $r['passager_pseudo'] = $pseudo;
+            }
+            unset($r);
+
+            $stats = $svc->getDriverRatingStats($reviews);
+            $avgRating = (float)$stats['avg'];
+            $reviewsCount = (int)$stats['count'];
+        } catch (\Throwable $e) {
+            error_log('[show] load driver reviews failed: ' . $e->getMessage());
+        }
         $this->render('pages/covoiturages/show', [
             'ride' => $ride,
             'pageTitle' => $pageTitle,
             'metaDescription' => $desc,
             'canonical' => SITE_URL . 'covoiturages/' . $id,
+            'reviews' => $reviews,
+            'avgRating' => $avgRating,
+            'reviewsCount' => $reviewsCount,
         ]);
     }
 }

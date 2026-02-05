@@ -5,19 +5,14 @@ namespace App\Controller;
 use App\Repository\UserRepository;
 use App\Service\UserService;
 use App\Repository\VehicleRepository;
+use App\Security\Csrf;
+use App\Service\Flash;
 
-// Contrôleur de base: session, services communs et rendu des vues avec layout
 class Controller
 {
-    //Accès au dépôt des utilisateurs pour les opérations de persistance.
-
     protected UserRepository $userRepository;
-
-    // Service métier lié aux utilisateurs (logique applicative).
-
     protected UserService $userService;
 
-    // Initialise la session et les services/dépôts communs.     
     public function __construct()
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -32,39 +27,66 @@ class Controller
         }
 
         $this->userRepository = new UserRepository();
-        $this->userService = new UserService();
+        $this->userService    = new UserService();
     }
 
-    // Rend une vue au sein du layout global (extrait $data, bufferise la vue, inclut layout)
-
-    protected function render(string $view, array $data = []): void
+       // GARDES COMMUNES (auth / méthode / csrf)
+      
+    protected function requireAuth(string $redirectTo = '/login'): array
     {
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']['id'])) {
+            Flash::add('Veuillez vous connecter.', 'danger');
+            redirect($redirectTo);
+            exit;
+        }
+        return $_SESSION['user'];
+    }
 
-        // Expose les clés de $data comme variables accessibles dans la vue
+    protected function requirePost(): void
+    {
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            abort(405);
+        }
+    }
+
+    protected function requireCsrf(?string $token, string $redirectTo): void
+    {
+        if (!Csrf::check($token)) {
+            Flash::add('Requête invalide (CSRF).', 'danger');
+            redirect($redirectTo);
+            exit;
+        }
+    }
+
+    
+       // RENDU DES VUES
+
+    protected function render(string $view, array $data = [], bool $withGlobals = true): void
+    {
         extract($data, EXTR_SKIP);
 
-        // Variables globales du layout (navbar, badges, etc.) 
-        $globals = $this->buildLayoutGlobals();
-        extract($globals, EXTR_SKIP);
+        if ($withGlobals) {
+            $globals = $this->buildLayoutGlobals();
+            extract($globals, EXTR_SKIP);
+        }
 
-        // Construit le chemin absolu de la vue et vérifie son existence 
         $viewPath = APP_ROOT . '/src/View/' . ltrim($view, '/') . '.php';
         if (!file_exists($viewPath)) {
             throw new \Exception("Le fichier de vue {$viewPath} n'existe pas.");
         }
 
-        // Capture le rendu de la vue dans $__content
         ob_start();
         require $viewPath;
         $__content = ob_get_clean();
 
-        // Inclut le layout qui utilise $content pour afficher la page complète
         require APP_ROOT . '/src/View/layout.php';
     }
 
+    
+       // DONNÉES GLOBALES LAYOUT (navbar, badges, etc.)
+
     private function buildLayoutGlobals(): array
     {
-        // Initialisation des compteurs et données utilisateur
         $pendingCount = 0;
         $myTripsCount = 0;
         $employeeModPendingCount = 0;
@@ -72,37 +94,33 @@ class Controller
         $hasVehicle = false;
         $userVehicles = [];
 
-        // Si l'utilisateur est connecté, rafraîchit ses données et prépare les compteurs
-        if (isset($_SESSION['user']) && !empty($_SESSION['user']['id'])) {
+        if (isset($_SESSION['user']['id'])) {
+            $userId = (int) $_SESSION['user']['id'];
 
             try {
-                // récupère les données utilisateur à jour depuis la base
-                $currentUser = $this->userRepository->findById((int) $_SESSION['user']['id']);
+                $currentUser = $this->userRepository->findById($userId);
                 if ($currentUser) {
-                    // Mets a jour les crédits et autres données dans la session
                     $_SESSION['user']['credits'] = $currentUser->getCredits();
-                    if (empty($_SESSION['user']['photo'])) {
-                        $_SESSION['user']['photo'] = defined('DEFAULT_AVATAR_URL') ? DEFAULT_AVATAR_URL : '/assets/images/logo.svg';
-                    }
                     $_SESSION['user']['travel_role'] = $currentUser->getTravelRole();
+                    if (empty($_SESSION['user']['photo'])) {
+                        $_SESSION['user']['photo'] = defined('DEFAULT_AVATAR_URL')
+                            ? DEFAULT_AVATAR_URL
+                            : '/assets/images/logo.svg';
+                    }
                 }
             } catch (\Throwable $e) {
                 error_log('[render] User refresh failed: ' . $e->getMessage());
             }
 
-            // Précharge les véhicules de l'utilisateur
             try {
                 $vehicleRepo = new VehicleRepository();
-                $userVehicles = $vehicleRepo->findAllByUserId((int) $_SESSION['user']['id']);
+                $userVehicles = $vehicleRepo->findAllByUserId($userId);
                 $hasVehicle = !empty($userVehicles);
             } catch (\Throwable $e) {
                 error_log('[render] Vehicle preload failed: ' . $e->getMessage());
             }
 
             try {
-                // stocke l'ID utilisateur dans une variable locale
-                $userId = (int) $_SESSION['user']['id'];
-
                 $partRepo = new \App\Repository\ParticipationRepository();
                 $pending = $partRepo->findPendingByDriverId($userId);
                 $pendingCount = is_array($pending) ? count($pending) : 0;
@@ -123,7 +141,7 @@ class Controller
             }
 
             try {
-                if (isset($_SESSION['user']['role_id']) && (int) $_SESSION['user']['role_id'] === 2) {
+                if ((int) ($_SESSION['user']['role_id'] ?? 0) === 2) {
                     $mod = new \App\Service\ReviewModerationService();
                     $docs = $mod->listPending();
                     $employeeModPendingCount = is_array($docs) ? count($docs) : 0;
@@ -133,12 +151,12 @@ class Controller
             }
         }
 
-        return [
-            'pendingCount' => $pendingCount,
-            'myTripsCount' => $myTripsCount,
-            'employeeModPendingCount' => $employeeModPendingCount,
-            'hasVehicle' => $hasVehicle,
-            'userVehicles' => $userVehicles,
-        ];
+        return compact(
+            'pendingCount',
+            'myTripsCount',
+            'employeeModPendingCount',
+            'hasVehicle',
+            'userVehicles'
+        );
     }
 }

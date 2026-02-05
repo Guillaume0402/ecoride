@@ -18,6 +18,8 @@
         "phpunit/phpunit": "^10"
     },
     "scripts": {
-        "test": "php -d zend.assertions=1 -d assert.exception=1 ./vendor/bin/phpunit -c phpunit.xml.dist"
+        "test": "php -d zend.assertions=1 -d assert.exception=1 ./vendor/bin/phpunit -c phpunit.xml.dist",
+        "stan": "php -d memory_limit=1G ./vendor/bin/phpstan analyse"
+
     }
 }

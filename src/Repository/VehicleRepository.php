@@ -181,6 +181,25 @@ class VehicleRepository
         return (bool) $stmt->fetch();
     }
 
+    // Vérifie l'existence d'une immatriculation (global) avec exclusion optionnelle
+    public function existsByImmatriculationGlobal(string $immatriculation, ?int $excludeVehicleId = null): bool
+    {
+        $sql = "SELECT id FROM {$this->table}
+            WHERE immatriculation = :immatriculation";
+        $params = [':immatriculation' => $immatriculation];
+
+        if ($excludeVehicleId !== null) {
+            $sql .= " AND id != :exclude_id";
+            $params[':exclude_id'] = $excludeVehicleId;
+        }
+
+        $sql .= " LIMIT 1";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+        return (bool) $stmt->fetchColumn();
+    }
+
 
     // Recherche par plaque (globale)
     public function findByImmatriculation(string $immatriculation): ?VehicleEntity

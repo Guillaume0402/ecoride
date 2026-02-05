@@ -107,4 +107,5 @@ try {
     }
     // En prod : afficher une page 500 propre
     (new \App\Controller\ErrorController())->show500();
+    exit;
 }

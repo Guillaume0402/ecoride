@@ -87,8 +87,8 @@
                     <div class="kpi-value"><?= htmlspecialchars($todayRides) ?></div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-label">📆 Total – <?= htmlspecialchars($daysInt) ?>j</div>
-                    <div class="kpi-value"><?= htmlspecialchars($totalRidesWindow) ?></div>
+                    <div class="kpi-label">📆 Total – <?= htmlspecialchars((string) $daysInt, ENT_QUOTES, 'UTF-8') ?>j</div>
+                    <div class="kpi-value"><?= htmlspecialchars((string) $totalRidesWindow, ENT_QUOTES, 'UTF-8') ?></div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-label">📈 Moyenne / jour</div>

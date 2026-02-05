@@ -19,27 +19,15 @@ class ProfilController extends Controller
     public function __construct()
     {
         parent::__construct();
-
-        if (!isset($_SESSION['user'])) {
-            Flash::add('Vous devez être connecté pour accéder à votre profil.', 'danger');
-            session_write_close();
-            header('Location: /login', true, 302);
-            exit;
-        }
+        $this->requireAuth('/login');
     }
 
     // POST /creation-profil
     public function update(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            abort(405);
-        }
+        $this->requirePost();
+        $this->requireCsrf($_POST['csrf'] ?? null, '/creation-profil');
 
-        if (!Csrf::check($_POST['csrf'] ?? null)) {
-            Flash::add('Requête invalide (CSRF).', 'danger');
-            redirect('/creation-profil');
-            return;
-        }
 
         $userId = (int)($_SESSION['user']['id'] ?? 0);
         $user   = $this->userRepository->findById($userId);
