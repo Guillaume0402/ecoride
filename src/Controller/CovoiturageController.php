@@ -54,116 +54,35 @@ class CovoiturageController extends Controller
             return;
         }
 
-        // Validation des champs requis et basiques
         $userId = (int) $_SESSION['user']['id'];
-        $vehicleId = (int) ($_POST['vehicle_id'] ?? 0);
-        $villeDepart = trim($_POST['ville_depart'] ?? '');
-        $villeArrivee = trim($_POST['ville_arrivee'] ?? '');
-        $date = trim($_POST['date'] ?? '');
-        $time = trim($_POST['time'] ?? '');
-        $timeArrivee = trim($_POST['time_arrivee'] ?? '');
-        $prixRaw = $_POST['prix'] ?? '';
-        $places = filter_input(INPUT_POST, 'places', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 9]]);
-        $prix = is_numeric($prixRaw) ? (float) $prixRaw : -1;
+        $res = $this->handleCreateRide($userId, false);
 
-        if ($vehicleId <= 0 || $villeDepart === '' || $villeArrivee === '' || $date === '' || $time === '' || $timeArrivee === '' || $prix < 0 || $places === false) {
-            Flash::add('Champs requis manquants ou invalides.', 'danger');
-            redirect('/');
-            return;
-        }
-
-        // Vérifie que le véhicule existe, appartient à l'utilisateur et a assez de places
-        $vehicle = $this->vehicleRepository->findById($vehicleId);
-        if (!$vehicle || $vehicle->getUserId() !== $userId) {
-            Flash::add('Véhicule introuvable ou non autorisé.', 'danger');
-            redirect('/');
-            return;
-        }
-        if ($places > $vehicle->getPlacesDispo()) {
-            Flash::add("Le nombre de places demandées dépasse la capacité du véhicule.", 'danger');
-            redirect('/');
-            return;
-        }
-
-        // Assemble date/heure de départ et d'arrivée et valide les contraintes temporelles
-        $departDt = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time);
-        if (!$departDt) {
-            Flash::add('Date/heure invalides.', 'danger');
-            redirect('/');
-            return;
-        }        
-        $now = new \DateTime('now');
-        if ($departDt < $now) {
-            Flash::add('La date/heure de départ ne peut pas être dans le passé.', 'danger');
-            redirect('/');
-            return;
-        }
-
-        // Arrivée: si l'heure d'arrivée est inférieure ou égale à l'heure de départ,
-        // on considère que c'est le lendemain (trajet qui passe minuit).
-        $arriveeDt = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $timeArrivee);
-        if (!$arriveeDt) {
-            Flash::add('Date/heure invalides.', 'danger');
-            redirect('/');
-            return;
-        }
-        if ($arriveeDt <= $departDt) {
-            $arriveeDt->modify('+1 day');
-        }
-
-        // Création de l'entité covoiturage
-        $c = new CovoiturageEntity([
-            'driver_id' => $userId,
-            'vehicle_id' => $vehicleId,
-            'adresse_depart' => $villeDepart,
-            'adresse_arrivee' => $villeArrivee,
-            'depart' => $departDt->format('Y-m-d H:i:s'),
-            'arrivee' => $arriveeDt->format('Y-m-d H:i:s'),
-            'prix' => $prix,
-            'status' => 'en_attente',
-        ]);
-        // Frais de création: débiter le conducteur avant l'insertion
-        $fee = getRideCreateFee();
-        if ($fee > 0) {
-            if (!$this->userRepository->debitIfEnough($userId, $fee)) {
-                Flash::add("Crédits insuffisants: il faut au moins {$fee} crédit(s) pour créer un trajet.", 'warning');
-                redirect('/');
-                return;
-            }
-            // Rafraîchir le solde en session si besoin
-            if (!empty($_SESSION['user']) && (int)$_SESSION['user']['id'] === $userId) {
-                $u = $this->userRepository->findById($userId);
-                if ($u) {
-                    $_SESSION['user']['credits'] = $u->getCredits();
-                }
-            }
-        }
-
-        if ($this->covoiturageRepository->create($c)) {
-            // Ajoute une transaction informative avec l'ID
-            if ($fee > 0) {
-                $this->transactionRepository->create($userId, $fee, 'debit', 'Frais création trajet #' . (int)$c->getId());
-            }
+        if ($res['ok'] === true) {
             Flash::add('Covoiturage créé avec succès.', 'success');
             redirect('/liste-covoiturages');
             return;
-        } else {
-            // Rembourser le frais si l'insertion a échoué
-            if ($fee > 0) {
-                $this->userRepository->credit($userId, $fee);
-                $this->transactionRepository->create($userId, $fee, 'credit', 'Remboursement frais création (échec)');
-                if (!empty($_SESSION['user']) && (int)$_SESSION['user']['id'] === $userId) {
-                    $u = $this->userRepository->findById($userId);
-                    if ($u) {
-                        $_SESSION['user']['credits'] = $u->getCredits();
-                    }
-                }
-            }
+        }
+
+        // Form: message spécial uniquement sur échec INSERT
+        if ($res['code'] === 500) {
             Flash::add("Erreur lors de la création du covoiturage.", 'danger');
             redirect('/');
             return;
         }
+
+        // Form: credits insuffisants => warning (pas danger)
+        if ($res['code'] === 402) {
+            Flash::add($res['message'], 'warning');
+            redirect('/');
+            return;
+        }
+
+        // Toutes les autres erreurs form => danger + message exact
+        Flash::add($res['message'], 'danger');
+        redirect('/');
+        return;
     }
+
     // POST /api/covoiturages/create (création via API AJAX)
     public function apiCreate(): void
     {
@@ -188,95 +107,17 @@ class CovoiturageController extends Controller
         }
 
         $userId = (int) $_SESSION['user']['id'];
-        $vehicleId = (int) ($_POST['vehicle_id'] ?? 0);
-        $villeDepart = trim($_POST['ville_depart'] ?? '');
-        $villeArrivee = trim($_POST['ville_arrivee'] ?? '');
-        $date = trim($_POST['date'] ?? '');
-        $time = trim($_POST['time'] ?? '');
-        $prix = (float) ($_POST['prix'] ?? 0);
-        $timeArrivee = trim($_POST['time_arrivee'] ?? '');
-        $places = filter_input(INPUT_POST, 'places', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 9]]);
+        $res = $this->handleCreateRide($userId, true);
 
-        // Validations simples
-        if ($vehicleId <= 0 || $villeDepart === '' || $villeArrivee === '' || $date === '' || $time === '' || $timeArrivee === '' || $prix < 0 || $places === false) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Champs requis manquants ou invalides.']);
+        if ($res['ok'] === true) {
+            echo json_encode(['success' => true, 'message' => 'Covoiturage créé.', 'id' => $res['id']]);
             return;
         }
 
-        $vehicle = $this->vehicleRepository->findById($vehicleId);
-        if (!$vehicle || $vehicle->getUserId() !== $userId) {
-            http_response_code(403);
-            echo json_encode(['success' => false, 'message' => 'Véhicule introuvable ou non autorisé.']);
-            return;
-        }
-        if ($places > $vehicle->getPlacesDispo()) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => "Le nombre de places demandées dépasse la capacité du véhicule."]);
-            return;
-        }
-
-        // Assemble date/heure
-        $departDt = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time);
-        if (!$departDt) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Date/heure invalides.']);
-            return;
-        }
-        $now = new \DateTime('now');
-        if ($departDt < $now) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => "La date/heure de départ ne peut pas être dans le passé."]);
-            return;
-        }
-
-        $arriveeDt = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $timeArrivee);
-        if (!$arriveeDt) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Date/heure invalides.']);
-            return;
-        }
-        if ($arriveeDt <= $departDt) {
-            // Interpréter comme le lendemain
-            $arriveeDt->modify('+1 day');
-        }
-
-        $c = new CovoiturageEntity([
-            'driver_id' => $userId,
-            'vehicle_id' => $vehicleId,
-            'adresse_depart' => $villeDepart,
-            'adresse_arrivee' => $villeArrivee,
-            'depart' => $departDt->format('Y-m-d H:i:s'),
-            'arrivee' => $arriveeDt->format('Y-m-d H:i:s'),
-            'prix' => $prix,
-            'status' => 'en_attente',
-        ]);
-        // Frais de création
-        $fee = getRideCreateFee();
-        if ($fee > 0) {
-            if (!$this->userRepository->debitIfEnough($userId, $fee)) {
-                http_response_code(402);
-                echo json_encode(['success' => false, 'message' => "Crédits insuffisants: il faut au moins {$fee} crédit(s) pour créer un trajet."]);
-                return;
-            }
-        }
-
-        if ($this->covoiturageRepository->create($c)) {
-            if ($fee > 0) {
-                $this->transactionRepository->create($userId, $fee, 'debit', 'Frais création trajet #' . (int)$c->getId());
-            }
-            echo json_encode(['success' => true, 'message' => 'Covoiturage créé.', 'id' => $c->getId()]);
-            return;
-        } else {
-            if ($fee > 0) {
-                $this->userRepository->credit($userId, $fee);
-                $this->transactionRepository->create($userId, $fee, 'credit', 'Remboursement frais création (échec)');
-            }
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erreur lors de la création.']);
-        }
+        http_response_code($res['code']);
+        echo json_encode(['success' => false, 'message' => $res['message']]);
     }
-
+  
     // POST /covoiturages/cancel/{id} (annulation par le conducteur)
     public function cancel(int $id): void
     {
@@ -502,5 +343,113 @@ class CovoiturageController extends Controller
         }
 
         redirect('/mes-covoiturages');
+    }
+
+     /**
+     * Noyau commun pour create() (form) et apiCreate() (AJAX).
+     * - Ne fait ni Flash, ni redirect, ni http_response_code.
+     * - Retourne un "résultat" que le contrôleur traduit (form vs api).   
+     */
+    private function handleCreateRide(int $userId, bool $isApi): array
+    {
+        $vehicleId = (int) ($_POST['vehicle_id'] ?? 0);
+        $villeDepart = trim($_POST['ville_depart'] ?? '');
+        $villeArrivee = trim($_POST['ville_arrivee'] ?? '');
+        $date = trim($_POST['date'] ?? '');
+        $time = trim($_POST['time'] ?? '');
+        $timeArrivee = trim($_POST['time_arrivee'] ?? '');
+
+        // IMPORTANT: prix n'est pas traité pareil form vs api dans ton code actuel
+        if ($isApi) {
+            $prix = (float) ($_POST['prix'] ?? 0);
+        } else {
+            $prixRaw = $_POST['prix'] ?? '';
+            $prix = is_numeric($prixRaw) ? (float) $prixRaw : -1;
+        }
+
+        $places = filter_input(
+            INPUT_POST,
+            'places',
+            FILTER_VALIDATE_INT,
+            ['options' => ['min_range' => 1, 'max_range' => 9]]
+        );
+
+        // mêmes validations
+        if ($vehicleId <= 0 || $villeDepart === '' || $villeArrivee === '' || $date === '' || $time === '' || $timeArrivee === '' || $prix < 0 || $places === false) {
+            return ['ok' => false, 'code' => 400, 'message' => 'Champs requis manquants ou invalides.'];
+        }
+
+        $vehicle = $this->vehicleRepository->findById($vehicleId);
+        if (!$vehicle || $vehicle->getUserId() !== $userId) {
+            return ['ok' => false, 'code' => 403, 'message' => 'Véhicule introuvable ou non autorisé.'];
+        }
+        if ($places > $vehicle->getPlacesDispo()) {
+            return ['ok' => false, 'code' => 400, 'message' => "Le nombre de places demandées dépasse la capacité du véhicule."];
+        }
+
+        $departDt = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time);
+        if (!$departDt) {
+            return ['ok' => false, 'code' => 400, 'message' => 'Date/heure invalides.'];
+        }
+        $now = new \DateTime('now');
+        if ($departDt < $now) {
+            return ['ok' => false, 'code' => 400, 'message' => "La date/heure de départ ne peut pas être dans le passé."];
+        }
+
+        $arriveeDt = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $timeArrivee);
+        if (!$arriveeDt) {
+            return ['ok' => false, 'code' => 400, 'message' => 'Date/heure invalides.'];
+        }
+        if ($arriveeDt <= $departDt) {
+            $arriveeDt->modify('+1 day');
+        }
+
+        $c = new CovoiturageEntity([
+            'driver_id' => $userId,
+            'vehicle_id' => $vehicleId,
+            'adresse_depart' => $villeDepart,
+            'adresse_arrivee' => $villeArrivee,
+            'depart' => $departDt->format('Y-m-d H:i:s'),
+            'arrivee' => $arriveeDt->format('Y-m-d H:i:s'),
+            'prix' => $prix,
+            'status' => 'en_attente',
+        ]);
+
+        $fee = getRideCreateFee();
+        if ($fee > 0) {
+            if (!$this->userRepository->debitIfEnough($userId, $fee)) {
+                return ['ok' => false, 'code' => 402, 'message' => "Crédits insuffisants: il faut au moins {$fee} crédit(s) pour créer un trajet.", 'fee' => $fee];
+            }
+
+            // IMPORTANT: le refresh session n'existait QUE dans create() (form), pas dans apiCreate()
+            if (!$isApi && !empty($_SESSION['user']) && (int)$_SESSION['user']['id'] === $userId) {
+                $u = $this->userRepository->findById($userId);
+                if ($u) {
+                    $_SESSION['user']['credits'] = $u->getCredits();
+                }
+            }
+        }
+
+        if ($this->covoiturageRepository->create($c)) {
+            if ($fee > 0) {
+                $this->transactionRepository->create($userId, $fee, 'debit', 'Frais création trajet #' . (int)$c->getId());
+            }
+            return ['ok' => true, 'code' => 201, 'message' => 'Covoiturage créé.', 'id' => (int)$c->getId(), 'fee' => $fee];
+        }
+
+        if ($fee > 0) {
+            $this->userRepository->credit($userId, $fee);
+            $this->transactionRepository->create($userId, $fee, 'credit', 'Remboursement frais création (échec)');
+
+            // refresh session only on form (comme ton code actuel)
+            if (!$isApi && !empty($_SESSION['user']) && (int)$_SESSION['user']['id'] === $userId) {
+                $u = $this->userRepository->findById($userId);
+                if ($u) {
+                    $_SESSION['user']['credits'] = $u->getCredits();
+                }
+            }
+        }
+
+        return ['ok' => false, 'code' => 500, 'message' => 'Erreur lors de la création.'];
     }
 }
