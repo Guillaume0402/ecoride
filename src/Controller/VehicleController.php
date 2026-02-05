@@ -88,12 +88,13 @@ class VehicleController extends Controller
         }
         $preferences = implode(',', $prefs);
 
-        // Unicité (par utilisateur)
-        if ($this->vehicleRepository->existsByImmatriculation($immatriculation, $userId)) {
+        // Unicité (globale)
+        if ($this->vehicleRepository->existsByImmatriculationGlobal($immatriculation)) {
             Flash::add('Cette immatriculation est déjà utilisée.', 'danger');
             redirect('/vehicle/create');
             return;
         }
+
 
         $vehicle = new VehicleEntity([
             'user_id'                       => $userId,
@@ -108,10 +109,19 @@ class VehicleController extends Controller
             'custom_preferences'            => trim($_POST['custom_preferences'] ?? ''),
         ]);
 
-        if ($this->vehicleRepository->create($vehicle)) {
-            Flash::add('Véhicule ajouté avec succès.', 'success');
-            redirect('/my-profil');
-            return;
+        try {
+            if ($this->vehicleRepository->create($vehicle)) {
+                Flash::add('Véhicule ajouté avec succès.', 'success');
+                redirect('/my-profil');
+                return;
+            }
+        } catch (\PDOException $e) {
+            if ((int) ($e->errorInfo[1] ?? 0) === 1062) {
+                Flash::add('Cette immatriculation est déjà utilisée.', 'danger');
+                redirect('/vehicle/create');
+                return;
+            }
+            throw $e;
         }
 
         Flash::add("Erreur lors de l'ajout du véhicule.", 'danger');
@@ -168,14 +178,12 @@ class VehicleController extends Controller
 
         // méthode qui exclut l’ID courant:
         // existsByImmatriculationForUserExcept($immat, $userId, $excludeId)
-        if (
-            $this->vehicleRepository->existsByImmatriculation($immatriculation, $userId)
-            && $existingVehicle->getImmatriculation() !== $immatriculation
-        ) {
+        if ($this->vehicleRepository->existsByImmatriculationGlobal($immatriculation, (int)$vehicleId)) {
             Flash::add("Cette immatriculation est déjà utilisée par un autre véhicule.", 'danger');
             redirect('/vehicle/edit?id=' . $vehicleId);
             return;
         }
+
 
         $dateFr = $_POST['date_premiere_immatriculation'] ?? '';
         $dateSql = null;
@@ -261,5 +269,6 @@ class VehicleController extends Controller
         $this->vehicleRepository->deleteById((int) $vehicleId);
         Flash::add('Véhicule supprimé avec succès.', 'success');
         redirect('/my-profil');
+        return;
     }
 }
