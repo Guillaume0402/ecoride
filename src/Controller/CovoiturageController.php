@@ -117,7 +117,7 @@ class CovoiturageController extends Controller
         http_response_code($res['code']);
         echo json_encode(['success' => false, 'message' => $res['message']]);
     }
-  
+
     // POST /covoiturages/cancel/{id} (annulation par le conducteur)
     public function cancel(int $id): void
     {
@@ -345,7 +345,7 @@ class CovoiturageController extends Controller
         redirect('/mes-covoiturages');
     }
 
-     /**
+    /**
      * Noyau commun pour create() (form) et apiCreate() (AJAX).
      * - Ne fait ni Flash, ni redirect, ni http_response_code.
      * - Retourne un "résultat" que le contrôleur traduit (form vs api).   
@@ -358,6 +358,16 @@ class CovoiturageController extends Controller
         $date = trim($_POST['date'] ?? '');
         $time = trim($_POST['time'] ?? '');
         $timeArrivee = trim($_POST['time_arrivee'] ?? '');
+
+        // Garde DB: éviter "Data too long" (adresse_depart / adresse_arrivee)
+        if (mb_strlen($villeDepart) > 255 || mb_strlen($villeArrivee) > 255) {
+            return [
+                'ok' => false,
+                'code' => 400,
+                'message' => 'Adresse trop longue (255 caractères max).'
+            ];
+        }
+
 
         // IMPORTANT: prix n'est pas traité pareil form vs api dans ton code actuel
         if ($isApi) {

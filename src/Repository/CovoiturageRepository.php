@@ -34,28 +34,36 @@ class CovoiturageRepository
     // Créé un nouveau covoiturage en base à partir d'une entité
     public function create(CovoiturageEntity $c): bool
     {
-        $sql = "INSERT INTO {$this->table} (driver_id, vehicle_id, adresse_depart, adresse_arrivee, depart, arrivee, prix, status, created_at)
-                VALUES (:driver_id, :vehicle_id, :adresse_depart, :adresse_arrivee, :depart, :arrivee, :prix, :status, NOW())";
+        $sql = "INSERT INTO {$this->table}
+            (driver_id, vehicle_id, adresse_depart, adresse_arrivee, depart, arrivee, prix, status, created_at)
+            VALUES (:driver_id, :vehicle_id, :adresse_depart, :adresse_arrivee, :depart, :arrivee, :prix, :status, NOW())";
 
-        // Prépare la requête SQL avec des paramètres nommés
-        $stmt = $this->conn->prepare($sql);
-        $ok = $stmt->execute([
-            ':driver_id' => $c->getDriverId(),
-            ':vehicle_id' => $c->getVehicleId(),
-            ':adresse_depart' => $c->getAdresseDepart(),
-            ':adresse_arrivee' => $c->getAdresseArrivee(),
-            ':depart' => $c->getDepart(),
-            ':arrivee' => $c->getArrivee(),
-            ':prix' => $c->getPrix(),
-            ':status' => $c->getStatus(),
-        ]);
+        try {
+            $stmt = $this->conn->prepare($sql);
 
-        // Si l'insertion réussit, on renseigne l'id auto-incrémenté dans l'entité
-        if ($ok) {
-            $c->setId((int)$this->conn->lastInsertId());
+            $ok = $stmt->execute([
+                ':driver_id'       => $c->getDriverId(),
+                ':vehicle_id'      => $c->getVehicleId(),
+                ':adresse_depart'  => $c->getAdresseDepart(),
+                ':adresse_arrivee' => $c->getAdresseArrivee(),
+                ':depart'          => $c->getDepart(),
+                ':arrivee'         => $c->getArrivee(),
+                ':prix'            => $c->getPrix(),
+                ':status'          => $c->getStatus(),
+            ]);
+
+            if ($ok) {
+                $c->setId((int) $this->conn->lastInsertId());
+            }
+
+            return $ok;
+        } catch (\PDOException $e) {
+            // Anti-crash + trace
+            error_log('[CovoiturageRepository::create] SQLSTATE=' . ($e->getCode() ?? '') . ' ' . $e->getMessage());
+            return false;
         }
-        return $ok;
     }
+
 
     // Recherche de covoiturages par ville de départ, d'arrivée, date, préférences, tri…
     // Retourne un tableau de lignes SQL (array associatif)
