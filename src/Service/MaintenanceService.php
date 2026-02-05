@@ -23,7 +23,7 @@ class MaintenanceService
     {
         // Récupère l'unique instance de connexion MySQL (pattern singleton)
         $this->pdo = Mysql::getInstance()->getPDO();
-        $this->txRepo = new TransactionRepository();
+        $this->txRepo = new TransactionRepository($this->pdo);
         $this->userRepo = new UserRepository();
     }
 

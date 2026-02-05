@@ -13,9 +13,9 @@ class TransactionRepository
 {
     private PDO $db;
 
-    public function __construct()
+    public function __construct(?PDO $pdo = null)
     {
-        $this->db = Mysql::getInstance()->getPDO();
+        $this->db = $pdo ?? Mysql::getInstance()->getPDO();    
     }
 
     /**

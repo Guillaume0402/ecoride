@@ -54,6 +54,7 @@ class CovoiturageController extends Controller
             return;
         }
 
+        // Validation des champs requis et basiques
         $userId = (int) $_SESSION['user']['id'];
         $vehicleId = (int) ($_POST['vehicle_id'] ?? 0);
         $villeDepart = trim($_POST['ville_depart'] ?? '');
@@ -71,6 +72,7 @@ class CovoiturageController extends Controller
             return;
         }
 
+        // Vérifie que le véhicule existe, appartient à l'utilisateur et a assez de places
         $vehicle = $this->vehicleRepository->findById($vehicleId);
         if (!$vehicle || $vehicle->getUserId() !== $userId) {
             Flash::add('Véhicule introuvable ou non autorisé.', 'danger');
@@ -83,13 +85,13 @@ class CovoiturageController extends Controller
             return;
         }
 
+        // Assemble date/heure de départ et d'arrivée et valide les contraintes temporelles
         $departDt = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time);
         if (!$departDt) {
             Flash::add('Date/heure invalides.', 'danger');
             redirect('/');
             return;
-        }
-        // Interdit une date de départ passée (tolère la minute courante)
+        }        
         $now = new \DateTime('now');
         if ($departDt < $now) {
             Flash::add('La date/heure de départ ne peut pas être dans le passé.', 'danger');
@@ -109,6 +111,7 @@ class CovoiturageController extends Controller
             $arriveeDt->modify('+1 day');
         }
 
+        // Création de l'entité covoiturage
         $c = new CovoiturageEntity([
             'driver_id' => $userId,
             'vehicle_id' => $vehicleId,
