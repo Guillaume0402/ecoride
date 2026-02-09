@@ -4,7 +4,7 @@ services:
     build: .
     container_name: ecoride_web
     ports:
-      - "8080:80"
+      - "8090:80"
     volumes:
       - .:/var/www/html
       - ./public/uploads:/var/www/html/public/uploads
@@ -48,7 +48,7 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "3307:3306"  # Port 3307 pour éviter conflits avec WAMP
+      - "3310:3306"  # Port 3307 pour éviter conflits avec WAMP
     volumes:
       - mysql_data:/var/lib/mysql
       - ./docker/mysql/initdb:/docker-entrypoint-initdb.d:ro
@@ -60,7 +60,7 @@ services:
     image: phpmyadmin/phpmyadmin
     container_name: ecoride_phpmyadmin
     ports:
-      - "8081:80"
+      - "8091:80"
     environment:
       PMA_HOST: ${DB_HOST}
       PMA_USER: ${DB_USER}
@@ -76,7 +76,7 @@ services:
     image: mongo:6
     container_name: ecoride_mongo
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
       - mongo_data:/data/db
     networks:
@@ -88,7 +88,7 @@ services:
     image: mongo-express
     container_name: ecoride_mongo_ui
     ports:
-      - "8082:8081"
+      - "8092:8081"
     environment:
       ME_CONFIG_MONGODB_SERVER: mongo
       ME_CONFIG_MONGODB_PORT: 27017
@@ -104,8 +104,8 @@ services:
     image: axllent/mailpit
     container_name: ecoride_mailpit
     ports:
-      - "8025:8025"   # interface web
-      - "1025:1025"   # SMTP
+      - "8093:8025"   # interface web
+      - "1026:1025"   # SMTP
     networks:
       - ecoride_network
 
